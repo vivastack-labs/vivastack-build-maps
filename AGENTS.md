@@ -6,6 +6,7 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 
 - 「ご当地めいぶつ日本地図」：47都道府県の名物・名所を日本地図から探せる Web アプリ（ja / en / zh、こども／おとなモード、ふりがな ON/OFF）。
 - 設計・要件・決定事項は [docs/development-overview.md](docs/development-overview.md) にある。作業の前に関係する章を読み、要件ID（例：`F-MAP-01`）で対応を確認する。
+- タスクの分解と順番は [docs/development-plan.md](docs/development-plan.md) にある。タスクのID（例：`T0-01`）をPRの本文に書き、終わったら「状態」を更新する。
 - 現在は M0（準備）の前。アプリの雛形（Next.js など）はまだない。
 
 ## 技術スタック（予定）
@@ -52,6 +53,7 @@ yamllint -c content/.yamllint content/      # content/（1行200字まで）
 
 詳細は `.claude/rules/` にある（Claude Code は自動で読み込む。Codex は必要に応じて該当ファイルを読む）。
 
+- **確認事項**：ユーザーに確認や判断を求めるときは、必ず推奨案とその理由を付ける（例：「A と B のどちらにしますか。推奨は A（理由：〜）」）。選択肢を並べるだけにしない。
 - **言語**：ユーザーへの回答、ドキュメント、PR の本文、コミットメッセージは日本語で書く。PR のタイトルだけは英語で書く（形式は「コミット」の項目）。
 - **TDD**：テストを先に書く（Red → Green → Refactor）。テスト名やコメントに要件IDを入れる。カバレッジは全体80%以上、ドメインロジックは90%以上。→ `testing.md`
 - **ブランチと PR**：`main` に直接 push しない。1機能＝1ブランチ＝1PR。→ `git-workflow.md`
