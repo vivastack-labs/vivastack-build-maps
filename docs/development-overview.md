@@ -3,9 +3,9 @@
 | 項目 | 内容 |
 |---|---|
 | ドキュメント | docs/development-overview.md |
-| 版 | 0.4（ドラフト） |
+| 版 | 0.5（ドラフト） |
 | 作成日 | 2026-11-11 |
-| 更新日 | 2026-11-11（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定） |
+| 更新日 | 2026-11-11（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加） |
 | リポジトリ | vivastack-labs/vivastack-build-maps（リポジトリ直下がアプリ本体） |
 | 公開URL | `https://build.vivagain.jp/maps/{ja,en,zh}/` |
 | ステータス | 検討フェーズの決定事項を反映。「要検証」とした項目は実装時に確定する |
@@ -485,7 +485,9 @@ dist/                       ← wrangler の assets.directory
 ```
 vivastack-build-maps/
 ├─ docs/
-│  └─ development-overview.md     ← 本書
+│  ├─ development-overview.md     ← 本書
+│  ├─ development-plan.md         ← 開発計画（タスクの一覧・進み具合）
+│  └─ tasks/                      ← マイルストーンごとのタスクの定義
 ├─ app/
 │  ├─ globals.css                  ← Tailwind の読み込み、@theme、モード・ふりがなの切替（6.2、6.6）
 │  └─ [lang]/                      ← generateStaticParams で ja / en / zh を生成
@@ -1086,6 +1088,8 @@ jobs:
 
 期限は設けず、できしだい公開する。各段階の完了条件を満たしたら次へ進む。コンテンツ制作（M5）は、M1が終わったら並行して始める。
 
+各段階をPR単位のタスクに分けたものは [development-plan.md](development-plan.md)（一覧・進み具合）と `docs/tasks/`（タスクごとの目的・実装内容・完了条件・テスト条件）にある。
+
 ```mermaid
 flowchart LR
   M0[M0 準備] --> M1[M1 地図データ]
@@ -1100,7 +1104,7 @@ flowchart LR
 | 段階 | 内容 | 完了条件 |
 |---|---|---|
 | M0 準備 | Next.jsの雛形をリポジトリ直下に作る、既存ファイルの調整（`README.md` の本文、`AGENTS.md` のコマンド）、CIの骨組み、Cloudflareの事前設定（DNS、Token、Access）、要検証項目（11.3、11.4）の確認 | 空のページがプレビューと本番にデプロイできる |
-| M1 地図データ | N03の変換スクリプト、読みがな・ローマ字、`prefs` と `muni` のTopoJSON | 47都道府県と全市区町村（区を含む）を確認でき、サイズが基準値以内 |
+| M1 地図データ | N03の変換スクリプト、読みがな・ローマ字、`prefs` と `muni` のTopoJSON。コンテンツのスキーマ・検証・ふりがなのパーサーと、47県の基本情報のYAML（M5の前提） | 47都道府県と全市区町村（区を含む）を確認でき、サイズが基準値以内。全県の基本情報がスキーマの検証を通る |
 | M2 地図コア | 地図表示、拡大縮小・移動、最大化、市区町村、ツールチップ、さくいん、キーボード操作 | F-MAP / F-ZOOM / F-MUNI / F-TIP / F-IDX / F-KB のE2Eが通る |
 | M3 カード・多言語・モード | カード、出典表示、言語切替、モード・ふりがな切替、UI文言 | F-CARD / F-I18N / F-MODE / F-SRC のE2Eが通る |
 | M4 PWA・品質 | PWA、CSPなどのヘッダー、アクセシビリティ対応、表示速度の改善、「このサイトについて」・プライバシーポリシー | axe違反0件、Lighthouseが基準値以内 |
@@ -1124,6 +1128,8 @@ flowchart LR
 | U9 | 政令指定都市の区がN03に区単位で入っているか | 第8章 8.2 で要検証 | M1 |
 | U10 | 総務省コードと国土地理院データの利用条件 | 第8章 8.1 で要確認 | M1 |
 | U11 | ~~コンテンツ生成用スキルの置き場所~~ | 決定（D22）：リポジトリ直下の `.claude/skills/` と `.claude/agents/` | — |
+| U12 | 市区町村名のローマ字の書き方 | 長音（例：`Tokyo` / `Tōkyō` / `Toukyou`）と、市・区・町・村の書き方（例：`Sapporo-shi` / `Sapporo`）（F-I18N-05） | M1 |
+| U13 | Service Worker のツール | Serwist / workbox-build（第5章 5.4） | M4 |
 
 ---
 
