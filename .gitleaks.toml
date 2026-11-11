@@ -1,0 +1,8 @@
+[allowlist]
+description = "Exclude log directory and well-known fake test keys"
+paths = [
+  '''.claude/hooks/logs/''',
+]
+regexes = [
+  '''AKIAIOSFODNN7EXAMPLE''',
+]

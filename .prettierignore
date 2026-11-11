@@ -1,0 +1,16 @@
+
+node_modules
+dist
+build
+.claude
+.claude_cache
+.claude_logs
+.claude_sessions
+.claude_temp
+.claude_tokens
+.claude_workspaces
+.gitleaks
+.vscode
+.idea
+.DS_Store
+.codex

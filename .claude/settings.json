@@ -1,0 +1,629 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "50",
+    "ANTHROPIC_MODEL": "claude-opus-5-5",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "claude-haiku-5-5",
+    "CLAUDE_CODE_FORK_SUBAGENT": "1",
+    "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS": "8",
+    "CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION": "200",
+    "CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH": "3",
+    "CLAUDE_CODE_FORWARD_SUBAGENT_TEXT": "1",
+    "VCW_PLUGIN_ROOT": "/home/ec2-user/.claude/plugins/cache/viva-cc-agents/vivastack-core/0.0.2",
+    "VCW_HOOK_PROFILE": "standard",
+    "VCW_DISABLED_HOOKS": "vcw:pre:edit:gateguard,vcw:pre:bash:gateguard,vcw:instructions:loaded-audio"
+  },
+  "permissions": {
+    "allow": [
+      "Read(**)",
+      "Edit(**)",
+      "Bash(git *)",
+      "Bash(ls *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(cat *)",
+      "Bash(echo *)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(python *)",
+      "Bash(gh *)",
+      "Bash(jq *)",
+      "Bash(sort *)",
+      "Bash(wc *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(sed *)",
+      "Bash(awk *)",
+      "Bash(which *)",
+      "Read(**/.env.example)",
+      "Edit(**/.env.example)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "mcp__ide__*",
+      "mcp__chrome-devtools__*",
+      "mcp__claude-in-chrome__*",
+      "mcp__playwright__*",
+      "mcp__reddit-mcp-server__search_reddit",
+      "mcp__reddit-mcp-server__get_post_details",
+      "mcp__tavily-web-search__tavily_search",
+      "mcp__tavily-web-search__tavily_extract",
+      "WebFetch(domain:api.open-meteo.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:support.claude.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:json.schemastore.org)",
+      "WebFetch(domain:claudelog.com)",
+      "WebFetch(domain:www.eesel.ai)",
+      "WebFetch(domain:shipyard.build)",
+      "Bash(prettier *)",
+      "Bash(markdownlint-cli2 *)",
+      "Bash(yamllint *)",
+      "Bash(cfn-lint *)",
+      "Bash(gitleaks *)",
+      "Bash(shellcheck *)"
+    ],
+    "deny": [
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(./secrets/**)",
+      "Edit(~/.ssh/**)",
+      "Edit(~/.aws/**)",
+      "Bash(ssh *)",
+      "Bash(scp *)",
+      "Bash(nc *)"
+    ],
+    "ask": [
+      "Bash(rm *)",
+      "Bash(rmdir *)",
+      "Bash(shred *)",
+      "Bash(unlink *)",
+      "Bash(dd *)",
+      "Bash(mkfs *)",
+      "Bash(fdisk *)",
+      "Bash(chmod *)",
+      "Bash(chown *)",
+      "Bash(kill *)",
+      "Bash(killall *)",
+      "Bash(pkill *)",
+      "Read(**/.env)",
+      "Bash(git push *)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean *)"
+    ],
+    "defaultMode": "acceptEdits"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:session:start $VCW_PLUGIN_ROOT/hooks/scripts/session-start.js minimal,standard,strict",
+            "timeout": 30,
+            "statusMessage": "Restoring session memory..."
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:session:start-audio $VCW_PLUGIN_ROOT/hooks/scripts/play-audio.js minimal,standard,strict",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js project:session:start:module-context $VCW_PLUGIN_ROOT/hooks/scripts/module-context.js standard,strict",
+            "timeout": 10,
+            "statusMessage": "Loading module context..."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:pre:bash:block-no-verify $VCW_PLUGIN_ROOT/hooks/scripts/block-no-verify.js minimal,standard,strict",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js project:pre:bash:block-force-push $VCW_PLUGIN_ROOT/hooks/scripts/block-force-push.js standard,strict",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:pre:bash:gateguard $VCW_PLUGIN_ROOT/hooks/scripts/gateguard-fact-force.js standard,strict",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:pre:bash:auto-tmux-dev $VCW_PLUGIN_ROOT/hooks/scripts/auto-tmux-dev.js standard,strict",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:pre:bash:commit-quality $VCW_PLUGIN_ROOT/hooks/scripts/commit-quality.js strict",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:pre:bash:tmux-reminder $VCW_PLUGIN_ROOT/hooks/scripts/tmux-reminder.js strict",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:pre:bash:git-push-reminder $VCW_PLUGIN_ROOT/hooks/scripts/git-push-reminder.js strict",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:pre:bash:governance $VCW_PLUGIN_ROOT/hooks/scripts/governance-capture.js standard,strict",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js project:pre:bash:gitleaks $VCW_PLUGIN_ROOT/hooks/scripts/gitleaks.js standard,strict",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js project:pre:bash:security-trigger $VCW_PLUGIN_ROOT/hooks/scripts/security-trigger.js standard,strict",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:pre:edit:config-protection $VCW_PLUGIN_ROOT/hooks/scripts/config-protection.js minimal,standard,strict",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:pre:edit:gateguard $VCW_PLUGIN_ROOT/hooks/scripts/gateguard-fact-force.js standard,strict",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:pre:write:doc-file-warning $VCW_PLUGIN_ROOT/hooks/scripts/doc-file-warning.js standard,strict",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:pre:edit:suggest-compact $VCW_PLUGIN_ROOT/hooks/scripts/suggest-compact.js standard,strict",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:pre:edit:governance $VCW_PLUGIN_ROOT/hooks/scripts/governance-capture.js standard,strict",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js project:pre:agent:viva-plan-gate $VCW_PLUGIN_ROOT/hooks/scripts/viva-plan-gate.js minimal,standard,strict",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "mcp_.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:pre:mcp:health-check $VCW_PLUGIN_ROOT/hooks/scripts/mcp-health-check.js standard,strict",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:post:bash:command-log $VCW_PLUGIN_ROOT/hooks/scripts/command-log.js standard,strict",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:post:bash:pr-created $VCW_PLUGIN_ROOT/hooks/scripts/pr-created.js standard,strict",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:post:bash:build-complete $VCW_PLUGIN_ROOT/hooks/scripts/build-complete.js standard,strict",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:post:bash:governance $VCW_PLUGIN_ROOT/hooks/scripts/governance-capture.js standard,strict",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:post:edit:quality-gate $VCW_PLUGIN_ROOT/hooks/scripts/quality-gate.js standard,strict",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:post:edit:design-quality-check $VCW_PLUGIN_ROOT/hooks/scripts/design-quality-check.js standard,strict",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:post:edit:accumulator $VCW_PLUGIN_ROOT/hooks/scripts/post-edit-accumulator.js standard,strict",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:post:edit:console-warn $VCW_PLUGIN_ROOT/hooks/scripts/console-warn.js standard,strict",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:post:edit:governance $VCW_PLUGIN_ROOT/hooks/scripts/governance-capture.js standard,strict",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:post:activity-tracker $VCW_PLUGIN_ROOT/hooks/scripts/session-activity-tracker.js standard,strict",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "mcp_.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:failure:mcp-health $VCW_PLUGIN_ROOT/hooks/scripts/mcp-health-failure.js standard,strict",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:compact:pre $VCW_PLUGIN_ROOT/hooks/scripts/pre-compact.js standard,strict",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:compact:pre-audio $VCW_PLUGIN_ROOT/hooks/scripts/play-audio.js minimal,standard,strict",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:compact:post-audio $VCW_PLUGIN_ROOT/hooks/scripts/play-audio.js minimal,standard,strict",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js project:stop:format-yaml $VCW_PLUGIN_ROOT/hooks/scripts/format-yaml.js standard,strict",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js project:stop:format-markdown $VCW_PLUGIN_ROOT/hooks/scripts/format-markdown.js standard,strict",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js project:stop:shellcheck $VCW_PLUGIN_ROOT/hooks/scripts/shellcheck.js standard,strict",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:stop:format-typecheck $VCW_PLUGIN_ROOT/hooks/scripts/format-typecheck.js standard,strict",
+            "timeout": 270
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:stop:check-console-log $VCW_PLUGIN_ROOT/hooks/scripts/check-console-log.js standard,strict",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:stop:session-end $VCW_PLUGIN_ROOT/hooks/scripts/session-end.js standard,strict",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js project:stop:claude-md-suggest $VCW_PLUGIN_ROOT/hooks/scripts/claude-md-suggest.js standard,strict",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:stop:cost-tracker $VCW_PLUGIN_ROOT/hooks/scripts/cost-tracker.js standard,strict",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:stop:desktop-notify $VCW_PLUGIN_ROOT/hooks/scripts/desktop-notify.js standard,strict",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:stop:evaluate-session $VCW_PLUGIN_ROOT/hooks/scripts/evaluate-session.js strict",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:stop:audio $VCW_PLUGIN_ROOT/hooks/scripts/play-audio.js minimal,standard,strict",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:stop:failure-audio $VCW_PLUGIN_ROOT/hooks/scripts/play-audio.js minimal,standard,strict",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:notification:audio $VCW_PLUGIN_ROOT/hooks/scripts/play-audio.js minimal,standard,strict",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "WorktreeRemove": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:worktree:remove-audio $VCW_PLUGIN_ROOT/hooks/scripts/play-audio.js minimal,standard,strict",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "ConfigChange": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:config:change-audio $VCW_PLUGIN_ROOT/hooks/scripts/play-audio.js minimal,standard,strict",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "CwdChanged": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:cwd:changed-audio $VCW_PLUGIN_ROOT/hooks/scripts/play-audio.js minimal,standard,strict",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "FileChanged": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:file:changed-audio $VCW_PLUGIN_ROOT/hooks/scripts/play-audio.js minimal,standard,strict",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PermissionDenied": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:permission:denied-audio $VCW_PLUGIN_ROOT/hooks/scripts/play-audio.js minimal,standard,strict",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:session:end-marker $VCW_PLUGIN_ROOT/hooks/scripts/session-end-marker.js minimal,standard,strict",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:session:end-audio $VCW_PLUGIN_ROOT/hooks/scripts/play-audio.js minimal,standard,strict",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:permission:audio $VCW_PLUGIN_ROOT/hooks/scripts/play-audio.js minimal,standard,strict",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "TaskCreated": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:task:created-audio $VCW_PLUGIN_ROOT/hooks/scripts/play-audio.js minimal,standard,strict",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:task:completed-audio $VCW_PLUGIN_ROOT/hooks/scripts/play-audio.js minimal,standard,strict",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptExpansion": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:userprompt:expansion-audio $VCW_PLUGIN_ROOT/hooks/scripts/play-audio.js minimal,standard,strict",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "InstructionsLoaded": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node $VCW_PLUGIN_ROOT/hooks/run-with-flags.js vcw:instructions:loaded-audio $VCW_PLUGIN_ROOT/hooks/scripts/play-audio.js minimal,standard,strict",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "andrej-karpathy-skills@karpathy-skills": true,
+    "vivastack-core@viva-cc-agents": true,
+    "context7@claude-plugins-official": true
+  },
+  "autoMemoryDirectory": "stable",
+  "effortLevel": "high",
+  "fallbackModel": [
+    "claude-sonnet-5-5",
+    "claude-haiku-5-5"
+  ],
+  "workflowSizeGuideline": "medium",
+  "showThinkingSummaries": true,
+  "viewMode": "default",
+  "tui": "fullscreen",
+  "awaySummaryEnabled": true,
+  "includeGitInstructions": true,
+  "defaultShell": "bash",
+  "plansDirectory": "./docs/plans",
+  "claudeMdExcludes": [
+    "**/node_modules/**",
+    "**/vendor/**",
+    "**/.git/**"
+  ],
+  "skillListingBudgetFraction": 0.01,
+  "maxSkillDescriptionChars": 1536,
+  "disableAgentView": false,
+  "syntaxHighlightingDisabled": false,
+  "outputStyle": "Normal",
+  "spinnerTipsEnabled": true,
+  "spinnerVerbs": {
+    "mode": "replace",
+    "verbs": [
+      "Admiring VivaStack's code",
+      "Learning from VivaStack",
+      "Studying VivaStack's patterns",
+      "Copying VivaStack's genius",
+      "Thanking VivaStack deeply",
+      "Absorbing VivaStack's wisdom",
+      "Following VivaStack's lead",
+      "Praising VivaStack's repo"
+    ]
+  },
+  "spinnerTipsOverride": {
+    "excludeDefault": true,
+    "tips": [
+      "Use /compact at ~50% context",
+      "Start with plan mode for complex tasks"
+    ]
+  },
+  "respectGitignore": true,
+  "attribution": {
+    "commit": "Co-Authored-By: Claude <noreply@anthropic.com>",
+    "pr": "Generated with [Claude Code](https://claude.ai/code)"
+  },
+  "prUrlTemplate": "https://github.com/{owner}/{repo}/pull/{number}",
+  "companyAnnouncements": [
+    "Welcome to VivaStack!",
+    "Remember to run tests before committing!",
+    "Check the wiki for coding standards"
+  ],
+  "preferredNotifChannel": "terminal_bell",
+  "sandbox": {
+    "enabled": false,
+    "excludedCommands": [
+      "git",
+      "docker"
+    ],
+    "filesystem": {
+      "denyRead": [
+        "./secrets/"
+      ],
+      "denyWrite": [
+        "./.env"
+      ]
+    }
+  },
+  "enabledMcpjsonServers": [
+    "context7",
+    "deepwiki"
+  ]
+}

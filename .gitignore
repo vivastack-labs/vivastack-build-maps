@@ -1,0 +1,80 @@
+.claude/checkpoints/
+.claude/hooks/logs/
+
+# temp
+temp/
+tmp/
+
+# logs
+logs/
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+# package-lock.json
+yarn.lock
+coverage/
+
+# Exceptions: plugin lock files must be committed for CI caching
+!plugins/*/package-lock.json
+!plugins/*/hooks/package-lock.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+# Keep JavaScript library files in plugins
+!plugins/*/scripts/lib/
+!plugins/*/scripts/lib/**
+# Keep library files in .claude directories
+!.claude/*/lib
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.pytest_cache/
+.coverage
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# artifacts
+artifacts/
+
+# Rust
+target/
+
+# Playwright
+playwright-report/
+.playwright-cli/
+
+# git
+worktrees/
+# Codex hook state (runtime logs)
+.codex/hooks/state/
+
+# Windows download metadata (WSL)
+*:Zone.Identifier

@@ -1,0 +1,20 @@
+{
+  "outputDir": "./.playwright-cli",
+  "saveVideo": {
+    "width": 1280,
+    "height": 720
+  },
+  "browser": {
+    "browserName": "chromium",
+    "launchOptions": {
+      "headless": false,
+      "channel": "chromium"
+    },
+    "contextOptions": {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    }
+  }
+}

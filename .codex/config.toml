@@ -1,0 +1,15 @@
+# Claude Code 側の .mcp.json と同じ補助ツール。バージョン変更時は両方を揃える。
+# 信頼済みのプロジェクトでのみ読み込まれる。認証情報は記載しない。
+# ライフサイクル hooks は隣の hooks.json。利用前に /hooks で確認・信頼する。
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp@2.1.8"]
+startup_timeout_sec = 60
+
+[mcp_servers.deepwiki]
+command = "npx"
+args = ["-y", "deepwiki-mcp@0.0.6"]
+startup_timeout_sec = 60
+
+[mcp_servers.deepwiki.tools.get-deepwiki-index]
+approval_mode = "approve"
