@@ -9,7 +9,9 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 - タスクの一覧・順番・進み具合は [docs/development-plan.md](docs/development-plan.md)、タスクごとの定義（目的・参照仕様・実装内容・完了条件・テスト条件・依存関係）は `docs/tasks/` にある。タスクに着手するときは、その定義を読み、タスクのID（例：`T0-01`）をPRの本文に書く。終わったら「状態」を更新する。
 - 現在は M0（準備）の途中。アプリの雛形（Next.js・TypeScript・Tailwind CSS・ESLint・Vitest）はある（T0-01）。E2E・デプロイはまだない。
 
-## 技術スタック（予定）
+## 技術スタック
+
+導入済み：Next.js・TypeScript・Tailwind CSS・ESLint・Prettier・Vitest。それ以外はまだ入っていない（予定）。
 
 - Next.js（App Router、`output: 'export'`、`basePath: '/maps'`）＋ TypeScript（strict）
 - 地図：SVG ＋ d3-geo ＋ topojson-client（国土数値情報 N03 2026年版から作る TopoJSON）
@@ -31,7 +33,12 @@ pnpm lint         # ESLint・Prettier・markdownlint・yamllint
 pnpm typecheck    # tsc --noEmit
 pnpm test         # Vitest（カバレッジの基準を下回ると失敗する）
 pnpm build        # 静的出力を out/ に作る
+
+pnpm vitest run tests/unit/i18n/lang.test.ts   # 1ファイルだけ動かす（カバレッジなし）
+pnpm vitest run -t "F-I18N-01"                 # テスト名で絞る（テスト名に要件IDが入っている）
 ```
+
+`pnpm test` はカバレッジの基準も確かめるので、一部のテストだけを動かすときは `pnpm vitest run` を使う。`pnpm lint` は `yamllint`（Python 製。pnpm では入らない）を使うので、別に入れておく。
 
 まだないもの：`pnpm test:e2e`（Playwright。T0-02）、`dist/` の組み立て（T0-03）。
 
@@ -40,11 +47,22 @@ pnpm build        # 静的出力を out/ に作る
 | パス | 内容 |
 |---|---|
 | `docs/` | 設計書 |
-| `app/`、`src/` | アプリ本体（予定）。`src/lib/` は `.gitignore` の例外で管理している |
+| `app/` | ルーティングとページ（Next.js App Router） |
+| `src/` | アプリのロジック。`src/lib/` は `.gitignore` の例外で管理している |
+| `tests/unit/` | 単体テスト。`src/` と同じ構成で置く |
 | `content/` | 都道府県ごとの YAML（予定）。lint は `content/.yamllint` |
 | `geo/` | 地図データの変換スクリプト（予定）。原データは `geo/downloads/` に置き、コミットしない |
 | `.claude/` | Claude Code の設定・ルール・エージェント・スキル・hooks |
 | `.codex/`、`.agents/` | Codex の設定・hooks・スキル |
+
+## アーキテクチャ
+
+- ルートレイアウトは `app/[lang]/layout.tsx`。`app/layout.tsx` は置かない。言語ごとに `<html lang>` を出すため（D27・D28）。
+- `dynamicParams = false` と `generateStaticParams` で、ja・en・zh の3つだけを静的に生成する。言語の一覧・判定・`<html lang>` の値は `src/i18n/lang.ts` に集める。
+- Next.js 16 では `params` が `Promise`。`await` してから `isLang()` で確かめ、合わなければ `notFound()` にする。
+- `@/` は `src/` を指す。設定は `tsconfig.json` と `vitest.config.ts` の両方にあるので、変えるときは2か所を合わせる。
+- カバレッジの対象は `src/` だけ。`app/` は E2E（T0-02）で確かめる。ドメインロジック（`src/lib/`・`src/features/`）は 90% 以上を `vitest.config.ts` で強制している。
+- `next.config.ts` の `agentRules: false` は消さない。消すと `next dev` が `AGENTS.md` に英語の指示を書き込む。
 
 ## 開発ルール
 
