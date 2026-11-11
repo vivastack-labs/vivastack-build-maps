@@ -44,7 +44,7 @@ pnpm test:e2e --project=chromium               # E2E を1プロジェクトだ�
 
 E2E の準備：はじめに `pnpm exec playwright install chromium firefox webkit` でブラウザを入れる。Linux（WSL を含む）では、WebKit・Firefox が使うシステムのライブラリも要る。`sudo env "PATH=$(dirname "$(which node)"):$PATH" pnpm exec playwright install-deps` で入れる（sudo の下でも nvm の Node.js を見つけるため）。
 
-E2E のサーバーは `next dev` の 3000 番。Next.js 16 は同じディレクトリで `next dev` を2つ起動できない。そのため、`pnpm dev` が 3000 番で動いていればそれを使う。別の番号で動いていると E2E は起動に失敗するので、止めてから実行する。
+E2E のサーバーは `next dev` の 3000 番。Next.js 16 は同じディレクトリで `next dev` を2つ起動できない。そのため、`pnpm dev` が 3000 番で動いていればそれを使う。別の番号で動いていると E2E は起動に失敗するので、止めてから実行する。逆に、別の worktree の dev サーバーが 3000 番で動いていると、そのサーバーに対して E2E が通ってしまうので注意する。
 
 まだないもの：`dist/` の組み立て（T0-03）。
 
