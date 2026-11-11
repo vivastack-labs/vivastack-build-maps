@@ -2,10 +2,11 @@
 
 | 項目 | 内容 |
 |---|---|
-| ドキュメント | 01_maps/docs/development-overview.md |
-| 版 | 0.1（ドラフト） |
+| ドキュメント | docs/development-overview.md |
+| 版 | 0.2（ドラフト） |
 | 作成日 | 2026-11-11 |
-| リポジトリ | vivastack-labs/vivastack-builds（`01_maps/`） |
+| 更新日 | 2026-11-11（リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正） |
+| リポジトリ | vivastack-labs/vivastack-build-maps（リポジトリ直下がアプリ本体） |
 | 公開URL | `https://build.vivagain.jp/maps/{ja,en,zh}/` |
 | ステータス | 検討フェーズの決定事項を反映。「要検証」とした項目は実装時に確定する |
 
@@ -234,6 +235,7 @@ Lighthouse CIでこの基準値を超えたら、CIを失敗させる。
 - フォントは `next/font` で自前で配信する。Google Fontsへの外部リクエストはしない。
 - GitHub Actionsで使うActionは、コミットSHAでバージョンを固定する。
 - シークレットの扱いは第11章 11.2 に従う。
+- シークレットの混入は、既存の gitleaks の設定（`.gitleaks.toml`）で検出する。手元ではClaude Codeのhookで、CIでも実行する（案）。
 
 ### 5.6 プライバシー
 
@@ -251,7 +253,7 @@ Lighthouse CIでこの基準値を超えたら、CIを失敗させる。
 flowchart LR
   subgraph Dev["開発（WSL2）"]
     CC[Claude Code]
-    REPO[(vivastack-builds<br/>01_maps/)]
+    REPO[(vivastack-build-maps)]
     CC --> REPO
   end
 
@@ -288,6 +290,7 @@ flowchart LR
 | 地図描画 | SVG＋d3-geo＋topojson-client | 背景地図は使わない |
 | スタイル | CSS Modules または Tailwind CSS | 実装時に決める |
 | テスト | Vitest、Testing Library、Playwright、axe-core、Lighthouse CI | 第10章 |
+| 整形・lint | ESLint、Prettier、markdownlint、yamllint | Prettier・markdownlint・yamllintは、リポジトリにある設定（`.prettierrc`、`.markdownlint.json`、`.yamllint`）を使う |
 | 配信 | Cloudflare Workers（Static Assets） | Workerのスクリプトは使わない |
 | CI/CD | GitHub Actions＋cloudflare/wrangler-action | 第12章 |
 | パッケージ管理 | pnpm | |
@@ -327,8 +330,10 @@ dist/                       ← wrangler の assets.directory
 
 ### 6.5 ディレクトリ構成（案）
 
+リポジトリ直下がアプリ本体になる。`（既存）` と書いたものは、すでにリポジトリにある。
+
 ```
-01_maps/
+vivastack-build-maps/
 ├─ docs/
 │  └─ development-overview.md     ← 本書
 ├─ app/
@@ -344,6 +349,7 @@ dist/                       ← wrangler の assets.directory
 │  │  └─ content.ts                ← コンテンツの読み込みと型
 │  └─ i18n/                        ← UI文言（ja / en / zh）
 ├─ content/
+│  ├─ .yamllint                    ← （既存）content/ 用の yamllint 設定（1行200字まで）
 │  ├─ schema/prefecture.schema.json
 │  ├─ prefectures/01-hokkaido.yaml ... 47-okinawa.yaml
 │  └─ guidelines/
@@ -351,7 +357,8 @@ dist/                       ← wrangler の assets.directory
 │     └─ review-checklist.md       ← コンテンツレビューのチェックリスト
 ├─ geo/
 │  ├─ scripts/build-geo.ts         ← 地図データの変換（手動で実行）
-│  ├─ sources/                     ← 読みがななどの元データ（地図の原データはコミットしない）
+│  ├─ sources/                     ← 読みがななどの元データ
+│  ├─ downloads/                   ← 地図の原データ（N03）の置き場。.gitignore の downloads/ によりコミットされない
 │  └─ README.md                    ← 手順と出典
 ├─ public/
 │  ├─ geo/                         ← 変換後のTopoJSON（コミットする）
@@ -364,12 +371,28 @@ dist/                       ← wrangler の assets.directory
 ├─ tests/
 │  ├─ unit/
 │  └─ e2e/
-├─ .claude/                        ← コンテンツ生成用のスキル・サブエージェント
+├─ .github/
+│  ├─ workflows/                   ← ci.yml / deploy.yml / link-check.yml（第12章）
+│  ├─ CODEOWNERS
+│  └─ dependabot.yml
+├─ .claude/                        ← （既存）Claude Code の設定・ルール・エージェント・スキル・hooks
+│  ├─ rules/                       ← （既存）開発ルール（TDD、レビュー、コミット規約など）
+│  ├─ agents/                      ← （既存）planner、code-reviewer など。コンテンツ検証用のサブエージェントを追加する
+│  └─ skills/                      ← （既存）コンテンツ生成用のスキルを追加する
+├─ .codex/ .agents/                ← （既存）Codex 用の設定・スキル
+├─ .playwright/cli.config.json     ← （既存）Playwright CLI（対話的なブラウザ操作）の設定。E2Eテストの設定とは別
+├─ .prettierrc .markdownlint.json .yamllint .prettierignore   ← （既存）
+├─ .gitleaks.toml .gitleaksignore  ← （既存）シークレット検出の設定
+├─ CLAUDE.md                       ← （既存・中身は空）M0でコマンドや構成を書く
+├─ README.md                       ← （既存）見出しはリポジトリ名に変更済み。本文はM0でこのアプリ向けに書き直す
+├─ CHANGELOG.md                    ← （既存）Keep a Changelog 形式
 ├─ wrangler.jsonc
 ├─ next.config.ts
 ├─ package.json
 └─ .nvmrc
 ```
+
+- **`.gitignore`**：Python 用の `lib/` の行はどの階層にも効くため、`!src/lib/` の例外を加えて `src/lib/` をコミットできるようにした（対応済み）。`dist/`（ビルド結果）はコミットしないので、そのままでよい。
 
 ---
 
@@ -430,6 +453,7 @@ spots:                     # ちょうど3件。項目の構成は specialties �
 | 本番ビルド | `reviewed` の項目だけを含める。そうでない項目が1つでもある県は本番に出さない |
 | プレビュービルド | すべての状態の項目を含め、`reviewed` でない項目には「下書き」と表示する（レビュー作業用） |
 | `sources` | 空の配列を許す。空なら画面に「出典なし」と表示する。CIでは警告にとどめる |
+| 書式 | yamllintで検査する。ふりがなを付けた文は長くなるので、`content/` だけ専用の設定 `content/.yamllint`（1行200字まで）を使う（`yamllint -c content/.yamllint content/`）。ルートの `.yamllint`（120字まで）は、行の長さのチェックで `content/` を対象外にしている |
 
 ### 7.2 ふりがなの記法
 
@@ -505,7 +529,7 @@ flowchart LR
 
 - `geo/scripts/build-geo.ts` で実行する。**手動で実行する**ものとし、毎回のビルドでは動かさない。
 - 都道府県の形は市区町村の形を合わせて作るので、県境と市区町村の境界が必ず一致する。
-- 原データ（全国分で約766MB）はコミットしない。変換後のTopoJSONと、変換に使った設定（データの版、簡略化の度合い）を `geo/README.md` に記録する。
+- 原データ（全国分で約766MB）は `geo/downloads/` に置き、コミットしない。変換後のTopoJSONと、変換に使った設定（データの版、簡略化の度合い）を `geo/README.md` に記録する。
 - N03には境界が確定していない地域があり、境界線が暫定で引かれている箇所がある。「このサイトについて」のページにその旨を書く。
 - 政令指定都市の区が区単位の形として入っていることは、ページの記載から読み取れるが、**実際のデータで要検証**。
 
@@ -586,12 +610,15 @@ flowchart TB
 - 開発はオーナー＋Claude Codeで行う。
 - **TDD**（Red → Green → Refactor）で進める。仕様（第4章の要件ID）を先にテストとして書き、テスト名やコメントに要件IDを入れて、要件とテストを対応付ける。
 - 1つの機能を1つのPRにする。`main` に直接pushしない。
+- 開発の進め方は `.claude/rules/` のルールに従う（計画 → TDD → コードレビュー → コミット。詳細は `development-workflow.md`）。
+- コミットメッセージは `<type>: <description>` の形式にする（type は feat / fix / refactor / docs / test / chore / perf / ci。`.claude/rules/git-workflow.md`）。
+- リリースごとの変更は `CHANGELOG.md`（Keep a Changelog 形式）に記録する。
 
 ### 10.2 テスト戦略
 
 | 層 | ツール | 主な対象 | 目標 |
 |---|---|---|---|
-| 単体 | Vitest | ふりがなのパーサー、距離の計算、表示範囲の計算と拡大縮小、ラベル間引き、コンテンツの読み込み | ドメインロジックのカバレッジ90%以上 |
+| 単体 | Vitest | ふりがなのパーサー、距離の計算、表示範囲の計算と拡大縮小、ラベル間引き、コンテンツの読み込み | ドメインロジックのカバレッジ90%以上（全体は `.claude/rules/testing.md` の基準どおり80%以上） |
 | コンポーネント | Vitest＋Testing Library | カード、さくいん、モード・ふりがなの切替、言語切替 | 主な状態がすべて表示できること |
 | データ | Vitest＋JSON Schema | 全YAMLのスキーマ、件数（3件ずつ）、全言語・全モードがそろっているか、文字数、ふりがな | CIで必ず実行 |
 | E2E | Playwright（PC＋スマホ） | ホバー、固定、最大化、拡大縮小・移動、キーボード操作、言語・モードの切替、`/maps` のリダイレクト | 第4章の主要な要件をすべて確認 |
@@ -606,7 +633,7 @@ flowchart TB
 
 | サービス | 必要なもの | 備考 |
 |---|---|---|
-| GitHub | `vivastack-labs/vivastack-builds`、Actionsの有効化、Environments（`maps-preview` / `maps-production`） | レビュアーは `vivastack-labs` 組織のメンバー（GitHub Teamで管理） |
+| GitHub | `vivastack-labs/vivastack-build-maps`、Actionsの有効化、Environments（`preview` / `production`） | レビュアーは `vivastack-labs` 組織のメンバー（GitHub Teamで管理） |
 | Cloudflare | 既存アカウント（vivagain.jpのゾーンがあるもの）、Workers Freeプラン、workers.devのサブドメイン登録 | プレビューURLは workers.dev 上にしか発行できない |
 | Cloudflare Zero Trust（Access） | 無料プランで組織を作り、プレビューURLを保護する | 無料枠の人数と、支払い方法の登録が必要かどうかは**要確認** |
 | Cloudflare Web Analytics | `build.vivagain.jp` を登録 | プロキシ経由なので、計測タグを埋め込まない自動設定が使える見込み |
@@ -616,7 +643,7 @@ flowchart TB
 
 | 名前 | 保存場所 | 用途 | 扱い |
 |---|---|---|---|
-| `CLOUDFLARE_API_TOKEN` | GitHub Environment Secrets（`maps-preview` / `maps-production`） | wranglerでのデプロイ | 機密。このアプリ専用。有効期限を設けて定期的に更新する |
+| `CLOUDFLARE_API_TOKEN` | GitHub Environment Secrets（`preview` / `production`） | wranglerでのデプロイ | 機密。このアプリ専用。有効期限を設けて定期的に更新する |
 | `CLOUDFLARE_ACCOUNT_ID` | GitHub Secrets | wranglerでのデプロイ | 公式には機密とされていないが、Secretとして扱う |
 | `GITHUB_TOKEN` | Actionsが自動で発行 | PRにプレビューURLをコメントする | workflowで `pull-requests: write` だけを付与する |
 | Web Analyticsのトークン | （自動設定なら不要） | アクセス解析 | 公開されても問題ない値 |
@@ -703,9 +730,9 @@ flowchart TB
 | 設定 | 内容 |
 |---|---|
 | ブランチ保護（`main`） | PRを通さないとmergeできない。CIの成功と、CODEOWNERSによる承認を必須にする |
-| Environment `maps-production` | `main` からのデプロイだけを許可する |
-| Environment `maps-preview` | PRからのデプロイに使う |
-| CODEOWNERS | `/01_maps/` はオーナー。`/01_maps/content/` は `@vivastack-labs/maps-reviewers` |
+| Environment `production` | `main` からのデプロイだけを許可する |
+| Environment `preview` | PRからのデプロイに使う |
+| CODEOWNERS | `*`（リポジトリ全体）はオーナー。`/content/` は `@vivastack-labs/maps-reviewers` |
 | Team | `maps-reviewers` を作成し、リポジトリにWrite権限を付ける |
 | Actionsの権限 | 既定は `contents: read`。必要なjobだけで権限を追加する |
 | Dependabot | npmとGitHub Actionsの更新を週1回提案させる |
@@ -714,16 +741,17 @@ flowchart TB
 
 | 項目 | 内容 |
 |---|---|
-| OS | Windows 11＋WSL2（Ubuntu）。作業は **WSL側**（`~/work/vivastack-builds/01_maps`）で行う |
+| OS | Windows 11＋WSL2（Ubuntu）。作業は **WSL側**（`~/works/vivastack-build-maps`）で行う |
 | Node.js | その時点のActive LTS（`.nvmrc` で固定する） |
 | パッケージ管理 | pnpm（corepackで有効にする） |
 | wrangler | v4（devDependencyとして入れる） |
 | mapshaper | npm（devDependency） |
 | Playwright | `pnpm exec playwright install --with-deps` |
+| Claude Code | リポジトリ直下で起動する。`.claude/settings.json` の許可リストに `Bash(pnpm *)` を追加済み |
 
 ```bash
 # WSL（bash）
-cd ~/work/vivastack-builds/01_maps
+cd ~/works/vivastack-build-maps
 corepack enable
 pnpm install
 pnpm dev              # http://localhost:3000/maps/ja/
@@ -741,15 +769,18 @@ pnpm exec wrangler dev   # dist/ を Workers と同じ動きでローカル確�
 
 | ファイル | 実行タイミング | 内容 |
 |---|---|---|
-| `.github/workflows/maps-ci.yml` | `01_maps/**` を変更したPR | チェック一式 → プレビューへデプロイ → PRにURLをコメント |
-| `.github/workflows/maps-deploy.yml` | `main` へのpush（`01_maps/**` を変更したとき） | チェック一式 → 本番へデプロイ |
-| `.github/workflows/maps-link-check.yml` | **手動で実行**（`workflow_dispatch`） | 全コンテンツの出典URLのリンク切れチェック。結果はレポートとして残す |
+| `.github/workflows/ci.yml` | `main` 向けのPR | チェック一式 → プレビューへデプロイ → PRにURLをコメント |
+| `.github/workflows/deploy.yml` | `main` へのpush | チェック一式 → 本番へデプロイ |
+| `.github/workflows/link-check.yml` | **手動で実行**（`workflow_dispatch`） | 全コンテンツの出典URLのリンク切れチェック。結果はレポートとして残す |
+
+- リポジトリ全体がアプリなので、パスでの絞り込みは基本的にしない。ただし、アプリの動作に関係しない変更（`docs/**`、`.claude/**`、`.codex/**`、`.agents/**`、`*.md`）は `paths-ignore` で対象外にする（案）。
+- ブランチ保護でCIの成功を必須にするため、`paths-ignore` で実行されなかったPRがmergeできなくならないかを M0 で確認する。
 
 ### 12.2 パイプライン
 
 ```mermaid
 flowchart LR
-  subgraph PR["Pull Request（maps-ci.yml）"]
+  subgraph PR["Pull Request（ci.yml）"]
     direction LR
     A1[install] --> A2[lint / typecheck]
     A2 --> A3[unit / data test]
@@ -758,7 +789,7 @@ flowchart LR
     A5 --> A6["wrangler versions upload<br/>--preview-alias pr-N"]
     A6 --> A7[PRにURLをコメント]
   end
-  subgraph MAIN["main（maps-deploy.yml）"]
+  subgraph MAIN["main（deploy.yml）"]
     direction LR
     B1[install] --> B2[lint / typecheck / test]
     B2 --> B3["build<br/>（reviewed のみ）"]
@@ -770,22 +801,19 @@ flowchart LR
 ### 12.3 PR用workflowの例（概略）
 
 ```yaml
-# .github/workflows/maps-ci.yml（概略。Action は実装時に SHA で固定する）
-name: maps-ci
+# .github/workflows/ci.yml（概略。Action は実装時に SHA で固定する）
+name: ci
 on:
   pull_request:
-    paths: ["01_maps/**", ".github/workflows/maps-*.yml"]
+    branches: [main]
+    paths-ignore: ["docs/**", ".claude/**", ".codex/**", ".agents/**", "**/*.md"]
 
 permissions:
   contents: read
 
 concurrency:
-  group: maps-ci-${{ github.event.pull_request.number }}
+  group: ci-${{ github.event.pull_request.number }}
   cancel-in-progress: true
-
-defaults:
-  run:
-    working-directory: 01_maps
 
 jobs:
   check:
@@ -795,11 +823,10 @@ jobs:
       - uses: pnpm/action-setup@<SHA>
       - uses: actions/setup-node@<SHA>
         with:
-          node-version-file: 01_maps/.nvmrc
+          node-version-file: .nvmrc
           cache: pnpm
-          cache-dependency-path: 01_maps/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - run: pnpm lint && pnpm typecheck
+      - run: pnpm lint && pnpm typecheck   # ESLint・Prettier・markdownlint・yamllint
       - run: pnpm test
       - run: pnpm content:validate
       - run: pnpm build:preview          # draft を含め「下書き」と表示、noindex を付ける
@@ -807,30 +834,29 @@ jobs:
       - run: pnpm test:e2e               # axe を含む
       - run: pnpm lhci
       - uses: actions/upload-artifact@<SHA>
-        with: { name: dist, path: 01_maps/dist }
+        with: { name: dist, path: dist }
 
   preview:
     needs: check
     runs-on: ubuntu-latest
-    environment: maps-preview
+    environment: preview
     permissions:
       contents: read
       pull-requests: write
     steps:
       - uses: actions/checkout@<SHA>
       - uses: actions/download-artifact@<SHA>
-        with: { name: dist, path: 01_maps/dist }
+        with: { name: dist, path: dist }
       - uses: cloudflare/wrangler-action@<SHA>
         id: wrangler
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: 01_maps
           command: versions upload --preview-alias pr-${{ github.event.pull_request.number }}
       # wrangler の出力からプレビューURLを取り出し、PRにコメントする（実装時に詳細化）
 ```
 
-- 本番用のworkflow（`maps-deploy.yml`）も同じ構成にする。違いは、`environment: maps-production`、`pnpm build`（reviewedのみ）、`command: deploy` の3点。
+- 本番用のworkflow（`deploy.yml`）も同じ構成にする。違いは、`on: push`（`main`）、`environment: production`、`pnpm build`（reviewedのみ）、`command: deploy` の4点。
 - フォークからのPRにはSecretsが渡らないため、プレビューへのデプロイは行われない（このリポジトリではフォークからのPRを想定しない）。
 - プレビューURLの形式（`<alias>-<worker名>.<サブドメイン>.workers.dev`）と、出力から取り出す方法は実装時に確認する。
 
@@ -848,7 +874,7 @@ jobs:
 | 項目 | 頻度 | 内容 |
 |---|---|---|
 | アクセス解析 | 月1回 | Cloudflare Web Analyticsで、言語別・端末別の利用状況を見る |
-| 出典のリンク切れ | 四半期に1回（手動） | `maps-link-check` を実行し、切れたリンクを直すPRを出す |
+| 出典のリンク切れ | 四半期に1回（手動） | `link-check` を実行し、切れたリンクを直すPRを出す |
 | コンテンツの見直し | 年1回＋必要なとき | 所要時間・名所の情報が変わっていないか。修正は第9章の流れで行う |
 | 地図データの更新 | 年1回 | 国土数値情報の新しい版を確認し、合併などがあれば変換をやり直す |
 | API Tokenの更新 | 年1回（期限が切れる前） | 新しいトークンを発行 → Secretsを更新 → 古いトークンを無効にする |
@@ -891,7 +917,7 @@ flowchart LR
 
 | 段階 | 内容 | 完了条件 |
 |---|---|---|
-| M0 準備 | `01_maps/` の雛形、CIの骨組み、Cloudflareの事前設定（DNS、Token、Access）、要検証項目（11.3、11.4）の確認 | 空のページがプレビューと本番にデプロイできる |
+| M0 準備 | Next.jsの雛形をリポジトリ直下に作る、既存ファイルの調整（`README.md` の本文、`CLAUDE.md`）、CIの骨組み、Cloudflareの事前設定（DNS、Token、Access）、要検証項目（11.3、11.4）の確認 | 空のページがプレビューと本番にデプロイできる |
 | M1 地図データ | N03の変換スクリプト、読みがな・ローマ字、`prefs` と `muni` のTopoJSON | 47都道府県と全市区町村（区を含む）を確認でき、サイズが基準値以内 |
 | M2 地図コア | 地図表示、拡大縮小・移動、最大化、市区町村、ツールチップ、さくいん、キーボード操作 | F-MAP / F-ZOOM / F-MUNI / F-TIP / F-IDX / F-KB のE2Eが通る |
 | M3 カード・多言語・モード | カード、出典表示、言語切替、モード・ふりがな切替、UI文言 | F-CARD / F-I18N / F-MODE / F-SRC のE2Eが通る |
@@ -915,7 +941,7 @@ flowchart LR
 | U8 | basePathを指定したときの静的出力の構成 | 第6章 6.4 で要検証 | M0 |
 | U9 | 政令指定都市の区がN03に区単位で入っているか | 第8章 8.2 で要検証 | M1 |
 | U10 | 総務省コードと国土地理院データの利用条件 | 第8章 8.1 で要確認 | M1 |
-| U11 | コンテンツ生成用スキルの置き場所 | `01_maps/.claude/`（Claude Codeは `01_maps` で起動する）か、リポジトリ直下か | M5 |
+| U11 | ~~コンテンツ生成用スキルの置き場所~~ | 決定（D22）：リポジトリ直下の `.claude/skills/` と `.claude/agents/` | — |
 
 ---
 
@@ -941,9 +967,10 @@ flowchart LR
 | D16 | 政令指定都市 | 区まで分けて表示する |
 | D17 | 地図データ | 国土数値情報 N03 2026年版 |
 | D18 | 開発体制 | オーナー＋Claude Code、TDD。期限は設けない |
-| D19 | リポジトリ | `vivastack-labs/vivastack-builds` の `01_maps/` |
+| D19 | リポジトリ | `vivastack-labs/vivastack-build-maps`（単独リポジトリ。直下がアプリ本体） |
 | D20 | プレビューの保護 | Cloudflare Access |
 | D21 | アクセス解析 | Cloudflare Web Analytics |
+| D22 | コンテンツ生成用スキルの置き場所 | リポジトリ直下の `.claude/skills/`（生成）と `.claude/agents/`（検証）。既存のスキル・エージェントと名前が重ならないようにする |
 
 ## 付録B. 参考資料
 
