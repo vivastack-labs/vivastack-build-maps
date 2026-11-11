@@ -39,6 +39,8 @@ lib64/
 !plugins/*/scripts/lib/**
 # Keep library files in .claude directories
 !.claude/*/lib
+# Keep app library code (src/lib/) despite the Python lib/ rule above
+!src/lib/
 parts/
 sdist/
 var/
