@@ -5,7 +5,7 @@
 | ドキュメント | docs/development-overview.md |
 | 版 | 0.5（ドラフト） |
 | 作成日 | 2026-11-11 |
-| 更新日 | 2026-11-11（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) に分け、未決事項 U12・U13 を追加） |
+| 更新日 | 2026-11-11（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加） |
 | リポジトリ | vivastack-labs/vivastack-build-maps（リポジトリ直下がアプリ本体） |
 | 公開URL | `https://build.vivagain.jp/maps/{ja,en,zh}/` |
 | ステータス | 検討フェーズの決定事項を反映。「要検証」とした項目は実装時に確定する |
@@ -485,7 +485,9 @@ dist/                       ← wrangler の assets.directory
 ```
 vivastack-build-maps/
 ├─ docs/
-│  └─ development-overview.md     ← 本書
+│  ├─ development-overview.md     ← 本書
+│  ├─ development-plan.md         ← 開発計画（タスクの一覧・進み具合）
+│  └─ tasks/                      ← マイルストーンごとのタスクの定義
 ├─ app/
 │  ├─ globals.css                  ← Tailwind の読み込み、@theme、モード・ふりがなの切替（6.2、6.6）
 │  └─ [lang]/                      ← generateStaticParams で ja / en / zh を生成
@@ -1086,7 +1088,7 @@ jobs:
 
 期限は設けず、できしだい公開する。各段階の完了条件を満たしたら次へ進む。コンテンツ制作（M5）は、M1が終わったら並行して始める。
 
-各段階をPR単位のタスクに分けたものは [development-plan.md](development-plan.md) にある。
+各段階をPR単位のタスクに分けたものは [development-plan.md](development-plan.md)（一覧・進み具合）と `docs/tasks/`（タスクごとの目的・実装内容・完了条件・テスト条件）にある。
 
 ```mermaid
 flowchart LR
@@ -1126,7 +1128,7 @@ flowchart LR
 | U9 | 政令指定都市の区がN03に区単位で入っているか | 第8章 8.2 で要検証 | M1 |
 | U10 | 総務省コードと国土地理院データの利用条件 | 第8章 8.1 で要確認 | M1 |
 | U11 | ~~コンテンツ生成用スキルの置き場所~~ | 決定（D22）：リポジトリ直下の `.claude/skills/` と `.claude/agents/` | — |
-| U12 | 市区町村名のローマ字の長音の書き方 | 例：`Tokyo` / `Tōkyō` / `Toukyou`（F-I18N-05） | M1 |
+| U12 | 市区町村名のローマ字の書き方 | 長音（例：`Tokyo` / `Tōkyō` / `Toukyou`）と、市・区・町・村の書き方（例：`Sapporo-shi` / `Sapporo`）（F-I18N-05） | M1 |
 | U13 | Service Worker のツール | Serwist / workbox-build（第5章 5.4） | M4 |
 
 ---

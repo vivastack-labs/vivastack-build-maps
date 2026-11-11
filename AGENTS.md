@@ -6,7 +6,7 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 
 - 「ご当地めいぶつ日本地図」：47都道府県の名物・名所を日本地図から探せる Web アプリ（ja / en / zh、こども／おとなモード、ふりがな ON/OFF）。
 - 設計・要件・決定事項は [docs/development-overview.md](docs/development-overview.md) にある。作業の前に関係する章を読み、要件ID（例：`F-MAP-01`）で対応を確認する。
-- タスクの分解と順番は [docs/development-plan.md](docs/development-plan.md) にある。タスクのID（例：`T0-01`）をPRの本文に書き、終わったら「状態」を更新する。
+- タスクの一覧・順番・進み具合は [docs/development-plan.md](docs/development-plan.md)、タスクごとの定義（目的・参照仕様・実装内容・完了条件・テスト条件・依存関係）は `docs/tasks/` にある。タスクに着手するときは、その定義を読み、タスクのID（例：`T0-01`）をPRの本文に書く。終わったら「状態」を更新する。
 - 現在は M0（準備）の前。アプリの雛形（Next.js など）はまだない。
 
 ## 技術スタック（予定）
