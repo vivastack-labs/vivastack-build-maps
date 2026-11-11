@@ -1,7 +1,20 @@
+# Without [extend] useDefault, a config that only has [allowlist] has no rules
+# and detects nothing.
+[extend]
+useDefault = true
+
+# Paths are matched against the path relative to the scan source. The hook runs
+# `gitleaks detect --no-git --source .` from the repository root, so `^` anchors
+# to the repository root (a clone under e.g. ~/dist/ is still scanned).
 [allowlist]
-description = "Exclude log directory and well-known fake test keys"
+description = "Exclude hook logs, build outputs, dependencies and well-known fake test keys"
 paths = [
-  '''.claude/hooks/logs/''',
+  '''^\.claude/hooks/logs/''',
+  '''^\.next/''',
+  '''^out/''',
+  '''^dist/''',
+  '''^coverage/''',
+  '''(^|/)node_modules/''',
 ]
 regexes = [
   '''AKIAIOSFODNN7EXAMPLE''',

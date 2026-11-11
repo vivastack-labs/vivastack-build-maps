@@ -1,18 +1,27 @@
 'use strict';
+const path = require('path');
 const { spawnSync } = require('child_process');
 
-function detectSecrets(_spawn = spawnSync) {
-  return _spawn('gitleaks', ['detect', '--no-git'], {
+// Scan from the project root with a relative source (`.`) so that the
+// root-anchored allowlist paths in .gitleaks.toml (e.g. ^dist/) match the
+// project's own build outputs, not an ancestor directory of the clone.
+function detectSecrets(_spawn = spawnSync, root = process.cwd()) {
+  return _spawn('gitleaks', ['detect', '--no-git', '--source', '.', '-c', path.join(root, '.gitleaks.toml')], {
+    cwd: root,
     encoding: 'utf8',
     stdio: 'pipe',
   });
+}
+
+function projectRoot(input) {
+  return process.env.CLAUDE_PROJECT_DIR || input?.cwd || process.cwd();
 }
 
 async function run(input, _spawn = spawnSync) {
   const cmd = input?.tool_input?.command || '';
   if (!/^\s*git\s+(commit|push)/.test(cmd)) return null;
 
-  const result = detectSecrets(_spawn);
+  const result = detectSecrets(_spawn, projectRoot(input));
   if (result.error) {
     process.stderr.write('[VCW] gitleaks not found, skipping secret scan\n');
     return null;

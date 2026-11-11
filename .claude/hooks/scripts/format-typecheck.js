@@ -38,22 +38,52 @@ function groupByProjectRoot(files) {
   return groups;
 }
 
+function isExecutable(file) {
+  try {
+    fs.accessSync(file, fs.constants.X_OK);
+    return fs.statSync(file).isFile();
+  } catch {
+    return false;
+  }
+}
+
+// Resolve a tool from node_modules/.bin, walking up from startDir but not past
+// the git root. Tools are never fetched with npx: an uninstalled name could
+// resolve to an unrelated registry package (e.g. `biome` is not @biomejs/biome).
+function findLocalBin(startDir, name) {
+  let dir = path.resolve(startDir);
+  while (true) {
+    const candidate = path.join(dir, 'node_modules', '.bin', name);
+    if (isExecutable(candidate)) return candidate;
+    const parent = path.dirname(dir);
+    if (parent === dir || fs.existsSync(path.join(dir, '.git'))) return null;
+    dir = parent;
+  }
+}
+
 function tryFormat(root, files, deadline) {
   if (Date.now() > deadline) return;
-  // Biome first, then Prettier, then skip
+  // Biome first, then Prettier; skip formatters that are not installed locally
   const formatters = [
-    () => execFileSync('npx', ['biome', 'format', '--write', ...files], { cwd: root, encoding: 'utf8', timeout: 30_000 }),
-    () => execFileSync('npx', ['prettier', '--write', ...files], { cwd: root, encoding: 'utf8', timeout: 30_000 }),
+    ['biome', ['format', '--write', ...files]],
+    ['prettier', ['--write', ...files]],
   ];
-  for (const fmt of formatters) {
-    try { fmt(); return; } catch { /* try next */ }
+  for (const [name, args] of formatters) {
+    const bin = findLocalBin(root, name);
+    if (!bin) continue;
+    try {
+      execFileSync(bin, args, { cwd: root, encoding: 'utf8', timeout: 30_000 });
+      return;
+    } catch { /* try next */ }
   }
 }
 
 function tryTypecheck(tsConfigDir, deadline) {
   if (Date.now() > deadline) return;
+  const bin = findLocalBin(tsConfigDir, 'tsc');
+  if (!bin) return;
   try {
-    execFileSync('npx', ['tsc', '--noEmit'], { cwd: tsConfigDir, encoding: 'utf8', timeout: 60_000 });
+    execFileSync(bin, ['--noEmit'], { cwd: tsConfigDir, encoding: 'utf8', timeout: 60_000 });
   } catch (err) {
     const output = `${err.stdout || ''}${err.stderr || ''}`.trim() || err.message;
     process.stderr.write(`[VCW] TypeScript errors in ${tsConfigDir}:\n${output}\n`);
@@ -64,8 +94,10 @@ function tryEslint(root, files, deadline) {
   if (Date.now() > deadline) return;
   const lintFiles = files.filter(f => /\.(js|ts|jsx|tsx)$/.test(f));
   if (lintFiles.length === 0) return;
+  const bin = findLocalBin(root, 'eslint');
+  if (!bin) return;
   try {
-    execFileSync('npx', ['eslint', ...lintFiles], { cwd: root, encoding: 'utf8', timeout: 60_000 });
+    execFileSync(bin, lintFiles, { cwd: root, encoding: 'utf8', timeout: 60_000 });
   } catch (err) {
     const output = `${err.stdout || ''}${err.stderr || ''}`.trim() || err.message;
     process.stderr.write(`[VCW] ESLint errors in ${root}:\n${output}\n`);
@@ -111,4 +143,4 @@ async function run(input) {
   } catch { /* non-blocking */ }
 }
 
-module.exports = { run, deduplicateFiles, groupByProjectRoot, tryEslint };
+module.exports = { run, deduplicateFiles, groupByProjectRoot, findLocalBin, tryEslint };
