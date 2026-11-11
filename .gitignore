@@ -80,3 +80,9 @@ worktrees/
 
 # Windows download metadata (WSL)
 *:Zone.Identifier
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo

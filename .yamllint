@@ -1,6 +1,15 @@
 # .yamllint
 extends: default
 
+# Generated files and dependencies (not written by hand)
+ignore: |
+  node_modules/
+  .next/
+  out/
+  dist/
+  coverage/
+  pnpm-lock.yaml
+
 rules:
   line-length:
     max: 120

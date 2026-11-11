@@ -1,0 +1,26 @@
+import { fileURLToPath } from 'node:url';
+import { defineConfig } from 'vitest/config';
+
+// 10.2・testing.md：全体80%以上、ドメインロジック（src/lib・src/features）は90%以上
+const OVERALL = { lines: 80, functions: 80, branches: 80, statements: 80 };
+const DOMAIN = { lines: 90, functions: 90, branches: 90, statements: 90 };
+
+export default defineConfig({
+  resolve: {
+    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) }
+  },
+  test: {
+    include: ['tests/unit/**/*.test.{ts,tsx}'],
+    environment: 'node',
+    coverage: {
+      provider: 'v8',
+      // app/ はE2E（T0-02）で確かめるので対象外
+      include: ['src/**/*.{ts,tsx}'],
+      thresholds: {
+        ...OVERALL,
+        'src/lib/**': DOMAIN,
+        'src/features/**': DOMAIN
+      }
+    }
+  }
+});
