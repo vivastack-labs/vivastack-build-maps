@@ -347,4 +347,3 @@ mv "$PLAN_FILE" .claude/PRPs/plans/completed/
 - **PLAN_ARCHIVED**: Plan moved to `completed/`
 
 ---
-

@@ -115,6 +115,7 @@
 - 所属が決まっていない地域の扱い（T1-01 の結果）を決める。
 - `geo/README.md`：手順、データの版、簡略化の度合い、所属が決まっていない地域の扱い、出典（8.3）。
 - 変換した TopoJSON をコミットする。
+- `pnpm lint` の Prettier のチェック（T0-01）は `geo/**/*.json` も対象にしている。生成した `geo/data/prefs.topo.json` は Prettier の整形に合わないので、`.prettierignore` に加えるか、チェックの対象から外す（`.prettierrc` は変えない）。
 
 ### 完了条件
 
