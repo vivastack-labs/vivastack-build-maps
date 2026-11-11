@@ -16,6 +16,7 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 - テスト：Vitest、Testing Library、Playwright、axe-core、Lighthouse CI
 - 配信：Cloudflare Workers（Static Assets）。CI/CD は GitHub Actions ＋ wrangler-action
 - パッケージ管理：**pnpm**（npm / yarn は使わない）
+- Next.js は 16 系で、学習データより新しい変更がある。Next.js のコードを書く前に、インストールされた版に同梱のドキュメント（`node_modules/next/dist/docs/`）の該当する章を読み、非推奨の警告に従う。
 
 ## コマンド
 

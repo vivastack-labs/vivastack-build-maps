@@ -4,7 +4,9 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   output: 'export',
   basePath: '/maps',
-  trailingSlash: true
+  trailingSlash: true,
+  // next dev が AGENTS.md に英語の指示を自動で書き込まないようにする。同じ内容は AGENTS.md に日本語で書いている
+  agentRules: false
 };
 
 export default nextConfig;
