@@ -1,0 +1,13 @@
+# content/.yamllint
+# Prefecture content YAML. Descriptions with furigana markup ({漢字|よみ})
+# easily exceed 120 chars, so the line limit is relaxed here.
+# Usage: yamllint -c content/.yamllint content/
+---
+extends: default
+
+rules:
+  line-length:
+    max: 200
+  indentation:
+    spaces: 2
+  trailing-spaces: disable

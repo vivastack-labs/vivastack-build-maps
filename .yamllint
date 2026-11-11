@@ -4,6 +4,9 @@ extends: default
 rules:
   line-length:
     max: 120
+    # content/ is linted with content/.yamllint (looser limit for furigana text)
+    ignore: |
+      content/
   indentation:
     spaces: 2
   trailing-spaces: disable

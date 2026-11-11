@@ -28,6 +28,7 @@
       "Bash(mv *)",
       "Bash(npm *)",
       "Bash(npx *)",
+      "Bash(pnpm *)",
       "Bash(node *)",
       "Bash(python *)",
       "Bash(gh *)",
