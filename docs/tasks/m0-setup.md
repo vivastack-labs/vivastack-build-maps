@@ -84,6 +84,7 @@
 - `_redirects`（11.4 (3)）と `_headers`（11.4 (4)。CSPは T4-01 で加える）。
 - `pnpm build` を「`next build` → `postbuild`」にする。
 - `wrangler.jsonc`（11.4 (2)）。wrangler v4 を devDependency に入れる。
+- 404 のページにも `<html lang>` を付ける。ルートレイアウトが `app/[lang]/layout.tsx` なので、存在しないパスの404は `<html lang>` のないページになる（T0-01 で確認）。`app/global-not-found.tsx`（`experimental.globalNotFound`）を使い、言語が分からないので、`/maps` のリダイレクト先（F-I18N-02）と同じ `ja` にする。
 - Playwright のサーバーを、`dist/` を配信する `wrangler dev` に切り替える。
 
 ### 完了条件
@@ -98,7 +99,7 @@
 - E2E（`wrangler dev`）：
   - `/maps` と `/maps/` が 301 で `/maps/ja/` にリダイレクトされる（F-I18N-02）。
   - `/maps/ja/` のレスポンスに `X-Content-Type-Options`・`Referrer-Policy`・`Permissions-Policy` が付く（5.5）。
-  - 存在しないパスで 404 を返す。
+  - 存在しないパスで 404 を返し、そのページの `<html lang>` が `ja` である（5.2。axe の `html-has-lang`）。
 
 ---
 

@@ -7,7 +7,7 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 - 「ご当地めいぶつ日本地図」：47都道府県の名物・名所を日本地図から探せる Web アプリ（ja / en / zh、こども／おとなモード、ふりがな ON/OFF）。
 - 設計・要件・決定事項は [docs/development-overview.md](docs/development-overview.md) にある。作業の前に関係する章を読み、要件ID（例：`F-MAP-01`）で対応を確認する。
 - タスクの一覧・順番・進み具合は [docs/development-plan.md](docs/development-plan.md)、タスクごとの定義（目的・参照仕様・実装内容・完了条件・テスト条件・依存関係）は `docs/tasks/` にある。タスクに着手するときは、その定義を読み、タスクのID（例：`T0-01`）をPRの本文に書く。終わったら「状態」を更新する。
-- 現在は M0（準備）の前。アプリの雛形（Next.js など）はまだない。
+- 現在は M0（準備）の途中。アプリの雛形（Next.js・TypeScript・Tailwind CSS・ESLint・Vitest）はある（T0-01）。E2E・デプロイはまだない。
 
 ## 技術スタック（予定）
 
@@ -20,24 +20,20 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 
 ## コマンド
 
-M0 で `package.json` を作ったら、ここに追記する。
+Node.js は `.nvmrc` の版（26）を使う。Node.js 25 以降は corepack が同梱されないので、先に `npm install -g corepack` で入れる。
 
 ```bash
+nvm use
+corepack enable
 pnpm install
-pnpm dev          # http://localhost:3000/maps/ja/
-pnpm test         # Vitest
-pnpm test:e2e     # Playwright
+pnpm dev          # http://localhost:3000/maps/ja/（3000番が使用中なら別の番号で起動する）
 pnpm lint         # ESLint・Prettier・markdownlint・yamllint
-pnpm build        # 静的出力を作り dist/ を組み立てる
+pnpm typecheck    # tsc --noEmit
+pnpm test         # Vitest（カバレッジの基準を下回ると失敗する）
+pnpm build        # 静的出力を out/ に作る
 ```
 
-今の時点で使える検査：
-
-```bash
-npx markdownlint-cli2 "**/*.md"
-yamllint .                                  # content/ 以外
-yamllint -c content/.yamllint content/      # content/（1行200字まで）
-```
+まだないもの：`pnpm test:e2e`（Playwright。T0-02）、`dist/` の組み立て（T0-03）。
 
 ## ディレクトリ
 

@@ -6,7 +6,7 @@
 | 版 | 0.3（ドラフト） |
 | 作成日 | 2026-11-11 |
 | 更新日 | 2026-11-11（0.2：タスクごとに目的・参照仕様・実装内容・完了条件・テスト条件・依存関係を定義し、詳細を `docs/tasks/` に分けた。0.3：lint・型検査・カバレッジの基準を T0-02 から T0-01 に移した） |
-| 元にした設計書 | [development-overview.md](development-overview.md) 0.5 |
+| 元にした設計書 | [development-overview.md](development-overview.md) 0.6 |
 
 ---
 

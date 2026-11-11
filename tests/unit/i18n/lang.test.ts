@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { htmlLang, isLang, langStaticParams, LANGS } from '@/i18n/lang';
+import { htmlLang, isLang, langStaticParams } from '@/i18n/lang';
 
 describe('isLang（F-I18N-01）', () => {
   test.each(['ja', 'en', 'zh'])('F-I18N-01: 対応する言語 %s を受け付ける', value => {
@@ -40,13 +40,5 @@ describe('langStaticParams（F-I18N-01）', () => {
 
     // Assert
     expect(params).toEqual([{ lang: 'ja' }, { lang: 'en' }, { lang: 'zh' }]);
-  });
-
-  test('F-I18N-01: LANGS の順番と同じになる', () => {
-    // Act
-    const params = langStaticParams();
-
-    // Assert
-    expect(params.map(p => p.lang)).toEqual([...LANGS]);
   });
 });
