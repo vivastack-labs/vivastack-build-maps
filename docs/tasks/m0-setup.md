@@ -86,6 +86,7 @@
 - `wrangler.jsonc`（11.4 (2)）。wrangler v4 を devDependency に入れる。
 - 404 のページにも `<html lang>` を付ける。ルートレイアウトが `app/[lang]/layout.tsx` なので、存在しないパスの404は `<html lang>` のないページになる（T0-01 で確認）。`app/global-not-found.tsx`（`experimental.globalNotFound`）を使い、言語が分からないので、`/maps` のリダイレクト先（F-I18N-02）と同じ `ja` にする。
 - Playwright のサーバーを、`dist/` を配信する `wrangler dev` に切り替える。
+  - T0-02 では、Next.js 16 が同じディレクトリで `next dev` を2つ起動できないため、E2E のサーバーを `pnpm dev` と同じ 3000 番にし、`reuseExistingServer` で手元の dev サーバーを使っている。`wrangler dev` にしたら、`pnpm dev` とぶつからない別の番号にし、手元の dev サーバーを使わないようにする（E2E は `dist/` を確かめるため）。
 
 ### 完了条件
 
@@ -113,6 +114,7 @@
 ### 実装内容
 
 - `.github/workflows/ci.yml` の `check` job：install → lint・typecheck → test → build → e2e。Action はコミットSHAで固定する。権限は `contents: read`。`concurrency` で古い実行を止める。
+- e2e の手順の前に `pnpm exec playwright install --with-deps chromium firefox webkit` でブラウザとシステムのライブラリを入れる（T0-02。WebKit・Firefox はライブラリがないと起動しない）。`playwright.config.ts` は、`CI` 環境変数があると `retries: 2`・`workers: 1`・`forbidOnly` になり、レポートは `github` と `html`（`playwright-report/`）を出す。失敗したときに `playwright-report/` を artifact に上げる。
 - gitleaks（既存の `.gitleaks.toml`）をCIで実行する（5.5）。
 - `.github/dependabot.yml`（npm と GitHub Actions、週1回）。
 - `.github/CODEOWNERS`（`*` はオーナー、`/content/` は `@vivastack-labs/maps-reviewers`）。

@@ -10,8 +10,22 @@ export default defineConfig({
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) }
   },
   test: {
-    include: ['tests/unit/**/*.test.{ts,tsx}'],
-    environment: 'node',
+    // ロジックのテスト（.ts）は node、コンポーネントのテスト（.tsx）は jsdom で動かす（10.2）
+    projects: [
+      {
+        extends: true,
+        test: { name: 'unit', include: ['tests/unit/**/*.test.ts'], environment: 'node' }
+      },
+      {
+        extends: true,
+        test: {
+          name: 'component',
+          include: ['tests/unit/**/*.test.tsx'],
+          environment: 'jsdom',
+          setupFiles: ['tests/setup/component.ts']
+        }
+      }
+    ],
     coverage: {
       provider: 'v8',
       // app/ はE2E（T0-02）で確かめるので対象外
