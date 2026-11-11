@@ -383,7 +383,8 @@ vivastack-build-maps/
 ├─ .playwright/cli.config.json     ← （既存）Playwright CLI（対話的なブラウザ操作）の設定。E2Eテストの設定とは別
 ├─ .prettierrc .markdownlint.json .yamllint .prettierignore   ← （既存）
 ├─ .gitleaks.toml .gitleaksignore  ← （既存）シークレット検出の設定
-├─ CLAUDE.md                       ← （既存・中身は空）M0でコマンドや構成を書く
+├─ AGENTS.md                       ← Claude Code と Codex の共通の指示（エージェント向けの指示はここに書く）
+├─ CLAUDE.md                       ← `@AGENTS.md` で AGENTS.md を読み込む。Claude Code 固有の内容だけを追記する
 ├─ README.md                       ← （既存）見出しはリポジトリ名に変更済み。本文はM0でこのアプリ向けに書き直す
 ├─ CHANGELOG.md                    ← （既存）Keep a Changelog 形式
 ├─ wrangler.jsonc
@@ -607,7 +608,8 @@ flowchart TB
 
 ### 10.1 進め方
 
-- 開発はオーナー＋Claude Codeで行う。
+- 開発はオーナー＋Claude Codeで行う。Codexを使うこともある。
+- エージェント向けの指示は `AGENTS.md` にまとめる（Codexは `AGENTS.md` を読み、Claude Codeは `CLAUDE.md` から `@AGENTS.md` で読み込む）。片方にしかない指示を作らない。
 - **TDD**（Red → Green → Refactor）で進める。仕様（第4章の要件ID）を先にテストとして書き、テスト名やコメントに要件IDを入れて、要件とテストを対応付ける。
 - 1つの機能を1つのPRにする。`main` に直接pushしない。
 - 開発の進め方は `.claude/rules/` のルールに従う（計画 → TDD → コードレビュー → コミット。詳細は `development-workflow.md`）。
@@ -917,7 +919,7 @@ flowchart LR
 
 | 段階 | 内容 | 完了条件 |
 |---|---|---|
-| M0 準備 | Next.jsの雛形をリポジトリ直下に作る、既存ファイルの調整（`README.md` の本文、`CLAUDE.md`）、CIの骨組み、Cloudflareの事前設定（DNS、Token、Access）、要検証項目（11.3、11.4）の確認 | 空のページがプレビューと本番にデプロイできる |
+| M0 準備 | Next.jsの雛形をリポジトリ直下に作る、既存ファイルの調整（`README.md` の本文、`AGENTS.md` のコマンド）、CIの骨組み、Cloudflareの事前設定（DNS、Token、Access）、要検証項目（11.3、11.4）の確認 | 空のページがプレビューと本番にデプロイできる |
 | M1 地図データ | N03の変換スクリプト、読みがな・ローマ字、`prefs` と `muni` のTopoJSON | 47都道府県と全市区町村（区を含む）を確認でき、サイズが基準値以内 |
 | M2 地図コア | 地図表示、拡大縮小・移動、最大化、市区町村、ツールチップ、さくいん、キーボード操作 | F-MAP / F-ZOOM / F-MUNI / F-TIP / F-IDX / F-KB のE2Eが通る |
 | M3 カード・多言語・モード | カード、出典表示、言語切替、モード・ふりがな切替、UI文言 | F-CARD / F-I18N / F-MODE / F-SRC のE2Eが通る |

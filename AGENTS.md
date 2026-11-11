@@ -1,0 +1,68 @@
+# AGENTS.md
+
+Claude Code と Codex の共通の指示。エージェント向けの指示はこのファイルに書く（`CLAUDE.md` はこのファイルを読み込むだけにする）。
+
+## プロジェクト
+
+- 「ご当地めいぶつ日本地図」：47都道府県の名物・名所を日本地図から探せる Web アプリ（ja / en / zh、こども／おとなモード、ふりがな ON/OFF）。
+- 設計・要件・決定事項は [docs/development-overview.md](docs/development-overview.md) にある。作業の前に関係する章を読み、要件ID（例：`F-MAP-01`）で対応を確認する。
+- 現在は M0（準備）の前。アプリの雛形（Next.js など）はまだない。
+
+## 技術スタック（予定）
+
+- Next.js（App Router、`output: 'export'`、`basePath: '/maps'`）＋ TypeScript（strict）
+- 地図：SVG ＋ d3-geo ＋ topojson-client（国土数値情報 N03 2026年版から作る TopoJSON）
+- テスト：Vitest、Testing Library、Playwright、axe-core、Lighthouse CI
+- 配信：Cloudflare Workers（Static Assets）。CI/CD は GitHub Actions ＋ wrangler-action
+- パッケージ管理：**pnpm**（npm / yarn は使わない）
+
+## コマンド
+
+M0 で `package.json` を作ったら、ここに追記する。
+
+```bash
+pnpm install
+pnpm dev          # http://localhost:3000/maps/ja/
+pnpm test         # Vitest
+pnpm test:e2e     # Playwright
+pnpm lint         # ESLint・Prettier・markdownlint・yamllint
+pnpm build        # 静的出力を作り dist/ を組み立てる
+```
+
+今の時点で使える検査：
+
+```bash
+npx markdownlint-cli2 "**/*.md"
+yamllint .                                  # content/ 以外
+yamllint -c content/.yamllint content/      # content/（1行200字まで）
+```
+
+## ディレクトリ
+
+| パス | 内容 |
+|---|---|
+| `docs/` | 設計書 |
+| `app/`、`src/` | アプリ本体（予定）。`src/lib/` は `.gitignore` の例外で管理している |
+| `content/` | 都道府県ごとの YAML（予定）。lint は `content/.yamllint` |
+| `geo/` | 地図データの変換スクリプト（予定）。原データは `geo/downloads/` に置き、コミットしない |
+| `.claude/` | Claude Code の設定・ルール・エージェント・スキル・hooks |
+| `.codex/`、`.agents/` | Codex の設定・hooks・スキル |
+
+## 開発ルール
+
+詳細は `.claude/rules/` にある（Claude Code は自動で読み込む。Codex は必要に応じて該当ファイルを読む）。
+
+- **TDD**：テストを先に書く（Red → Green → Refactor）。テスト名やコメントに要件IDを入れる。カバレッジは全体80%以上、ドメインロジックは90%以上。→ `testing.md`
+- **ブランチと PR**：`main` に直接 push しない。1機能＝1ブランチ＝1PR。→ `git-workflow.md`
+- **コミット**：`<type>: <description>`（feat / fix / refactor / docs / test / chore / perf / ci）。
+- **コーディング**：イミュータブルに書く、小さな関数・ファイル、境界での入力検証。→ `coding-style.md`
+- **セキュリティ**：シークレットをリポジトリ・ログ・PR に書かない（gitleaks で検査）。→ `security.md`
+- `--no-verify` や force push など、hooks・検査を回避する操作はしない。
+- lint や formatter の設定（`.prettierrc`、`.markdownlint.json`、`.yamllint` など）は、指示がない限り変えない。
+
+## コンテンツ
+
+- 1県＝1 YAML。`status` は `draft` → `verified` → `reviewed`。本番には `reviewed` だけを出す。
+- ふりがなは `{漢字|よみ}` で書く。
+- 出典は、実際に開いて内容を確認できた URL だけを残す。確認できなければ `sources: []`。
+- 執筆ルールと文字数は設計書の 7.2・7.3・9.3 章に従う。
