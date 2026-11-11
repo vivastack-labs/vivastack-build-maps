@@ -3,9 +3,9 @@
 | 項目 | 内容 |
 |---|---|
 | ドキュメント | docs/development-overview.md |
-| 版 | 0.5（ドラフト） |
+| 版 | 0.6（ドラフト） |
 | 作成日 | 2026-11-11 |
-| 更新日 | 2026-11-11（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加） |
+| 更新日 | 2026-11-11（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正） |
 | リポジトリ | vivastack-labs/vivastack-build-maps（リポジトリ直下がアプリ本体） |
 | 公開URL | `https://build.vivagain.jp/maps/{ja,en,zh}/` |
 | ステータス | 検討フェーズの決定事項を反映。「要検証」とした項目は実装時に確定する |
@@ -927,7 +927,7 @@ flowchart TB
 |---|---|
 | OS | Windows 11＋WSL2（Ubuntu）。作業は **WSL側**（`~/works/vivastack-build-maps`）で行う |
 | Node.js | その時点のActive LTS（`.nvmrc` で固定する） |
-| パッケージ管理 | pnpm（corepackで有効にする） |
+| パッケージ管理 | pnpm（corepackで有効にする。Node.js 25 以降は corepack が同梱されないので、先に `npm install -g corepack` で入れる） |
 | wrangler | v4（devDependencyとして入れる） |
 | mapshaper | npm（devDependency） |
 | Playwright | `pnpm exec playwright install --with-deps` |
@@ -936,6 +936,8 @@ flowchart TB
 ```bash
 # WSL（bash）
 cd ~/works/vivastack-build-maps
+nvm install            # .nvmrc の版を入れる
+npm install -g corepack   # Node.js 25 以降は同梱されない
 corepack enable
 pnpm install
 pnpm dev              # http://localhost:3000/maps/ja/

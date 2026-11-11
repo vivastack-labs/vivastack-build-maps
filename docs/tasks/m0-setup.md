@@ -6,61 +6,63 @@
 
 ---
 
-## T0-01 Next.jsの雛形と単体テストの実行環境
+## T0-01 Next.jsの雛形と、単体テスト・検査の実行環境
 
 - **種別**：chore
 - **依存関係**：なし
-- **目的**：以降のすべてのタスクの土台として、設計どおりの設定（静的出力、`basePath`、3言語のルート）のアプリを用意する。単体テストもここで動くようにして、最初のコードからTDDで書けるようにする。
-- **参照仕様**：6.2、6.5、5.3、F-I18N-01、D26、D28
+- **目的**：以降のすべてのタスクの土台として、設計どおりの設定（静的出力、`basePath`、3言語のルート）のアプリを用意する。単体テストと検査（lint・整形・型・カバレッジ）もここで動くようにして、最初のコードからTDDで書き、品質ガードを通るようにする。
+- **参照仕様**：6.2、6.5、5.3、10.2、11.6、F-I18N-01、D26、D28
 
 ### 実装内容
 
 - `.nvmrc`（その時点の Node.js Active LTS）。`package.json` の `packageManager` で pnpm の版を固定する。`browserslist` を 5.3 のとおりに書く。
 - Next.js（App Router）。`next.config.ts` に `output: 'export'`、`basePath: '/maps'`、`trailingSlash: true`。
 - TypeScript（strict）。
-- `app/[lang]/layout.tsx`：ルートレイアウト。`<html lang>` に `ja` / `en` / `zh-Hans` を出す。`generateStaticParams` で ja・en・zh を生成し、`dynamicParams = false` にする。
+- `app/[lang]/layout.tsx`：ルートレイアウト。`<html lang>` に `ja` / `en` / `zh-Hans` を出す。`generateStaticParams` で ja・en・zh を生成し、`dynamicParams = false` にする。`generateStaticParams` の中身は `src/i18n/lang.ts` の関数を呼ぶだけにする（単体テストとカバレッジの対象にするため）。
 - `app/[lang]/page.tsx`：仮のページ（サイト名の見出しだけ）。
-- `src/i18n/lang.ts`：`Lang` 型、`LANGS`、`isLang()`（型ガード）、`htmlLang()`（`zh` → `zh-Hans`）。
+- `src/i18n/lang.ts`：`Lang` 型、`LANGS`、`isLang()`（型ガード）、`htmlLang()`（`zh` → `zh-Hans`）、`langStaticParams()`（`generateStaticParams` の戻り値）。
 - Tailwind CSS v4（`@tailwindcss/postcss`）。`app/globals.css` に `@import "tailwindcss";` と空の `@theme`。`tailwind.config.*` は作らない。
-- Vitest（単体テストの実行だけ。カバレッジの基準は T0-02）。`pnpm test` で実行する。
+- ESLint（Next.js と TypeScript の推奨設定）、Prettier（既存の `.prettierrc` を使い、変えない）、`eslint-config-prettier`。
+- ESLint に、`.claude/rules/coding-style.md` のうち機械的に確かめられる規約を入れる：`max-lines`（800）、`max-lines-per-function`（50。テストのファイルは対象外）、`max-depth`（4）、`no-console`、`no-param-reassign`、`prefer-const`。
+- `package.json` のスクリプト：
+  - `lint`：ESLint、Prettier のチェック、markdownlint、yamllint（ルートの `.yamllint` と `content/.yamllint` の2つ）
+  - `typecheck`：`tsc --noEmit`
+  - `test`：Vitest。カバレッジ（v8）の対象は `src/**`。基準は全体80%、`src/lib/**`・`src/features/**` は90%。下回ったら失敗する。`app/` はE2E（T0-02）で確かめるので対象外
+- テストの置き場所：`tests/unit/`（6.5）。
 
 ### 完了条件
 
 - `pnpm build` が成功し、3言語の `index.html` が出力される。
 - `pnpm dev` で `http://localhost:3000/maps/ja/` が表示される。
-- `pnpm test` が通る。
+- `pnpm lint`・`pnpm typecheck`・`pnpm test` が通る。
+- カバレッジが基準を下回ると `pnpm test` が失敗することを確かめた。
 
 ### テスト条件
 
 - 単体（`src/i18n/lang.ts`）：
   - `isLang()` は `ja`・`en`・`zh` で `true`、`fr`・空文字・`JA`・`zh-Hans` で `false` を返す（F-I18N-01）。
   - `htmlLang()` は `ja` → `ja`、`en` → `en`、`zh` → `zh-Hans` を返す（6.2 D27）。
+  - `langStaticParams()` は `[{ lang: 'ja' }, { lang: 'en' }, { lang: 'zh' }]` を返す（F-I18N-01）。
 
 ---
 
-## T0-02 検査・E2Eテストの道具
+## T0-02 コンポーネント・E2Eテストの道具
 
 - **種別**：chore
 - **依存関係**：T0-01
-- **目的**：lint・型検査・単体テスト・E2Eテストを、それぞれ1つのコマンドで実行できるようにする。以降のタスクの完了条件を機械的に確かめられるようにする。
+- **目的**：コンポーネントテストとE2Eテストを、それぞれ1つのコマンドで実行できるようにする。以降のタスクの完了条件を機械的に確かめられるようにする。
 - **参照仕様**：10.2、5.3、AGENTS.md の「コマンド」
 
 ### 実装内容
 
-- ESLint（Next.js と TypeScript の推奨設定）、Prettier（既存の `.prettierrc` を使い、変えない）、`eslint-config-prettier`。
-- `package.json` のスクリプト：
-  - `lint`：ESLint、Prettier のチェック、markdownlint、yamllint（ルートの `.yamllint` と `content/.yamllint` の2つ）
-  - `typecheck`：`tsc --noEmit`
-  - `test`：Vitest。カバレッジ（v8）の基準は全体80%、`src/lib/**`・`src/features/**` は90%。下回ったら失敗する
-  - `test:e2e`：Playwright
 - Testing Library（React）と jsdom を Vitest に設定する。
+- `package.json` のスクリプト `test:e2e`：Playwright。
 - Playwright：プロジェクトは Chromium・Firefox・WebKit（PC）、スマホ（iPhone・Pixel の端末設定）、タブレット（iPad の縦・横）。この時点のサーバーは `next dev`（T0-03 で `wrangler dev` に切り替える）。
-- テストの置き場所：`tests/unit/`、`tests/e2e/`（6.5）。
+- テストの置き場所：`tests/e2e/`（6.5）。
 
 ### 完了条件
 
 - `pnpm lint`・`pnpm typecheck`・`pnpm test`・`pnpm test:e2e` がすべて通る。
-- カバレッジが基準を下回ると `pnpm test` が失敗することを確かめた。
 
 ### テスト条件
 
