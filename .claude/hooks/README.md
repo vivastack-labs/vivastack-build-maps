@@ -315,7 +315,8 @@ PreToolUse (Bash)
 PreToolUse (Bash)
   └─► run(input)
         ├─► git commit / git push 以外 → null
-        ├─► gitleaks detect --no-git --quiet を実行
+        ├─► プロジェクト直下（CLAUDE_PROJECT_DIR → input.cwd → process.cwd()）で
+        │     gitleaks detect --no-git --source . -c <root>/.gitleaks.toml を実行
         │     ├─► exit 0 (クリーン) → null
         │     ├─► exit 非 0 (漏洩検出) → block
         │     └─► ENOENT (gitleaks 未インストール) → null (graceful)
@@ -335,6 +336,10 @@ null
 
 - gitleaks がインストールされていなくてもクラッシュしない
 - コミット・push 以外には反応しない
+- `.gitleaks.toml` は `[extend] useDefault = true` で gitleaks の既定ルールを読み込む。`[allowlist]` だけの設定にするとルールが0件になり、何も検出しなくなる
+- `--no-git` では `.gitignore` が効かないため、ビルド結果（`.next/`・`out/`・`dist/`・`coverage/`）と `node_modules/` を `.gitleaks.toml` の `[allowlist] paths` で除外する
+- `paths` の正規表現は、スキャン元からの相対パスに当たる。`--source .` で実行するので、`^dist/` はリポジトリ直下の `dist/` だけに効く（`~/dist/` の下に clone しても検査は止まらない。`src/lib/dist/` のような入れ子も検査する）
+- `tests/gitleaks.test.js` は、gitleaks があれば実物で `.gitleaks.toml` を検査する（`src/` のトークンは検出し、ビルド結果は検出しない。設定の読み込みエラー（`FTL`）は失敗として扱う）
 
 ---
 
@@ -729,9 +734,10 @@ Stop
         ├─► deduplicateFiles() で重複を除去
         ├─► groupByProjectRoot() で package.json ごとにグループ化
         └─► 各グループに対して:
-              ├─► npx biome format --write (失敗なら npx prettier --write)
-              ├─► npx eslint <files>
-              └─► npx tsc --noEmit (tsconfig.json ごとに)
+              ├─► biome format --write (失敗・未インストールなら prettier --write)
+              ├─► eslint <files>
+              └─► tsc --noEmit (tsconfig.json ごとに)
+                    → どのツールも node_modules/.bin から探す。なければ飛ばす
                     → エラーは stderr に出力
         └─► 蓄積ファイルを削除 (処理済み)
 ```
@@ -742,12 +748,14 @@ Stop
 |------|------|
 | `deduplicateFiles(files)` | パス重複を除去 |
 | `groupByProjectRoot(files)` | 最近の `package.json` ディレクトリでグループ化 |
+| `findLocalBin(startDir, name)` | `startDir` から git のルートまで上へたどって、実行できる `node_modules/.bin/<name>` を探す。なければ `null` |
 
 **返り値:** `undefined`
 
 **ポイント**
 
 - biome → prettier のフォールバックで多様な環境に対応
+- ツールは `npx` で実行しない。入っていない名前を `npx` に渡すと、npm の同名の別パッケージ（例：`biome` は `@biomejs/biome` ではない）を確認なしで取得・実行してしまうため
 - tsconfig.json が複数あっても個別に `tsc` を実行する
 - タイムアウト 270 秒は長いが、大きなプロジェクトの型チェックに必要
 
