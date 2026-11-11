@@ -3,9 +3,9 @@
 | 項目 | 内容 |
 |---|---|
 | ドキュメント | docs/development-overview.md |
-| 版 | 0.3（ドラフト） |
+| 版 | 0.4（ドラフト） |
 | 作成日 | 2026-11-11 |
-| 更新日 | 2026-11-11（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加） |
+| 更新日 | 2026-11-11（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定） |
 | リポジトリ | vivastack-labs/vivastack-build-maps（リポジトリ直下がアプリ本体） |
 | 公開URL | `https://build.vivagain.jp/maps/{ja,en,zh}/` |
 | ステータス | 検討フェーズの決定事項を反映。「要検証」とした項目は実装時に確定する |
@@ -314,15 +314,25 @@ Lighthouse CIでこの基準値を超えたら、CIを失敗させる。
 - ふりがな（`<ruby>`）は、スクリーンリーダーで二重に読み上げられないか確認する。
 - CIで axe（Playwright）を実行し、違反が1件でもあれば失敗させる。
 
-### 5.3 対応環境（案）
+### 5.3 対応環境
 
-| 区分 | 対象 |
-|---|---|
-| PC | Chrome / Edge / Firefox / Safari の最新版と、その1つ前の版 |
-| スマホ | iOS Safari 最新版と1つ前の版、Android Chrome 最新版 |
-| 画面幅 | 360px以上 |
+小学生は学校の端末（GIGAスクール端末。Chromebook・iPad・Windowsが中心）で使うことが多いため、学校の端末とタブレットを対象に含める（D25）。
 
-確定は「未決事項」（第16章）で扱う。
+| 区分 | 対象 | 確認のしかた |
+|---|---|---|
+| PC | Chrome / Edge / Firefox / Safari の最新版と、その1つ前の版 | CI（Playwright：Chromium、Firefox、WebKit） |
+| 学校の端末 | ChromeOS の Chrome、iPadOS の Safari、Windows の Edge（それぞれ最新版と1つ前の版） | CI＋公開前に実機で確認 |
+| スマホ | iOS Safari の最新版と1つ前の版、Android Chrome の最新版 | CI（端末のエミュレーション）＋公開前に実機で確認 |
+| タブレット | iPad（縦・横）、Androidタブレット | CI（画面幅768〜1366px）＋公開前に実機で確認 |
+| 画面幅 | 360px以上 | CI |
+| 動けばよい範囲 | LINE・WeChatなどのアプリ内ブラウザ、上記より古い版 | 確認しない。問題の報告があれば対応を検討する |
+| 対象外 | Internet Explorer、旧Edge（EdgeHTML）、Androidの標準ブラウザ | — |
+
+- 「最新版と1つ前の版」は、Safari・iOS・iPadOSでは**メジャーバージョン**で数える。
+- 同じ範囲を `package.json` の `browserslist` に書き、ビルドツールとlintで同じ基準を使う（例：`last 2 Chrome major versions`、`last 2 iOS major versions`）。
+- 学校で管理されているiPadは、OSの更新が遅れることがある。M4の実機確認では、1つ前のiPadOSでも動くことを確かめる。
+- Tailwind CSS v4（6.2、D26）は Safari 16.4・Chrome 111・Firefox 128 以降を前提にしている。対象の範囲はこれより新しいので問題ない。これより古いブラウザでは、表示が崩れることがある。
+- JavaScriptが使えない環境でも、既定のモードで読めて、県名さくいんから県のカードを開ける（F-MODE-04、6.6）。
 
 ### 5.4 PWA
 
@@ -339,7 +349,7 @@ Lighthouse CIでこの基準値を超えたら、CIを失敗させる。
 - CSPについて：
   - Next.jsの静的出力にはインラインのスクリプトが含まれる。静的配信ではnonceを使えないため、ビルド後にハッシュを集めてCSPに書き込む方法で許可する（6.6、D23）。
   - Web Analyticsのドメインを許可する。
-- フォントは `next/font` で自前で配信する。Google Fontsへの外部リクエストはしない。
+- Webフォントは使わず、端末のシステムフォントで表示する（6.2、D27）。フォントのための外部リクエストはしない。
 - GitHub Actionsで使うActionは、コミットSHAでバージョンを固定する。
 - シークレットの扱いは第11章 11.2 に従う。
 - シークレットの混入は、既存の gitleaks の設定（`.gitleaks.toml`）で検出する。手元ではClaude Codeのhookで、CIでも実行する（案）。
@@ -395,13 +405,47 @@ flowchart LR
 | フレームワーク | Next.js（App Router、`output: 'export'`） | `basePath: '/maps'`、`trailingSlash: true` |
 | 言語 | TypeScript（strict） | |
 | 地図描画 | SVG＋d3-geo＋topojson-client | 背景地図は使わない |
-| スタイル | CSS Modules または Tailwind CSS | 実装時に決める |
+| スタイル | Tailwind CSS v4（`@tailwindcss/postcss`） | 書き方は下記（D26） |
+| フォント | システムフォント（Webフォントは使わない） | 下記（D27） |
+| UI文言の多言語化 | 型付きの自前の辞書（ライブラリは使わない） | 下記（D28） |
 | テスト | Vitest、Testing Library、Playwright、axe-core、Lighthouse CI | 第10章 |
 | 整形・lint | ESLint、Prettier、markdownlint、yamllint | Prettier・markdownlint・yamllintは、リポジトリにある設定（`.prettierrc`、`.markdownlint.json`、`.yamllint`）を使う |
 | 配信 | Cloudflare Workers（Static Assets） | Workerのスクリプトは使わない |
 | CI/CD | GitHub Actions＋cloudflare/wrangler-action | 第12章 |
 | パッケージ管理 | pnpm | |
 | 実行環境 | Node.js（その時点のActive LTS） | `.nvmrc` で固定する |
+
+**スタイルの書き方（D26）**
+
+- `app/globals.css` で `@import "tailwindcss";` を読み込む。設定ファイル（`tailwind.config.*`）は作らず、設定はCSSに書く。
+- 色・フォントなどは `@theme` でCSS変数として定義し、ユーティリティからはこの変数だけを使う。色の値を直接書かない（ライト・ダークの配色とコントラスト 4.5:1 の確認をしやすくするため。5.2）。
+- モードとふりがなの切替ルール（6.6 (3)）は `globals.css` に素のCSSで書く。部品ごとにモードで見た目を変えたいときは、`@custom-variant` でバリアントを定義して使う（例：`@custom-variant kids (&:where([data-mode=kids], [data-mode=kids] *));`）。
+- 選択中・ホバー・フォーカス中の県などの状態は、`aria-*` や `data-*` のバリアントで書く。
+- 動きを減らす設定では、`motion-safe:` / `motion-reduce:` でアニメーションを止める（5.2）。
+- 出力は静的なCSSファイルなので、CSP（6.6 (4)）に影響しない。
+
+**フォント（D27）**
+
+- 日本語・中国語のWebフォントは1書体で数MBある。県の解説文には数千種類の漢字が出てくるため、分割して配信しても 5.1 の基準値（最初の読み込みで300KB以下）に収まらない。対象の端末（5.3）には日本語・中国語のフォントが入っているので、システムフォントを使う。
+- `@theme` の `--font-sans` に言語ごとのフォントの並びを定義し、`:lang()` で切り替える。
+
+| 言語 | フォントの並び（例） |
+|---|---|
+| ja | `"Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", Meiryo, "Noto Sans JP", sans-serif` |
+| zh | `"PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif` |
+| en | `system-ui, -apple-system, "Segoe UI", Roboto, sans-serif` |
+
+- `<html lang>` を `ja` / `en` / `zh-Hans` と正しく付ける。付けないと、中国語のページで漢字が日本語の字形で表示される。
+
+**UI文言の多言語化（D28）**
+
+- 言語の自動振り分けはせず（D8）、静的出力なので middleware も使えない。UI文言は数十件なので、next-intl などのライブラリは使わず、自前の辞書にする。数値・距離の表示は `Intl.NumberFormat` を使う。
+- `src/i18n/ja.ts` を基準にし、`en.ts`・`zh.ts` は `satisfies Messages` で同じキーを持つことを型で保証する（キーが足りなければ型チェックで失敗する）。
+- 日本語の文言にも `{漢字|よみ}` の記法を使い、`ruby.ts` で変換する（7.2）。ふりがなのON/OFFがUIにも効く。
+- こども向け・おとな向けで言い方を変える文言だけ、`{ kids, adult }` の形にする。
+- `app/[lang]/layout.tsx` をルートレイアウトにして `<html lang>` を出力する。`dynamicParams = false` とし、言語は型ガード（`isLang()`）で検証する。
+- クライアントコンポーネントには、必要な文言だけを props で渡す（エラー表示、再試行ボタンなど）。文言は小さいので、6.6 (2) のサイズの問題にはならない。
+- 単体テストで、3言語のキーがそろっていること、空の文言がないことを確認する。
 
 ### 6.3 地図の描き方を選んだ理由
 
@@ -443,6 +487,7 @@ vivastack-build-maps/
 ├─ docs/
 │  └─ development-overview.md     ← 本書
 ├─ app/
+│  ├─ globals.css                  ← Tailwind の読み込み、@theme、モード・ふりがなの切替（6.2、6.6）
 │  └─ [lang]/                      ← generateStaticParams で ja / en / zh を生成
 │     ├─ layout.tsx
 │     └─ page.tsx
@@ -453,7 +498,7 @@ vivastack-build-maps/
 │  │  ├─ ruby.ts                   ← ふりがな記法のパーサー
 │  │  ├─ distance.ts               ← 距離の計算（ハバーサイン公式）
 │  │  └─ content.ts                ← コンテンツの読み込みと型
-│  └─ i18n/                        ← UI文言（ja / en / zh）
+│  └─ i18n/                        ← UI文言の辞書（ja.ts を基準に en.ts・zh.ts。isLang() などの言語の判定。D28）
 ├─ content/
 │  ├─ .yamllint                    ← （既存）content/ 用の yamllint 設定（1行200字まで）
 │  ├─ schema/prefecture.schema.json
@@ -758,7 +803,7 @@ flowchart TB
 | 単体 | Vitest | ふりがなのパーサー、距離の計算、表示範囲の計算と拡大縮小、ラベル間引き、操作の状態遷移（mapReducer。4.11.2）、コンテンツの読み込み | ドメインロジックのカバレッジ90%以上（全体は `.claude/rules/testing.md` の基準どおり80%以上） |
 | コンポーネント | Vitest＋Testing Library | カード、さくいん、モード・ふりがなの切替、言語切替 | 主な状態がすべて表示できること |
 | データ | Vitest＋JSON Schema | 全YAMLのスキーマ、件数（3件ずつ）、全言語・全モードがそろっているか、文字数、ふりがな | CIで必ず実行 |
-| E2E | Playwright（PC＋スマホ） | ホバー、固定、最大化、拡大縮小・移動、キーボード操作、言語・モードの切替、`/maps` のリダイレクト | 第4章の主要な要件をすべて確認 |
+| E2E | Playwright（PC＋スマホ＋タブレット。5.3） | ホバー、固定、最大化、拡大縮小・移動、キーボード操作、言語・モードの切替、`/maps` のリダイレクト | 第4章の主要な要件をすべて確認 |
 | アクセシビリティ | @axe-core/playwright | 3言語 × 2モード × ライト・ダーク | 違反0件 |
 | 表示速度 | Lighthouse CI | `/maps/ja/`、`/maps/en/`、`/maps/zh/` | 第5章 5.1 の基準値 |
 
@@ -1069,9 +1114,9 @@ flowchart LR
 | # | 項目 | 案・メモ | 決める時期 |
 |---|---|---|---|
 | U1 | モードとふりがなの既定値 | 案：日本語はこども向け＋ふりがなON、英語・中国語はおとな向け | M3 |
-| U2 | 対応ブラウザの範囲 | 第5章 5.3 の案 | M0 |
+| U2 | ~~対応ブラウザの範囲~~ | 決定（D25）：第5章 5.3 | — |
 | U3 | PWAでオフライン時に使える範囲 | 第5章 5.4 の案 | M4 |
-| U4 | スタイルの方式（CSS Modules / Tailwind CSS） | | M0 |
+| U4 | ~~スタイルの方式（CSS Modules / Tailwind CSS）~~ | 決定（D26）：Tailwind CSS v4。第6章 6.2 | — |
 | U5 | API Tokenの最小権限 | 第11章 11.3 で要検証 | M0 |
 | U6 | `workers_dev: false` と `preview_urls: true` を同時に設定できるか | 第11章 11.4 で要検証 | M0 |
 | U7 | Accessの設定手順、Zero Trust無料プランの条件 | 第11章 11.4 で要確認 | M0 |
@@ -1110,6 +1155,10 @@ flowchart LR
 | D22 | コンテンツ生成用スキルの置き場所 | リポジトリ直下の `.claude/skills/`（生成）と `.claude/agents/`（検証）。既存のスキル・エージェントと名前が重ならないようにする |
 | D23 | モード・ふりがなの初期表示とCSP | `<head>` の小さなインラインスクリプトで、描画の前に localStorage の値を `<html>` に反映し、切替はCSSだけで行う。インラインスクリプトは、ビルド後に集めたSHA-256をCSPに書き込んで許可する（6.6） |
 | D24 | 都道府県の地図とカードの内容 | ビルド時にHTMLに出力する（地図はSVGのパス、カードはサーバーコンポーネント）。JSは表示の切替だけを行う。市区町村は実行時に読み込む。M3でサイズを実測し、基準値を超えたら言語ごとのJSONを後から読み込む方式に切り替える（6.6） |
+| D25 | 対応環境 | PC（Chrome / Edge / Firefox / Safari）、学校の端末（ChromeOS・iPadOS・Windows）、スマホ、タブレット。原則として最新版と1つ前の版（Android Chrome は最新版）。画面幅360px以上。CIで確認し、学校の端末・スマホ・タブレットは公開前に実機でも確認する（5.3） |
+| D26 | スタイルの方式 | Tailwind CSS v4。設定はCSS（`@theme`、`@custom-variant`）に書き、色はCSS変数だけを使う（6.2） |
+| D27 | フォント | Webフォントは使わず、システムフォントを言語ごとに指定する（6.2） |
+| D28 | UI文言の多言語化 | ライブラリは使わず、型付きの自前の辞書にする。日本語の文言にもふりがなの記法を使う（6.2） |
 
 ## 付録B. 参考資料
 
