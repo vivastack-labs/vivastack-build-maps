@@ -1,0 +1,91 @@
+// 地図の操作の状態遷移（4.11.2）。画面から切り離した純粋関数。
+// 拡大率と表示位置（viewport）は d3-zoom が持つので、ここでは扱わない（T2-06）。
+
+/** 県コード（'01'〜'47'）。境界（DOM の属性、ハッシュの解析）で確かめてから渡す */
+export type PrefCode = string;
+
+export type MapState = {
+  /** マウスをのせている（フォーカスしている）県 */
+  readonly hovered: PrefCode | null;
+  /** 最後に hovered になった県（ホバーが終わっても残す） */
+  readonly displayed: PrefCode | null;
+  readonly pinned: PrefCode | null;
+  /** 空でなければ pinned と同じ県（4.11.1） */
+  readonly maximized: PrefCode | null;
+};
+
+export type MapEvent =
+  | { readonly type: 'hover'; readonly pref: PrefCode }
+  | { readonly type: 'hoverEnd' }
+  | { readonly type: 'click'; readonly pref: PrefCode }
+  | { readonly type: 'doubleClick'; readonly pref: PrefCode }
+  | { readonly type: 'backgroundClick' }
+  | { readonly type: 'escape' }
+  | { readonly type: 'resetView' }
+  | { readonly type: 'zoomStep' }
+  | { readonly type: 'restore'; readonly pref: PrefCode };
+
+export const INITIAL_MAP_STATE: MapState = { hovered: null, displayed: null, pinned: null, maximized: null };
+
+/** 状態を一部だけ変える。変わらないときは受け取った状態をそのまま返す */
+function update(state: MapState, changes: Partial<MapState>): MapState {
+  const isChanged = (Object.keys(changes) as (keyof MapState)[]).some(key => state[key] !== changes[key]);
+  return isChanged ? { ...state, ...changes } : state;
+}
+
+function hover(state: MapState, pref: PrefCode): MapState {
+  if (state.maximized !== null) return state;
+  return update(state, { hovered: pref, displayed: pref });
+}
+
+function click(state: MapState, pref: PrefCode): MapState {
+  if (state.maximized !== null) return state;
+  return update(state, { pinned: state.pinned === pref ? null : pref });
+}
+
+function doubleClick(state: MapState, pref: PrefCode): MapState {
+  if (state.maximized === pref) return update(state, { maximized: null });
+  return update(state, { maximized: pref, pinned: pref });
+}
+
+/** 最大化中は最大化だけを解除する（固定は残す）。それ以外は何もしない */
+function unmaximize(state: MapState): MapState {
+  return update(state, { maximized: null });
+}
+
+function unpin(state: MapState): MapState {
+  if (state.maximized !== null) return state;
+  return update(state, { pinned: null });
+}
+
+function restore(state: MapState, pref: PrefCode): MapState {
+  return update(state, { pinned: pref, maximized: null });
+}
+
+export function mapReducer(state: MapState, event: MapEvent): MapState {
+  switch (event.type) {
+    case 'hover':
+      return hover(state, event.pref);
+    case 'hoverEnd':
+      return update(state, { hovered: null });
+    case 'click':
+      return click(state, event.pref);
+    case 'doubleClick':
+      return doubleClick(state, event.pref);
+    case 'backgroundClick':
+      return unpin(state);
+    case 'escape':
+      return state.maximized !== null ? unmaximize(state) : unpin(state);
+    case 'resetView':
+      return unmaximize(state);
+    case 'zoomStep':
+      return state;
+    case 'restore':
+      return restore(state, event.pref);
+  }
+}
+
+/** カードに表示する県。固定があればその県、なければ最後にホバーした県 */
+export function cardPref(state: MapState): PrefCode | null {
+  return state.pinned ?? state.displayed;
+}
