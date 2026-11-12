@@ -42,7 +42,7 @@ function toRuby(inner: string, start: number): { readonly segment?: RubySegment;
   }
   const [base = '', reading = ''] = parts;
   const errors: RubyIssue[] = [];
-  if (base === '') errors.push({ index: start, message: '親文字が空です' });
+  if (base.trim() === '') errors.push({ index: start, message: '親文字が空です' });
   if (reading === '') {
     errors.push({ index: start, message: '読みが空です' });
   } else if (!READING.test(reading)) {
@@ -127,11 +127,16 @@ export function checkRuby(text: string): RubyCheck {
   return { errors, warnings: kanjiWarnings(texts) };
 }
 
+/** UTF-16 の位置を、書く人が数える「何文字目」（1始まり。𩸽 など BMP の外の字も1字）にする */
+function characterNumber(text: string, index: number): number {
+  return [...text.slice(0, index)].length + 1;
+}
+
 /** 文字列を、文字の部分とルビの部分の配列にする。記法に誤りがあれば、位置を含むエラーを投げる */
 export function parseRuby(text: string): readonly RubySegment[] {
   const { segments, errors } = scanRuby(text);
   if (errors.length > 0) {
-    const details = errors.map(({ index, message }) => `${index + 1}文字目：${message}`);
+    const details = errors.map(({ index, message }) => `${characterNumber(text, index)}文字目：${message}`);
     throw new Error(`ふりがなの記法の誤り（${JSON.stringify(text)}）：${details.join('、')}`);
   }
   return segments;

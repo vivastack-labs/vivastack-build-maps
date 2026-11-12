@@ -5,9 +5,7 @@ import { checkRuby, parseRuby, plainText } from '@/lib/ruby';
 // 7.2：ふりがなの記法 {漢字|よみ} のパーサー（T1-06）
 describe('parseRuby', () => {
   test('7.2：{北海道|ほっかいどう} はルビの部分1つになる', () => {
-    expect(parseRuby('{北海道|ほっかいどう}')).toEqual([
-      { kind: 'ruby', base: '北海道', reading: 'ほっかいどう' }
-    ]);
+    expect(parseRuby('{北海道|ほっかいどう}')).toEqual([{ kind: 'ruby', base: '北海道', reading: 'ほっかいどう' }]);
   });
 
   test('7.2：記法のない文字列は文字の部分1つになる', () => {
@@ -34,6 +32,15 @@ describe('parseRuby', () => {
   test('7.2：parseRuby は記法の誤りがあれば、位置を含むエラーを投げる', () => {
     expect(() => parseRuby('あ{北海道|ほっかいどう')).toThrow(/2文字目/);
   });
+
+  test('7.2：エラーの「何文字目」は、BMP の外の字（𩸽 など）も1字と数える', () => {
+    // 𩸽 は UTF-16 では2つ分だが、書く人にとっては1字
+    expect(() => parseRuby('𩸽{北|ほく}{')).toThrow(/8文字目/);
+  });
+
+  test('7.2：誤りが複数あれば、すべてを位置の順にエラーに入れる', () => {
+    expect(() => parseRuby('a}{b|')).toThrow(/2文字目：[^、]+、3文字目：/);
+  });
 });
 
 describe('checkRuby の誤り', () => {
@@ -55,10 +62,15 @@ describe('checkRuby の誤り', () => {
     expect(errors[0]?.message).toContain('閉じ括弧');
   });
 
-  test('7.2：括弧の中の括弧は誤りにする', () => {
-    const { errors } = checkRuby('{北{海|かい}道|ほっかいどう}');
-    expect(errors.length).toBeGreaterThanOrEqual(1);
-    expect(errors[0]?.message).toContain('括弧の中');
+  test('7.2：括弧の中の括弧は誤りにする（内側から読み直し、残った閉じ括弧も誤り）', () => {
+    expect(checkRuby('{{a|あ}|い}').errors).toEqual([
+      { index: 1, message: '括弧の中に「{」があります' },
+      { index: 8, message: '対応する「{」のない閉じ括弧「}」があります' }
+    ]);
+  });
+
+  test('7.2：閉じ括弧のない括弧は、中の「|」の数を問わず閉じ括弧の誤りだけにする', () => {
+    expect(checkRuby('{a|b|c').errors).toEqual([{ index: 0, message: '閉じ括弧「}」がありません' }]);
   });
 
   test('7.2：括弧の中に | が2つあれば誤りにする', () => {
@@ -77,6 +89,11 @@ describe('checkRuby の誤り', () => {
     const { errors } = checkRuby('{|ほっかいどう}');
     expect(errors).toHaveLength(1);
     expect(errors[0]?.message).toContain('親文字が空');
+  });
+
+  test('7.2：親文字が空白だけなら、空と同じく誤りにする', () => {
+    expect(checkRuby('{ |あ}').errors[0]?.message).toContain('親文字が空');
+    expect(checkRuby('{　|あ}').errors[0]?.message).toContain('親文字が空');
   });
 
   test('7.2：読みにカタカナがあれば誤りにする', () => {
@@ -143,6 +160,10 @@ describe('checkRuby の警告', () => {
 describe('plainText', () => {
   test('7.3：plainText は読みを除く（{日本一|にほんいち}の → 日本一の）', () => {
     expect(plainText('{日本一|にほんいち}の')).toBe('日本一の');
+  });
+
+  test('7.3：plainText は記法に誤りがあればエラーを投げる', () => {
+    expect(() => plainText('{日本一|}')).toThrow(/読みが空/);
   });
 
   test('7.3：plainText は記法のない文字列をそのまま返す', () => {
