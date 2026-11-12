@@ -7,11 +7,11 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 - 「ご当地めいぶつ日本地図」：47都道府県の名物・名所を日本地図から探せる Web アプリ（ja / en / zh、こども／おとなモード、ふりがな ON/OFF）。
 - 設計・要件・決定事項は [docs/development-overview.md](docs/development-overview.md) にある。作業の前に関係する章を読み、要件ID（例：`F-MAP-01`）で対応を確認する。
 - タスクの一覧・順番・進み具合は [docs/development-plan.md](docs/development-plan.md)、タスクごとの定義（目的・参照仕様・実装内容・完了条件・テスト条件・依存関係）は `docs/tasks/` にある。タスクに着手するときは、その定義を読み、タスクのID（例：`T0-01`）をPRの本文に書く。終わったら「状態」を更新する。
-- 現在は M0（準備）の途中。アプリの雛形（Next.js・TypeScript・Tailwind CSS・ESLint・Vitest）はある（T0-01）。コンポーネントテストと E2E（Testing Library・Playwright）もある（T0-02）。`dist/` の組み立てと、`wrangler dev` での確認もできる（T0-03）。PRごとに GitHub Actions の CI（`.github/workflows/ci.yml`：lint・typecheck・test・build・gitleaks）が動く（T0-04）。E2E は開発中は PR ごとに動かさず、`.github/workflows/e2e.yml` を手動で実行する（D30）。デプロイはまだない。
+- 現在は M1（地図データとコンテンツ基盤）の途中。地図データ（T1-01〜T1-05：投影法、変換スクリプト、データの検査）はできている。M0 は手作業の T0-05 と、それに続く T0-06・T0-07（デプロイ）が残っている。アプリの雛形（Next.js・TypeScript・Tailwind CSS・ESLint・Vitest）はある（T0-01）。コンポーネントテストと E2E（Testing Library・Playwright）もある（T0-02）。`dist/` の組み立てと、`wrangler dev` での確認もできる（T0-03）。PRごとに GitHub Actions の CI（`.github/workflows/ci.yml`：lint・typecheck・test・build・gitleaks）が動く（T0-04）。E2E は開発中は PR ごとに動かさず、`.github/workflows/e2e.yml` を手動で実行する（D30）。デプロイはまだない。
 
 ## 技術スタック
 
-導入済み：Next.js・TypeScript・Tailwind CSS・ESLint・Prettier・Vitest・Testing Library・Playwright・wrangler・GitHub Actions（PRのチェック）・Dependabot。それ以外はまだ入っていない（予定）。
+導入済み：Next.js・TypeScript・Tailwind CSS・ESLint・Prettier・Vitest・Testing Library・Playwright・wrangler・GitHub Actions（PRのチェック）・Dependabot・d3-geo・mapshaper・topojson-client（テストだけ）。それ以外はまだ入っていない（予定）。
 
 - Next.js（App Router、`output: 'export'`、`basePath: '/maps'`）＋ TypeScript（strict）
 - 地図：SVG ＋ d3-geo ＋ topojson-client（国土数値情報 N03 2026年版から作る TopoJSON）
@@ -36,6 +36,7 @@ pnpm test         # Vitest（カバレッジの基準を下回ると失敗する
 pnpm test:e2e     # Playwright（PC・スマホ・タブレットの7プロジェクト）
 pnpm build        # next build で out/ を作り、scripts/postbuild.ts で dist/ に組み立てる
 pnpm exec wrangler dev   # dist/ を本番の Workers と同じ形で配信する（http://localhost:8787/maps/ja/。先に pnpm build）
+pnpm geo:build    # 地図データを作り直す（年1回、手で実行。原データの取得は geo/README.md。毎回のビルドでは動かさない）
 
 pnpm vitest run tests/unit/i18n/lang.test.ts   # 1ファイルだけ動かす（カバレッジなし）
 pnpm vitest run -t "F-I18N-01"                 # テスト名で絞る（テスト名に要件IDが入っている）
@@ -67,10 +68,10 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
 | `tests/e2e/` | E2E（Playwright。`*.spec.ts`） |
 | `tests/screenshots/` | PRに載せるスクリーンショットの画面（`playwright.screenshots.config.ts`。`pnpm screenshots` から使う） |
 | `tests/setup/` | テストの共通の準備（jest-dom のマッチャーなど） |
-| `scripts/` | ビルドのスクリプト（`postbuild.ts`：`out/` → `dist/`）。Node.js で直接実行するので、`enum` など型の除去で消せない書き方は使わない |
-| `public/` | そのまま配信するファイル。`_redirects`・`_headers` は `dist/` の直下に置かれる |
+| `scripts/` | ビルドのスクリプト（`postbuild.ts`：`out/` → `dist/`）。Node.js で直接実行するので、`enum` など型の除去で消せない書き方は使わない（`geo/scripts/` も同じ。相対の import には `.ts` を付ける） |
+| `public/` | そのまま配信するファイル。`_redirects`・`_headers` は `dist/` の直下に置かれる。`public/geo/muni/` は `pnpm geo:build` の出力（手で直さない） |
 | `content/` | 都道府県ごとの YAML（予定）。lint は `content/.yamllint` |
-| `geo/` | 地図データの変換スクリプト（予定）。原データは `geo/downloads/` に置き、コミットしない |
+| `geo/` | 地図データの変換（`scripts/`）、読み・ローマ字の修正表（`sources/`）、都道府県の形（`data/prefs.topo.json`。生成物）。原データは `geo/downloads/` に置き、コミットしない。手順と判断は `geo/README.md` |
 | `.claude/` | Claude Code の設定・ルール・エージェント・スキル・hooks |
 | `.codex/`、`.agents/` | Codex の設定・hooks・スキル |
 
@@ -81,7 +82,11 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
 - `dynamicParams = false` と `generateStaticParams` で、ja・en・zh の3つだけを静的に生成する。言語の一覧・判定・`<html lang>` の値は `src/i18n/lang.ts` に集める。
 - Next.js 16 では `params` が `Promise`。`await` してから `isLang()` で確かめ、合わなければ `notFound()` にする。
 - `@/` は `src/` を指す。設定は `tsconfig.json` と `vitest.config.ts` の両方にあるので、変えるときは2か所を合わせる。
-- カバレッジの対象は `src/` と `scripts/`。`app/` は E2E（`tests/e2e/`）で確かめる。async の Server Component（ページ・レイアウト）は Vitest で描画できないので、E2E で確かめる。ドメインロジック（`src/lib/`・`src/features/`）は 90% 以上を `vitest.config.ts` で強制している。
+- カバレッジの対象は `src/`・`scripts/`・`geo/scripts/`。`app/` は E2E（`tests/e2e/`）で確かめる。async の Server Component（ページ・レイアウト）は Vitest で描画できないので、E2E で確かめる。ドメインロジック（`src/lib/`・`src/features/`・`geo/scripts/lib/`）は 90% 以上を `vitest.config.ts` で強制している。
+- 地図データ（7.4、D34）：N03 から `pnpm geo:build` で2種類の TopoJSON を作り、コミットする。どちらも経緯度のままで、投影と沖縄の別枠への移動は描くときに `src/features/map/projection.ts` だけで行う（設定は定数。都道府県と市区町村で同じ投影にして境界を合わせるため）。
+  - `geo/data/prefs.topo.json`（`prefectures`）：ビルド時に SVG のパスにして HTML に埋め込む。配信しない。
+  - `public/geo/muni/NN.topo.json`（`municipalities`）：県を最大化したときに `/maps/geo/muni/` から読み込む。市区町村は `code` で引く（名前・読みが同じ市区町村がある）。
+  - 変換は総務省のコード表と照合し、修正表の `before` が合わない・大きさが基準を超えるなどで止まる。コミットした出力は `tests/data/geo.test.ts` が CI で検査する。
 - `next.config.ts` の `agentRules: false` は消さない。消すと `next dev` が `AGENTS.md` に英語の指示を書き込む。
 
 ## 開発ルール
