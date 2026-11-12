@@ -1,0 +1,4 @@
+# 11.5：リポジトリ全体はオーナー、コンテンツ（都道府県の YAML）はレビュアーの Team
+# 後に書いた行が優先される
+*          @inspireme
+/content/  @vivastack-labs/maps-reviewers

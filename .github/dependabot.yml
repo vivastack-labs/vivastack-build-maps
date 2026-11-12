@@ -1,0 +1,22 @@
+---
+# 11.5：npm と GitHub Actions の更新を週1回提案させる（T0-04）。
+# cooldown：公開から7日たっていない版は提案しない（公開直後の版を避ける方針。T0-01）
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    # minor・patch は1つのPRにまとめる。major は変更点を読めるように個別のPRにする
+    groups:
+      npm-minor-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
