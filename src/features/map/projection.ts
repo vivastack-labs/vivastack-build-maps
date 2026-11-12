@@ -60,10 +60,14 @@ export function createProjection(prefCode: string): GeoProjection {
     .translate([...translate]);
 }
 
-/** 経緯度を viewBox の座標にする。沖縄県（47）は点線枠に移る。 */
+/**
+ * 経緯度を viewBox の座標にする（県名ラベルの位置など、1点ずつの変換用）。沖縄県（47）は点線枠に移る。
+ * 呼ぶたびに投影を作るので、形を描くときは `createProjection` を県ごとに1回呼んで `geoPath` に渡す。
+ */
 export function projectPoint(lonLat: LonLat, prefCode: string): Point {
   assertLonLat(lonLat);
   const point = createProjection(prefCode)([lonLat[0], lonLat[1]]);
+  // d3 の型は null を含む。円錐図法は有限の経緯度なら null を返さないが、型を絞るために確かめる
   if (point === null) {
     throw new Error(`経緯度を投影できません（${lonLat.join(', ')}）`);
   }

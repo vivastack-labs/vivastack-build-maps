@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { createProjection, OKINAWA_FRAME, projectPoint, VIEWBOX, type LonLat } from '@/features/map/projection';
+import { createProjection, OKINAWA_FRAME, OKINAWA_TRANSFORM, projectPoint, VIEWBOX, type LonLat } from '@/features/map/projection';
 
 type Rect = { readonly x: number; readonly y: number; readonly width: number; readonly height: number };
 type Box = readonly [west: number, south: number, east: number, north: number];
@@ -117,6 +117,21 @@ describe('projectPoint：沖縄の点線枠（F-MAP-02）', () => {
     expect(points.every(point => isInside(point, OKINAWA_FRAME))).toBe(true);
   });
 
+  test.each([
+    ['沖縄県庁', [127.6809, 26.2124]],
+    ['与那国島', [122.93, 24.45]],
+    ['北大東島', [131.3, 25.95]]
+  ] as const)('F-MAP-02：沖縄県は等倍のまま平行移動する（%s で、本体の位置との差が OKINAWA_TRANSFORM の移動に等しい）', (_name, lonLat) => {
+    // Act
+    const [x, y] = projectPoint(lonLat, '47');
+    const [mainX, mainY] = projectPoint(lonLat, '01');
+
+    // Assert：3点で差が同じなら、縮尺は変わっていない
+    expect(OKINAWA_TRANSFORM.scale).toBe(1);
+    expect(x - mainX).toBeCloseTo(OKINAWA_TRANSFORM.dx, 9);
+    expect(y - mainY).toBeCloseTo(OKINAWA_TRANSFORM.dy, 9);
+  });
+
   test('F-MAP-02：点線枠は viewBox の中にある', () => {
     // Act
     const corners = [
@@ -141,6 +156,22 @@ describe('projectPoint：沖縄の点線枠（F-MAP-02）', () => {
 });
 
 describe('projectPoint と createProjection（6.6 (1)）', () => {
+  // 投影の設定を変えると、ビルド時に作った都道府県の形と、実行時に描く市区町村の形がずれる。
+  // 設定を変えるときは、この値も意図して直す（T1-03）
+  test.each([
+    ['東京都庁', '13', [139.6917, 35.6895], [593.473, 617.352]],
+    ['北海道庁', '01', [141.3469, 43.0642], [650.576, 191.737]],
+    ['鹿児島県庁', '46', [130.5581, 31.5602], [151.27, 845.733]],
+    ['沖縄県庁', '47', [127.6809, 26.2124], [304.738, 164.956]]
+  ] as const)('6.6 (1)：%s の座標は決めた値から変わらない', (_name, prefCode, lonLat, [expectedX, expectedY]) => {
+    // Act
+    const [x, y] = projectPoint(lonLat, prefCode);
+
+    // Assert
+    expect(x).toBeCloseTo(expectedX, 2);
+    expect(y).toBeCloseTo(expectedY, 2);
+  });
+
   const lonLat: LonLat = [128.4, 27.05];
 
   test.each(['13', '46'])('6.6 (1)：沖縄県以外（%s）の位置は、沖縄の変換を受けない', prefCode => {
