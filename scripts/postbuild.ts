@@ -14,10 +14,7 @@ export type AssembleOptions = {
 };
 
 const isSafeRelativePath = (path: string): boolean =>
-  path !== '' &&
-  !path.startsWith('/') &&
-  !path.includes('\\') &&
-  path.split('/').every((segment) => segment !== '' && segment !== '.' && segment !== '..');
+  path !== '' && !path.startsWith('/') && !path.includes('\\') && path.split('/').every(segment => segment !== '' && segment !== '.' && segment !== '..');
 
 /** out/ の中の相対パス（区切りは /）から、dist/ の中の相対パスを返す */
 export const distPathOf = (outPath: string): string => {
@@ -29,15 +26,15 @@ export const distPathOf = (outPath: string): string => {
 
 const listFiles = (dir: string): readonly string[] =>
   readdirSync(dir, { recursive: true, withFileTypes: true })
-    .filter((entry) => entry.isFile())
-    .map((entry) => relative(dir, join(entry.parentPath, entry.name)).split(sep).join('/'));
+    .filter(entry => entry.isFile())
+    .map(entry => relative(dir, join(entry.parentPath, entry.name)).split(sep).join('/'));
 
 /** dist/ を作り直し、out/ のファイルを distPathOf の場所へコピーする */
 export const assembleDist = ({ outDir, distDir }: AssembleOptions): void => {
   if (!existsSync(outDir)) {
     throw new Error(`${outDir} がありません。先に next build を実行してください`);
   }
-  const missing = ROOT_FILES.filter((file) => !existsSync(join(outDir, file)));
+  const missing = ROOT_FILES.filter(file => !existsSync(join(outDir, file)));
   if (missing.length > 0) {
     throw new Error(`${outDir} に ${missing.join('・')} がありません（public/ に置く。11.4 (3)・(4)）`);
   }

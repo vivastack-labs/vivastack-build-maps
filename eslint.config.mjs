@@ -12,7 +12,7 @@ export default defineConfig([
   ...nextVitals,
   ...nextTs,
   prettier,
-  globalIgnores(['.next/**', 'out/**', 'dist/**', 'coverage/**', 'next-env.d.ts', '.claude/**', '.codex/**', '.agents/**']),
+  globalIgnores(['.next/**', 'out/**', 'dist/**', '.wrangler/**', 'coverage/**', 'next-env.d.ts', '.claude/**', '.codex/**', '.agents/**']),
   {
     rules: {
       'max-lines': ['error', { max: MAX_FILE_LINES, skipBlankLines: true, skipComments: true }],

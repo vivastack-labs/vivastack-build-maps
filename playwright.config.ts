@@ -1,10 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
 // 10.2・5.3：PC・スマホ・タブレットで E2E を動かす。
-// サーバーは next dev（T0-03 で、dist/ を配信する wrangler dev に切り替える）。
-// Next.js 16 は同じディレクトリで next dev を2つ起動できないので、pnpm dev と同じ 3000 番を使い、
-// 手元で動いている dev サーバーがあればそれを使う（CI では毎回起動する）
-const PORT = 3000;
+// サーバーは、本番の Workers と同じ動き（パス・リダイレクト・ヘッダー）を確かめるため、dist/ を配信する wrangler dev（T0-03）。
+// 古い dist/ を確かめないように毎回ビルドし、手元で動いているサーバーは使わない。
+// ポートは pnpm dev（3000番）とも、手で起動した wrangler dev（既定の 8787番）ともぶつからない 8788番
+const PORT = 8788;
 const BASE_URL = `http://localhost:${PORT}`;
 const IS_CI = Boolean(process.env.CI);
 
@@ -32,9 +32,11 @@ export default defineConfig({
     { name: 'ipad-landscape', use: { ...devices['iPad Pro 11 landscape'] } }
   ],
   webServer: {
-    command: `pnpm dev --port ${PORT}`,
+    command: `pnpm build && pnpm exec wrangler dev --port ${PORT}`,
     url: `${BASE_URL}/maps/ja/`,
-    reuseExistingServer: !IS_CI,
-    timeout: 120_000
+    reuseExistingServer: false,
+    // wrangler の利用状況を送らない
+    env: { WRANGLER_SEND_METRICS: 'false' },
+    timeout: 180_000
   }
 });

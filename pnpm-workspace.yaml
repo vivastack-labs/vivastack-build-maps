@@ -1,3 +1,6 @@
+---
+# esbuild・workerd のインストールスクリプトは実行しない。どちらも本体はプラットフォーム別のパッケージから入り、
+# スクリプトなしで wrangler dev が動く（T0-03 で確認）
 allowBuilds:
   esbuild: false
   workerd: false

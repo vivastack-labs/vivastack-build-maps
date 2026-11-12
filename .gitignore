@@ -87,5 +87,8 @@ worktrees/
 # Next.js
 .next/
 out/
+
+# wrangler dev の作業ディレクトリ
+.wrangler/
 next-env.d.ts
 *.tsbuildinfo

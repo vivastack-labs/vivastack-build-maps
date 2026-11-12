@@ -6,7 +6,7 @@ import { assembleDist, distPathOf } from '../../../scripts/postbuild';
 
 // U8・R7：basePath を付けても out/ は /maps の下にまとまらないので、dist/maps/ に組み立てる（6.4）
 describe('distPathOf', () => {
-  test.each(['_redirects', '_headers'])('U8・R7：_redirects と _headers は dist/ の直下に置く（%s）', (file) => {
+  test.each(['_redirects', '_headers'])('U8・R7：_redirects と _headers は dist/ の直下に置く（%s）', file => {
     // Act
     const result = distPathOf(file);
 
@@ -27,13 +27,10 @@ describe('distPathOf', () => {
     expect(result).toBe(expected);
   });
 
-  test.each(['/etc/passwd', '../secret', 'ja/../../x', '', 'ja\\index.html'])(
-    'R7：絶対パスや .. を含むパスはエラーにする（%j）',
-    (outPath) => {
-      // Act & Assert
-      expect(() => distPathOf(outPath)).toThrow();
-    }
-  );
+  test.each(['/etc/passwd', '../secret', 'ja/../../x', '', 'ja\\index.html'])('R7：絶対パスや .. を含むパスはエラーにする（%j）', outPath => {
+    // Act & Assert
+    expect(() => distPathOf(outPath)).toThrow();
+  });
 });
 
 describe('assembleDist', () => {
@@ -76,9 +73,9 @@ describe('assembleDist', () => {
     expect(existsSync(join(distDir, 'stale.html'))).toBe(false);
   });
 
-  test.each(['_redirects', '_headers'])('R7：out/ に %s がなければエラーにする', (missing) => {
+  test.each(['_redirects', '_headers'])('R7：out/ に %s がなければエラーにする', missing => {
     // Arrange
-    for (const file of ['_redirects', '_headers'].filter((name) => name !== missing)) {
+    for (const file of ['_redirects', '_headers'].filter(name => name !== missing)) {
       put(outDir, file, 'x');
     }
     put(outDir, 'ja/index.html', 'ja');
