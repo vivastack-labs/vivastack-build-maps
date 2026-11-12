@@ -30,6 +30,7 @@ const YOON_CONSONANT: ReadonlyMap<string, string> = new Map(Object.entries({ き
 const YOON_VOWEL: ReadonlyMap<string, string> = new Map(Object.entries({ ゃ: 'a', ゅ: 'u', ょ: 'o' }));
 
 const SOKUON = 'っ';
+const GEMINABLE = /^[kgsztdhfbpjc]/;
 const HATSUON = 'ん';
 
 // 名前の最後の字 → カナの終わりの読み（T1-02 で総務省のコード表の全件と合うことを確かめた）
@@ -44,7 +45,10 @@ type Token = { readonly kind: 'mora'; readonly romaji: string } | { readonly kin
 
 export type SplitName = { readonly stem: string; readonly suffix: string };
 
-/** 半角・全角のカタカナをひらがなにする。NFKC で濁点・半濁点を合わせてから変える。ほかの字（「ー」を含む）はそのまま。 */
+/**
+ * 半角・全角のカタカナをひらがなにする。先に NFKC で正規化して、半角カナと濁点・半濁点を全角の1字にまとめる。
+ * NFKC はカタカナ以外も変える（全角英数 → 半角、`㈱` → `(株)`）。カタカナ以外の字は、その後そのまま残す（「ー」を含む）。
+ */
 export function katakanaToHiragana(text: string): string {
   return text.normalize('NFKC').replace(KATAKANA, char => String.fromCharCode(char.charCodeAt(0) - KATAKANA_TO_HIRAGANA_OFFSET));
 }
@@ -60,7 +64,7 @@ export function hiraganaToRomaji(hiragana: string): string {
   return romaji.charAt(0).toUpperCase() + romaji.slice(1);
 }
 
-/** 名前の最後の字（市・区・町・村）から、カナを語幹と接尾辞の読みに分ける。合わなければエラー。 */
+/** 名前の最後の字（市・区・町・村）から、ひらがなの読みを語幹と接尾辞に分ける。合わなければエラー。 */
 export function splitSuffix(name: string, kana: string): SplitName {
   const readings = SUFFIX_READINGS.get(name.slice(-1));
   if (readings === undefined) {
@@ -77,7 +81,10 @@ export function splitSuffix(name: string, kana: string): SplitName {
   return { stem, suffix };
 }
 
-/** 市区町村名のローマ字（例：札幌市・さっぽろし → Sapporo-shi）。語幹と接尾辞を別々にローマ字にしてハイフンでつなぐ。 */
+/**
+ * 市区町村名のローマ字（例：札幌市・さっぽろし → Sapporo-shi）。語幹と接尾辞を別々にローマ字にしてハイフンでつなぐ。
+ * `kana` はひらがなで渡す。コード表のカナ（半角カタカナ）は、先に `katakanaToHiragana` を通す。
+ */
 export function municipalityRomaji(name: string, kana: string): string {
   const { stem, suffix } = splitSuffix(name, kana);
   return `${hiraganaToRomaji(stem)}-${hiraganaToRomaji(suffix).toLowerCase()}`;
@@ -118,24 +125,26 @@ function singleToken(char: string, hiragana: string): Token {
   return { kind: 'mora', romaji };
 }
 
-// 促音は、子音で始まる字の前にだけ置ける
+// 促音は、語の途中で、子音を重ねられる字（か・さ・た・は・ぱ行とその濁音）の前にだけ置ける。
+// コード表に出てこない並び（語頭、母音・ん・や行・わ行・な行・ま行・ら行の前）は推測せずエラーにする（D33）
 function validateSokuon(tokens: readonly Token[], hiragana: string): void {
   tokens.forEach((token, index) => {
     if (token.kind !== 'sokuon') return;
     const next = tokens[index + 1];
-    if (next?.kind !== 'mora' || startsWithVowel(next.romaji)) {
+    if (index === 0 || next?.kind !== 'mora' || !GEMINABLE.test(next.romaji)) {
       throw new Error(`促音「っ」の位置が正しくありません（${hiragana}）`);
     }
   });
 }
 
-// U12：お段＋う・お段＋お は o、う段＋う は u にする（いい・ええ・えい・ああ は書く）
+// D33：お段＋う・お段＋お は o、う段＋う は u にする（いい・ええ・えい・ああ は書く）。
+// 直前に残した拍と比べるので、3つ以上続いても同じ規則になる（こうお → ko）
 function dropLongVowels(tokens: readonly Token[]): readonly Token[] {
-  return tokens.filter((token, index) => {
-    const previous = tokens[index - 1];
-    if (token.kind !== 'mora' || previous?.kind !== 'mora') return true;
-    return !isLongVowel(previous.romaji, token.romaji);
-  });
+  return tokens.reduce<readonly Token[]>((kept, token) => {
+    const previous = kept[kept.length - 1];
+    const isDropped = token.kind === 'mora' && previous?.kind === 'mora' && isLongVowel(previous.romaji, token.romaji);
+    return isDropped ? kept : [...kept, token];
+  }, []);
 }
 
 function isLongVowel(previous: string, current: string): boolean {
@@ -157,10 +166,6 @@ function render(tokens: readonly Token[]): string {
 // 促音：次の子音を重ねる。ch の前は t にする（Hatcho）
 function geminate(nextRomaji: string): string {
   return nextRomaji.startsWith('ch') ? 't' : nextRomaji.charAt(0);
-}
-
-function startsWithVowel(romaji: string): boolean {
-  return /^[aiueo]/.test(romaji);
 }
 
 function zip(keys: readonly string[], values: readonly string[]): (readonly [string, string])[] {

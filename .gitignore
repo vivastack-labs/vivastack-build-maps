@@ -41,8 +41,9 @@ lib64/
 !.claude/*/lib
 # Keep app library code (src/lib/) despite the Python lib/ rule above
 !src/lib/
-# Keep geo build library code (geo/scripts/lib/) for the same reason
+# Keep geo build library code (geo/scripts/lib/) and its tests for the same reason
 !geo/scripts/lib/
+!tests/unit/geo/scripts/lib/
 parts/
 sdist/
 var/
