@@ -126,8 +126,9 @@
   },
   "definitions": {
     "text": {
+      "description": "空や空白だけの文は書けない",
       "type": "string",
-      "minLength": 1
+      "pattern": "\\S"
     },
     "slug": {
       "type": "string",

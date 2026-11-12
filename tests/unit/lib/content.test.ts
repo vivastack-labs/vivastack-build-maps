@@ -94,7 +94,7 @@ describe('validateContent：形', () => {
     const { errors } = validateContent(dir);
 
     expect(errors).toHaveLength(1);
-    expect(errors[0]).toMatchObject({ path: 'capital' });
+    expect(errors[0]).toMatchObject({ path: 'capital.population', line: lineOf(dir, HOKKAIDO, 'population:') });
     expect(errors[0]?.message).toContain('「population」');
   });
 
@@ -137,7 +137,7 @@ describe('validateContent：形', () => {
     const { errors } = validateContent(dir);
 
     expect(errors.map(issue => issue.path)).toEqual(['id', 'code']);
-    expect(errors[0]?.message).toContain('形が合いません');
+    expect(errors[0]?.message).toContain('英小文字とハイフン');
   });
 
   test('7.1：空のファイルは、行のない誤りにする', () => {
@@ -148,12 +148,67 @@ describe('validateContent：形', () => {
     expect(errors).toEqual([{ file: HOKKAIDO, line: undefined, path: '', message: '型が違います（object にしてください）' }]);
   });
 
+  test('7.1：空白だけの文は誤りにする', () => {
+    setIn(dir, HOKKAIDO, ['name', 'ja'], '  ');
+
+    const { errors } = validateContent(dir);
+
+    expect(errors.map(issue => [issue.path, issue.message])).toEqual([['name.ja', '空や空白だけにはできません']]);
+  });
+
+  test('7.1：形の誤りは、項目ごとの言葉で出す（code・id・確認した日）', () => {
+    setIn(dir, HOKKAIDO, ['specialties', 0, 'sources'], [{ title: '例', url: 'https://example.com/', accessed: '2026/11/11' }]);
+    setIn(dir, TOKYO, ['code'], '1');
+    setIn(dir, OKINAWA, ['id'], 'Okinawa');
+
+    const { errors } = validateContent(dir);
+
+    expect(errors.map(issue => issue.message)).toEqual([
+      '確認した日は YYYY-MM-DD の形にしてください',
+      '01〜47 の2桁の文字列にしてください（例："01"）',
+      '英小文字とハイフンにしてください（例：hokkaido、asahiyama-zoo）'
+    ]);
+  });
+
+  test('7.1：誤りの行は、その項目の名前（キー）の行にする', () => {
+    deleteIn(dir, TOKYO, ['spots', 1, 'description', 'en', 'kids']);
+
+    const { errors } = validateContent(dir);
+
+    // spots[1]（浅草寺）の description.en の行。値の最初の行（adult:）ではない
+    const adult = lineOf(dir, TOKYO, 'An old temple in Asakusa');
+    expect(errors[0]).toMatchObject({ path: 'spots[1].description.en', line: adult - 1 });
+  });
+
   test('7.1：誤りには、YAML の行が入る', () => {
     setIn(dir, TOKYO, ['spots', 1, 'status'], 'done');
 
     const { errors } = validateContent(dir);
 
     expect(errors[0]?.line).toBe(lineOf(dir, TOKYO, 'status: done'));
+  });
+
+  test('7.1：エイリアス（&・*）は誤りにし、ほかのファイルの検証を続ける（大きく展開されるファイルで止まらない）', () => {
+    const levels = Array.from({ length: 12 }, (_, i) => `l${i + 1}: &l${i + 1} [${Array(9).fill(`*l${i}`).join(', ')}]`);
+    writeFileSync(join(dir, HOKKAIDO), ['l0: &l0 x', ...levels].join('\n'));
+
+    const { errors, prefectures } = validateContent(dir);
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatchObject({ file: HOKKAIDO });
+    expect(errors[0]?.message).toContain('エイリアス');
+    expect(prefectures.map(pref => pref.id)).toEqual(['tokyo', 'okinawa']);
+  });
+
+  test('7.1：読めないファイル（NN-id.yaml という名前のディレクトリ）は誤りにする', () => {
+    mkdirSync(join(dir, '02-aomori.yaml'));
+
+    const { errors, prefectures } = validateContent(dir);
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatchObject({ file: '02-aomori.yaml' });
+    expect(errors[0]?.message).toContain('ファイルを読めません');
+    expect(prefectures).toHaveLength(3);
   });
 
   test('7.1：YAML の構文の誤りとキーの重複は、行を含む誤りにする', () => {
@@ -191,6 +246,7 @@ describe('validateContent：ファイルと id', () => {
 
     expect(errors.map(issue => issue.file).sort()).toEqual(['02-aomori.yml', 'aomori.yaml']);
     expect(errors[0]?.message).toContain('NN-id.yaml');
+    expect(errors.some(issue => issue.file === '.gitkeep')).toBe(false);
   });
 
   test('7.1：県の id・code が重複したら誤りにする', () => {
@@ -202,6 +258,7 @@ describe('validateContent：ファイルと id', () => {
     const messages = messagesOf(errors);
     expect(messages).toContain('code「01」');
     expect(messages).toContain('id「tokyo」');
+    expect(errors.find(issue => issue.message.includes('code「01」'))?.line).toBe(lineOf(dir, '01-tokyo.yaml', 'code:'));
   });
 
   test('7.1：県の中で名物・名所の id が重複したら誤りにする', () => {
@@ -268,6 +325,16 @@ describe('validateContent：ふりがな', () => {
 
     const hokkaido = warnings.filter(issue => issue.file === HOKKAIDO);
     expect(hokkaido.some(issue => issue.message.includes('ふりがな'))).toBe(false);
+  });
+
+  test('7.2：英語・中国語の文にふりがなの記法があれば誤りにする', () => {
+    setIn(dir, HOKKAIDO, ['name', 'en'], 'Hokkaido {北海道|ほっかいどう}');
+    setIn(dir, HOKKAIDO, ['spots', 0, 'description', 'zh', 'kids'], '这是一座{星|ほし}星形状的古城遗址。');
+
+    const { errors } = validateContent(dir);
+
+    expect(errors.map(issue => issue.path)).toEqual(['name.en', 'spots[0].description.zh.kids']);
+    expect(errors[0]?.message).toContain('日本語の文にだけ');
   });
 
   test('7.2：行き方・名前など、解説文のほかの日本語の文も見る', () => {

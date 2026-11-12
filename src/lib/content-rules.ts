@@ -51,30 +51,39 @@ export function checkItemIds(pref: Prefecture): readonly RuleIssue[] {
   });
 }
 
-/** 7.2・D2：ふりがなを見る日本語の文（出典のタイトルは出典の表記のままなので見ない） */
-function japaneseTexts(pref: Prefecture): readonly (readonly [ContentPath, string])[] {
+type PathText = readonly [ContentPath, string];
+
+/** ある言語の文をすべて、場所と一緒に返す（出典のタイトルは出典の表記のままなので入れない） */
+function textsOf(pref: Prefecture, lang: Lang): readonly PathText[] {
   const access = pref.access;
-  const accessTexts: (readonly [ContentPath, string])[] = access
+  const accessTexts: readonly PathText[] = access
     ? [
-        [['access', 'mode', 'ja'], access.mode.ja],
-        [['access', 'route', 'ja'], access.route.ja]
+        [['access', 'mode', lang], access.mode[lang]],
+        [['access', 'route', lang], access.route[lang]]
       ]
     : [];
-  const itemTexts = itemsOf(pref).flatMap(([path, item]) => [
-    [[...path, 'name', 'ja'], item.name.ja] as const,
-    ...MODES.map(mode => [[...path, 'description', 'ja', mode], item.description.ja[mode]] as const)
+  const itemTexts = itemsOf(pref).flatMap(([path, item]): readonly PathText[] => [
+    [[...path, 'name', lang], item.name[lang]],
+    ...MODES.map((mode): PathText => [[...path, 'description', lang, mode], item.description[lang][mode]])
   ]);
-  return [[['name', 'ja'], pref.name.ja], [['capital', 'name', 'ja'], pref.capital.name.ja], ...accessTexts, ...itemTexts];
+  return [[['name', lang], pref.name[lang]], [['capital', 'name', lang], pref.capital.name[lang]], ...accessTexts, ...itemTexts];
 }
 
-/** 7.2：ふりがなの誤り（誤り）と、ふりがなの付いていない漢字（警告） */
+/** ふりがなの記法（{…|…}）らしい部分 */
+const RUBY_NOTATION = /\{[^{}]*\|[^{}]*\}/u;
+
+/** 7.2・D2：ふりがなの誤り（誤り）と、ふりがなの付いていない漢字（警告）。日本語の文だけを見る。英語・中国語に記法があれば誤り */
 export function checkFurigana(pref: Prefecture): RuleResult {
-  const results = japaneseTexts(pref).map(([path, text]) => {
+  const results = textsOf(pref, 'ja').map(([path, text]) => {
     const { errors, warnings } = checkRuby(text);
     const toIssue = ({ index, message }: { index: number; message: string }): RuleIssue => ({ path, message: `${characterNumber(text, index)}文字目：${message}` });
     return { errors: errors.map(toIssue), warnings: warnings.map(toIssue) };
   });
-  return { errors: results.flatMap(r => r.errors), warnings: results.flatMap(r => r.warnings) };
+  const misplaced = (['en', 'zh'] as const)
+    .flatMap(lang => textsOf(pref, lang))
+    .filter(([, text]) => RUBY_NOTATION.test(text))
+    .map(([path]) => ({ path, message: 'ふりがなの記法（{漢字|よみ}）は、日本語の文にだけ書けます' }));
+  return { errors: [...results.flatMap(r => r.errors), ...misplaced], warnings: results.flatMap(r => r.warnings) };
 }
 
 /** 7.3：日本語・中国語は空白を除いた字数（日本語は読みを除く）、英語は語数 */
@@ -88,20 +97,18 @@ export function countLength(text: string, lang: Lang): number {
 export function checkLengths(pref: Prefecture): readonly RuleIssue[] {
   return ITEM_LISTS.flatMap(list =>
     pref[list].flatMap((item, i) =>
-      LANGS.flatMap(lang =>
-        MODES.flatMap(mode => {
-          const text = item.description[lang][mode];
-          if (lang === 'ja' && checkRuby(text).errors.length > 0) return [];
-          const [min, max] = LENGTH_RANGES[list][lang][mode];
-          const length = countLength(text, lang);
-          if (length >= min && length <= max) return [];
-          const unit = lang === 'en' ? '語' : '字';
-          const label = lang === 'en' ? '語数' : '文字数';
-          return [{ path: [list, i, 'description', lang, mode], message: `${label}が範囲外です（${length}${unit}。${min}〜${max}${unit}）` }];
-        })
-      )
+      LANGS.flatMap(lang => MODES.flatMap(mode => lengthIssue([list, i, 'description', lang, mode], item.description[lang][mode], lang, LENGTH_RANGES[list][lang][mode])))
     )
   );
+}
+
+/** 1つの解説文の文字数（英語は語数）が範囲外なら、警告を1つ返す */
+function lengthIssue(path: ContentPath, text: string, lang: Lang, [min, max]: Range): readonly RuleIssue[] {
+  if (lang === 'ja' && checkRuby(text).errors.length > 0) return [];
+  const length = countLength(text, lang);
+  if (length >= min && length <= max) return [];
+  const [label, unit] = lang === 'en' ? ['語数', '語'] : ['文字数', '字'];
+  return [{ path, message: `${label}が範囲外です（${length}${unit}。${min}〜${max}${unit}）` }];
 }
 
 /** 9.3：出典が空なら警告（画面には「出典なし」と出る） */

@@ -2,6 +2,9 @@
 // スキーマを変えたら pnpm content:types で作り直す。
 
 export type Slug = string;
+/**
+ * 空や空白だけの文は書けない
+ */
 export type Text = string;
 /**
  * 実際に開いて確かめた出典だけ。なければ空（9.3）
