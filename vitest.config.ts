@@ -28,8 +28,8 @@ export default defineConfig({
     ],
     coverage: {
       provider: 'v8',
-      // app/ はE2E（T0-02）で確かめるので対象外
-      include: ['src/**/*.{ts,tsx}'],
+      // app/ はE2E（T0-02）で確かめるので対象外。scripts/ はデプロイの中身を決めるので対象にする（T0-03、R7）
+      include: ['src/**/*.{ts,tsx}', 'scripts/**/*.ts'],
       thresholds: {
         ...OVERALL,
         'src/lib/**': DOMAIN,
