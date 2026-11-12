@@ -4,16 +4,19 @@
 /** 県コード（'01'〜'47'）。境界（DOM の属性、ハッシュの解析）で確かめてから渡す */
 export type PrefCode = string;
 
+/** 地図の操作の状態（4.11.1）。マウスをのせた県・固定した県・最大化した県を持つ */
 export type MapState = {
   /** マウスをのせている（フォーカスしている）県 */
   readonly hovered: PrefCode | null;
   /** 最後に hovered になった県（ホバーが終わっても残す） */
   readonly displayed: PrefCode | null;
+  /** 固定表示している県 */
   readonly pinned: PrefCode | null;
   /** 空でなければ pinned と同じ県（4.11.1） */
   readonly maximized: PrefCode | null;
 };
 
+/** 状態を変える操作（4.11.2 の表の行）。キーボードの操作も同じイベントにして渡す */
 export type MapEvent =
   | { readonly type: 'hover'; readonly pref: PrefCode }
   | { readonly type: 'hoverEnd' }
@@ -25,6 +28,7 @@ export type MapEvent =
   | { readonly type: 'zoomStep' }
   | { readonly type: 'restore'; readonly pref: PrefCode };
 
+/** ページを開いたときの状態。どの県もホバー・固定・最大化していない */
 export const INITIAL_MAP_STATE: MapState = { hovered: null, displayed: null, pinned: null, maximized: null };
 
 /** 状態を一部だけ変える。変わらないときは受け取った状態をそのまま返す */
@@ -62,6 +66,10 @@ function restore(state: MapState, pref: PrefCode): MapState {
   return update(state, { pinned: pref, maximized: null });
 }
 
+/**
+ * 操作に応じて次の状態を返す（4.11.2 の表）。受け取った状態は変えない。
+ * 状態が変わらない操作では、受け取った状態をそのまま返す（同じ参照）。
+ */
 export function mapReducer(state: MapState, event: MapEvent): MapState {
   switch (event.type) {
     case 'hover':
