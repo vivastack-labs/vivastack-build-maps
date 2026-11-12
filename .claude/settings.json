@@ -93,7 +93,6 @@
       "Bash(killall *)",
       "Bash(pkill *)",
       "Read(**/.env)",
-      "Bash(git push *)",
       "Bash(git reset --hard*)",
       "Bash(git clean *)"
     ],
