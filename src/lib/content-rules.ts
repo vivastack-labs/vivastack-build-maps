@@ -9,6 +9,7 @@ export type ContentPath = readonly (string | number)[];
 /** 1県の中の誤り・警告 */
 export type RuleIssue = { readonly path: ContentPath; readonly message: string };
 
+/** スキーマで確かめられない規則の検査の結果（誤りと警告） */
 export type RuleResult = { readonly errors: readonly RuleIssue[]; readonly warnings: readonly RuleIssue[] };
 
 type Item = Specialty | Spot;

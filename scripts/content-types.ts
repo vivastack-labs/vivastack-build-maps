@@ -6,7 +6,9 @@ import { join } from 'node:path';
 import { compile, type JSONSchema } from 'json-schema-to-typescript';
 import { format, resolveConfig } from 'prettier';
 
+/** 型を作る元の JSON Schema */
 export const SCHEMA_FILE = 'content/schema/prefecture.schema.json';
+/** 作った型を書くファイル（手で直さない） */
 export const GENERATED_TYPES_FILE = 'src/lib/content-schema.generated.ts';
 
 const BANNER = [`// ${SCHEMA_FILE} から pnpm content:types で作ったファイル。手で直さない（T1-07、開発概要書 7.1）。`, '// スキーマを変えたら pnpm content:types で作り直す。'].join('\n');

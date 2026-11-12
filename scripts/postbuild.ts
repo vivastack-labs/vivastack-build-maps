@@ -8,6 +8,7 @@ import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 const BASE_DIR = 'maps';
 const ROOT_FILES: readonly string[] = ['_redirects', '_headers'];
 
+/** next build の出力（outDir）と、組み立てる先（distDir） */
 export type AssembleOptions = {
   readonly outDir: string;
   readonly distDir: string;

@@ -20,9 +20,12 @@
  */
 import { geoConicConformal, type GeoProjection } from 'd3-geo';
 
+/** 経緯度（度） */
 export type LonLat = readonly [longitude: number, latitude: number];
+/** 投影した後の SVG の座標（viewBox の中） */
 export type Point = readonly [x: number, y: number];
 
+/** 地図の SVG の viewBox の大きさ */
 export const VIEWBOX = { width: 1000, height: 1130 } as const;
 
 const PROJECTION = {
@@ -33,6 +36,7 @@ const PROJECTION = {
   translate: [468, 544]
 } as const;
 
+/** 左上の点線枠に移す県（沖縄県）のコード */
 export const OKINAWA_PREF_CODE = '47';
 
 /** 沖縄県の点を、本体の投影の後で p' = scale·p + (dx, dy) に移す */

@@ -7,6 +7,7 @@ export type RubySegment = { readonly kind: 'text'; readonly text: string } | { r
 /** 誤り・警告。index は文字列の中の位置（0始まり。UTF-16 の位置） */
 export type RubyIssue = { readonly index: number; readonly message: string };
 
+/** checkRuby の結果。errors は記法の誤り、warnings はふりがなの付いていない漢字 */
 export type RubyCheck = {
   readonly errors: readonly RubyIssue[];
   readonly warnings: readonly RubyIssue[];
