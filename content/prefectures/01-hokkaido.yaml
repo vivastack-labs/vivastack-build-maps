@@ -1,0 +1,21 @@
+# 県庁の位置（D32。2026-11-12 に確認）
+# - 庁舎の住所：北海道札幌市中央区北3条西6丁目（https://www.pref.hokkaido.lg.jp/）
+# - 地理院地図の住所検索の点（43.064438, 141.347061）は庁舎の外にあったので、
+#   地理院地図（標準地図）で「北海道庁舎」と書かれた建物の中の点を読み取った
+---
+id: hokkaido
+code: "01"
+region: hokkaido
+name:
+  ja: "{北海道|ほっかいどう}"
+  en: "Hokkaido"
+  zh: "北海道"
+capital:
+  name:
+    ja: "{札幌市|さっぽろし}"
+    en: "Sapporo"
+    zh: "札幌市"
+  lat: 43.064585
+  lon: 141.346804
+specialties: []
+spots: []

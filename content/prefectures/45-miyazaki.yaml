@@ -1,0 +1,21 @@
+# 県庁の位置（D32。2026-11-12 に確認）
+# - 庁舎の住所：宮崎県宮崎市橘通東2丁目10番1号（https://www.pref.miyazaki.lg.jp/）
+# - 地理院地図の住所検索の点（31.910839, 131.423721）は庁舎の外にあったので、
+#   地理院地図（標準地図）で「宮崎県庁舎」と書かれた建物の中の点を読み取った
+---
+id: miyazaki
+code: "45"
+region: kyushu
+name:
+  ja: "{宮崎県|みやざきけん}"
+  en: "Miyazaki"
+  zh: "宫崎县"
+capital:
+  name:
+    ja: "{宮崎市|みやざきし}"
+    en: "Miyazaki"
+    zh: "宫崎市"
+  lat: 31.910957
+  lon: 131.423571
+specialties: []
+spots: []

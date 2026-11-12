@@ -1,0 +1,21 @@
+# 県庁の位置（D32。2026-11-12 に確認）
+# - 庁舎の住所：福島県福島市杉妻町2番16号（https://www.pref.fukushima.lg.jp/）
+# - 地理院地図の住所検索の点（37.750912, 140.467865）は庁舎の外にあったので、
+#   地理院地図（標準地図）で「福島県庁舎」と書かれた建物の中の点を読み取った
+---
+id: fukushima
+code: "07"
+region: tohoku
+name:
+  ja: "{福島県|ふくしまけん}"
+  en: "Fukushima"
+  zh: "福岛县"
+capital:
+  name:
+    ja: "{福島市|ふくしまし}"
+    en: "Fukushima"
+    zh: "福岛市"
+  lat: 37.750044
+  lon: 140.467694
+specialties: []
+spots: []

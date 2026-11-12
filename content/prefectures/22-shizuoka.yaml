@@ -1,0 +1,21 @@
+# 県庁の位置（D32。2026-11-12 に確認）
+# - 庁舎の住所：静岡県静岡市葵区追手町9番6号（https://www.pref.shizuoka.jp/）
+# - 地理院地図の住所検索の点（34.976109, 138.382599）は庁舎の外にあったので、
+#   地理院地図（標準地図）で「静岡県庁舎」と書かれた建物の中の点を読み取った
+---
+id: shizuoka
+code: "22"
+region: chubu
+name:
+  ja: "{静岡県|しずおかけん}"
+  en: "Shizuoka"
+  zh: "静冈县"
+capital:
+  name:
+    ja: "{静岡市|しずおかし}"
+    en: "Shizuoka"
+    zh: "静冈市"
+  lat: 34.976821
+  lon: 138.38328
+specialties: []
+spots: []

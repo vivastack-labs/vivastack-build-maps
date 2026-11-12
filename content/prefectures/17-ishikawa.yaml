@@ -1,0 +1,20 @@
+# 県庁の位置（D32。2026-11-12 に確認）
+# - 庁舎の住所：石川県金沢市鞍月1丁目1番地（https://www.pref.ishikawa.lg.jp/）
+# - 地理院地図の住所検索の点が、地理院地図で「石川県庁舎」と書かれた建物の上にあることを確かめた
+---
+id: ishikawa
+code: "17"
+region: chubu
+name:
+  ja: "{石川県|いしかわけん}"
+  en: "Ishikawa"
+  zh: "石川县"
+capital:
+  name:
+    ja: "{金沢市|かなざわし}"
+    en: "Kanazawa"
+    zh: "金泽市"
+  lat: 36.594818
+  lon: 136.625351
+specialties: []
+spots: []

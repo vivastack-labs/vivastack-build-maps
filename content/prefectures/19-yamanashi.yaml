@@ -1,0 +1,21 @@
+# 県庁の位置（D32。2026-11-12 に確認）
+# - 庁舎の住所：山梨県甲府市丸の内1-6-1（https://www.pref.yamanashi.jp/）
+# - 地理院地図の住所検索の点（35.664886, 138.569061）は庁舎の外にあったので、
+#   地理院地図（標準地図）で「山梨県庁舎」と書かれた建物の中の点を読み取った
+---
+id: yamanashi
+code: "19"
+region: chubu
+name:
+  ja: "{山梨県|やまなしけん}"
+  en: "Yamanashi"
+  zh: "山梨县"
+capital:
+  name:
+    ja: "{甲府市|こうふし}"
+    en: "Kofu"
+    zh: "甲府市"
+  lat: 35.66401
+  lon: 138.568428
+specialties: []
+spots: []
