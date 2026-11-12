@@ -1,0 +1,21 @@
+# 県庁の位置（D32。2026-11-12 に確認）
+# - 庁舎の住所：山口県山口市滝町1番1号（https://www.pref.yamaguchi.lg.jp/）
+# - 地理院地図の住所検索の点（34.18597, 131.471497）は庁舎の外にあったので、
+#   地理院地図（標準地図）で「山口県庁舎」と書かれた建物の中の点を読み取った
+---
+id: yamaguchi
+code: "35"
+region: chugoku
+name:
+  ja: "{山口県|やまぐちけん}"
+  en: "Yamaguchi"
+  zh: "山口县"
+capital:
+  name:
+    ja: "{山口市|やまぐちし}"
+    en: "Yamaguchi"
+    zh: "山口市"
+  lat: 34.185792
+  lon: 131.471497
+specialties: []
+spots: []

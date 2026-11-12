@@ -1,0 +1,20 @@
+# 県庁の位置（D32。2026-11-12 に確認）
+# - 庁舎の住所：鳥取県鳥取市東町1丁目220（https://www.pref.tottori.lg.jp/）
+# - 地理院地図の住所検索の点が、地理院地図で「鳥取県庁舎」と書かれた建物の上にあることを確かめた
+---
+id: tottori
+code: "31"
+region: chugoku
+name:
+  ja: "{鳥取県|とっとりけん}"
+  en: "Tottori"
+  zh: "鸟取县"
+capital:
+  name:
+    ja: "{鳥取市|とっとりし}"
+    en: "Tottori"
+    zh: "鸟取市"
+  lat: 35.503426
+  lon: 134.238403
+specialties: []
+spots: []
