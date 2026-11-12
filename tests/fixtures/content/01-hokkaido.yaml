@@ -1,0 +1,118 @@
+# E2E・単体テスト用のフィクスチャ（T1-07）。全項目が reviewed の県。
+# 文はテスト用で、事実の確認や出典の確認はしていない。緯度経度も T1-08 で調べた値ではない。
+---
+id: hokkaido
+code: "01"
+region: hokkaido
+name:
+  ja: "{北海道|ほっかいどう}"
+  en: "Hokkaido"
+  zh: "北海道"
+capital:
+  name:
+    ja: "{札幌市|さっぽろし}"
+    en: "Sapporo"
+    zh: "札幌市"
+  lat: 43.0642
+  lon: 141.3469
+access:
+  emoji: "✈️"
+  mode: {ja: "{飛行機|ひこうき}", en: "Plane", zh: "飞机"}
+  route:
+    ja: "{羽田空港|はねだくうこう} → {新千歳空港|しんちとせくうこう}"
+    en: "Haneda Airport → New Chitose Airport"
+    zh: "羽田机场 → 新千岁机场"
+  durationMin: 95
+  sources: []
+  status: reviewed
+specialties:
+  - id: potato
+    emoji: "🥔"
+    name: {ja: "じゃがいも", en: "Potatoes", zh: "土豆"}
+    description:
+      ja:
+        kids: "{広|ひろ}い{畑|はたけ}でたくさん{育|そだ}つ、ほくほくのおいもだよ。"
+        adult: >-
+          {広|ひろ}い{畑|はたけ}で{育|そだ}ち、{秋|あき}にとれて{全国|ぜんこく}へ{送|おく}られる、
+          {北海道|ほっかいどう}を{代表|だいひょう}する{野菜|やさい}です。
+      en:
+        kids: "Fluffy potatoes grow in the wide fields here, and they taste great."
+        adult: "Potatoes grown in the wide fields of Hokkaido are harvested in autumn and sent all over Japan."
+      zh:
+        kids: "在宽阔的田地里长大的土豆，又软又好吃。"
+        adult: "在北海道宽阔的田地里种植的土豆，秋天收获后运往全国各地。"
+    sources: []
+    status: reviewed
+  - id: milk
+    emoji: "🥛"
+    name: {ja: "{牛乳|ぎゅうにゅう}", en: "Milk", zh: "牛奶"}
+    description:
+      ja:
+        kids: "{牧場|ぼくじょう}の{牛|うし}から{毎日|まいにち}しぼる、こくのある{牛乳|ぎゅうにゅう}だよ。"
+        adult: "{涼|すず}しい{気候|きこう}と{広|ひろ}い{牧草地|ぼくそうち}をいかして、{多|おお}くの{牛乳|ぎゅうにゅう}がつくられています。"
+      en:
+        kids: "Cows on big farms give fresh and rich milk every single day."
+        adult: "The cool climate and wide pastures make Hokkaido a major producer of fresh milk in Japan."
+      zh:
+        kids: "牧场的奶牛每天都会产出新鲜又香浓的牛奶。"
+        adult: "凉爽的气候和宽广的牧场，让这里生产大量新鲜的牛奶。"
+    sources: []
+    status: reviewed
+  - id: salmon
+    emoji: "🐟"
+    name: {ja: "さけ", en: "Salmon", zh: "三文鱼"}
+    description:
+      ja:
+        kids: "{秋|あき}になると{川|かわ}をのぼってくる、おいしい{魚|さかな}だよ。"
+        adult: "{秋|あき}に{川|かわ}をさかのぼるさけは、{焼|や}き{魚|ざかな}やいくらとして{親|した}しまれています。"
+      en:
+        kids: "In autumn, salmon swim up the rivers, and they are very tasty."
+        adult: "Salmon swim up the rivers in autumn and are enjoyed grilled or as salmon roe called ikura."
+      zh:
+        kids: "秋天会逆流而上回到河里的美味的鱼。"
+        adult: "秋天逆流而上的三文鱼，常被做成烤鱼或鲑鱼子，深受人们喜爱。"
+    sources: []
+    status: reviewed
+spots:
+  - id: goryokaku
+    name: {ja: "{五稜郭|ごりょうかく}", en: "Goryokaku", zh: "五棱郭"}
+    description:
+      ja:
+        kids: "{星|ほし}の{形|かたち}をした{古|ふる}いお{城|しろ}のあとだよ。"
+        adult: "{星|ほし}の{形|かたち}をした{西洋式|せいようしき}の{城|しろ}のあとで、{春|はる}は{桜|さくら}の{名所|めいしょ}です。"
+      en:
+        kids: "An old castle site shaped like a big star."
+        adult: "A star-shaped Western-style fort site that is famous for cherry blossoms in spring."
+      zh:
+        kids: "这是一座星星形状的古城遗址。"
+        adult: "星形的西式城堡遗址，春天是有名的赏樱胜地。"
+    sources: []
+    status: reviewed
+  - id: shiretoko
+    name: {ja: "{知床|しれとこ}", en: "Shiretoko", zh: "知床"}
+    description:
+      ja:
+        kids: "クマやシカがくらす、{大自然|だいしぜん}の{半島|はんとう}だよ。"
+        adult: "{手|て}つかずの{自然|しぜん}が{残|のこ}る{半島|はんとう}で、{世界自然遺産|せかいしぜんいさん}に{登録|とうろく}されています。"
+      en:
+        kids: "A wild peninsula where bears and deer live freely."
+        adult: "A wild peninsula with untouched nature that is a World Natural Heritage site."
+      zh:
+        kids: "这是熊和鹿生活的大自然半岛。"
+        adult: "保留着原始自然的半岛，被列入世界自然遗产。"
+    sources: []
+    status: reviewed
+  - id: asahiyama-zoo
+    name: {ja: "{旭山動物園|あさひやまどうぶつえん}", en: "Asahiyama Zoo", zh: "旭山动物园"}
+    description:
+      ja:
+        kids: "ペンギンのおさんぽが{見|み}られる{動物園|どうぶつえん}だよ。"
+        adult: "{動物|どうぶつ}の{自然|しぜん}なすがたを{見|み}せる{展示|てんじ}で{知|し}られる{動物園|どうぶつえん}です。"
+      en:
+        kids: "A zoo where you can watch penguins go for a walk."
+        adult: "A zoo known for exhibits that show animals moving as they do in nature."
+      zh:
+        kids: "可以看到企鹅散步的动物园。"
+        adult: "以展示动物自然状态而闻名的动物园。"
+    sources: []
+    status: reviewed

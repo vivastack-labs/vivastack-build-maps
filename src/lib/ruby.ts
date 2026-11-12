@@ -128,7 +128,7 @@ export function checkRuby(text: string): RubyCheck {
 }
 
 /** UTF-16 の位置を、書く人が数える「何文字目」（1始まり。𩸽 など BMP の外の字も1字）にする */
-function characterNumber(text: string, index: number): number {
+export function characterNumber(text: string, index: number): number {
   return [...text.slice(0, index)].length + 1;
 }
 

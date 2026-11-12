@@ -66,6 +66,10 @@ jobs:
       - name: Unit test
         if: steps.changes.outputs.docs_only != 'true'
         run: pnpm test
+      # 7.1〜7.3：コンテンツの YAML（content/prefectures/）を検証する。誤りで失敗し、警告はログに出すだけ（T1-07）
+      - name: Validate content
+        if: steps.changes.outputs.docs_only != 'true'
+        run: pnpm content:validate
       # E2E は開発中は PR ごとに実行せず、e2e.yml で手動で実行する（12.1。Actions の分数を抑えるため）
       - name: Build
         if: steps.changes.outputs.docs_only != 'true'

@@ -18,7 +18,9 @@
     "test": "vitest run --coverage",
     "test:e2e": "playwright test",
     "screenshots": "node scripts/pr-screenshots.ts",
-    "geo:build": "node geo/scripts/build-geo.ts"
+    "geo:build": "node geo/scripts/build-geo.ts",
+    "content:types": "node scripts/content-types.ts",
+    "content:validate": "node scripts/validate-content.ts"
   },
   "browserslist": [
     "last 2 Chrome major versions",
@@ -30,10 +32,12 @@
   ],
   "packageManager": "pnpm@12.18.0+sha512.9d7882d5dc82147ecfc4e062aa34834e0ad0296710a1837a1115ae012127d36b7109e321ac1598a1dd0a65597681b1e99917e12ed0d749eae91187943363beb3",
   "dependencies": {
+    "ajv": "8.20.0",
     "d3-geo": "3.1.2",
     "next": "16.4.6",
     "react": "19.3.1",
-    "react-dom": "19.3.1"
+    "react-dom": "19.3.1",
+    "yaml": "2.9.1"
   },
   "devDependencies": {
     "@playwright/test": "1.65.0",
@@ -54,6 +58,7 @@
     "eslint-config-prettier": "^10.1.8",
     "fflate": "0.8.3",
     "jsdom": "31.0.0",
+    "json-schema-to-typescript": "16.0.0",
     "mapshaper": "0.7.101",
     "markdownlint-cli2": "^0.24.0",
     "prettier": "3.9.10",

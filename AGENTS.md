@@ -7,11 +7,11 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 - 「ご当地めいぶつ日本地図」：47都道府県の名物・名所を日本地図から探せる Web アプリ（ja / en / zh、こども／おとなモード、ふりがな ON/OFF）。
 - 設計・要件・決定事項は [docs/development-overview.md](docs/development-overview.md) にある。作業の前に関係する章を読み、要件ID（例：`F-MAP-01`）で対応を確認する。
 - タスクの一覧・順番・進み具合は [docs/development-plan.md](docs/development-plan.md)、タスクごとの定義（目的・参照仕様・実装内容・完了条件・テスト条件・依存関係）は `docs/tasks/` にある。タスクに着手するときは、その定義を読み、タスクのID（例：`T0-01`）をPRの本文に書く。終わったら「状態」を更新する。
-- 現在は M1（地図データとコンテンツ基盤）の途中。地図データ（T1-01〜T1-05：投影法、変換スクリプト、データの検査）と、ふりがなの記法のパーサー（T1-06）はできている。M0 は手作業の T0-05 と、それに続く T0-06・T0-07（デプロイ）が残っている。アプリの雛形（Next.js・TypeScript・Tailwind CSS・ESLint・Vitest）はある（T0-01）。コンポーネントテストと E2E（Testing Library・Playwright）もある（T0-02）。`dist/` の組み立てと、`wrangler dev` での確認もできる（T0-03）。PRごとに GitHub Actions の CI（`.github/workflows/ci.yml`：lint・typecheck・test・build・gitleaks）が動く（T0-04）。E2E は開発中は PR ごとに動かさず、`.github/workflows/e2e.yml` を手動で実行する（D30）。デプロイはまだない。
+- 現在は M1（地図データとコンテンツ基盤）の途中。地図データ（T1-01〜T1-05：投影法、変換スクリプト、データの検査）と、ふりがなの記法のパーサー（T1-06）、コンテンツのスキーマと検証（T1-07。`pnpm content:validate`）はできている。M0 は手作業の T0-05 と、それに続く T0-06・T0-07（デプロイ）が残っている。アプリの雛形（Next.js・TypeScript・Tailwind CSS・ESLint・Vitest）はある（T0-01）。コンポーネントテストと E2E（Testing Library・Playwright）もある（T0-02）。`dist/` の組み立てと、`wrangler dev` での確認もできる（T0-03）。PRごとに GitHub Actions の CI（`.github/workflows/ci.yml`：lint・typecheck・test・build・gitleaks）が動く（T0-04）。E2E は開発中は PR ごとに動かさず、`.github/workflows/e2e.yml` を手動で実行する（D30）。デプロイはまだない。
 
 ## 技術スタック
 
-導入済み：Next.js・TypeScript・Tailwind CSS・ESLint・Prettier・Vitest・Testing Library・Playwright・wrangler・GitHub Actions（PRのチェック）・Dependabot・d3-geo・mapshaper・topojson-client（テストだけ）。それ以外はまだ入っていない（予定）。
+導入済み：Next.js・TypeScript・Tailwind CSS・ESLint・Prettier・Vitest・Testing Library・Playwright・wrangler・GitHub Actions（PRのチェック）・Dependabot・d3-geo・mapshaper・topojson-client（テストだけ）・yaml・ajv・json-schema-to-typescript。それ以外はまだ入っていない（予定）。
 
 - Next.js（App Router、`output: 'export'`、`basePath: '/maps'`）＋ TypeScript（strict）
 - 地図：SVG ＋ d3-geo ＋ topojson-client（国土数値情報 N03 2026年版から作る TopoJSON）
@@ -36,6 +36,8 @@ pnpm test         # Vitest（カバレッジの基準を下回ると失敗する
 pnpm test:e2e     # Playwright（PC・スマホ・タブレットの7プロジェクト）
 pnpm build        # next build で out/ を作り、scripts/postbuild.ts で dist/ に組み立てる
 pnpm exec wrangler dev   # dist/ を本番の Workers と同じ形で配信する（http://localhost:8787/maps/ja/。先に pnpm build）
+pnpm content:validate   # コンテンツの YAML を検証する（誤りで終了コード1。CONTENT_DIR で読むディレクトリを変える）
+pnpm content:types      # スキーマから型（src/lib/content-schema.generated.ts）を作り直す（スキーマを変えたら実行してコミット）
 pnpm geo:build    # 地図データを作り直す（年1回、手で実行。原データの取得は geo/README.md。毎回のビルドでは動かさない）
 
 pnpm vitest run tests/unit/i18n/lang.test.ts   # 1ファイルだけ動かす（カバレッジなし）
@@ -64,13 +66,14 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
 | `app/` | ルーティングとページ（Next.js App Router） |
 | `src/` | アプリのロジック。`src/lib/` は `.gitignore` の例外で管理している |
 | `tests/unit/` | 単体テスト（`.test.ts`、node）とコンポーネントテスト（`.test.tsx`、jsdom）。`src/` と同じ構成で置く |
+| `tests/fixtures/content/` | E2E・単体テスト用のコンテンツ（北海道：全部 `reviewed`、東京都：混在、沖縄県：未作成）。`CONTENT_DIR=tests/fixtures/content` で読む |
 | `tests/data/` | データの検査（`.test.ts`、node）。コミットされた地図データの全体を確かめる（T1-05） |
 | `tests/e2e/` | E2E（Playwright。`*.spec.ts`） |
 | `tests/screenshots/` | PRに載せるスクリーンショットの画面（`playwright.screenshots.config.ts`。`pnpm screenshots` から使う） |
 | `tests/setup/` | テストの共通の準備（jest-dom のマッチャーなど） |
 | `scripts/` | ビルドのスクリプト（`postbuild.ts`：`out/` → `dist/`）。Node.js で直接実行するので、`enum` など型の除去で消せない書き方は使わない（`geo/scripts/` も同じ。相対の import には `.ts` を付ける） |
 | `public/` | そのまま配信するファイル。`_redirects`・`_headers` は `dist/` の直下に置かれる。`public/geo/muni/` は `pnpm geo:build` の出力（手で直さない） |
-| `content/` | 都道府県ごとの YAML（予定）。lint は `content/.yamllint` |
+| `content/` | `prefectures/`：都道府県ごとの YAML（T1-08 で作る）。`schema/`：JSON Schema。lint は `content/.yamllint` |
 | `geo/` | 地図データの変換（`scripts/`）、読み・ローマ字の修正表（`sources/`）、都道府県の形（`data/prefs.topo.json`。生成物）。原データは `geo/downloads/` に置き、コミットしない。手順と判断は `geo/README.md` |
 | `.claude/` | Claude Code の設定・ルール・エージェント・スキル・hooks |
 | `.codex/`、`.agents/` | Codex の設定・hooks・スキル |
@@ -88,6 +91,7 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
   - `public/geo/muni/NN.topo.json`（`municipalities`）：県を最大化したときに `/maps/geo/muni/` から読み込む。市区町村は `code` で引く（名前・読みが同じ市区町村がある）。
   - 変換は総務省のコード表と照合し、修正表の `before` が合わない・大きさが基準を超えるなどで止まる。コミットした出力は `tests/data/geo.test.ts` が CI で検査する。
 - ふりがなの記法 `{漢字|よみ}`（7.2）：`src/lib/ruby.ts` の `parseRuby`（誤りがあれば例外）・`checkRuby`（誤りと警告の一覧）・`plainText`（読みを除く）と、`<ruby>` を描く `src/components/RubyText.tsx`。`dangerouslySetInnerHTML` は使わない。
+- コンテンツ（7.1）：ビルドでは `src/lib/content.ts` の `loadContent()`（誤りがあれば例外。県を `code` の順に返す）を使い、検証は `validateContent()`（誤り・警告をすべて返す）。どちらも `CONTENT_DIR`（既定は `content/prefectures/`）を読む。`scripts/` から Node.js で直接読み込むので、`src/lib/` の相対の import には `.ts` を付ける。本番の `reviewed` だけの絞り込みは T3-02。
 - `next.config.ts` の `agentRules: false` は消さない。消すと `next dev` が `AGENTS.md` に英語の指示を書き込む。
 
 ## 開発ルール

@@ -1,0 +1,117 @@
+# E2E・単体テスト用のフィクスチャ（T1-07）。reviewed と verified が混ざった県（本番では「準備中」。4.11.4）。
+# 文はテスト用で、事実の確認や出典の確認はしていない。緯度経度は開発概要書の T1-08 の例の値。
+---
+id: tokyo
+code: "13"
+region: kanto
+name:
+  ja: "{東京都|とうきょうと}"
+  en: "Tokyo"
+  zh: "东京都"
+capital:
+  name:
+    ja: "{新宿区|しんじゅくく}"
+    en: "Shinjuku"
+    zh: "新宿区"
+  lat: 35.689629
+  lon: 139.691772
+access:
+  emoji: "🚃"
+  mode: {ja: "{電車|でんしゃ}", en: "Train", zh: "电车"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {新宿駅|しんじゅくえき}"
+    en: "Tokyo Station → Shinjuku Station"
+    zh: "东京站 → 新宿站"
+  durationMin: 15
+  sources: []
+  status: reviewed
+specialties:
+  - id: monjayaki
+    emoji: "🍳"
+    name: {ja: "もんじゃ{焼|や}き", en: "Monjayaki", zh: "文字烧"}
+    description:
+      ja:
+        kids: "{鉄板|てっぱん}でじゅうじゅう{焼|や}いて、へらで{食|た}べるよ。"
+        adult: "{水|みず}で{溶|と}いた{小麦粉|こむぎこ}とキャベツなどの{具|ぐ}を{鉄板|てっぱん}で{焼|や}き、{小|ちい}さなへらで{食|た}べます。"
+      en:
+        kids: "You cook it on a hot iron plate and eat it with a tiny spatula."
+        adult: "A batter of flour and water is cooked with fillings on a hot plate and eaten with a small spatula."
+      zh:
+        kids: "在铁板上滋滋地烤，用小铲子吃。"
+        adult: "把面粉糊和配料放在铁板上烤，再用小铲子一点一点地吃。"
+    sources: []
+    status: reviewed
+  - id: tsukudani
+    emoji: "🍚"
+    name: {ja: "つくだ{煮|に}", en: "Tsukudani", zh: "佃煮"}
+    description:
+      ja:
+        kids: "{小魚|こざかな}や{海藻|かいそう}をあまからく{煮|に}た、ごはんのおともだよ。"
+        adult: "{小魚|こざかな}や{海藻|かいそう}をしょうゆと{砂糖|さとう}で{煮|に}つめた、{日持|ひも}ちのするおかずです。"
+      en:
+        kids: "Small fish or seaweed cooked sweet and salty, great with a bowl of rice."
+        adult: "Small fish or seaweed simmered in soy sauce and sugar, making a side dish that keeps for a long time."
+      zh:
+        kids: "把小鱼和海藻煮得又甜又咸，很下饭。"
+        adult: "用酱油和砂糖把小鱼或海藻煮透，是一种可以长时间保存的小菜。"
+    sources: []
+    status: verified
+  - id: edomae-sushi
+    emoji: "🍣"
+    name: {ja: "{江戸前|えどまえ}ずし", en: "Edomae sushi", zh: "江户前寿司"}
+    description:
+      ja:
+        kids: "ひと{手間|てま}かけた{魚|さかな}をのせた、にぎりずしだよ。"
+        adult: "{魚|さかな}を{酢|す}やしょうゆで{仕込|しこ}んでからにぎる、{江戸|えど}で{生|う}まれたすしです。"
+      en:
+        kids: "Hand-pressed sushi topped with fish that the chef prepares with care."
+        adult: "Hand-pressed sushi born in old Edo, with fish prepared in vinegar or soy sauce before serving."
+      zh:
+        kids: "放上精心处理过的鱼肉的握寿司。"
+        adult: "先用醋或酱油处理鱼肉再捏成的寿司，诞生于江户时代。"
+    sources: []
+    status: draft
+spots:
+  - id: tokyo-tower
+    emoji: "🗼"
+    name: {ja: "{東京|とうきょう}タワー", en: "Tokyo Tower", zh: "东京塔"}
+    description:
+      ja:
+        kids: "{街|まち}を{見|み}わたせる、{赤|あか}と{白|しろ}の{高|たか}いタワーだよ。"
+        adult: "{赤|あか}と{白|しろ}にぬられた{電波塔|でんぱとう}で、{展望台|てんぼうだい}から{街|まち}を{見|み}わたせます。"
+      en:
+        kids: "A tall red and white tower in the city."
+        adult: "A red and white broadcasting tower with decks that look out over the city."
+      zh:
+        kids: "这是一座红白相间的高塔。"
+        adult: "红白相间的电波塔，可以从观景台眺望整座城市。"
+    sources: []
+    status: reviewed
+  - id: sensoji
+    name: {ja: "{浅草寺|せんそうじ}", en: "Senso-ji", zh: "浅草寺"}
+    description:
+      ja:
+        kids: "{大|おお}きなちょうちんの{門|もん}があるお{寺|てら}だよ。"
+        adult: "{大|おお}きなちょうちんの{雷門|かみなりもん}で{知|し}られる、{浅草|あさくさ}の{古|ふる}いお{寺|てら}です。"
+      en:
+        kids: "A temple with a gate that has a giant red lantern."
+        adult: "An old temple in Asakusa known for the Kaminarimon gate and its giant lantern."
+      zh:
+        kids: "有着巨大灯笼大门的寺庙。"
+        adult: "以挂着巨大灯笼的雷门而闻名的浅草古寺。"
+    sources: []
+    status: verified
+  - id: ueno-zoo
+    name: {ja: "{上野動物園|うえのどうぶつえん}", en: "Ueno Zoo", zh: "上野动物园"}
+    description:
+      ja:
+        kids: "かわいいパンダに{会|あ}える{動物園|どうぶつえん}だよ。"
+        adult: "{日本|にほん}でいちばん{古|ふる}い{動物園|どうぶつえん}で、{特|とく}にパンダが{人気|にんき}を{集|あつ}めています。"
+      en:
+        kids: "A zoo where you can meet giant pandas."
+        adult: "The oldest zoo in Japan, where the giant pandas are especially popular."
+      zh:
+        kids: "可以见到大熊猫的动物园。"
+        adult: "日本历史最悠久的动物园，大熊猫特别受欢迎。"
+    sources: []
+    status: reviewed
