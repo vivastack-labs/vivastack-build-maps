@@ -1,0 +1,117 @@
+# T2-01 操作の状態遷移（mapReducer）：実装計画
+
+- タスクの定義：`docs/tasks/m2-map-core.md` の T2-01
+- 参照仕様：4.11.1、4.11.2、4.11.6、F-KB-05、F-ZOOM-04
+- ブランチ：`feat/T2-01-map-reducer`
+
+## 方針
+
+4.11.2 の表を、画面から切り離した純粋関数 `mapReducer(state, event)` にする。React の `useReducer` にそのまま渡せる形にする（T2-05）。
+
+- 状態が変わらない操作では、**受け取った状態をそのまま返す**（同じ参照）。React が描き直しを省けるようにするため。
+- 変わるときは新しいオブジェクトを返し、元の状態は変えない。
+- 県は県コード（`'01'`〜`'47'`）の文字列で持つ。reducer の中では検証しない。県コードは境界（DOM の属性、ハッシュの解析 T3-07）で確かめてから渡す。
+- 拡大率と表示位置（`viewport`）は d3-zoom が持つので扱わない（T2-06）。
+
+### 型
+
+```ts
+export type PrefCode = string; // '01'〜'47'
+
+export type MapState = {
+  readonly hovered: PrefCode | null;   // マウスをのせている（フォーカスしている）県
+  readonly displayed: PrefCode | null; // 最後に hovered になった県（ホバーが終わっても残す）
+  readonly pinned: PrefCode | null;
+  readonly maximized: PrefCode | null; // 空でなければ pinned と同じ県（4.11.1）
+};
+
+export type MapEvent =
+  | { readonly type: 'hover'; readonly pref: PrefCode }
+  | { readonly type: 'hoverEnd' }
+  | { readonly type: 'click'; readonly pref: PrefCode }
+  | { readonly type: 'doubleClick'; readonly pref: PrefCode }
+  | { readonly type: 'backgroundClick' } // 海・余白
+  | { readonly type: 'escape' }
+  | { readonly type: 'resetView' }       // `0`／「全体」
+  | { readonly type: 'zoomStep' }        // `+` `-`（状態は変えない。判断1）
+  | { readonly type: 'restore'; readonly pref: PrefCode }; // ハッシュからの復元（T3-07）
+
+export const INITIAL_MAP_STATE: MapState; // すべて null
+export function mapReducer(state: MapState, event: MapEvent): MapState;
+export function cardPref(state: MapState): PrefCode | null; // pinned ?? displayed
+```
+
+### 状態遷移（4.11.2 を型に当てはめたもの）
+
+「固定中」は `pinned` があり `maximized` が空、「最大化中」は `maximized` があるとき。
+
+| 操作 | 通常 | 固定中 | 最大化中 |
+|---|---|---|---|
+| `hover(P)` | hovered・displayed ← P | hovered・displayed ← P（カードは pinned のまま） | 変えない（判断2） |
+| `hoverEnd` | hovered ← null（displayed は残す） | 同左 | 同左（最大化中は hovered がもともと変わらない） |
+| `click(P)` | pinned ← P | 同じ県なら pinned ← null、別の県なら pinned ← P | 変えない |
+| `doubleClick(P)` | maximized・pinned ← P | maximized・pinned ← P | 同じ県なら maximized ← null（pinned は残す）、別の県なら maximized・pinned ← P |
+| `backgroundClick` | 変えない | pinned ← null | 変えない |
+| `escape` | 変えない | pinned ← null | maximized ← null（pinned は残す） |
+| `resetView` | 変えない | 変えない（固定は残す） | maximized ← null（pinned は残す） |
+| `zoomStep` | 変えない | 変えない | 変えない |
+| `restore(P)` | pinned ← P | pinned ← P | pinned ← P、maximized ← null |
+
+## 先に書くテスト
+
+`tests/unit/features/map/state.test.ts`（node）。表のセルごとに1つ。同じ県と別の県で結果が変わるセルは両方を書く。
+
+### 4.11.2 の表（テスト名は「4.11.2 操作／状態：結果」）
+
+- ホバー：`4.11.2 ホバー／通常：カードに表示する`、`4.11.2 ホバー／固定中：カードは固定した県のまま`、`4.11.2 ホバー／最大化中：状態を変えない`
+- クリック：`4.11.2 クリック／通常：固定する`、`4.11.2 クリック／固定中・同じ県：固定を解除する`、`4.11.2 クリック／固定中・別の県：固定を移す`、`4.11.2 クリック／最大化中・同じ県：何もしない`、`4.11.2 クリック／最大化中・別の県：何もしない`
+- ダブルクリック：`4.11.2 ダブルクリック／通常：最大化＋固定`、`4.11.2 ダブルクリック／固定中・同じ県：最大化＋固定`、`4.11.2 ダブルクリック／固定中・別の県：その県を最大化＋固定`、`4.11.2 ダブルクリック／最大化中・同じ県：元に戻す（固定は残す）`、`4.11.2 ダブルクリック／最大化中・別の県：その県に切り替える`
+- 海・余白のクリック：`4.11.2 海・余白をクリック／通常：何もしない`、`…／固定中：固定を解除する`、`…／最大化中：何もしない`
+- Esc：`4.11.2 Esc／通常：何もしない`、`…／固定中：固定を解除する`、`…／最大化中：最大化を解除する（固定は残す）`（F-KB-05 もテスト名に入れる）
+- 全体表示：`4.11.2 全体表示／通常：状態を変えない`、`…／固定中：固定は残す`、`…／最大化中：最大化を解除する（固定は残す）`
+- 拡大・縮小：`4.11.2 拡大・縮小／通常・固定中・最大化中：状態を変えない`（3列を `test.each`）
+
+### 4.11.1 とその他
+
+- `4.11.1 最初はカードに表示する県がない（案内を表示）`：`cardPref(INITIAL_MAP_STATE)` が null
+- `4.11.1 ホバーが終わってもカードの県は残る`
+- `4.11.1 固定があればカードは固定した県、なければ最後にホバーした県`
+- `4.11.2 ハッシュからの復元：その県を固定する`（通常・固定中・最大化中）
+- `4.11.2 状態が変わらない操作では、同じ状態のオブジェクトを返す`
+- `元の状態のオブジェクトを変えない`：`Object.freeze` した状態で全操作を実行し、例外が出ないこと・元と等しいこと
+
+### 性質のテスト（fast-check）
+
+県は `'01'`・`'13'`・`'47'` の3つから選ぶ（同じ県が続く場合を多く起こすため）。操作の列は0〜30個。
+
+- `4.11.1 どんな操作の列の後でも、最大化中の県は固定している`：`maximized !== null` なら `pinned === maximized`
+- `4.11.2 クリック → クリック → ダブルクリックの後は最大化＋固定になる`：その県を最大化していない任意の状態から（判断3）
+- `4.11.2 最大化中の同じ県へのクリック → クリック → ダブルクリックは、最大化を解除して固定を残す`
+- `どんな操作の列でも、元の状態を変えない`
+
+## 作る・変えるファイルと順番
+
+1. `package.json`・`pnpm-lock.yaml`：devDependencies に `fast-check` `4.10.2`（ほかと同じく版を固定。インストールスクリプトはない）
+2. `tests/unit/features/map/state.test.ts`：上のテストを書き、失敗を確かめる（Red）
+3. `src/features/map/state.ts`：型・`INITIAL_MAP_STATE`・`mapReducer`・`cardPref`（Green → Refactor）。操作ごとに小さな関数に分け、`switch` で振り分ける
+4. `docs/tasks/m2-map-core.md`：テスト条件「クリック → クリック → ダブルクリックの後は必ず最大化＋固定」に、判断3の条件を書き足す
+
+## 完了条件の確かめ方
+
+| 完了条件 | 確かめ方 |
+|---|---|
+| `src/features/map/state.ts` のカバレッジが90%以上 | `pnpm test` のカバレッジの表（`src/features/` は `vitest.config.ts` で90%を強制している） |
+| 4.11.2 の表のすべてのセルにテストがある | 上の「4.11.2 の表」の一覧と、表の7行×3列（同じ県・別の県で分かれるセルは両方）を突き合わせる |
+| 共通（lint・typecheck・test・build、レビュー） | `pnpm lint && pnpm typecheck && pnpm test && pnpm build`、code-reviewer |
+
+画面は変わらないので、スクリーンショットは撮らない。E2E も変わらない（T2-05 で結線する）。
+
+## 判断が必要な点
+
+1. **`+` `-` の行をどう扱うか**：推奨は、状態を変えない `zoomStep` 操作を reducer に置き、3列のテストを書く。理由：完了条件が「表のすべてのセルにテストがある」で、`viewport` を扱わない reducer では「状態を変えない」ことが確かめられる内容になる。最大化中の「縮小は県全体が収まる倍率まで」は、T2-06 が `maximized` を見て d3-zoom の範囲を決める。別案：reducer に入れず、T2-06 のテストで確かめると定義に書く（操作が1つ減るが、完了条件の文面と合わない）。
+2. **最大化中のホバー（県）**：推奨は、状態を変えない（`hovered`・`displayed` とも）。理由：表では「市区町村のツールチップだけ」で、県のツールチップは出さない。市区町村のホバーは T2-09 のツールチップの中の状態で、reducer には入れない。
+3. **「クリック → クリック → ダブルクリックの後は必ず最大化＋固定」の範囲**：推奨は、「その県を最大化していない状態から」という条件を付けて確かめ、タスクの定義にも書き足す。理由：同じ県を最大化中に行うと、表のとおり最大化が解除される（元に戻すダブルクリック）。仕様の注記は、通常・固定中からの流れについての説明と読める。
+4. **固定中のホバーで `displayed` を更新するか**：推奨は、更新する。理由：4.11.1 の「固定がなければ、最後に hovered になった県」のとおり。固定を解除したときは、最後にマウスをのせた県のカードになる（同じ県のクリックで解除したときは、その県のまま）。別案：固定中は更新せず、解除後も固定していた県を出す（仕様の文面と合わない）。
+5. **ハッシュからの復元で最大化をどうするか**：推奨は、`pinned` をその県にし、`maximized` は解除する。理由：復元はページを開いたときだけ使い（T3-07）、最大化は URL に残さない。最大化中に呼ばれても、4.11.1 の不変条件を保てる。
+6. **性質のテストに fast-check を入れる**：推奨は入れる（`4.10.2`、2026-09-19 公開）。理由：タスクの定義が挙げている。失敗した列を最小の例に縮めて示すので、原因が分かりやすい。依存は `pure-rand` だけで、インストールスクリプトもない。別案：乱数の種を固定した自作の生成器（依存は増えないが、縮める機能がない）。
+7. **県コードの型**：推奨は `string` の別名（`PrefCode`）にし、reducer では検証しない。理由：reducer に入る県は、DOM の属性やハッシュの解析（T3-07 の単体テストがある）で確かめた後のもの。テンプレートリテラル型で47県を表すと、呼び出し側にキャストが増える。
