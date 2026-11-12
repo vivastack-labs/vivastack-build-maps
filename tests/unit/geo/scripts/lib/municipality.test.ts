@@ -197,7 +197,7 @@ describe('assertSameCodes', () => {
     const table = new Map([...TABLE, ['12218', { code: '12218', name: '勝浦市', kana: 'ｶﾂｳﾗｼ' }]]);
 
     // Act / Assert
-    expect(() => assertSameCodes(table, ROWS)).toThrow('12218');
+    expect(() => assertSameCodes(table, ROWS)).toThrow('12218 勝浦市');
   });
 
   test('8.4：政令指定都市の区がすべて N03 にないときは、市の行も N03 にないコードとして数える', () => {
@@ -207,6 +207,6 @@ describe('assertSameCodes', () => {
 
   test('8.4：N03 にあって総務省のコード表にないコードがあればエラーにする', () => {
     // Act / Assert
-    expect(() => assertSameCodes(TABLE, [...ROWS, row('13101', '千代田区')])).toThrow('13101');
+    expect(() => assertSameCodes(TABLE, [...ROWS, row('13101', '千代田区')])).toThrow('13101 千代田区');
   });
 });

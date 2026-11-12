@@ -46,7 +46,7 @@ export function toMunicipality(row: N03Row, sources: NamingSources): Municipalit
 
 /** 修正表のコードが、すべて今の変換で使われたかを確かめる。合併などでコードが消えたとき、古い修正を残さないため。 */
 export function assertFixesUsed(sources: NamingSources, rows: readonly N03Row[]): void {
-  const used = new Set(rows.flatMap(row => (row.N03_005 ? [row.N03_007, findCity(row.N03_007, row.N03_004, sources.soumu).code] : [row.N03_007])));
+  const used = new Set([...rows.map(row => row.N03_007), ...designatedCityCodes(rows, sources.soumu)]);
   const unused = [...sources.kanaFixes.keys(), ...sources.romajiFixes.keys()].filter(code => !used.has(code));
   if (unused.length > 0) {
     throw new Error(`修正表に、地図にないコードがあります（${unused.join('・')}）`);
@@ -55,20 +55,26 @@ export function assertFixesUsed(sources: NamingSources, rows: readonly N03Row[])
 
 /**
  * 総務省のコード表の市区町村と、N03 の市区町村のコードが一致するかを確かめる（8.4）。
- * 区に分かれる政令指定都市の行は N03 にない（区の行で入る）ので除く。N03 のコードが表にあるかは読みを引くときに確かめるが、
+ * 区に分かれる政令指定都市の行は N03 にない（区の行で入る）ので除く。
  * 表にあるのに N03 にない市区町村（合併・新設の取りこぼし）は、ここでしか見つからない。
+ * 逆向き（N03 にあって表にない）は、変換では読みを引くとき（readingOf）に先に止まるが、この関数だけで使っても確かめられるように残す。
  */
 export function assertSameCodes(soumu: ReadonlyMap<string, SoumuEntry>, rows: readonly N03Row[]): void {
   const n03Codes = new Set(rows.map(row => row.N03_007));
-  const designatedCities = new Set(rows.filter(row => row.N03_005).map(row => findCity(row.N03_007, row.N03_004, soumu).code));
-  const missing = [...soumu.keys()].filter(code => !n03Codes.has(code) && !designatedCities.has(code));
+  const designatedCities = new Set(designatedCityCodes(rows, soumu));
+  const missing = [...soumu.values()].filter(entry => !n03Codes.has(entry.code) && !designatedCities.has(entry.code));
   if (missing.length > 0) {
-    throw new Error(`総務省のコード表にあって N03 にない市区町村があります（${missing.join('・')}）`);
+    throw new Error(`総務省のコード表にあって N03 にない市区町村があります（${missing.map(entry => `${entry.code} ${entry.name}`).join('・')}）`);
   }
-  const unknown = [...n03Codes].filter(code => !soumu.has(code));
+  const unknown = rows.filter(row => !soumu.has(row.N03_007));
   if (unknown.length > 0) {
-    throw new Error(`N03 にあって総務省のコード表にない市区町村があります（${unknown.join('・')}）`);
+    throw new Error(`N03 にあって総務省のコード表にない市区町村があります（${unknown.map(row => `${row.N03_007} ${row.N03_004}${row.N03_005 ?? ''}`).join('・')}）`);
   }
+}
+
+/** 区に分かれる政令指定都市の、総務省のコード表での市のコード（区の行の数だけ。重複を含む） */
+function designatedCityCodes(rows: readonly N03Row[], soumu: ReadonlyMap<string, SoumuEntry>): readonly string[] {
+  return rows.filter(row => row.N03_005).map(row => findCity(row.N03_007, row.N03_004, soumu).code);
 }
 
 function toCityOrTown(code: string, name: string, sources: NamingSources): Municipality {
