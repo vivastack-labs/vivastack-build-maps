@@ -30,6 +30,24 @@ const REGION_COUNTS = {
   kyushu: 8
 } as const;
 
+// F-MAP-01：8地方の区分。都道府県コードは地方ごとに続いているので、地方の最初のコードで表す（01〜 北海道、02〜 東北…）
+const REGION_STARTS: readonly (readonly [string, string])[] = [
+  ['01', 'hokkaido'],
+  ['02', 'tohoku'],
+  ['08', 'kanto'],
+  ['15', 'chubu'],
+  ['24', 'kinki'],
+  ['31', 'chugoku'],
+  ['36', 'shikoku'],
+  ['40', 'kyushu']
+];
+
+const regionOfCode = (code: string): string | undefined => REGION_STARTS.findLast(([start]) => start <= code)?.[1];
+
+// 県名の書き方（T1-08）：英語は接尾辞（Prefecture・-ken など）を付けない。中国語は都・道・府・县で終わる
+const NAME_EN = /^[A-Z][a-z]+$/;
+const NAME_ZH = /[都道府县]$/;
+
 // 県庁の位置のおおまかな範囲（与那国島・択捉島を含む本土側。南鳥島などの離島に県庁はない）
 const CAPITAL_BOUNDS = { minLat: 24, maxLat: 46, minLon: 122, maxLon: 146 } as const;
 
@@ -78,13 +96,23 @@ describe('T1-08: 47県の基本情報', () => {
     expect(counts).toEqual(REGION_COUNTS);
   });
 
+  test('F-MAP-01: 県ごとの地方が8地方の区分と合う（三重は近畿、新潟は中部、沖縄は九州）', () => {
+    const wrong = prefectures.filter(pref => pref.region !== regionOfCode(pref.code));
+    expect(wrong.map(pref => `${pref.code}:${pref.region}`)).toEqual([]);
+  });
+
+  test('T1-08: 英語の県名は接尾辞を付けず、中国語の県名は都・道・府・县で終わる', () => {
+    const wrong = prefectures.filter(pref => !NAME_EN.test(pref.name.en) || !NAME_ZH.test(pref.name.zh));
+    expect(wrong.map(pref => `${pref.code}:${pref.name.en}/${pref.name.zh}`)).toEqual([]);
+  });
+
   test('T1-08: 県庁の緯度は24〜46、経度は122〜146', () => {
     const outside = prefectures.filter(({ capital: { lat, lon } }) => lat < CAPITAL_BOUNDS.minLat || lat > CAPITAL_BOUNDS.maxLat || lon < CAPITAL_BOUNDS.minLon || lon > CAPITAL_BOUNDS.maxLon);
     expect(outside.map(pref => pref.code)).toEqual([]);
   });
 
   test('T1-08: 名物・名所は空で、行き方はない（未作成）', () => {
-    // 名物・名所・行き方を書くのは T5（T5-04 以降）。県ごとに書き始めたら、このテストを外す
+    // 名物・名所・行き方を書くのは T5。1県目（T5-04）の PR でこのテストを外す（docs/tasks/m5-content.md）
     const written = prefectures.filter(pref => pref.specialties.length > 0 || pref.spots.length > 0 || pref.access);
     expect(written.map(pref => pref.code)).toEqual([]);
   });

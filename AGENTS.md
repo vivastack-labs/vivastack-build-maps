@@ -67,7 +67,7 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
 | `src/` | アプリのロジック。`src/lib/` は `.gitignore` の例外で管理している |
 | `tests/unit/` | 単体テスト（`.test.ts`、node）とコンポーネントテスト（`.test.tsx`、jsdom）。`src/` と同じ構成で置く |
 | `tests/fixtures/content/` | E2E・単体テスト用のコンテンツ（北海道：全部 `reviewed`、東京都：混在、沖縄県：未作成）。`CONTENT_DIR=tests/fixtures/content` で読む |
-| `tests/data/` | データの検査（`.test.ts`、node）。コミットされた地図データの全体を確かめる（T1-05） |
+| `tests/data/` | データの検査（`.test.ts`、node）。コミットされた地図データ（T1-05）と47県の基本情報（T1-08）の全体を確かめる |
 | `tests/e2e/` | E2E（Playwright。`*.spec.ts`） |
 | `tests/screenshots/` | PRに載せるスクリーンショットの画面（`playwright.screenshots.config.ts`。`pnpm screenshots` から使う） |
 | `tests/setup/` | テストの共通の準備（jest-dom のマッチャーなど） |
