@@ -11,7 +11,7 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 
 ## 技術スタック
 
-導入済み：Next.js・TypeScript・Tailwind CSS・ESLint・Prettier・Vitest・Testing Library・Playwright・wrangler・GitHub Actions（PRのチェック）・Dependabot・d3-geo・mapshaper・topojson-client（テストだけ）・yaml・ajv・json-schema-to-typescript。それ以外はまだ入っていない（予定）。
+導入済み：Next.js・TypeScript・Tailwind CSS・ESLint（eslint-plugin-jsdoc を含む）・Prettier・Vitest・Testing Library・Playwright・wrangler・GitHub Actions（PRのチェック）・Dependabot・d3-geo・mapshaper・topojson-client（テストだけ）・yaml・ajv・json-schema-to-typescript。それ以外はまだ入っていない（予定）。
 
 - Next.js（App Router、`output: 'export'`、`basePath: '/maps'`）＋ TypeScript（strict）
 - 地図：SVG ＋ d3-geo ＋ topojson-client（国土数値情報 N03 2026年版から作る TopoJSON）
@@ -103,7 +103,7 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
 - **TDD**：テストを先に書く（Red → Green → Refactor）。テスト名やコメントに要件IDを入れる。カバレッジは全体80%以上、ドメインロジックは90%以上。→ `testing.md`
 - **ブランチと PR**：`main` に直接 push しない。1機能＝1ブランチ＝1PR。→ `git-workflow.md`
 - **コミット**：`<type>: <description>`（feat / fix / refactor / docs / test / chore / perf / ci）。`<type>` は英語のまま、`<description>` と本文は日本語で書く（例：`docs: 操作仕様を追加`）。PR のタイトルも `<type>: <description>` の形式にするが、`<description>` は英語で書く（例：`docs: add interaction spec`）。
-- **コーディング**：イミュータブルに書く、小さな関数・ファイル、境界での入力検証。→ `coding-style.md`
+- **コーディング**：イミュータブルに書く、小さな関数・ファイル、境界での入力検証、export には JSDoc。→ `coding-style.md`
 - **セキュリティ**：シークレットをリポジトリ・ログ・PR に書かない（gitleaks で検査）。→ `security.md`
 - **画面の変更**：画面が変わるPRには、`pnpm screenshots` で撮った before/after の表を本文に載せる。撮る画面は `tests/screenshots/pages.spec.ts`、画像は `screenshots` ブランチ（main と履歴を共有しない。消さない。ふだんの fetch では取らない）に置く。
 - `--no-verify` や force push など、hooks・検査を回避する操作はしない。

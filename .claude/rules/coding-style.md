@@ -64,6 +64,14 @@ ALWAYS validate at system boundaries:
 - Constants: `UPPER_SNAKE_CASE`
 - Custom hooks: `camelCase` with a `use` prefix
 
+## JSDoc
+
+- export する関数・クラス・型・定数には、JSDoc（`/** */`）を付ける。`//` の行コメントはエディタのホバーに出ないので、代わりにならない。
+  - 何をするか・何を表すかを書く。前提（境界で確かめてから渡す、など）、エラーにする条件、要件ID・設計書の章があれば書く。
+  - 型と名前で分かることだけを繰り返さない（`@param` `@returns` は、型と名前で足りなければ書く）。
+- ファイルの中だけで使う関数は、名前で分からないときだけ付ける。
+- `src/`・`scripts/`・`geo/scripts/` は ESLint（`jsdoc/require-jsdoc`）で確かめる。`app/` は Next.js が決めた名前の export なので対象にしない。自動生成のファイル（`*.generated.ts`）も対象にしない。
+
 ## Code Smells to Avoid
 
 ### Deep Nesting
