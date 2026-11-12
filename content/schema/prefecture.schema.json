@@ -1,0 +1,298 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Prefecture",
+  "description": "1県分のコンテンツ（開発概要書 7.1）。型は pnpm content:types で src/lib/content-schema.generated.ts に作る",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "code",
+    "region",
+    "name",
+    "capital",
+    "specialties",
+    "spots"
+  ],
+  "properties": {
+    "id": {
+      "$ref": "#/definitions/slug"
+    },
+    "code": {
+      "description": "全国地方公共団体コードの都道府県コード（01〜47）",
+      "type": "string",
+      "pattern": "^(0[1-9]|[1-3][0-9]|4[0-7])$"
+    },
+    "region": {
+      "type": "string",
+      "enum": [
+        "hokkaido",
+        "tohoku",
+        "kanto",
+        "chubu",
+        "kinki",
+        "chugoku",
+        "shikoku",
+        "kyushu"
+      ]
+    },
+    "name": {
+      "$ref": "#/definitions/localized"
+    },
+    "capital": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "lat",
+        "lon"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/localized"
+        },
+        "lat": {
+          "description": "都道府県庁の緯度（8.1）",
+          "type": "number",
+          "minimum": 20,
+          "maximum": 46
+        },
+        "lon": {
+          "description": "都道府県庁の経度（8.1）",
+          "type": "number",
+          "minimum": 122,
+          "maximum": 154
+        }
+      }
+    },
+    "access": {
+      "description": "東京からの行き方。未作成の県では書かない",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "emoji",
+        "mode",
+        "route",
+        "durationMin",
+        "sources",
+        "status"
+      ],
+      "properties": {
+        "emoji": {
+          "$ref": "#/definitions/text"
+        },
+        "mode": {
+          "$ref": "#/definitions/localized"
+        },
+        "route": {
+          "$ref": "#/definitions/localized"
+        },
+        "durationMin": {
+          "description": "所要時間の目安（分）",
+          "type": "integer",
+          "minimum": 1
+        },
+        "sources": {
+          "$ref": "#/definitions/sources"
+        },
+        "status": {
+          "$ref": "#/definitions/status"
+        }
+      }
+    },
+    "specialties": {
+      "description": "名物。ちょうど3件か、空（未作成）",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/specialty"
+      },
+      "maxItems": 3,
+      "not": {
+        "minItems": 1,
+        "maxItems": 2
+      }
+    },
+    "spots": {
+      "description": "名所。ちょうど3件か、空（未作成）",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/spot"
+      },
+      "maxItems": 3,
+      "not": {
+        "minItems": 1,
+        "maxItems": 2
+      }
+    }
+  },
+  "definitions": {
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z]+(-[a-z]+)*$"
+    },
+    "localized": {
+      "description": "3言語の文。日本語はふりがなの記法 {漢字|よみ} を使う（7.2）",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ja",
+        "en",
+        "zh"
+      ],
+      "properties": {
+        "ja": {
+          "$ref": "#/definitions/text"
+        },
+        "en": {
+          "$ref": "#/definitions/text"
+        },
+        "zh": {
+          "$ref": "#/definitions/text"
+        }
+      }
+    },
+    "modes": {
+      "description": "こども向けとおとな向けの文（7.3）",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kids",
+        "adult"
+      ],
+      "properties": {
+        "kids": {
+          "$ref": "#/definitions/text"
+        },
+        "adult": {
+          "$ref": "#/definitions/text"
+        }
+      }
+    },
+    "description": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ja",
+        "en",
+        "zh"
+      ],
+      "properties": {
+        "ja": {
+          "$ref": "#/definitions/modes"
+        },
+        "en": {
+          "$ref": "#/definitions/modes"
+        },
+        "zh": {
+          "$ref": "#/definitions/modes"
+        }
+      }
+    },
+    "status": {
+      "description": "draft（AIが下書き）→ verified（検証エージェントが確認済み）→ reviewed（人がレビュー済み）",
+      "type": "string",
+      "enum": [
+        "draft",
+        "verified",
+        "reviewed"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "url",
+        "accessed"
+      ],
+      "properties": {
+        "title": {
+          "$ref": "#/definitions/text"
+        },
+        "url": {
+          "type": "string",
+          "pattern": "^https://[^\\s]+$"
+        },
+        "accessed": {
+          "description": "確認した日（YYYY-MM-DD）",
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        }
+      }
+    },
+    "sources": {
+      "description": "実際に開いて確かめた出典だけ。なければ空（9.3）",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/source"
+      }
+    },
+    "specialty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "emoji",
+        "name",
+        "description",
+        "sources",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/slug"
+        },
+        "emoji": {
+          "$ref": "#/definitions/text"
+        },
+        "name": {
+          "$ref": "#/definitions/localized"
+        },
+        "description": {
+          "$ref": "#/definitions/description"
+        },
+        "sources": {
+          "$ref": "#/definitions/sources"
+        },
+        "status": {
+          "$ref": "#/definitions/status"
+        }
+      }
+    },
+    "spot": {
+      "description": "名所。項目は名物と同じで、emoji は省略できる",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "description",
+        "sources",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/slug"
+        },
+        "emoji": {
+          "$ref": "#/definitions/text"
+        },
+        "name": {
+          "$ref": "#/definitions/localized"
+        },
+        "description": {
+          "$ref": "#/definitions/description"
+        },
+        "sources": {
+          "$ref": "#/definitions/sources"
+        },
+        "status": {
+          "$ref": "#/definitions/status"
+        }
+      }
+    }
+  }
+}
