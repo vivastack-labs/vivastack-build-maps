@@ -1,0 +1,5 @@
+# 11.5：リポジトリ全体はオーナー、コンテンツ（都道府県の YAML）はレビュアーの Team
+# 後に書いた行が優先される。maps-reviewers の Team は T0-05 で作る（それまで GitHub は unknown owner の警告を出す）。
+# private・Free のプランでは、CODEOWNERS の承認を必須にできない（U14）
+*          @inspireme
+/content/  @vivastack-labs/maps-reviewers

@@ -90,8 +90,8 @@ flowchart LR
 |---|---|---|---|
 | T0-01 | chore | Next.jsの雛形と、単体テスト・検査の実行環境 | 完了 |
 | T0-02 | chore | コンポーネント・E2Eテストの道具 | 完了 |
-| T0-03 | chore | `dist/` の組み立てとローカルの Workers 確認 | 作業中 |
-| T0-04 | ci | PR用のCI（チェックだけ） | 未着手 |
+| T0-03 | chore | `dist/` の組み立てとローカルの Workers 確認 | 完了 |
+| T0-04 | ci | PR用のCI（チェックだけ） | 作業中 |
 | T0-05 | 手作業 | Cloudflare・GitHubの事前設定 | 未着手 |
 | T0-06 | ci | プレビュー・本番へのデプロイ | 未着手 |
 | T0-07 | docs | README・AGENTS.md・CHANGELOGの更新 | 未着手 |
@@ -209,3 +209,5 @@ T5-05 の県ごとの進み具合は、YAMLの `status` で分かるので、こ
 | U10 総務省コードと国土地理院データの利用条件 | T1-01 | 確認だけ。条件に合わなければ、県庁の緯度経度は自治体の公表値を使う | 距離は10km単位に丸めるので、公表元が変わっても結果はほぼ同じ |
 | U12 市区町村名のローマ字の書き方 | T1-02 | 長音を書かない（`Tokyo`、`Kyoto`）。市・区・町・村はハイフンで分ける（`Sapporo-shi`、`Chuo-ku`） | 県名の英語表記（例：`Hokkaido`）や駅名・道路標識の一般的な表記とそろう。接尾辞を分けると地名の部分が読み取りやすい |
 | U13 Service Worker のツール | T4-02 | workbox-build（`dist/` に対して postbuild で `sw.js` を作る） | Next.js のバンドラーに依存せず、静的出力の後の工程（CSP、`dist/` の組み立て）にそのまま組み込める。着手時に Serwist の静的出力への対応も確認する |
+| U14 GitHub のプランの制約 | T0-05 | オーナーが決める。CI（T0-04）はプランによらず動く。ブランチ保護と Environments が要るなら GitHub Team に変えるか public にする | private・Free ではブランチ保護（CI の成功・CODEOWNERS の承認の必須化）と Environments・Environment の Secrets を使えない（開発概要書 11.5）。T0-06 の Secrets の置き場所にも影響する |
+| U15 本番リリース後の E2E の実行のしかた | T6-02 の前に相談 | オーナーと相談して決める。開発中は手動（D30） | Actions の分数とプラン（U14）しだいで、PR ごと・`main` への push ごと・手動の向き不向きが変わる |

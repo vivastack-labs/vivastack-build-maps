@@ -1,0 +1,98 @@
+---
+# 12.1〜12.3：main 向けのPRごとにチェックを実行する（T0-04）。プレビューへのデプロイは T0-06 で加える。
+# Action はコミットSHAで固定する（5.5）。横のコメントはタグ（Dependabot が SHA と一緒に更新する）
+name: ci
+
+"on":
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    # -o pipefail を付けるため、shell を明示する
+    shell: bash
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+  WRANGLER_SEND_METRICS: "false"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # 文書だけの変更かを、PRの分岐点からの差分で見るため、全履歴を取る
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # pnpm の版は package.json の packageManager から決まる
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115  # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      # pnpm lint の yamllint は Python 製で、pnpm では入らない。手元と同じ版にする
+      - name: Install yamllint
+        run: pipx install yamllint==1.33.0
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 12.1：文書だけのPRでは、lint 以外の重い手順を飛ばす。
+      # paths-ignore で workflow ごと飛ばすと、必須のチェックが「Pending」のままになり merge できないため
+      - name: Detect docs-only changes
+        id: changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        # --no-renames：リネームを移動元と移動先の両方で見る（app/ のファイルを docs/ に移した変更を文書だけとみなさない）
+        run: |
+          git diff --name-only --no-renames "${BASE_SHA}...${HEAD_SHA}" \
+            | node scripts/docs-only.ts >> "$GITHUB_OUTPUT"
+
+      # ESLint・Prettier・markdownlint・yamllint。文書だけのPRでも実行する
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        if: steps.changes.outputs.docs_only != 'true'
+        run: pnpm typecheck
+      - name: Unit test
+        if: steps.changes.outputs.docs_only != 'true'
+        run: pnpm test
+      # E2E は開発中は PR ごとに実行せず、e2e.yml で手動で実行する（12.1。Actions の分数を抑えるため）
+      - name: Build
+        if: steps.changes.outputs.docs_only != 'true'
+        run: pnpm build
+
+  # 5.5：シークレットの混入を全履歴で検査する（.gitleaks.toml・.gitleaksignore を使う）。
+  # gitleaks-action は Organization のリポジトリではライセンスキーが要るので、公式のバイナリを使う
+  gitleaks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GITLEAKS_VERSION: 8.30.1
+      GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # ダウンロードしたものは、SHA-256 を確かめてから使う
+      - name: Install gitleaks
+        working-directory: ${{ runner.temp }}
+        run: |
+          archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSLO "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${archive}"
+          echo "${GITLEAKS_SHA256}  ${archive}" | sha256sum --check --strict
+          mkdir gitleaks-bin
+          tar -xzf "${archive}" -C gitleaks-bin gitleaks
+          echo "${RUNNER_TEMP}/gitleaks-bin" >> "$GITHUB_PATH"
+      - name: Scan for secrets
+        run: gitleaks git --redact --no-banner --exit-code 1 .
