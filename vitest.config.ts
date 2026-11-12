@@ -24,6 +24,11 @@ export default defineConfig({
           environment: 'jsdom',
           setupFiles: ['tests/setup/component.ts']
         }
+      },
+      {
+        // 10.2 の「データ」：コミットされた地図データ（T1-05）などの全体を検査する
+        extends: true,
+        test: { name: 'data', include: ['tests/data/**/*.test.ts'], environment: 'node' }
       }
     ],
     coverage: {
