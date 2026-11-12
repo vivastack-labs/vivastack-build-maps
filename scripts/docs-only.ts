@@ -21,3 +21,5 @@ if (import.meta.main) {
   const files = parseChangedFiles(readFileSync(0, 'utf8'));
   process.stdout.write(`docs_only=${isDocsOnly(files)}\n`);
 }
+
+export const  lintViolation=1
