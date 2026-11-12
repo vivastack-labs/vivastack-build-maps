@@ -14,3 +14,5 @@ build
 .idea
 .DS_Store
 .codex
+# 地図データの変換の出力（pnpm geo:build。T1-04）
+geo/data/

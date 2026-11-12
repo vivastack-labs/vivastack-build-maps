@@ -1,6 +1,10 @@
 ---
 # esbuild・workerd のインストールスクリプトは実行しない。どちらも本体はプラットフォーム別のパッケージから入り、
 # スクリプトなしで wrangler dev が動く（T0-03 で確認）
+# better-sqlite3・msgpackr-extract は mapshaper の依存。GeoPackage・msgpack の読み書き用で、
+# 地図データの変換（Shapefile → TopoJSON）では使わないので実行しない（T1-04）
 allowBuilds:
   esbuild: false
   workerd: false
+  better-sqlite3: false
+  msgpackr-extract: false
