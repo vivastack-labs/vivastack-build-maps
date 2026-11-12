@@ -109,4 +109,12 @@ describe('buildGeo', () => {
     // Act / Assert
     await expect(buildGeo(N03_SAMPLE, naming)).rejects.toThrow('12218');
   });
+
+  test('8.4：総務省のコード表にあって N03 にない市区町村があればエラーにする', async () => {
+    // Arrange
+    const naming = { ...NAMING, soumu: new Map([...NAMING.soumu, ['01203', { code: '01203', name: '小樽市', kana: 'ｵﾀﾙｼ' }]]) };
+
+    // Act / Assert
+    await expect(buildGeo(N03_SAMPLE, naming)).rejects.toThrow('01203');
+  });
 });

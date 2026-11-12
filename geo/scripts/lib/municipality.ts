@@ -53,6 +53,24 @@ export function assertFixesUsed(sources: NamingSources, rows: readonly N03Row[])
   }
 }
 
+/**
+ * 総務省のコード表の市区町村と、N03 の市区町村のコードが一致するかを確かめる（8.4）。
+ * 区に分かれる政令指定都市の行は N03 にない（区の行で入る）ので除く。N03 のコードが表にあるかは読みを引くときに確かめるが、
+ * 表にあるのに N03 にない市区町村（合併・新設の取りこぼし）は、ここでしか見つからない。
+ */
+export function assertSameCodes(soumu: ReadonlyMap<string, SoumuEntry>, rows: readonly N03Row[]): void {
+  const n03Codes = new Set(rows.map(row => row.N03_007));
+  const designatedCities = new Set(rows.filter(row => row.N03_005).map(row => findCity(row.N03_007, row.N03_004, soumu).code));
+  const missing = [...soumu.keys()].filter(code => !n03Codes.has(code) && !designatedCities.has(code));
+  if (missing.length > 0) {
+    throw new Error(`総務省のコード表にあって N03 にない市区町村があります（${missing.join('・')}）`);
+  }
+  const unknown = [...n03Codes].filter(code => !soumu.has(code));
+  if (unknown.length > 0) {
+    throw new Error(`N03 にあって総務省のコード表にない市区町村があります（${unknown.join('・')}）`);
+  }
+}
+
 function toCityOrTown(code: string, name: string, sources: NamingSources): Municipality {
   const kana = readingOf(code, name, sources);
   return { code, name: { ja: name, en: romajiOf(code, name, kana, sources) }, kana };

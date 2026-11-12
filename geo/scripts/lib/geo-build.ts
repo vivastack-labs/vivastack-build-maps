@@ -9,7 +9,7 @@ import { gzipSync } from 'node:zlib';
 import type { FeatureCollection } from 'geojson';
 import mapshaper from 'mapshaper';
 import type { GeometryObject, Topology } from 'topojson-specification';
-import { assertFixesUsed, toMunicipality, type N03Row, type NamingSources } from './municipality.ts';
+import { assertFixesUsed, assertSameCodes, toMunicipality, type N03Row, type NamingSources } from './municipality.ts';
 
 export type SimplifySettings = {
   /** 簡略化の度合い（メートル。mapshaper の -simplify interval=） */
@@ -103,10 +103,9 @@ function toMunicipalityFiles(topologies: readonly AnyTopology[], naming: NamingS
     const named = geometries.map((geometry, index) => withProperties(geometry, { ...toMunicipality(rows[index] as N03Row, naming) }));
     return { prefCode, rows, json: serialize(topology, 'municipalities', named) };
   });
-  assertFixesUsed(
-    naming,
-    files.flatMap(file => file.rows)
-  );
+  const rows = files.flatMap(file => file.rows);
+  assertSameCodes(naming.soumu, rows);
+  assertFixesUsed(naming, rows);
   const table = new Map(files.map(file => [file.prefCode, file.json] as const).sort(([a], [b]) => compareCodes(a, b)));
   if (table.size !== files.length) {
     throw new Error(`同じ県の市区町村が複数の出力に分かれています（${files.map(file => file.prefCode).join('・')}）`);
