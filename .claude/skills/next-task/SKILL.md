@@ -22,8 +22,13 @@ description: >
 
 ```bash
 git status --porcelain
+git config --get-all remote.origin.fetch | grep -qxF '^refs/heads/screenshots' \
+  || git config --add remote.origin.fetch '^refs/heads/screenshots'
+git update-ref -d refs/remotes/origin/screenshots
 git switch main && git pull --ff-only
 ```
+
+- 2〜3行目：`screenshots` ブランチ（PRの画像）を、この後の `git pull` と手順2の `git fetch --prune` で取らないようにする。取ると、PRが増えるたびに画像のダウンロードが増える。設定してあれば何もしない。4行目は、前に取った追跡ブランチを消す（`--prune` では消えない）。なければ何もしない。
 
 - 作業ツリーに変更があれば、**切り替える前に止めて**ユーザーに確認する。変更を失わないため。
   推奨は「今のブランチにコミットする」（理由：stash は忘れられやすい）。
@@ -136,6 +141,23 @@ pnpm test:e2e   # 導入済み（T0-02 以降）なら
 - コードレビュー（Claude Code では code-reviewer エージェント）を行い、CRITICAL・HIGH を直す。MEDIUM もできるだけ直す。
 - 失敗したまま先に進まない。hooks や検査を回避しない（`--no-verify` は使わない）。
 
+### 画面が変わるタスクでは、before/after のスクリーンショットを撮る
+
+オーナーがPRの上で、画面の変わり方を確かめられるようにするため。
+
+1. そのタスクで変わった状態（例：県を選んでパネルを開いた状態）を、`tests/screenshots/pages.spec.ts` の `SCENES` に足す。各言語のトップは最初から入っている。クライアントで描く要素（地図の SVG など）は、`prepare` で表示されるのを待ってから撮る。
+2. コミットしてから撮る（after は今の作業ツリーで撮る）。
+
+```bash
+pnpm screenshots > <スクラッチパッド>/screenshots.md
+```
+
+- before は `origin/main` を worktree に取り出して撮り、after は今の作業ツリーで撮る。どちらも、撮る画面は今のブランチの `tests/screenshots/` を使う。main にまだない画面は before が「なし」になる。
+- `pnpm install` とビルドを before・after で2回ずつ行うので、数分かかる。Playwright の chromium が要る。
+- 画像は、`<ブランチ名の / を - にしたもの>/before・after/` だけを入れた commit として、`screenshots` ブランチの先頭に push される（main とは履歴を共有しない。消さない）。PR本文の URL は commit を指すので、後のPRや撮り直しで過去のPRの画像は変わらない。push の前に取るのは先頭の commit だけで、過去の画像はダウンロードしない。
+- 出力された Markdown（「画面の変更」の節）を、PR本文に入れる。撮り直したら、PR本文の表も貼り替える（URL が commit ごとに変わる）。
+- 画面が変わらないタスクでは撮らず、PR本文に「画面の変更なし」と書く。
+
 ## 8. 計画ファイルを実際の内容に合わせ、PRを作る
 
 PRを出す前に、計画ファイルを実際に作ったものに合わせて直す。古い計画が残ると、後で読んだ人やエージェントが、実際とは違う内容を正しいと思ってしまうため。
@@ -162,6 +184,10 @@ gh pr create --title "<type>: <英語の説明> (<タスクID>)" --body-file <�
 ## 変更内容
 
 - **<まとまり>**：<内容>
+
+## 画面の変更
+
+<pnpm screenshots の出力。画面が変わらなければ「画面の変更なし」>
 
 ## 判断したこと
 
