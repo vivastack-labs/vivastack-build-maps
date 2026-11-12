@@ -4,48 +4,58 @@ import { cardPref, INITIAL_MAP_STATE, mapReducer, type MapEvent, type MapState }
 
 const A = '13';
 const B = '01';
+const C = '47';
 
-const NORMAL: MapState = INITIAL_MAP_STATE;
-const PINNED: MapState = { hovered: null, displayed: A, pinned: A, maximized: null };
-const MAXIMIZED: MapState = { hovered: null, displayed: A, pinned: A, maximized: A };
+// 前準備の状態は hovered・displayed も空でない値（C）にして、操作で誤って変わらないことを確かめる
+const NORMAL: MapState = { hovered: C, displayed: C, pinned: null, maximized: null };
+const PINNED: MapState = { hovered: C, displayed: C, pinned: A, maximized: null };
+const MAXIMIZED: MapState = { hovered: C, displayed: C, pinned: A, maximized: A };
 
 const run = (state: MapState, ...events: readonly MapEvent[]): MapState => events.reduce(mapReducer, state);
 
 describe('4.11.2 ホバー', () => {
   test('4.11.2 ホバー／通常：カードに表示する', () => {
     const next = mapReducer(NORMAL, { type: 'hover', pref: A });
-    expect(next).toEqual({ hovered: A, displayed: A, pinned: null, maximized: null });
+    expect(next).toEqual({ ...NORMAL, hovered: A, displayed: A });
     expect(cardPref(next)).toBe(A);
   });
 
   test('4.11.2 ホバー／固定中：カードは固定した県のまま', () => {
     const next = mapReducer(PINNED, { type: 'hover', pref: B });
-    expect(next).toEqual({ hovered: B, displayed: B, pinned: A, maximized: null });
+    expect(next).toEqual({ ...PINNED, hovered: B, displayed: B });
     expect(cardPref(next)).toBe(A);
   });
 
   test('4.11.2 ホバー／最大化中：状態を変えない', () => {
     expect(mapReducer(MAXIMIZED, { type: 'hover', pref: B })).toBe(MAXIMIZED);
   });
+});
 
-  test('4.11.2 ホバーの終了：hovered だけを空にして、カードの県は残す', () => {
-    const hovering = mapReducer(NORMAL, { type: 'hover', pref: A });
-    const next = mapReducer(hovering, { type: 'hoverEnd' });
-    expect(next).toEqual({ hovered: null, displayed: A, pinned: null, maximized: null });
+describe('4.11.2 ホバーの終了', () => {
+  test('4.11.2 ホバーの終了／通常：hovered だけを空にして、カードの県は残す', () => {
+    expect(mapReducer(NORMAL, { type: 'hoverEnd' })).toEqual({ ...NORMAL, hovered: null });
+  });
+
+  test('4.11.2 ホバーの終了／固定中：hovered だけを空にする', () => {
+    expect(mapReducer(PINNED, { type: 'hoverEnd' })).toEqual({ ...PINNED, hovered: null });
+  });
+
+  test('4.11.2 ホバーの終了／最大化中：hovered だけを空にする', () => {
+    expect(mapReducer(MAXIMIZED, { type: 'hoverEnd' })).toEqual({ ...MAXIMIZED, hovered: null });
   });
 });
 
 describe('4.11.2 クリック', () => {
   test('4.11.2 クリック／通常：固定する', () => {
-    expect(mapReducer(NORMAL, { type: 'click', pref: A })).toEqual({ hovered: null, displayed: null, pinned: A, maximized: null });
+    expect(mapReducer(NORMAL, { type: 'click', pref: A })).toEqual({ ...NORMAL, pinned: A });
   });
 
   test('4.11.2 クリック／固定中・同じ県：固定を解除する', () => {
-    expect(mapReducer(PINNED, { type: 'click', pref: A }).pinned).toBeNull();
+    expect(mapReducer(PINNED, { type: 'click', pref: A })).toEqual({ ...PINNED, pinned: null });
   });
 
   test('4.11.2 クリック／固定中・別の県：固定を移す', () => {
-    expect(mapReducer(PINNED, { type: 'click', pref: B }).pinned).toBe(B);
+    expect(mapReducer(PINNED, { type: 'click', pref: B })).toEqual({ ...PINNED, pinned: B });
   });
 
   test('4.11.2 クリック／最大化中・同じ県：何もしない', () => {
@@ -59,33 +69,23 @@ describe('4.11.2 クリック', () => {
 
 describe('4.11.2 ダブルクリック', () => {
   test('4.11.2 ダブルクリック／通常：最大化＋固定', () => {
-    const next = mapReducer(NORMAL, { type: 'doubleClick', pref: A });
-    expect(next.maximized).toBe(A);
-    expect(next.pinned).toBe(A);
+    expect(mapReducer(NORMAL, { type: 'doubleClick', pref: A })).toEqual({ ...NORMAL, pinned: A, maximized: A });
   });
 
   test('4.11.2 ダブルクリック／固定中・同じ県：最大化＋固定', () => {
-    const next = mapReducer(PINNED, { type: 'doubleClick', pref: A });
-    expect(next.maximized).toBe(A);
-    expect(next.pinned).toBe(A);
+    expect(mapReducer(PINNED, { type: 'doubleClick', pref: A })).toEqual({ ...PINNED, pinned: A, maximized: A });
   });
 
   test('4.11.2 ダブルクリック／固定中・別の県：その県を最大化＋固定', () => {
-    const next = mapReducer(PINNED, { type: 'doubleClick', pref: B });
-    expect(next.maximized).toBe(B);
-    expect(next.pinned).toBe(B);
+    expect(mapReducer(PINNED, { type: 'doubleClick', pref: B })).toEqual({ ...PINNED, pinned: B, maximized: B });
   });
 
   test('4.11.2 ダブルクリック／最大化中・同じ県：元に戻す（固定は残す）', () => {
-    const next = mapReducer(MAXIMIZED, { type: 'doubleClick', pref: A });
-    expect(next.maximized).toBeNull();
-    expect(next.pinned).toBe(A);
+    expect(mapReducer(MAXIMIZED, { type: 'doubleClick', pref: A })).toEqual({ ...MAXIMIZED, maximized: null });
   });
 
   test('4.11.2 ダブルクリック／最大化中・別の県：その県に切り替える', () => {
-    const next = mapReducer(MAXIMIZED, { type: 'doubleClick', pref: B });
-    expect(next.maximized).toBe(B);
-    expect(next.pinned).toBe(B);
+    expect(mapReducer(MAXIMIZED, { type: 'doubleClick', pref: B })).toEqual({ ...MAXIMIZED, pinned: B, maximized: B });
   });
 });
 
@@ -95,7 +95,7 @@ describe('4.11.2 海・余白のクリック', () => {
   });
 
   test('4.11.2 海・余白をクリック／固定中：固定を解除する', () => {
-    expect(mapReducer(PINNED, { type: 'backgroundClick' }).pinned).toBeNull();
+    expect(mapReducer(PINNED, { type: 'backgroundClick' })).toEqual({ ...PINNED, pinned: null });
   });
 
   test('4.11.2 海・余白をクリック／最大化中：何もしない', () => {
@@ -109,13 +109,11 @@ describe('4.11.2 Esc', () => {
   });
 
   test('4.11.2 Esc／固定中：固定を解除する（F-KB-05）', () => {
-    expect(mapReducer(PINNED, { type: 'escape' }).pinned).toBeNull();
+    expect(mapReducer(PINNED, { type: 'escape' })).toEqual({ ...PINNED, pinned: null });
   });
 
   test('4.11.2 Esc／最大化中：最大化を解除する（固定は残す）（F-KB-05）', () => {
-    const next = mapReducer(MAXIMIZED, { type: 'escape' });
-    expect(next.maximized).toBeNull();
-    expect(next.pinned).toBe(A);
+    expect(mapReducer(MAXIMIZED, { type: 'escape' })).toEqual({ ...MAXIMIZED, maximized: null });
   });
 });
 
@@ -129,9 +127,7 @@ describe('4.11.2 全体表示', () => {
   });
 
   test('4.11.2 全体表示／最大化中：最大化を解除する（固定は残す）', () => {
-    const next = mapReducer(MAXIMIZED, { type: 'resetView' });
-    expect(next.maximized).toBeNull();
-    expect(next.pinned).toBe(A);
+    expect(mapReducer(MAXIMIZED, { type: 'resetView' })).toEqual({ ...MAXIMIZED, maximized: null });
   });
 });
 
@@ -151,11 +147,11 @@ describe('4.11.1 カードに表示する県', () => {
   });
 
   test('4.11.1 ホバーが終わってもカードの県は残る', () => {
-    expect(cardPref(run(NORMAL, { type: 'hover', pref: A }, { type: 'hoverEnd' }))).toBe(A);
+    expect(cardPref(run(INITIAL_MAP_STATE, { type: 'hover', pref: A }, { type: 'hoverEnd' }))).toBe(A);
   });
 
   test('4.11.1 固定があればカードは固定した県、なければ最後にホバーした県', () => {
-    const hoveredB = run(NORMAL, { type: 'hover', pref: A }, { type: 'hover', pref: B });
+    const hoveredB = run(INITIAL_MAP_STATE, { type: 'hover', pref: A }, { type: 'hover', pref: B });
     expect(cardPref(hoveredB)).toBe(B);
     const pinnedA = run(hoveredB, { type: 'click', pref: A });
     expect(cardPref(pinnedA)).toBe(A);
@@ -169,10 +165,16 @@ describe('4.11.2 ハッシュからの復元（T3-07）', () => {
     ['通常', NORMAL],
     ['固定中', PINNED],
     ['最大化中', MAXIMIZED]
-  ])('4.11.2 ハッシュからの復元：その県を固定する（%s）', (_name, state) => {
-    const next = mapReducer(state, { type: 'restore', pref: B });
-    expect(next.pinned).toBe(B);
-    expect(next.maximized).toBeNull();
+  ])('4.11.2 ハッシュからの復元／別の県：その県を固定する（%s）', (_name, state) => {
+    expect(mapReducer(state, { type: 'restore', pref: B })).toEqual({ ...state, pinned: B, maximized: null });
+  });
+
+  test('4.11.2 ハッシュからの復元／固定中・同じ県：状態を変えない', () => {
+    expect(mapReducer(PINNED, { type: 'restore', pref: A })).toBe(PINNED);
+  });
+
+  test('4.11.2 ハッシュからの復元／最大化中・同じ県：最大化を解除して固定を残す', () => {
+    expect(mapReducer(MAXIMIZED, { type: 'restore', pref: A })).toEqual({ ...MAXIMIZED, pinned: A, maximized: null });
   });
 });
 
@@ -193,9 +195,9 @@ const ALL_EVENTS: readonly MapEvent[] = [
 describe('状態の同一性と不変性', () => {
   test('4.11.2 状態が変わらない操作では、同じ状態のオブジェクトを返す', () => {
     expect(mapReducer(NORMAL, { type: 'escape' })).toBe(NORMAL);
-    expect(mapReducer(NORMAL, { type: 'hoverEnd' })).toBe(NORMAL);
-    const hovering = mapReducer(NORMAL, { type: 'hover', pref: A });
-    expect(mapReducer(hovering, { type: 'hover', pref: A })).toBe(hovering);
+    expect(mapReducer(NORMAL, { type: 'hover', pref: C })).toBe(NORMAL);
+    const notHovering = { ...NORMAL, hovered: null };
+    expect(mapReducer(notHovering, { type: 'hoverEnd' })).toBe(notHovering);
     expect(mapReducer(MAXIMIZED, { type: 'zoomStep' })).toBe(MAXIMIZED);
   });
 
