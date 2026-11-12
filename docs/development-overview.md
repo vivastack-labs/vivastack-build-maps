@@ -352,7 +352,7 @@ Lighthouse CIでこの基準値を超えたら、CIを失敗させる。
 - Webフォントは使わず、端末のシステムフォントで表示する（6.2、D27）。フォントのための外部リクエストはしない。
 - GitHub Actionsで使うActionは、コミットSHAでバージョンを固定する。
 - シークレットの扱いは第11章 11.2 に従う。
-- シークレットの混入は、既存の gitleaks の設定（`.gitleaks.toml`）で検出する。手元ではClaude Codeのhookで、CIでも実行する（案）。
+- シークレットの混入は、既存の gitleaks の設定（`.gitleaks.toml`）で検出する。手元ではClaude Codeのhookで、CIでは `ci.yml` の `gitleaks` job で全履歴を検査する（12.3）。
 
 ### 5.6 プライバシー
 
@@ -809,7 +809,7 @@ flowchart TB
 | 単体 | Vitest | ふりがなのパーサー、距離の計算、表示範囲の計算と拡大縮小、ラベル間引き、操作の状態遷移（mapReducer。4.11.2）、コンテンツの読み込み | ドメインロジックのカバレッジ90%以上（全体は `.claude/rules/testing.md` の基準どおり80%以上） |
 | コンポーネント | Vitest＋Testing Library | カード、さくいん、モード・ふりがなの切替、言語切替 | 主な状態がすべて表示できること |
 | データ | Vitest＋JSON Schema | 全YAMLのスキーマ、件数（3件ずつ）、全言語・全モードがそろっているか、文字数、ふりがな | CIで必ず実行 |
-| E2E | Playwright（PC＋スマホ＋タブレット。5.3） | ホバー、固定、最大化、拡大縮小・移動、キーボード操作、言語・モードの切替、`/maps` のリダイレクト | 第4章の主要な要件をすべて確認 |
+| E2E | Playwright（PC＋スマホ＋タブレット。5.3） | ホバー、固定、最大化、拡大縮小・移動、キーボード操作、言語・モードの切替、`/maps` のリダイレクト | 第4章の主要な要件をすべて確認。開発中は CI では PR ごとに実行せず、手動で実行する（12.1、D30） |
 | アクセシビリティ | @axe-core/playwright | 3言語 × 2モード × ライト・ダーク | 違反0件 |
 | 表示速度 | Lighthouse CI | `/maps/ja/`、`/maps/en/`、`/maps/zh/` | 第5章 5.1 の基準値 |
 
@@ -821,7 +821,7 @@ flowchart TB
 
 | サービス | 必要なもの | 備考 |
 |---|---|---|
-| GitHub | `vivastack-labs/vivastack-build-maps`、Actionsの有効化、Environments（`preview` / `production`） | レビュアーは `vivastack-labs` 組織のメンバー（GitHub Teamで管理） |
+| GitHub | `vivastack-labs/vivastack-build-maps`、Actionsの有効化、Environments（`preview` / `production`） | レビュアーは `vivastack-labs` 組織のメンバー（GitHub Teamで管理）。リポジトリは private、組織は Free プラン。この組み合わせでは、ブランチ保護と Environments を使えない（11.5、U14） |
 | Cloudflare | 既存アカウント（vivagain.jpのゾーンがあるもの）、Workers Freeプラン、workers.devのサブドメイン登録 | プレビューURLは workers.dev 上にしか発行できない |
 | Cloudflare Zero Trust（Access） | 無料プランで組織を作り、プレビューURLを保護する | 無料枠の人数と、支払い方法の登録が必要かどうかは**要確認** |
 | Cloudflare Web Analytics | `build.vivagain.jp` を登録 | プロキシ経由なので、計測タグを埋め込まない自動設定が使える見込み |
@@ -923,7 +923,10 @@ flowchart TB
 | CODEOWNERS | `*`（リポジトリ全体）はオーナー。`/content/` は `@vivastack-labs/maps-reviewers` |
 | Team | `maps-reviewers` を作成し、リポジトリにWrite権限を付ける |
 | Actionsの権限 | 既定は `contents: read`。必要なjobだけで権限を追加する |
-| Dependabot | npmとGitHub Actionsの更新を週1回提案させる |
+| Dependabot | npmとGitHub Actionsの更新を週1回提案させる。公開から7日たっていない版は提案しない（`cooldown`）。npm の minor・patch は1つのPRにまとめる |
+
+- ブランチ保護で必須にするチェックは、`ci.yml` の `check` と `gitleaks`（12.3）。
+- **プランの制約**（T0-04 で確認）：private リポジトリで、組織が Free プランのとき、ブランチ保護（ルールセットを含む）と Environments・Environment の Secrets は使えない（API が「Upgrade to GitHub Pro or make this repository public」を返す）。GitHub Team への変更、public 化、ブランチ保護なしでの運用のどれにするかは U14 として T0-05 で決める。Actions は private の Free では月2,000分まで。
 
 ### 11.6 ローカル開発環境
 
@@ -960,11 +963,14 @@ pnpm exec wrangler dev   # dist/ を Workers と同じ動きでローカル確�
 | ファイル | 実行タイミング | 内容 |
 |---|---|---|
 | `.github/workflows/ci.yml` | `main` 向けのPR | チェック一式 → プレビューへデプロイ → PRにURLをコメント |
+| `.github/workflows/e2e.yml` | **手動で実行**（`workflow_dispatch`） | E2E（Playwright）。プロジェクト（`all` か1つ）を選べる。開発中は PR ごとには実行しない（D30） |
 | `.github/workflows/deploy.yml` | `main` へのpush | チェック一式 → 本番へデプロイ |
 | `.github/workflows/link-check.yml` | **手動で実行**（`workflow_dispatch`） | 全コンテンツの出典URLのリンク切れチェック。結果はレポートとして残す |
 
-- リポジトリ全体がアプリなので、パスでの絞り込みは基本的にしない。ただし、アプリの動作に関係しない変更（`docs/**`、`.claude/**`、`.codex/**`、`.agents/**`、`*.md`）は `paths-ignore` で対象外にする（案）。
-- ブランチ保護でCIの成功を必須にするため、`paths-ignore` で実行されなかったPRがmergeできなくならないかを M0 で確認する。
+- リポジトリ全体がアプリなので、パスでの絞り込みは基本的にしない。
+- アプリの動作に関係しない変更（`docs/`・`.claude/`・`.codex/`・`.agents/` の下と `*.md`）だけのPRでは、`check` job の中で typecheck・test・build・e2e を飛ばす。lint（markdownlint・yamllint を含む）とgitleaksは実行する。判定は `scripts/docs-only.ts`（PRの分岐点からの `git diff --name-only` を見る。ファイルがないときは全部を実行する）。
+- **E2E は開発中は PR ごとに実行しない**（D30。T0-04 でオーナーが決定）。private・Free の Actions は月2,000分までで、E2E は7プロジェクトを `workers: 1` で順に回すため時間がかかる。UI やルーティングを変えたPRでは、merge の前に `e2e.yml` を手動で実行して通ることを確かめる（`gh workflow run e2e.yml --ref <ブランチ> -f project=all`）。本番リリース後の扱いは U15 で決める。
+- `paths-ignore` は使わない（T0-04 で決定）。GitHubの公式ドキュメントのとおり、`paths-ignore` で実行されなかったworkflowのチェックは「Pending」のままになり、必須にしているとPRをmergeできないため。また、`paths-ignore` では文書だけのPRで markdownlint も実行されなくなる。
 
 ### 12.2 パイプライン
 
@@ -975,7 +981,7 @@ flowchart LR
     A1[install] --> A2[lint / typecheck]
     A2 --> A3[unit / data test]
     A3 --> A4["build<br/>（draft 含む）"]
-    A4 --> A5[e2e / axe / lhci]
+    A4 --> A5[lhci]
     A5 --> A6["wrangler versions upload<br/>--preview-alias pr-N"]
     A6 --> A7[PRにURLをコメント]
   end
@@ -988,15 +994,19 @@ flowchart LR
   end
 ```
 
-### 12.3 PR用workflowの例（概略）
+- 開発中は、PR の E2E・axe を `e2e.yml` で手動で実行する（D30）。`deploy.yml` で E2E を実行するかは T0-06 で決める。
+
+### 12.3 PR用workflow（`ci.yml`）
+
+実際の設定は `.github/workflows/ci.yml`。T0-04 で `check`・`gitleaks` を作った。
+`（後で）` を付けた手順・jobは、後のタスクで加える（`content:validate` は T1-07、`build:preview` と `preview` job は T0-06、`lhci` は T4-04）。
 
 ```yaml
-# .github/workflows/ci.yml（概略。Action は実装時に SHA で固定する）
+# .github/workflows/ci.yml（概略。Action はコミットSHAで固定する）
 name: ci
-on:
+"on":
   pull_request:
-    branches: [main]
-    paths-ignore: ["docs/**", ".claude/**", ".codex/**", ".agents/**", "**/*.md"]
+    branches: [main]            # paths-ignore は使わない（12.1）
 
 permissions:
   contents: read
@@ -1006,27 +1016,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
+  check:                        # ブランチ保護で必須にするチェック
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@<SHA>
-      - uses: pnpm/action-setup@<SHA>
-      - uses: actions/setup-node@<SHA>
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
+      - uses: actions/checkout@<SHA>          # fetch-depth: 0（文書だけかの判定に使う）
+      - uses: pnpm/action-setup@<SHA>         # 版は package.json の packageManager
+      - uses: actions/setup-node@<SHA>        # node-version-file: .nvmrc、cache: pnpm
+      - run: pipx install yamllint==1.33.0    # pnpm lint が使う
       - run: pnpm install --frozen-lockfile
-      - run: pnpm lint && pnpm typecheck   # ESLint・Prettier・markdownlint・yamllint
+      - run: git diff --name-only "$BASE...$HEAD" | node scripts/docs-only.ts >> "$GITHUB_OUTPUT"
+      - run: pnpm lint                        # ESLint・Prettier・markdownlint・yamllint。文書だけでも実行する
+      # ここから下は、文書だけのPRでは飛ばす
+      - run: pnpm typecheck
       - run: pnpm test
-      - run: pnpm content:validate
-      - run: pnpm build:preview          # draft を含め「下書き」と表示、noindex を付ける
-      - run: pnpm exec playwright install --with-deps
-      - run: pnpm test:e2e               # axe を含む
-      - run: pnpm lhci
-      - uses: actions/upload-artifact@<SHA>
-        with: { name: dist, path: dist }
+      - run: pnpm content:validate            # （後で）
+      - run: pnpm build                       # （後で）build:preview にする。draft を含め「下書き」と表示、noindex を付ける
+      # E2E は開発中はここで実行しない（D30）。e2e.yml で手動で実行する
+      - run: pnpm lhci                        # （後で）
 
-  preview:
+  gitleaks:                     # ブランチ保護で必須にするチェック
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@<SHA>          # fetch-depth: 0
+      - run: （公式のバイナリをダウンロードし、SHA-256 を確かめる）
+      - run: gitleaks git --redact --no-banner --exit-code 1 .
+
+  preview:                      # （後で）T0-06
     needs: check
     runs-on: ubuntu-latest
     environment: preview
@@ -1046,6 +1061,8 @@ jobs:
       # wrangler の出力からプレビューURLを取り出し、PRにコメントする（実装時に詳細化）
 ```
 
+- gitleaks は `gitleaks/gitleaks-action` を使わない。組織のリポジトリではライセンスキー（`GITLEAKS_LICENSE`）の登録が要るため。公式のリリースのバイナリを、SHA-256 を確かめてから実行する。
+- `e2e.yml`（手動）は、選んだプロジェクトが使うブラウザだけを `playwright install --with-deps` で入れ、`pnpm test:e2e` を実行する。サーバーは `webServer` の `pnpm build` → `wrangler dev`。E2E は CI では `workers: 1`・`retries: 2` で動く（`playwright.config.ts`）。失敗したときのレポートは Actions の Artifact（`playwright-report`、14日）に残る。
 - 本番用のworkflow（`deploy.yml`）も同じ構成にする。違いは、`on: push`（`main`）、`environment: production`、`pnpm build`（reviewedのみ）、`command: deploy` の4点。
 - フォークからのPRにはSecretsが渡らないため、プレビューへのデプロイは行われない（このリポジトリではフォークからのPRを想定しない）。
 - プレビューURLの形式（`<alias>-<worker名>.<サブドメイン>.workers.dev`）と、出力から取り出す方法は実装時に確認する。
@@ -1136,6 +1153,8 @@ flowchart LR
 | U11 | ~~コンテンツ生成用スキルの置き場所~~ | 決定（D22）：リポジトリ直下の `.claude/skills/` と `.claude/agents/` | — |
 | U12 | 市区町村名のローマ字の書き方 | 長音（例：`Tokyo` / `Tōkyō` / `Toukyou`）と、市・区・町・村の書き方（例：`Sapporo-shi` / `Sapporo`）（F-I18N-05） | M1 |
 | U13 | Service Worker のツール | Serwist / workbox-build（第5章 5.4） | M4 |
+| U14 | GitHub のプランの制約（private・Free ではブランチ保護と Environments を使えない） | GitHub Team に変える / public にする / ブランチ保護なしで運用する（第11章 11.5） | M0 |
+| U15 | 本番リリース後の E2E の実行のしかた | 開発中は手動（D30）。リリース後に PR ごと・`main` への push ごと・手動のどれにするか（Actions の分数とプランによる） | M6 |
 
 ---
 
@@ -1172,6 +1191,7 @@ flowchart LR
 | D27 | フォント | Webフォントは使わず、システムフォントを言語ごとに指定する（6.2） |
 | D28 | UI文言の多言語化 | ライブラリは使わず、型付きの自前の辞書にする。日本語の文言にもふりがなの記法を使う（6.2） |
 | D29 | 配信するファイルの組み立て | `out/` の構成にかかわらず、`scripts/postbuild.ts` で `dist/maps/` に組み立てる。`_redirects`・`_headers` は `dist/` の直下（6.4） |
+| D30 | 開発中の E2E の実行 | CI では PR ごとに実行せず、`e2e.yml` を手動で実行する。Actions の分数を抑えるため。本番リリース後は U15 で決める（12.1） |
 
 ## 付録B. 参考資料
 

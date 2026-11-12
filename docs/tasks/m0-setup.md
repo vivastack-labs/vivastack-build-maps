@@ -113,7 +113,7 @@
 
 ### 実装内容
 
-- `.github/workflows/ci.yml` の `check` job：install → lint・typecheck → test → build → e2e。Action はコミットSHAで固定する。権限は `contents: read`。`concurrency` で古い実行を止める。
+- `.github/workflows/ci.yml` の `check` job：install → lint・typecheck → test → build。（実装の途中で変えた：E2E は開発中は PR ごとに実行せず、`.github/workflows/e2e.yml` を手動で実行する。D30。下の2項目は `e2e.yml` に当てはまる）Action はコミットSHAで固定する。権限は `contents: read`。`concurrency` で古い実行を止める。
 - e2e の手順の前に `pnpm exec playwright install --with-deps chromium firefox webkit` でブラウザとシステムのライブラリを入れる（T0-02。WebKit・Firefox はライブラリがないと起動しない）。`playwright.config.ts` は、`CI` 環境変数があると `retries: 2`・`workers: 1`・`forbidOnly` になり、レポートは `github` と `html`（`playwright-report/`）を出す。失敗したときに `playwright-report/` を artifact に上げる。
 - E2E のサーバー（`playwright.config.ts` の `webServer`）は、`pnpm build` をしてから `wrangler dev`（8788番）を起動する（T0-03）。そのため、`build` の手順と合わせると CI では2回ビルドする。時間が気になれば、`build` の手順を省いて e2e にまとめる。
 - gitleaks（既存の `.gitleaks.toml`）をCIで実行する（5.5）。
@@ -152,6 +152,9 @@
   - ブランチ保護（11.5）。
   - Team `maps-reviewers` と、リポジトリへの Write 権限。
 - 結果を開発概要書（11.3、11.4 (5)、第16章の U5・U7）に書く docs のPRを出す。
+- ブランチ保護で必須にするチェックの名前は `check` と `gitleaks`（T0-04 の `ci.yml`）。
+- **プランの制約**（T0-04 で確認）：リポジトリは private、組織は Free プランで、ブランチ保護と Environments・Environment の Secrets を使えない（開発概要書 11.5、U14）。先に U14（GitHub Team に変える / public にする / ブランチ保護なしで運用する）を決める。Environments を使えないままなら、Secrets はリポジトリの Secrets に置くことになり、11.2 を直す。
+- この docs のPRは文書だけなので、`check` は lint だけを実行して、typecheck・test・build・e2e を飛ばすはず（T0-04 で merge 後に確かめることにした点）。PRで確かめる。
 
 ### 完了条件
 
@@ -175,7 +178,8 @@
 ### 実装内容
 
 - `wrangler.jsonc`（11.4 (2) のとおり）と、`pnpm build` で `dist/` を作る仕組みは T0-03 で用意した。`compatibility_date` は、入れた wrangler（workerd）が対応する日付までしか使えない（T0-03 では 2026-11-10）。
-- `ci.yml` に `preview` job を加える：`wrangler versions upload --preview-alias pr-N`、PRにプレビューURLをコメントする（同じPRでは1つのコメントを更新する）。
+- `deploy.yml` で E2E を実行するかを決める（開発中は PR ごとに実行しない。D30）。推奨は実行しない（merge の前に `e2e.yml` を手動で実行して確かめるため。分数を抑える）。
+- `ci.yml` に `preview` job を加える（`needs: check`。文書だけのPRでは `check` が build を飛ばすので、`check` の `docs_only` を job の出力にして、プレビューも飛ばす）：`wrangler versions upload --preview-alias pr-N`、PRにプレビューURLをコメントする（同じPRでは1つのコメントを更新する）。
 - `.github/workflows/deploy.yml`：`main` への push で `wrangler deploy`（`environment: production`）。
 - `pnpm build:preview`：この時点では `pnpm build` と同じ内容に、`noindex`（`<meta name="robots" content="noindex">`）を加えたもの。コンテンツの絞り込みは T3-02 で加える。
 - `workers_dev: false` と `preview_urls: true` を同時に設定できるか確かめる（開発計画 5章 U6 の推奨案）。結果を開発概要書（11.4 (2)、第16章の U6）に書く。

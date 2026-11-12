@@ -114,7 +114,7 @@ T5-01〜T5-03 は M2・M3 と並行して進められる。
 
 ### テスト条件
 
-- CI（`pnpm content:validate`、E2E）が通る。
+- CI（`pnpm content:validate`）と E2E が通る（E2E は開発中は `e2e.yml` を手動で実行する。D30。リリース後は U15 による）。
 - レビュアーがプレビューURLでカードの表示を確かめ、PRを承認した（9.4）。
 
 ---
@@ -139,5 +139,5 @@ T5-01〜T5-03 は M2・M3 と並行して進められる。
 
 ### テスト条件（県ごと）
 
-- CI（`pnpm content:validate`、E2E）が通る。
+- CI（`pnpm content:validate`）と E2E が通る（E2E は開発中は `e2e.yml` を手動で実行する。D30。リリース後は U15 による）。
 - レビュアーの承認（9.4）。
