@@ -3,7 +3,7 @@
 // out/ の中身を dist/maps/ に移す。_redirects・_headers は Workers が読むので dist/ の直下に置く。
 // 実行：node scripts/postbuild.ts（Node.js の型の除去で直接動かすので、enum などは使わない）
 import { cpSync, existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
-import { dirname, join, relative, sep } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 
 const BASE_DIR = 'maps';
 const ROOT_FILES: readonly string[] = ['_redirects', '_headers'];
@@ -24,13 +24,32 @@ export const distPathOf = (outPath: string): string => {
   return ROOT_FILES.includes(outPath) ? outPath : `${BASE_DIR}/${outPath}`;
 };
 
-const listFiles = (dir: string): readonly string[] =>
-  readdirSync(dir, { recursive: true, withFileTypes: true })
-    .filter(entry => entry.isFile())
-    .map(entry => relative(dir, join(entry.parentPath, entry.name)).split(sep).join('/'));
+// a が b と同じか、b の中にある
+const isSameOrInside = (a: string, b: string): boolean => {
+  const path = relative(resolve(b), resolve(a));
+  return path === '' || (!path.startsWith('..') && !isAbsolute(path));
+};
+
+const assertNotOverlapping = (outDir: string, distDir: string): void => {
+  if (isSameOrInside(distDir, outDir) || isSameOrInside(outDir, distDir)) {
+    throw new Error(`dist/ と out/ が重なっています（out：${outDir}、dist：${distDir}）`);
+  }
+};
+
+// out/ の外を指せないように、シンボリックリンクはエラーにする
+const listFiles = (dir: string): readonly string[] => {
+  const entries = readdirSync(dir, { recursive: true, withFileTypes: true });
+  const toRelative = (entry: (typeof entries)[number]): string => relative(dir, join(entry.parentPath, entry.name)).split(sep).join('/');
+  const links = entries.filter(entry => entry.isSymbolicLink()).map(toRelative);
+  if (links.length > 0) {
+    throw new Error(`${dir} にシンボリックリンクがあります：${links.join('・')}`);
+  }
+  return entries.filter(entry => entry.isFile()).map(toRelative);
+};
 
 /** dist/ を作り直し、out/ のファイルを distPathOf の場所へコピーする */
 export const assembleDist = ({ outDir, distDir }: AssembleOptions): void => {
+  assertNotOverlapping(outDir, distDir);
   if (!existsSync(outDir)) {
     throw new Error(`${outDir} がありません。先に next build を実行してください`);
   }
@@ -39,14 +58,17 @@ export const assembleDist = ({ outDir, distDir }: AssembleOptions): void => {
     throw new Error(`${outDir} に ${missing.join('・')} がありません（public/ に置く。11.4 (3)・(4)）`);
   }
 
+  const files = listFiles(outDir);
   rmSync(distDir, { recursive: true, force: true });
-  for (const file of listFiles(outDir)) {
+  for (const file of files) {
     const target = join(distDir, distPathOf(file));
     mkdirSync(dirname(target), { recursive: true });
     cpSync(join(outDir, file), target);
   }
 };
 
+// 実行した場所によらず、リポジトリの直下の out/・dist/ を使う
 if (import.meta.main) {
-  assembleDist({ outDir: 'out', distDir: 'dist' });
+  const repoRoot = join(import.meta.dirname, '..');
+  assembleDist({ outDir: join(repoRoot, 'out'), distDir: join(repoRoot, 'dist') });
 }

@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, existsSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
@@ -27,7 +27,7 @@ describe('distPathOf', () => {
     expect(result).toBe(expected);
   });
 
-  test.each(['/etc/passwd', '../secret', 'ja/../../x', '', 'ja\\index.html'])('R7：絶対パスや .. を含むパスはエラーにする（%j）', outPath => {
+  test.each(['/etc/passwd', '../secret', 'ja/../../x', '', 'ja\\index.html', 'a//b', './a', 'a/./b', 'ja/'])('R7：絶対パスや .. を含むパスはエラーにする（%j）', outPath => {
     // Act & Assert
     expect(() => distPathOf(outPath)).toThrow();
   });
@@ -82,6 +82,31 @@ describe('assembleDist', () => {
 
     // Act & Assert
     expect(() => assembleDist({ outDir, distDir })).toThrow(missing);
+  });
+
+  test.each([
+    ['同じ', (out: string) => out],
+    ['out/ の中', (out: string) => join(out, 'dist')],
+    ['dist/ の中に out/', (out: string) => dirname(out)]
+  ])('R7：dist/ と out/ が重なるとき（%s）はエラーにし、out/ を消さない', (_label, toDist) => {
+    // Arrange
+    put(outDir, '_redirects', 'x');
+    put(outDir, '_headers', 'x');
+
+    // Act & Assert
+    expect(() => assembleDist({ outDir, distDir: toDist(outDir) })).toThrow();
+    expect(existsSync(join(outDir, '_redirects'))).toBe(true);
+  });
+
+  test('R7：out/ にシンボリックリンクがあればエラーにする', () => {
+    // Arrange
+    put(outDir, '_redirects', 'x');
+    put(outDir, '_headers', 'x');
+    put(root, 'outside.txt', 'secret');
+    symlinkSync(join(root, 'outside.txt'), join(outDir, 'link.txt'));
+
+    // Act & Assert
+    expect(() => assembleDist({ outDir, distDir })).toThrow('link.txt');
   });
 
   test('R7：out/ がなければエラーにする', () => {
