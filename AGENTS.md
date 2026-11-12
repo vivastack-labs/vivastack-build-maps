@@ -39,6 +39,7 @@ pnpm exec wrangler dev   # dist/ を本番の Workers と同じ形で配信す�
 
 pnpm vitest run tests/unit/i18n/lang.test.ts   # 1ファイルだけ動かす（カバレッジなし）
 pnpm vitest run -t "F-I18N-01"                 # テスト名で絞る（テスト名に要件IDが入っている）
+pnpm vitest run --project data                 # データの検査（tests/data/）だけを動かす
 pnpm test:e2e --project=chromium               # E2E を1プロジェクトだけ動かす
 gh workflow run e2e.yml --ref <ブランチ> -f project=all   # CI で E2E を手動で動かす（UI・ルーティングを変えたPRは merge の前に）
 pnpm screenshots > <ファイル>   # PRに載せる before（origin/main）・after のスクリーンショットを撮り、screenshots ブランチに push して、PR本文の表を出す
@@ -62,6 +63,7 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
 | `app/` | ルーティングとページ（Next.js App Router） |
 | `src/` | アプリのロジック。`src/lib/` は `.gitignore` の例外で管理している |
 | `tests/unit/` | 単体テスト（`.test.ts`、node）とコンポーネントテスト（`.test.tsx`、jsdom）。`src/` と同じ構成で置く |
+| `tests/data/` | データの検査（`.test.ts`、node）。コミットされた地図データの全体を確かめる（T1-05） |
 | `tests/e2e/` | E2E（Playwright。`*.spec.ts`） |
 | `tests/screenshots/` | PRに載せるスクリーンショットの画面（`playwright.screenshots.config.ts`。`pnpm screenshots` から使う） |
 | `tests/setup/` | テストの共通の準備（jest-dom のマッチャーなど） |

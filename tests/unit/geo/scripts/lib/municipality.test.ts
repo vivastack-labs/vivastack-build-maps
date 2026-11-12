@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import type { FixTable } from '../../../../../geo/scripts/lib/fixes';
-import { assertFixesUsed, toMunicipality, type NamingSources } from '../../../../../geo/scripts/lib/municipality';
+import { assertFixesUsed, assertSameCodes, toMunicipality, type NamingSources } from '../../../../../geo/scripts/lib/municipality';
 import type { SoumuEntry } from '../../../../../geo/scripts/lib/soumu';
 
 // 7.4・7.4.1・F-TIP-02・D16・D33：N03 の属性の1行から、市区町村の項目（code・name.ja・kana・name.en・cityName）を作る
@@ -175,5 +175,38 @@ describe('assertFixesUsed', () => {
 
     // Act / Assert
     expect(() => assertFixesUsed(sources, [row('06428', '庄内町')])).toThrow('12218');
+  });
+});
+
+describe('assertSameCodes', () => {
+  // 総務省の表のうち、N03 の行が使う分だけ（札幌市は区に分かれる政令指定都市なので、市の行は N03 にない）
+  const TABLE = soumu([
+    ['01100', '札幌市', 'ｻｯﾎﾟﾛｼ'],
+    ['01101', '札幌市中央区', 'ｻｯﾎﾟﾛｼﾁｭｳｵｳｸ'],
+    ['01202', '函館市', 'ﾊｺﾀﾞﾃｼ']
+  ]);
+  const ROWS = [row('01101', '札幌市', '中央区'), row('01202', '函館市')];
+
+  test('8.4：総務省のコード表の市区町村（政令指定都市の行を除く）と、N03 の市区町村のコードが一致すれば通る', () => {
+    // Act / Assert
+    expect(() => assertSameCodes(TABLE, ROWS)).not.toThrow();
+  });
+
+  test('8.4：総務省のコード表にあって N03 にないコードがあればエラーにする（合併・新設の取りこぼし）', () => {
+    // Arrange
+    const table = new Map([...TABLE, ['12218', { code: '12218', name: '勝浦市', kana: 'ｶﾂｳﾗｼ' }]]);
+
+    // Act / Assert
+    expect(() => assertSameCodes(table, ROWS)).toThrow('12218 勝浦市');
+  });
+
+  test('8.4：政令指定都市の区がすべて N03 にないときは、市の行も N03 にないコードとして数える', () => {
+    // Act / Assert
+    expect(() => assertSameCodes(TABLE, [row('01202', '函館市')])).toThrow(/01100.*01101|01101.*01100/);
+  });
+
+  test('8.4：N03 にあって総務省のコード表にないコードがあればエラーにする', () => {
+    // Act / Assert
+    expect(() => assertSameCodes(TABLE, [...ROWS, row('13101', '千代田区')])).toThrow('13101 千代田区');
   });
 });
