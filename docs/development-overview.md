@@ -644,7 +644,7 @@ spots:                     # ちょうど3件。項目の構成は specialties �
 | 本番ビルド | `reviewed` の項目だけを含める。そうでない項目が1つでもある県は、名物・名所・行き方を本番に出さず「準備中」と表示する（4.11.4） |
 | プレビュービルド | すべての状態の項目を含め、`reviewed` でない項目には「下書き」と表示する（レビュー作業用） |
 | `sources` | 空の配列を許す。空なら画面に「出典なし」と表示する。CIでは警告にとどめる |
-| 検証 | `pnpm content:validate`（`scripts/validate-content.ts`）。形は JSON Schema（`content/schema/prefecture.schema.json`、draft-07）、内容のルールは `src/lib/content-rules.ts` で見る。型はスキーマから `pnpm content:types` で `src/lib/content-schema.generated.ts` に作り、コミットする（作り直し忘れはテストで止まる）。読み込むディレクトリは環境変数 `CONTENT_DIR` で変えられる（E2E は `tests/fixtures/content/`）。誤りは `ファイル名:行 場所 メッセージ` の形で出す（T1-07） |
+| 検証 | `pnpm content:validate`（`scripts/validate-content.ts`）。形は JSON Schema（`content/schema/prefecture.schema.json`、draft-07）、内容のルールは `src/lib/content-rules.ts` で見る。型はスキーマから `pnpm content:types` で `src/lib/content-schema.generated.ts` に作り、コミットする（作り直し忘れはテストで止まる）。読み込むディレクトリは環境変数 `CONTENT_DIR` で変えられる（E2E は `tests/fixtures/content/`）。誤りは `ファイル名:行 場所 メッセージ` の形で出す。YAML のエイリアス（`&`・`*`）は使えない。空や空白だけの文は書けない（T1-07） |
 | 未作成 | 名物・名所は `[]` と書く（キーは省かない）。行き方は `access` ごと省く（T1-07） |
 | `id` | 県の `id`・`code` は全ファイルで重複しない。ファイル名は `<code>-<id>.yaml`。名物・名所の `id` は、その県の中（名物と名所を合わせて）で重複しない（T1-07） |
 | 書式 | yamllintで検査する。ふりがなを付けた文は長くなるので、`content/` だけ専用の設定 `content/.yamllint`（1行200字まで）を使う（`yamllint -c content/.yamllint content/`）。ルートの `.yamllint`（120字まで）は、行の長さのチェックで `content/` を対象外にしている。yamllint の既定の規則で、先頭に `---` を書き、1行のマップは `{ja: "…", en: "…"}` のように括弧の内側に空白を入れない（上の例は説明用で、空白が入っている） |
@@ -662,6 +662,7 @@ spots:                     # ちょうど3件。項目の構成は specialties �
   - 読みに使える字は、ひらがな（ぁ〜ゖ）と「ー」だけ。空白・ゝ・ゞ も誤りにする。
   - 括弧の対応の誤りには、対応しない `}`、括弧の中の `{`、括弧の中の `|` が2つ以上、親文字（`|` の前）が空（空白だけを含む）も含める。括弧の外の `|` はただの文字として扱う（英語・中国語の文で使われうるため）。
   - 警告にする漢字は Unicode の `Script=Han`（々・〆 を含む）。続いた漢字はまとめて1件にする。
+  - 英語・中国語の文に記法（`{…|…}`）があれば誤りにする（T1-07）。
   - 誤りのある文は変換しない（`parseRuby` が例外を投げ、ビルドが止まる）。例外のメッセージの「何文字目」は、𩸽 のような BMP の外の字も1字と数える。誤りと警告の一覧は `checkRuby` で得る（`index` は UTF-16 の位置）。
 - 下書きのときは、形態素解析（Sudachiなど）で自動的にふりがなを付け、人がレビューで直す。固有名詞（地名・人名）はレビューで特に注意して確認する。
 
