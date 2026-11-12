@@ -268,7 +268,8 @@
 - 県庁の位置の調べ方（T1-01 で決定。D32）：各都道府県の公式サイトに書かれた庁舎の住所を、地理院地図の住所検索（`https://msearch.gsi.go.jp/address-search/AddressSearch?q=<住所>`）で緯度経度にする。地理院地図（`https://maps.gsi.go.jp/`）で、その点が庁舎の上にあることを確かめる。住所と、庁舎の住所を確かめたページの URL を PR に書く。
   - 国土地理院のサーバーは古い TLS の再ネゴシエーションを使うので、手元の curl（OpenSSL 3）では既定の設定でつながらない（`unsafe legacy renegotiation disabled`）。T1-01 では、そのときだけ `Options = UnsafeLegacyRenegotiation` を書いた OpenSSL の設定ファイルを `OPENSSL_CONF` で渡した。
   - 例：東京都庁（東京都新宿区西新宿二丁目8-1）→ 北緯35.689629、東経139.691772。
-- 名物・名所・行き方は空にする（未作成）。
+- 名物・名所・行き方は空にする（未作成）。名物・名所は `specialties: []`・`spots: []` と書き、行き方は `access` ごと省く（T1-07）。
+- 書き方は `tests/fixtures/content/47-okinawa.yaml`（未作成の県のフィクスチャ）にそろえる。yamllint の既定の規則で、先頭に `---` を書き、1行のマップの括弧の内側に空白を入れない（`{ja: "…"}`。開発概要書 7.1 の例は空白が入っているが、そのままでは yamllint の誤りになる）（T1-07 で分かった）。
 
 ### 完了条件
 
