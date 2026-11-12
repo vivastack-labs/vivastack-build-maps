@@ -4,11 +4,9 @@ import { assertFixesUsed, toMunicipality, type NamingSources } from '../../../..
 import type { SoumuEntry } from '../../../../../geo/scripts/lib/soumu';
 
 // 7.4・7.4.1・F-TIP-02・D16・D33：N03 の属性の1行から、市区町村の項目（code・name.ja・kana・name.en・cityName）を作る
-const soumu = (entries: readonly (readonly [string, string, string])[]): ReadonlyMap<string, SoumuEntry> =>
-  new Map(entries.map(([code, name, kana]) => [code, { code, name, kana }]));
+const soumu = (entries: readonly (readonly [string, string, string])[]): ReadonlyMap<string, SoumuEntry> => new Map(entries.map(([code, name, kana]) => [code, { code, name, kana }]));
 
-const fixes = (entries: readonly (readonly [string, string, string, string])[]): FixTable =>
-  new Map(entries.map(([code, name, before, after]) => [code, { code, name, before, after }]));
+const fixes = (entries: readonly (readonly [string, string, string, string])[]): FixTable => new Map(entries.map(([code, name, before, after]) => [code, { code, name, before, after }]));
 
 const SOUMU = soumu([
   ['01100', '札幌市', 'ｻｯﾎﾟﾛｼ'],

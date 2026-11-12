@@ -22,6 +22,8 @@ const parse = (json: string | undefined): Topology<Record<string, Collection>> =
 
 const geometriesOf = (topology: Topology<Record<string, Collection>>, name: string) => topology.objects[name]?.geometries ?? [];
 
+const codeOf = (item: { properties?: unknown }): unknown => (item.properties as Record<string, unknown> | undefined)?.code;
+
 describe('buildGeo', () => {
   let result: GeoBuildResult;
 
@@ -35,7 +37,7 @@ describe('buildGeo', () => {
     const hokkaido = parse(result.municipalities.get('01'));
     expect(hokkaido.type).toBe('Topology');
     expect(Object.keys(hokkaido.objects)).toEqual(['municipalities']);
-    expect(geometriesOf(hokkaido, 'municipalities').map(geometry => geometry.properties?.code)).toEqual(['01101', '01102', '01202']);
+    expect(geometriesOf(hokkaido, 'municipalities').map(codeOf)).toEqual(['01101', '01102', '01202']);
   });
 
   test('7.4・F-TIP-02：市区町村の属性は code・name・kana・cityName（区だけ）', () => {
@@ -56,8 +58,8 @@ describe('buildGeo', () => {
     const prefs = parse(result.prefs);
 
     // Act
-    const tokyoMunicipalities = geometriesOf(parse(result.municipalities.get('13')), 'municipalities').map(geometry => geometry.properties?.code);
-    const tokyoPref = feature(prefs, prefs.objects.prefectures as Collection).features.find(f => f.properties?.code === '13');
+    const tokyoMunicipalities = geometriesOf(parse(result.municipalities.get('13')), 'municipalities').map(codeOf);
+    const tokyoPref = feature(prefs, prefs.objects.prefectures as Collection).features.find(f => codeOf(f) === '13');
     const [[west], [east]] = geoBounds(tokyoPref ?? { type: 'Sphere' });
 
     // Assert
@@ -73,8 +75,9 @@ describe('buildGeo', () => {
 
     // Assert
     expect(Object.keys(prefs.objects)).toEqual(['prefectures']);
-    expect(geometries.map(geometry => geometry.properties?.code)).toEqual(['01', '13']);
-    const label = geometries[1]?.properties?.label as [number, number];
+    const properties = geometries.map(geometry => geometry.properties as Record<string, unknown>);
+    expect(properties.map(property => property.code)).toEqual(['01', '13']);
+    const label = properties[1]?.label as [number, number];
     expect(label[0]).toBeGreaterThan(139.7);
     expect(label[0]).toBeLessThan(139.9);
     expect(label[1]).toBeGreaterThan(35.6);

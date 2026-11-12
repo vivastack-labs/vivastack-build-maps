@@ -104,6 +104,39 @@ describe('readSoumuCodes', () => {
     expect(codes.get('13101')?.name).toBe('A&B区');
   });
 
+  test('D32：10進・16進の文字参照と、知らない実体参照（そのまま残す）を読む', () => {
+    // Arrange
+    const xlsx = buildXlsx([[['131016', '東京都', '&#21315;&#x4EE3;田&foo;区', 'ﾄｳｷｮｳﾄ', 'ﾁﾖﾀﾞｸ']]]);
+
+    // Act
+    const codes = readSoumuCodes(xlsx);
+
+    // Assert（buildXlsx は & を &amp; にするので、&amp;#21315; が &#21315; に戻る）
+    expect(codes.get('13101')?.name).toBe('&#21315;&#x4EE3;田&foo;区');
+  });
+
+  test('D32：共有文字列の中の文字参照を元の字に戻す', () => {
+    // Arrange
+    const sheet = '<worksheet><sheetData><row r="1"><c r="A1" t="s"><v>0</v></c><c r="C1" t="s"><v>1</v></c><c r="E1" t="s"><v>2</v></c></row></sheetData></worksheet>';
+    const strings = '<sst><si><t>131016</t></si><si><t>&#21315;&#x4EE3;田&foo;区</t></si><si><t>ﾁﾖﾀﾞｸ</t></si></sst>';
+    const xlsx = zipSync({ 'xl/sharedStrings.xml': strToU8(strings), 'xl/worksheets/sheet1.xml': strToU8(sheet) });
+
+    // Act
+    const codes = readSoumuCodes(xlsx);
+
+    // Assert
+    expect(codes.get('13101')?.name).toBe('千代田&foo;区');
+  });
+
+  test('共有文字列の番号が範囲の外ならエラーにする', () => {
+    // Arrange
+    const sheet = '<worksheet><sheetData><row r="1"><c r="A1" t="s"><v>9</v></c></row></sheetData></worksheet>';
+    const xlsx = zipSync({ 'xl/sharedStrings.xml': strToU8('<sst><si><t>a</t></si></sst>'), 'xl/worksheets/sheet1.xml': strToU8(sheet) });
+
+    // Act / Assert
+    expect(() => readSoumuCodes(xlsx)).toThrow('範囲の外');
+  });
+
   test.each(['011003', '01100', '0110021'])('検査数字付きの6桁でないコード（%s）はエラーにする', code => {
     // Arrange
     const xlsx = buildXlsx([[[code, '北海道', '札幌市', 'ﾎｯｶｲﾄﾞｳ', 'ｻｯﾎﾟﾛｼ']]]);

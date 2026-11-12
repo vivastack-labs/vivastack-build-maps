@@ -19,7 +19,13 @@ describe('writeGeoOutputs', () => {
   test('7.4：県ごとの市区町村を NN.topo.json に、都道府県を prefs.topo.json に書く（末尾に改行）', () => {
     // Arrange
     const dirs = { muniDir: join(root, 'public/geo/muni'), prefsFile: join(root, 'geo/data/prefs.topo.json') };
-    const result = { prefs: '{"p":1}', municipalities: new Map([['01', '{"m":1}'], ['13', '{"m":13}']]) };
+    const result = {
+      prefs: '{"p":1}',
+      municipalities: new Map([
+        ['01', '{"m":1}'],
+        ['13', '{"m":13}']
+      ])
+    };
 
     // Act
     writeGeoOutputs(result, dirs);
@@ -48,7 +54,12 @@ describe('writeGeoOutputs', () => {
 describe('formatSizeReport', () => {
   test('5.1：県ごとの圧縮後の大きさと、最大の県を表示する', () => {
     // Act
-    const report = formatSizeReport(new Map([['01', 'a'.repeat(5000)], ['13', 'xyz']]));
+    const report = formatSizeReport(
+      new Map([
+        ['01', 'a'.repeat(5000)],
+        ['13', 'xyz']
+      ])
+    );
 
     // Assert
     expect(report).toMatch(/^01 \d+ B$/m);

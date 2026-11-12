@@ -61,8 +61,8 @@ function uniqueByCode(entries: readonly SoumuEntry[]): ReadonlyMap<string, Soumu
 // 名前のセルにはふりがな（<rPh>）が入っていることがある（色丹村など7件）。除かないと「色丹村シコタンムラ」になる
 function parseSharedStrings(xml: string): readonly string[] {
   return [...xml.matchAll(/<si>([\s\S]*?)<\/si>/g)].map(([, item]) => {
-    const withoutPhonetics = (item ?? '').replace(/<rPh\b[\s\S]*?<\/rPh>/g, '');
-    return [...withoutPhonetics.matchAll(/<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g)].map(([, text]) => decodeXml(text ?? '')).join('');
+    const withoutPhonetics = (item as string).replace(/<rPh\b[\s\S]*?<\/rPh>/g, '');
+    return [...withoutPhonetics.matchAll(/<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g)].map(([, text]) => decodeXml(text as string)).join('');
   });
 }
 
@@ -76,7 +76,7 @@ function decodeXml(text: string): string {
 
 function parseSheet(xml: string, strings: readonly string[]): readonly Row[] {
   return [...xml.matchAll(/<row\b[^>]*>([\s\S]*?)<\/row>/g)].flatMap(([, body]) => {
-    const cells = parseCells(body ?? '', strings);
+    const cells = parseCells(body as string, strings);
     const row = toRow(cells.get('A'), cells.get('C'), cells.get('E'));
     return row === undefined ? [] : [row];
   });
@@ -87,10 +87,18 @@ function parseCells(rowXml: string, strings: readonly string[]): ReadonlyMap<str
     [...rowXml.matchAll(/<c r="([A-Z]+)\d+"([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)].flatMap(([, column, attributes, inner]) => {
       const value = /<v>([\s\S]*?)<\/v>/.exec(inner ?? '')?.[1];
       if (value === undefined) return [];
-      const isShared = /\bt="s"/.test(attributes ?? '');
-      return [[column as string, isShared ? (strings[Number(value)] ?? '') : decodeXml(value)] as const];
+      const isShared = /\bt="s"/.test(attributes as string);
+      return [[column as string, isShared ? sharedString(strings, value) : decodeXml(value)] as const];
     })
   );
+}
+
+function sharedString(strings: readonly string[], index: string): string {
+  const text = strings[Number(index)];
+  if (text === undefined) {
+    throw new Error(`xlsx の共有文字列の番号が範囲の外です（${index}）`);
+  }
+  return text;
 }
 
 // 見出しや注記の行（A 列が数字でない）と、都道府県の行（市区町村名が空）は読まない
@@ -108,7 +116,7 @@ function toRow(code: string | undefined, name: string | undefined, kana: string 
 // 団体コードは5桁＋検査数字。検査数字は、上5桁に 6・5・4・3・2 を掛けた和を11で割った余りを11から引いた数の1の位
 function assertCode(code: string): void {
   const digits = [...code].map(Number);
-  const sum = CHECK_DIGIT_WEIGHTS.reduce((total, weight, index) => total + weight * (digits[index] ?? 0), 0);
+  const sum = CHECK_DIGIT_WEIGHTS.reduce((total, weight, index) => total + weight * Number(code.charAt(index)), 0);
   const checkDigit = (CHECK_DIGIT_MODULUS - (sum % CHECK_DIGIT_MODULUS)) % 10;
   if (code.length !== CODE_LENGTH || digits[CODE_LENGTH - 1] !== checkDigit) {
     throw new Error(`検査数字付きの6桁の団体コードではありません（${code}）`);

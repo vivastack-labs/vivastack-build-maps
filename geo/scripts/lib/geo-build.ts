@@ -54,10 +54,7 @@ const LABEL_DIGITS = 4;
 const UNASSIGNED_SUFFIX = '000';
 
 export async function buildGeo(source: N03Source, naming: NamingSources, settings: GeoBuildSettings = GEO_BUILD_SETTINGS): Promise<GeoBuildResult> {
-  const [municipalityOutputs, prefOutputs] = await Promise.all([
-    runMapshaper(source, municipalityCommands(settings.municipality)),
-    runMapshaper(source, prefectureCommands(settings.prefecture))
-  ]);
+  const [municipalityOutputs, prefOutputs] = await Promise.all([runMapshaper(source, municipalityCommands(settings.municipality)), runMapshaper(source, prefectureCommands(settings.prefecture))]);
   const municipalities = toMunicipalityFiles(municipalityOutputs, naming);
   assertGzipSize(municipalities, settings.maxGzipBytes);
   return { prefs: toPrefectureFile(prefOutputs), municipalities };
@@ -99,7 +96,7 @@ async function runMapshaper(source: N03Source, commands: string): Promise<readon
 function toMunicipalityFiles(topologies: readonly AnyTopology[], naming: NamingSources): ReadonlyMap<string, string> {
   const files = topologies.map(topology => {
     const geometries = onlyCollection(topology).geometries;
-    const prefCode = String(geometries[0]?.properties?.pref);
+    const prefCode = String(propertiesOf(geometries[0] as Geometry).pref);
     const rows = geometries.map(geometry => geometry.properties as unknown as N03Row);
     const named = geometries.map((geometry, index) => withProperties(geometry, { ...toMunicipality(rows[index] as N03Row, naming) }));
     return { prefCode, rows, json: serialize(topology, 'municipalities', named) };
@@ -117,7 +114,7 @@ function toPrefectureFile(topologies: readonly AnyTopology[]): string {
     throw new Error(`都道府県の出力が1つではありません（${topologies.length}）`);
   }
   const geometries = onlyCollection(topology).geometries.map(geometry => {
-    const { pref, lon, lat } = geometry.properties ?? {};
+    const { pref, lon, lat } = propertiesOf(geometry);
     return withProperties(geometry, { code: String(pref), label: [round(Number(lon)), round(Number(lat))] });
   });
   return serialize(topology, 'prefectures', geometries);
@@ -136,13 +133,18 @@ function onlyCollection(topology: AnyTopology): AnyTopology['objects'][string] {
   return collection;
 }
 
+// topojson-specification の型では、形のない地域の properties が {} になるので、ここで型をそろえる
+function propertiesOf(geometry: Geometry): Record<string, unknown> {
+  return geometry.properties as Record<string, unknown>;
+}
+
 function withProperties(geometry: Geometry, properties: Record<string, unknown>): Geometry {
   return { ...geometry, properties };
 }
 
 // オブジェクトの名前をそろえ、コードの順に並べる（mapshaper の出力の順に頼らず、いつも同じ文字列にするため）
 function serialize(topology: AnyTopology, name: string, geometries: readonly Geometry[]): string {
-  const sorted = [...geometries].sort((a, b) => String(a.properties?.code).localeCompare(String(b.properties?.code)));
+  const sorted = [...geometries].sort((a, b) => String(propertiesOf(a).code).localeCompare(String(propertiesOf(b).code)));
   return JSON.stringify({ ...topology, objects: { [name]: { type: 'GeometryCollection', geometries: sorted } } });
 }
 
