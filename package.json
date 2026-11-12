@@ -16,7 +16,8 @@
     "lint:yaml": "yamllint . && yamllint -c content/.yamllint content/",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "screenshots": "node scripts/pr-screenshots.ts"
   },
   "browserslist": [
     "last 2 Chrome major versions",
