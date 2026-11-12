@@ -3,6 +3,7 @@
 - タスクの定義：`docs/tasks/m1-geo-content.md` の T1-05
 - 参照仕様：5.1、7.4、D16、8.4（T1-04 の D34、`geo/README.md`）
 - ブランチ：`test/T1-05-geo-data-check`
+- この計画は実際の内容に合わせてある。承認したときの内容は、このファイルの最初のコミットと、末尾の「承認後に変えたこと」にある。
 
 ## 着手前に確かめたこと
 
@@ -19,46 +20,52 @@
 | `prefs.topo.json` | gzip -9 で 80,211 B（配信しない）。県名ラベルは経度 127.8〜142.6、緯度 26.4〜43.4 |
 | 総務省のコード表の置き場所 | `geo/downloads/`（コミットしない）。CI では読めない |
 
-## 先に書くテスト
+## 書いたテスト
 
-`tests/data/geo.test.ts`（新しい Vitest のプロジェクト `data`、node）。コミットされたファイルを読んで検査する。テスト名に要件IDを入れる。
+`tests/data/geo.test.ts`（新しい Vitest のプロジェクト `data`、node）。コミットされたファイルを読んで検査する。属性はそのまま信じず、欠けた項目は空の文字列にそろえてから検査する（どのテストも `TypeError` で落ちず、どの市区町村かを出すため）。
 
 | テスト条件 | テスト名 |
 |---|---|
 | `prefs.topo.json` に 01〜47 の47県がちょうどある | `7.4：prefs.topo.json の prefectures に、コード 01〜47 の47県がちょうど1つずつある` |
-| （加える）県名ラベルの形 | `7.4：都道府県の label は [経度, 緯度] で、日本の範囲（経度122〜154、緯度20〜46）にある` |
+| （加えた）県名ラベル・形 | `7.4：都道府県の label は [経度, 緯度] で、日本の範囲（経度122〜154、緯度20〜46）にある`（数値かも見る）、`7.4：形のない県がない` |
 | `public/geo/muni/` に 01〜47 のファイルがちょうどある | `7.4：public/geo/muni/ に 01.topo.json〜47.topo.json がちょうどあり、ほかのファイルはない` |
-| （加える）オブジェクト名・コード | `7.4：市区町村のファイルのオブジェクトは municipalities だけ`、`7.4：市区町村の code は5桁で、ファイルの県コードで始まり、全国で重複しない` |
+| （加えた）オブジェクト名・コード | `7.4：市区町村のファイルのオブジェクトは municipalities だけで、形のない市区町村がない`、`7.4：市区町村の code は5桁で、ファイルの県コードで始まり、全国で重複しない` |
 | 項目がそろっている | `7.4：すべての市区町村に code・name.ja・kana・name.en がある`（空の文字列も不可） |
 | `kana` の字 | `7.4.1：kana はひらがなと「ー」だけ` |
 | `name.en` の字 | `7.4.1：name.en は「語幹-接尾辞」の形（区は「区, 市」）`（判断2） |
-| 政令指定都市の区 | `D16：cityName を持つのは政令指定都市の区だけで、name.ja が cityName で始まり「区」で終わる`、`D16：cityName を持つ市は20`（県コード＋`cityName` で数える） |
+| 政令指定都市の区 | `D16：政令指定都市の区（東京都の外で「区」で終わる）だけが cityName を持ち、name.ja が cityName で始まり、name.en が「区, 市」`、`D16：同じ市の区は、name.en の市の部分（, Sapporo-shi）がそろっている`、`D16：cityName を持つ市は20`（県コード＋`cityName` で数える） |
 | 総務省のコード一覧の件数と一致 | `8.4：市区町村の数が、総務省のコード一覧（政令指定都市の行を除く）の件数 1,898 と一致する`（判断1） |
 | 圧縮後100KB以下 | `5.1：市区町村のファイルは、どれも圧縮後 100,000 バイト以下`（判断3・4） |
 
-Red の確かめ方：データは正しいので、そのままでは失敗しない。期待値を一時的に変えて（47 → 46、1,898 → 1,897、100,000 → 80,000、`name.en` の形からカンマを除く）、失敗のメッセージが分かりやすいことを確かめてから戻す。
+変換の照合（判断1）のテスト：
 
-判断1で build 側の照合を加えるなら、`tests/unit/geo/scripts/lib/municipality.test.ts` に次を先に書き、失敗を見る：
+- `tests/unit/geo/scripts/lib/municipality.test.ts`：`8.4：総務省のコード表の市区町村（政令指定都市の行を除く）と、N03 の市区町村のコードが一致すれば通る`、`8.4：総務省のコード表にあって N03 にないコードがあればエラーにする（合併・新設の取りこぼし）`、`8.4：政令指定都市の区がすべて N03 にないときは、市の行も N03 にないコードとして数える`、`8.4：N03 にあって総務省のコード表にないコードがあればエラーにする`
+- `tests/unit/geo/scripts/lib/geo-build.test.ts`：`8.4：総務省のコード表にあって N03 にない市区町村があればエラーにする`
 
-- `8.4：総務省のコード表の市区町村（政令指定都市の行を除く）と、N03 の市区町村のコードが一致すれば通る`
-- `8.4：総務省のコード表にあって N03 にないコードがあればエラーにする（合併・新設の取りこぼし）`
+Red の確かめ方と結果：
 
-## 作る・変えるファイル（順番）
+- 変換の照合：実装の前に5件が失敗することを見た（`assertSameCodes` がない）。
+- データの検査：データは正しいので、そのままでは失敗しない。次の2つで、検査が欠けを見つけることを確かめた。
+  - テストの期待値を変えた一時的なコピー（47 → 46、1,898 → 1,897、20 → 19、100,000 → 80,000、`name.en` の形からカンマを除く、経度の上限を140）：7件が失敗。
+  - コミットしたデータを一時的に壊す（カタカナの `kana`、区の `cityName` を消す、空の `name.en`、コードの重複・別の県のコード、形を null、`public/geo/muni/` に余分なファイル）：7件が失敗。レビュー後に、区の `cityName` とカンマの両方を消す、`name` を消す、文字列の `label`、区の市の部分の取り違えでも、5件が失敗し `TypeError` が出ないことを見た。
+- 本物のデータで `pnpm geo:build` を実行し、照合を加えても通り、出力が1バイトも変わらないことを見た。
 
-1. `vitest.config.ts`：プロジェクト `data`（`include: ['tests/data/**/*.test.ts']`、`environment: 'node'`）を加える。`pnpm test` で動くので、CI の「Unit test」の手順で実行される（`ci.yml` は変えない）。
-2. `tests/data/geo.test.ts`：上のテスト。圧縮後の大きさは `geo/scripts/lib/geo-build.ts` の `gzipSize` と `GEO_BUILD_SETTINGS.maxGzipBytes` を使う（変換の検査と同じ測り方・基準にする）。
-3. （判断1）`geo/scripts/lib/municipality.ts` に `assertSameCodes`（総務省の表のコード − 政令指定都市のコード ＝ N03 のコード）を加え、`geo-build.ts` の `toMunicipalityFiles` から呼ぶ。テストを先に書く。
-4. 文書：
+## 作った・変えたファイル
+
+1. `geo/scripts/lib/municipality.ts`：`assertSameCodes`（総務省の表のコード − 政令指定都市の市のコード ＝ N03 のコード。エラーにはコードと名前を出す）。政令指定都市の市のコードを求める処理を `designatedCityCodes` にまとめ、`assertFixesUsed` と共有した。
+2. `geo/scripts/lib/geo-build.ts`：`toMunicipalityFiles` で、`toMunicipality` のあと、`assertFixesUsed` の前に `assertSameCodes` を呼ぶ。
+3. `vitest.config.ts`：プロジェクト `data`（`include: ['tests/data/**/*.test.ts']`、`environment: 'node'`）。`pnpm test` で動くので、CI の「Unit test」の手順で実行される（`ci.yml` は変えない）。
+4. `tests/data/geo.test.ts`：上のテスト。圧縮後の大きさは `geo/scripts/lib/geo-build.ts` の `gzipSize` と `GEO_BUILD_SETTINGS.maxGzipBytes` を使う。
+5. 文書：
    - `AGENTS.md`：ディレクトリの表に `tests/data/`、コマンドに `pnpm vitest run --project data`。
-   - `geo/README.md`：「更新」に、市区町村の数が変わったら `tests/data/geo.test.ts` の件数を直すこと。
-   - `docs/tasks/m1-geo-content.md`：T1-05 のテスト条件の `name.en` を、T1-04 で分かったこと（カンマを含む）に合わせる。
-   - `docs/development-plan.md`：状態（PRの最後に完了にはしない。次のタスクの着手時に直す）。
+   - `geo/README.md`：変換の中身に照合を、「更新」に、データの検査と、件数が変わったらテストの定数を直すことを書いた。
+   - `docs/tasks/m1-geo-content.md`：T1-05 のテスト条件の `name.en`（形・カンマ）、件数の照合のしかた、圧縮後の大きさの対象と測り方。
 
 ## 完了条件の確かめ方
 
 | 完了条件 | 確かめ方 |
 |---|---|
-| CI でこのテストが実行される | `pnpm test` の出力に `data` プロジェクトの `tests/data/geo.test.ts` が出ることを見る。PR の CI のログでも見る。地図データ（`public/geo/`・`geo/data/`）だけを変えたPRが文書だけとみなされないこと（`scripts/docs-only.ts`）も確かめる |
+| CI でこのテストが実行される | `pnpm vitest run --coverage --reporter=verbose`（`pnpm test` と同じ）の出力に `\|data\| tests/data/geo.test.ts` の14件が出ることを見た。地図データ（`public/geo/muni/01.topo.json`・`geo/data/prefs.topo.json`）だけを変えたPRが、`scripts/docs-only.ts` で `docs_only=false` になることを見た。PR の CI のログでも見る |
 | 共通 | `pnpm lint`・`pnpm typecheck`・`pnpm test`・`pnpm build` が通る。code-reviewer で CRITICAL・HIGH がない |
 
 ## 判断が必要な点
@@ -100,3 +107,12 @@ Red の確かめ方：データは正しいので、そのままでは失敗し�
 ### 判断6：タスクの定義にない検査を加えるか
 
 - **推奨：安く書けるものだけ加える**（オブジェクト名、コードの形・県コード・重複、ほかのファイルがないこと、県名ラベルの範囲、`cityName` ⇔ 区）。理由：どれも年1回の作り直しや手での編集で起こりうる欠けで、それぞれ数行で書ける。形の正しさ（自己交差など）は、描いて確かめる T2-03・T2-08 に任せる。
+
+## 承認後に変えたこと
+
+| 項目 | 承認したとき | 実際 | 理由 |
+|---|---|---|---|
+| D16 のテストの区の判定 | `cityName` を持つ ⇔ `name.en` にカンマ | 区かどうかを「東京都の外で `name.ja` が「区」で終わる」で決め、`cityName`・`name.en` の両方をそれと比べる。同じ市の区の `name.en` の市の部分がそろっているかも見る | レビューの指摘（MEDIUM）。検査する項目で区を決めると、`cityName` とカンマを両方失った区が素通りする |
+| 欠けた項目の扱い | （決めていなかった） | 読み込みのとき、欠けた項目を空の文字列にそろえる。`label` は数値かも見る | レビューの指摘（MEDIUM）。`name` が欠けると `TypeError` で落ち、どの市区町村かが出なかった |
+| 照合のエラー | コードだけ | コードと名前 | レビューの指摘（LOW）。年1回の更新で原因を探しやすくするため |
+| 加えた検査 | 7.4 の形のない市区町村 | 形のない県も見る | 市区町村と同じく、簡略化で形が消えたときに見つけるため |
