@@ -460,7 +460,7 @@ flowchart LR
 
 - Worker名は `gotouchi-maps`（案）。割り当ては **Route**（`build.vivagain.jp/maps*`）。
   - Custom Domainにしない理由：Custom Domainはホスト名全体を1つのWorkerに割り当てる方式のため。将来、`build.vivagain.jp` の別のパスに別アプリを置けるようにしておく。
-- 静的出力の構成（想定）：
+- 静的出力の構成（D29）：
 
 ```
 dist/                       ← wrangler の assets.directory
@@ -470,13 +470,16 @@ dist/                       ← wrangler の assets.directory
    ├─ ja/index.html
    ├─ en/index.html
    ├─ zh/index.html
+   ├─ 404.html                ← app/global-not-found.tsx
    ├─ _next/...
    ├─ geo/muni/01.topo.json ... 47.topo.json   ← 都道府県の地図はHTMLに埋め込むので配信しない（6.6）
    ├─ manifest.webmanifest
    └─ sw.js
 ```
 
-- **要検証**：Next.jsの公式ドキュメントには、`basePath` を指定したときに `out/` の中が `/maps` の下にまとまるかの記載がない。まとまらない場合は、ビルド後に `out/` を `dist/maps/` へ移すスクリプトを用意する。
+- **`out/` の構成（U8。T0-03 で確認、Next.js 16.4.6）**：`basePath` を指定しても、`out/` の中は `/maps` の下にまとまらない（`out/ja/index.html`、`out/_next/...`、`out/404.html` が直下に出る）。一方、HTMLの中の参照は `/maps/_next/...` のように `/maps` 付きで出る。
+- そのため、`scripts/postbuild.ts` で `out/` の中身を `dist/maps/` に移し、`_redirects`・`_headers`（`public/` に置き、Next.js が `out/` の直下にコピーする）だけを `dist/` の直下に置く。`out/` の構成が版で変わっても、この組み立ては変えずに済む（R7）。`pnpm build` は `next build` → `node scripts/postbuild.ts` の順に実行する。
+- 404 のページは `dist/maps/404.html`（`app/global-not-found.tsx`。`<html lang="ja">`）。`wrangler.jsonc` の `not_found_handling: "404-page"` で、`/maps/` の下の存在しないパスにはこのページが 404 で返る。
 
 ### 6.5 ディレクトリ構成（案）
 
@@ -490,6 +493,7 @@ vivastack-build-maps/
 │  └─ tasks/                      ← マイルストーンごとのタスクの定義
 ├─ app/
 │  ├─ globals.css                  ← Tailwind の読み込み、@theme、モード・ふりがなの切替（6.2、6.6）
+│  ├─ global-not-found.tsx         ← 存在しないパスの404（<html lang="ja">。6.4）
 │  └─ [lang]/                      ← generateStaticParams で ja / en / zh を生成
 │     ├─ layout.tsx
 │     └─ page.tsx
@@ -1126,7 +1130,7 @@ flowchart LR
 | U5 | API Tokenの最小権限 | 第11章 11.3 で要検証 | M0 |
 | U6 | `workers_dev: false` と `preview_urls: true` を同時に設定できるか | 第11章 11.4 で要検証 | M0 |
 | U7 | Accessの設定手順、Zero Trust無料プランの条件 | 第11章 11.4 で要確認 | M0 |
-| U8 | basePathを指定したときの静的出力の構成 | 第6章 6.4 で要検証 | M0 |
+| U8 | ~~basePathを指定したときの静的出力の構成~~ | 決定（D29）：第6章 6.4 | — |
 | U9 | 政令指定都市の区がN03に区単位で入っているか | 第8章 8.2 で要検証 | M1 |
 | U10 | 総務省コードと国土地理院データの利用条件 | 第8章 8.1 で要確認 | M1 |
 | U11 | ~~コンテンツ生成用スキルの置き場所~~ | 決定（D22）：リポジトリ直下の `.claude/skills/` と `.claude/agents/` | — |
@@ -1167,6 +1171,7 @@ flowchart LR
 | D26 | スタイルの方式 | Tailwind CSS v4。設定はCSS（`@theme`、`@custom-variant`）に書き、色はCSS変数だけを使う（6.2） |
 | D27 | フォント | Webフォントは使わず、システムフォントを言語ごとに指定する（6.2） |
 | D28 | UI文言の多言語化 | ライブラリは使わず、型付きの自前の辞書にする。日本語の文言にもふりがなの記法を使う（6.2） |
+| D29 | 配信するファイルの組み立て | `out/` の構成にかかわらず、`scripts/postbuild.ts` で `dist/maps/` に組み立てる。`_redirects`・`_headers` は `dist/` の直下（6.4） |
 
 ## 付録B. 参考資料
 

@@ -7,11 +7,11 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 - 「ご当地めいぶつ日本地図」：47都道府県の名物・名所を日本地図から探せる Web アプリ（ja / en / zh、こども／おとなモード、ふりがな ON/OFF）。
 - 設計・要件・決定事項は [docs/development-overview.md](docs/development-overview.md) にある。作業の前に関係する章を読み、要件ID（例：`F-MAP-01`）で対応を確認する。
 - タスクの一覧・順番・進み具合は [docs/development-plan.md](docs/development-plan.md)、タスクごとの定義（目的・参照仕様・実装内容・完了条件・テスト条件・依存関係）は `docs/tasks/` にある。タスクに着手するときは、その定義を読み、タスクのID（例：`T0-01`）をPRの本文に書く。終わったら「状態」を更新する。
-- 現在は M0（準備）の途中。アプリの雛形（Next.js・TypeScript・Tailwind CSS・ESLint・Vitest）はある（T0-01）。コンポーネントテストと E2E（Testing Library・Playwright）もある（T0-02）。デプロイはまだない。
+- 現在は M0（準備）の途中。アプリの雛形（Next.js・TypeScript・Tailwind CSS・ESLint・Vitest）はある（T0-01）。コンポーネントテストと E2E（Testing Library・Playwright）もある（T0-02）。`dist/` の組み立てと、`wrangler dev` での確認もできる（T0-03）。デプロイはまだない。
 
 ## 技術スタック
 
-導入済み：Next.js・TypeScript・Tailwind CSS・ESLint・Prettier・Vitest・Testing Library・Playwright。それ以外はまだ入っていない（予定）。
+導入済み：Next.js・TypeScript・Tailwind CSS・ESLint・Prettier・Vitest・Testing Library・Playwright・wrangler。それ以外はまだ入っていない（予定）。
 
 - Next.js（App Router、`output: 'export'`、`basePath: '/maps'`）＋ TypeScript（strict）
 - 地図：SVG ＋ d3-geo ＋ topojson-client（国土数値情報 N03 2026年版から作る TopoJSON）
@@ -33,7 +33,8 @@ pnpm lint         # ESLint・Prettier・markdownlint・yamllint
 pnpm typecheck    # tsc --noEmit
 pnpm test         # Vitest（カバレッジの基準を下回ると失敗する）
 pnpm test:e2e     # Playwright（PC・スマホ・タブレットの7プロジェクト）
-pnpm build        # 静的出力を out/ に作る
+pnpm build        # next build で out/ を作り、scripts/postbuild.ts で dist/ に組み立てる
+pnpm exec wrangler dev   # dist/ を本番の Workers と同じ形で配信する（http://localhost:8787/maps/ja/。先に pnpm build）
 
 pnpm vitest run tests/unit/i18n/lang.test.ts   # 1ファイルだけ動かす（カバレッジなし）
 pnpm vitest run -t "F-I18N-01"                 # テスト名で絞る（テスト名に要件IDが入っている）
@@ -44,9 +45,9 @@ pnpm test:e2e --project=chromium               # E2E を1プロジェクトだ�
 
 E2E の準備：はじめに `pnpm exec playwright install chromium firefox webkit` でブラウザを入れる。Linux（WSL を含む）では、WebKit・Firefox が使うシステムのライブラリも要る。`sudo env "PATH=$(dirname "$(which node)"):$PATH" pnpm exec playwright install-deps` で入れる（sudo の下でも nvm の Node.js を見つけるため）。
 
-E2E のサーバーは `next dev` の 3000 番。Next.js 16 は同じディレクトリで `next dev` を2つ起動できない。そのため、`pnpm dev` が 3000 番で動いていればそれを使う。別の番号で動いていると E2E は起動に失敗するので、止めてから実行する。逆に、別の worktree の dev サーバーが 3000 番で動いていると、そのサーバーに対して E2E が通ってしまうので注意する。
+E2E のサーバーは、毎回 `pnpm build` をしてから `wrangler dev` を 8788 番で起動する（`dist/` を確かめるため）。`pnpm dev`（3000番）や手で起動した `wrangler dev`（8787番）とはぶつからない。8788 番が使用中だと起動に失敗するので、止めてから実行する。
 
-まだないもの：`dist/` の組み立て（T0-03）。
+pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd のインストールスクリプトを実行しない設定にしている（本体はプラットフォーム別のパッケージから入るので、なくても動く）。新しい依存にインストールスクリプトがあると `pnpm install` が失敗するので、許すか止めるかを決めて `allowBuilds` に書く。
 
 ## ディレクトリ
 
@@ -58,6 +59,8 @@ E2E のサーバーは `next dev` の 3000 番。Next.js 16 は同じディレ�
 | `tests/unit/` | 単体テスト（`.test.ts`、node）とコンポーネントテスト（`.test.tsx`、jsdom）。`src/` と同じ構成で置く |
 | `tests/e2e/` | E2E（Playwright。`*.spec.ts`） |
 | `tests/setup/` | テストの共通の準備（jest-dom のマッチャーなど） |
+| `scripts/` | ビルドのスクリプト（`postbuild.ts`：`out/` → `dist/`）。Node.js で直接実行するので、`enum` など型の除去で消せない書き方は使わない |
+| `public/` | そのまま配信するファイル。`_redirects`・`_headers` は `dist/` の直下に置かれる |
 | `content/` | 都道府県ごとの YAML（予定）。lint は `content/.yamllint` |
 | `geo/` | 地図データの変換スクリプト（予定）。原データは `geo/downloads/` に置き、コミットしない |
 | `.claude/` | Claude Code の設定・ルール・エージェント・スキル・hooks |
@@ -66,10 +69,11 @@ E2E のサーバーは `next dev` の 3000 番。Next.js 16 は同じディレ�
 ## アーキテクチャ
 
 - ルートレイアウトは `app/[lang]/layout.tsx`。`app/layout.tsx` は置かない。言語ごとに `<html lang>` を出すため（D27・D28）。
+- 存在しないパスの404は `app/global-not-found.tsx`（`experimental.globalNotFound`）。ルートレイアウトを通らないので、`<html lang="ja">` とスタイルの読み込みをこのファイルに書く。
 - `dynamicParams = false` と `generateStaticParams` で、ja・en・zh の3つだけを静的に生成する。言語の一覧・判定・`<html lang>` の値は `src/i18n/lang.ts` に集める。
 - Next.js 16 では `params` が `Promise`。`await` してから `isLang()` で確かめ、合わなければ `notFound()` にする。
 - `@/` は `src/` を指す。設定は `tsconfig.json` と `vitest.config.ts` の両方にあるので、変えるときは2か所を合わせる。
-- カバレッジの対象は `src/` だけ。`app/` は E2E（`tests/e2e/`）で確かめる。async の Server Component（ページ・レイアウト）は Vitest で描画できないので、E2E で確かめる。ドメインロジック（`src/lib/`・`src/features/`）は 90% 以上を `vitest.config.ts` で強制している。
+- カバレッジの対象は `src/` と `scripts/`。`app/` は E2E（`tests/e2e/`）で確かめる。async の Server Component（ページ・レイアウト）は Vitest で描画できないので、E2E で確かめる。ドメインロジック（`src/lib/`・`src/features/`）は 90% 以上を `vitest.config.ts` で強制している。
 - `next.config.ts` の `agentRules: false` は消さない。消すと `next dev` が `AGENTS.md` に英語の指示を書き込む。
 
 ## 開発ルール

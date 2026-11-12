@@ -115,6 +115,7 @@
 
 - `.github/workflows/ci.yml` の `check` job：install → lint・typecheck → test → build → e2e。Action はコミットSHAで固定する。権限は `contents: read`。`concurrency` で古い実行を止める。
 - e2e の手順の前に `pnpm exec playwright install --with-deps chromium firefox webkit` でブラウザとシステムのライブラリを入れる（T0-02。WebKit・Firefox はライブラリがないと起動しない）。`playwright.config.ts` は、`CI` 環境変数があると `retries: 2`・`workers: 1`・`forbidOnly` になり、レポートは `github` と `html`（`playwright-report/`）を出す。失敗したときに `playwright-report/` を artifact に上げる。
+- E2E のサーバー（`playwright.config.ts` の `webServer`）は、`pnpm build` をしてから `wrangler dev`（8788番）を起動する（T0-03）。そのため、`build` の手順と合わせると CI では2回ビルドする。時間が気になれば、`build` の手順を省いて e2e にまとめる。
 - gitleaks（既存の `.gitleaks.toml`）をCIで実行する（5.5）。
 - `.github/dependabot.yml`（npm と GitHub Actions、週1回）。
 - `.github/CODEOWNERS`（`*` はオーナー、`/content/` は `@vivastack-labs/maps-reviewers`）。
@@ -173,6 +174,7 @@
 
 ### 実装内容
 
+- `wrangler.jsonc`（11.4 (2) のとおり）と、`pnpm build` で `dist/` を作る仕組みは T0-03 で用意した。`compatibility_date` は、入れた wrangler（workerd）が対応する日付までしか使えない（T0-03 では 2026-11-10）。
 - `ci.yml` に `preview` job を加える：`wrangler versions upload --preview-alias pr-N`、PRにプレビューURLをコメントする（同じPRでは1つのコメントを更新する）。
 - `.github/workflows/deploy.yml`：`main` への push で `wrangler deploy`（`environment: production`）。
 - `pnpm build:preview`：この時点では `pnpm build` と同じ内容に、`noindex`（`<meta name="robots" content="noindex">`）を加えたもの。コンテンツの絞り込みは T3-02 で加える。
