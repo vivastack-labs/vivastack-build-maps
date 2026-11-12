@@ -47,7 +47,7 @@ function readTopology(file: string): Topology {
   return JSON.parse(readFileSync(file, 'utf8')) as Topology;
 }
 
-function featuresOf<P>(file: string, objectName: string): readonly Feature<Geometry, P>[] {
+function featuresOf<P extends Record<string, unknown>>(file: string, objectName: string): readonly Feature<Geometry, P>[] {
   const topology = readTopology(file);
   const collection = topology.objects[objectName] as GeometryCollection<P>;
   return feature(topology, collection).features;
@@ -74,20 +74,12 @@ describe('T1-08: 47県の基本情報', () => {
   });
 
   test('F-MAP-01: 地方ごとの県の数が 北海道1・東北6・関東7・中部9・近畿7・中国5・四国4・九州8', () => {
-    const counts = Object.fromEntries(
-      Object.keys(REGION_COUNTS).map(region => [region, prefectures.filter(pref => pref.region === region).length])
-    );
+    const counts = Object.fromEntries(Object.keys(REGION_COUNTS).map(region => [region, prefectures.filter(pref => pref.region === region).length]));
     expect(counts).toEqual(REGION_COUNTS);
   });
 
   test('T1-08: 県庁の緯度は24〜46、経度は122〜146', () => {
-    const outside = prefectures.filter(
-      ({ capital: { lat, lon } }) =>
-        lat < CAPITAL_BOUNDS.minLat ||
-        lat > CAPITAL_BOUNDS.maxLat ||
-        lon < CAPITAL_BOUNDS.minLon ||
-        lon > CAPITAL_BOUNDS.maxLon
-    );
+    const outside = prefectures.filter(({ capital: { lat, lon } }) => lat < CAPITAL_BOUNDS.minLat || lat > CAPITAL_BOUNDS.maxLat || lon < CAPITAL_BOUNDS.minLon || lon > CAPITAL_BOUNDS.maxLon);
     expect(outside.map(pref => pref.code)).toEqual([]);
   });
 
