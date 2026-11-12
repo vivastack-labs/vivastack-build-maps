@@ -104,18 +104,7 @@ describe('readSoumuCodes', () => {
     expect(codes.get('13101')?.name).toBe('A&B区');
   });
 
-  test('D32：10進・16進の文字参照と、知らない実体参照（そのまま残す）を読む', () => {
-    // Arrange
-    const xlsx = buildXlsx([[['131016', '東京都', '&#21315;&#x4EE3;田&foo;区', 'ﾄｳｷｮｳﾄ', 'ﾁﾖﾀﾞｸ']]]);
-
-    // Act
-    const codes = readSoumuCodes(xlsx);
-
-    // Assert（buildXlsx は & を &amp; にするので、&amp;#21315; が &#21315; に戻る）
-    expect(codes.get('13101')?.name).toBe('&#21315;&#x4EE3;田&foo;区');
-  });
-
-  test('D32：共有文字列の中の文字参照を元の字に戻す', () => {
+  test('D32：共有文字列の中の10進・16進の文字参照を元の字に戻し、知らない実体参照はそのまま残す', () => {
     // Arrange
     const sheet = '<worksheet><sheetData><row r="1"><c r="A1" t="s"><v>0</v></c><c r="C1" t="s"><v>1</v></c><c r="E1" t="s"><v>2</v></c></row></sheetData></worksheet>';
     const strings = '<sst><si><t>131016</t></si><si><t>&#21315;&#x4EE3;田&foo;区</t></si><si><t>ﾁﾖﾀﾞｸ</t></si></sst>';

@@ -66,6 +66,14 @@ describe('buildGeo（mapshaper の出力の検査）', () => {
     await expect(buildGeo('n03.shp', NAMING)).rejects.toThrow('形のなくなった地域');
   });
 
+  test('8.2：同じ県の市区町村が2つの出力に分かれていればエラーにする', async () => {
+    // Arrange
+    mockOutputs({ ...GOOD_MUNI, '13-2.json': GOOD_MUNI['13.json'] }, GOOD_PREFS);
+
+    // Act / Assert
+    await expect(buildGeo('n03.shp', NAMING)).rejects.toThrow('13');
+  });
+
   test('8.2：出力がバイト列でも読める', async () => {
     // Arrange
     const encoded = new TextEncoder().encode(GOOD_PREFS['prefs.json']);

@@ -54,7 +54,9 @@ const LABEL_DIGITS = 4;
 const UNASSIGNED_SUFFIX = '000';
 
 export async function buildGeo(source: N03Source, naming: NamingSources, settings: GeoBuildSettings = GEO_BUILD_SETTINGS): Promise<GeoBuildResult> {
-  const [municipalityOutputs, prefOutputs] = await Promise.all([runMapshaper(source, municipalityCommands(settings.municipality)), runMapshaper(source, prefectureCommands(settings.prefecture))]);
+  // 全国の Shapefile を2回読むので、メモリを抑えるために1つずつ動かす
+  const municipalityOutputs = await runMapshaper(source, municipalityCommands(settings.municipality));
+  const prefOutputs = await runMapshaper(source, prefectureCommands(settings.prefecture));
   const municipalities = toMunicipalityFiles(municipalityOutputs, naming);
   assertGzipSize(municipalities, settings.maxGzipBytes);
   return { prefs: toPrefectureFile(prefOutputs), municipalities };
@@ -105,7 +107,11 @@ function toMunicipalityFiles(topologies: readonly AnyTopology[], naming: NamingS
     naming,
     files.flatMap(file => file.rows)
   );
-  return new Map(files.map(file => [file.prefCode, file.json] as const).sort(([a], [b]) => a.localeCompare(b)));
+  const table = new Map(files.map(file => [file.prefCode, file.json] as const).sort(([a], [b]) => compareCodes(a, b)));
+  if (table.size !== files.length) {
+    throw new Error(`同じ県の市区町村が複数の出力に分かれています（${files.map(file => file.prefCode).join('・')}）`);
+  }
+  return table;
 }
 
 function toPrefectureFile(topologies: readonly AnyTopology[]): string {
@@ -144,8 +150,14 @@ function withProperties(geometry: Geometry, properties: Record<string, unknown>)
 
 // オブジェクトの名前をそろえ、コードの順に並べる（mapshaper の出力の順に頼らず、いつも同じ文字列にするため）
 function serialize(topology: AnyTopology, name: string, geometries: readonly Geometry[]): string {
-  const sorted = [...geometries].sort((a, b) => String(propertiesOf(a).code).localeCompare(String(propertiesOf(b).code)));
+  const sorted = [...geometries].sort((a, b) => compareCodes(String(propertiesOf(a).code), String(propertiesOf(b).code)));
   return JSON.stringify({ ...topology, objects: { [name]: { type: 'GeometryCollection', geometries: sorted } } });
+}
+
+// ロケールに左右されない比較（コードは数字の文字列）
+function compareCodes(a: string, b: string): number {
+  if (a === b) return 0;
+  return a < b ? -1 : 1;
 }
 
 function round(value: number): number {

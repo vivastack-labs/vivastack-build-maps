@@ -15,6 +15,10 @@ export type OutputPaths = {
 };
 
 const MUNI_FILE = /^\d{2}\.topo\.json$/;
+const PREF_COUNT = 47;
+const PREF_CODES: readonly string[] = Array.from({ length: PREF_COUNT }, (_, index) => String(index + 1).padStart(2, '0'));
+
+type PrefsTopology = { readonly objects: { readonly prefectures: { readonly geometries: readonly { readonly properties: { readonly code: string } }[] } } };
 
 /** 変換の結果を書く。市区町村のディレクトリにある前回のファイルは先に消す（今回の結果にないファイルを残さないため） */
 export function writeGeoOutputs(result: GeoBuildResult, paths: OutputPaths): void {
@@ -25,6 +29,22 @@ export function writeGeoOutputs(result: GeoBuildResult, paths: OutputPaths): voi
   result.municipalities.forEach((json, prefCode) => writeFileSync(join(paths.muniDir, `${prefCode}.topo.json`), `${json}\n`));
   mkdirSync(dirname(paths.prefsFile), { recursive: true });
   writeFileSync(paths.prefsFile, `${result.prefs}\n`);
+}
+
+/**
+ * 市区町村のファイルと都道府県の形が、どちらも 01〜47 を過不足なく持つかを確かめる（7.4）。
+ * 書き出しは前回のファイルを消してから行うので、入力の取り違えなどで県が欠けたまま上書きしないため。
+ */
+export function assertAllPrefectures(result: GeoBuildResult): void {
+  const expected = PREF_CODES.join(',');
+  const municipalities = [...result.municipalities.keys()].join(',');
+  if (municipalities !== expected) {
+    throw new Error(`市区町村のファイルが 01〜47 の47県ではありません（${result.municipalities.size}県：${municipalities}）`);
+  }
+  const prefs = (JSON.parse(result.prefs) as PrefsTopology).objects.prefectures.geometries.map(geometry => geometry.properties.code);
+  if (prefs.join(',') !== expected) {
+    throw new Error(`都道府県の形が 01〜47 の47県ではありません（${prefs.length}件：${prefs.join(',')}）`);
+  }
 }
 
 /** 県ごとの gzip 後の大きさ（5.1 の基準と比べるため）と、最大の県 */
@@ -43,6 +63,7 @@ if (import.meta.main) {
     romajiFixes: parseFixTable(readFileSync(geo('sources/romaji-fixes.csv'), 'utf8'), 'stem')
   };
   const result = await buildGeo(geo('downloads/N03-2026/N03-20260101.shp'), naming);
+  assertAllPrefectures(result);
   writeGeoOutputs(result, { muniDir: join(repoRoot, 'public/geo/muni'), prefsFile: geo('data/prefs.topo.json') });
   process.stdout.write(`${formatSizeReport(result.municipalities)}\n`);
 }

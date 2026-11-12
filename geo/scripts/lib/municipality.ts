@@ -31,6 +31,9 @@ export type NamingSources = {
 
 const CODE = /^\d{5}$/;
 
+// N03 と総務省のコード表で、字体だけが違う名前（コード → 総務省の名前）。表示には N03 の名前を使う（D34）
+const SOUMU_NAME_VARIANTS: ReadonlyMap<string, string> = new Map([['39405', '梼原町']]);
+
 /** N03 の1行から市区町村の項目を作る。カナがない、区のカナが市のカナから始まらない、修正表が合わない、ならエラー。 */
 export function toMunicipality(row: N03Row, sources: NamingSources): Municipality {
   const code = row.N03_007;
@@ -51,15 +54,15 @@ export function assertFixesUsed(sources: NamingSources, rows: readonly N03Row[])
 }
 
 function toCityOrTown(code: string, name: string, sources: NamingSources): Municipality {
-  const kana = readingOf(code, sources);
+  const kana = readingOf(code, name, sources);
   return { code, name: { ja: name, en: romajiOf(code, name, kana, sources) }, kana };
 }
 
 // 区の英語表記は「区, 市」（Chuo-ku, Sapporo-shi。D33）。区だけの読みは、区のカナから市のカナを取り除いて作る
 function toWard(code: string, cityName: string, wardName: string, sources: NamingSources): Municipality {
   const city = findCity(code, cityName, sources.soumu);
-  const kana = readingOf(code, sources);
-  const cityKana = readingOf(city.code, sources);
+  const kana = readingOf(code, `${cityName}${wardName}`, sources);
+  const cityKana = readingOf(city.code, cityName, sources);
   if (!kana.startsWith(cityKana) || kana.length === cityKana.length) {
     throw new Error(`区のカナが市のカナから始まっていません（${code}・${kana}・${cityKana}）`);
   }
@@ -78,10 +81,14 @@ function findCity(wardCode: string, cityName: string, soumu: ReadonlyMap<string,
   return matches[0] as SoumuEntry;
 }
 
-function readingOf(code: string, sources: NamingSources): string {
+// 照合はコードで行うが、名前も比べる。コードの取り違えや表の行のずれで、別の団体の読みを黙って使わないため
+function readingOf(code: string, name: string, sources: NamingSources): string {
   const entry = sources.soumu.get(code);
   if (entry === undefined) {
     throw new Error(`総務省のコード表にカナがありません（${code}）`);
+  }
+  if (entry.name !== name && entry.name !== SOUMU_NAME_VARIANTS.get(code)) {
+    throw new Error(`N03 と総務省のコード表で名前が違います（${code}・${name}・${entry.name}）`);
   }
   return applyFix(sources.kanaFixes, code, katakanaToHiragana(entry.kana));
 }

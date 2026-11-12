@@ -138,6 +138,22 @@ describe('toMunicipality', () => {
     expect(() => toMunicipality(row(code, name), sources)).toThrow(code);
   });
 
+  test('D32：N03 の名前と総務省のコード表の名前が違えばエラーにする（コードの取り違えを見つけるため）', () => {
+    // Act / Assert
+    expect(() => toMunicipality(row('01202', '函館町'), NO_FIXES)).toThrow('01202');
+  });
+
+  test('D34：名前の字体だけが違う檮原町（N03「檮」、総務省「梼」）は、N03 の名前で通す', () => {
+    // Arrange
+    const sources = { ...NO_FIXES, soumu: soumu([['39405', '梼原町', 'ﾕｽﾊﾗﾁｮｳ']]) };
+
+    // Act
+    const municipality = toMunicipality(row('39405', '檮原町'), sources);
+
+    // Assert
+    expect(municipality.name).toEqual({ ja: '檮原町', en: 'Yusuhara-cho' });
+  });
+
   test('5桁でないコードはエラーにする', () => {
     // Act / Assert
     expect(() => toMunicipality(row('1202', '函館市'), NO_FIXES)).toThrow('1202');

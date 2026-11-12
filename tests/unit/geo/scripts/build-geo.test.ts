@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, 
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-import { formatSizeReport, writeGeoOutputs } from '../../../../geo/scripts/build-geo';
+import { assertAllPrefectures, formatSizeReport, writeGeoOutputs } from '../../../../geo/scripts/build-geo';
 
 // 7.4・8.2：変換の結果を public/geo/muni/NN.topo.json と geo/data/prefs.topo.json に書く
 describe('writeGeoOutputs', () => {
@@ -65,5 +65,26 @@ describe('formatSizeReport', () => {
     expect(report).toMatch(/^01 \d+ B$/m);
     expect(report).toMatch(/^13 \d+ B$/m);
     expect(report).toMatch(/最大：01/);
+  });
+});
+
+describe('assertAllPrefectures', () => {
+  const PREF_CODES = Array.from({ length: 47 }, (_, index) => String(index + 1).padStart(2, '0'));
+  const prefs = (codes: readonly string[]): string => JSON.stringify({ objects: { prefectures: { geometries: codes.map(code => ({ properties: { code } })) } } });
+  const result = (muniCodes: readonly string[], prefCodes: readonly string[] = PREF_CODES) => ({ prefs: prefs(prefCodes), municipalities: new Map(muniCodes.map(code => [code, '{}'])) });
+
+  test('7.4：市区町村と都道府県の両方に 01〜47 がそろっていれば何もしない', () => {
+    // Act / Assert
+    expect(() => assertAllPrefectures(result(PREF_CODES))).not.toThrow();
+  });
+
+  test('7.4：市区町村のファイルが足りなければ、前回のファイルを消す前に止める', () => {
+    // Act / Assert
+    expect(() => assertAllPrefectures(result(PREF_CODES.slice(0, 46)))).toThrow('47');
+  });
+
+  test('7.4：都道府県の形が足りないか重なっていれば止める', () => {
+    // Act / Assert
+    expect(() => assertAllPrefectures(result(PREF_CODES, [...PREF_CODES.slice(0, 46), '46']))).toThrow('都道府県');
   });
 });

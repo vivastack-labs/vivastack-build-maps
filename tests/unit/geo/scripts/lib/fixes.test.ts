@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, test } from 'vitest';
 import { parseFixTable } from '../../../../../geo/scripts/lib/fixes';
 
@@ -33,5 +34,28 @@ describe('parseFixTable', () => {
   ])('D33：%s はエラーにする', (_label, csv, column) => {
     // Act / Assert
     expect(() => parseFixTable(csv, column)).toThrow();
+  });
+});
+
+// geo/sources/ の修正表は pnpm geo:build を手で動かすときにしか読まれないので、壊れた編集を CI で見つける
+describe('geo/sources の修正表', () => {
+  const read = (file: string): string => readFileSync(new URL(`../../../../../geo/sources/${file}`, import.meta.url), 'utf8');
+
+  test('D33：読みの修正表が読め、直した読みはひらがなだけ', () => {
+    // Act
+    const table = parseFixTable(read('kana-fixes.csv'), 'kana');
+
+    // Assert
+    expect(table.size).toBeGreaterThan(0);
+    [...table.values()].forEach(fix => expect(fix.after).toMatch(/^[ぁ-ゖ]+$/));
+  });
+
+  test('D33：ローマ字の修正表が読め、直した語幹は「大文字で始まる語」をハイフンでつないだもの', () => {
+    // Act
+    const table = parseFixTable(read('romaji-fixes.csv'), 'stem');
+
+    // Assert
+    expect(table.size).toBeGreaterThan(0);
+    [...table.values()].forEach(fix => expect(fix.after).toMatch(/^[A-Z][a-z]+(-[A-Z][a-z]+)*$/));
   });
 });
