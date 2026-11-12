@@ -46,9 +46,9 @@ E2E は、承認の後にオーナーが決めたとおり、開発中は PR ご
 
 ### 文書だけのPRの判定（`scripts/docs-only.ts`）
 
-- `isDocsOnly(files)`：すべてのファイルが「アプリの動作に関係しない」なら true。対象は 12.1 の案のとおり `docs/`・`.claude/`・`.codex/`・`.agents/` の下と、`*.md`。
+- `isDocsOnly(files)`：すべてのファイルが「アプリの動作に関係しない」なら true。対象は `docs/`・`.claude/`・`.codex/`・`.agents/` の下と、リポジトリの直下の `*.md`（`public/`・`app/` などの下の `.md` は配信や読み込みの対象になりうるので含めない。レビューの指摘）。
   ファイルが0件なら false（安全側：全部を実行する）。
-- CLI：`git diff --name-only <base> <head>` の出力を標準入力で受け、`docs_only=true|false` を出力する（workflow で `$GITHUB_OUTPUT` に書く）。
+- CLI：`git diff --name-only --no-renames <base>...<head>` の出力を標準入力で受け、`docs_only=true|false` を出力する（workflow で `$GITHUB_OUTPUT` に書く）。
 - 文書だけのPRでも lint（markdownlint・yamllint）は実行する。12.1 の案の `paths-ignore` だと、`.md` の lint まで実行されなかった。
 
 ## 先に書くテスト
@@ -57,8 +57,8 @@ E2E は、承認の後にオーナーが決めたとおり、開発中は PR ご
 
 | 確かめること | ファイル | テスト名 |
 |---|---|---|
-| 文書だけのとき true | `tests/unit/scripts/docs-only.test.ts` | `12.1：{ファイル} だけの変更は文書だけとみなす`（`docs/a.md`・`.claude/hooks/x.js`・`.codex/x`・`.agents/x`・`README.md`・`app/x/README.md` を表で回す） |
-| アプリに関係するファイルが1つでもあれば false | 同上 | `12.1：{ファイル} を含む変更は文書だけとみなさない`（`app/page.tsx`・`package.json`・`.github/workflows/ci.yml`・`public/_headers`・`docs.ts`・`.claudeignore` など） |
+| 文書だけのとき true | `tests/unit/scripts/docs-only.test.ts` | `12.1：{ファイル} だけの変更は文書だけとみなす`（`docs/a.md`・`.claude/hooks/x.js`・`.codex/x`・`.agents/x`・`README.md`・`CHANGELOG.md` を表で回す） |
+| アプリに関係するファイルが1つでもあれば false | 同上 | `12.1：{ファイル} を含む変更は文書だけとみなさない`（`app/page.tsx`・`package.json`・`.github/workflows/ci.yml`・`public/_headers`・`docs.ts`・`.claudeignore`・`public/x.md`・`app/x/README.md`・`content/x.md` など） |
 | 0件のとき false | 同上 | `12.1：変更されたファイルがないときは文書だけとみなさない（全部を実行する）` |
 | 標準入力の形（空行・CRLF・前後の空白）を扱う | 同上 | `12.1：git diff --name-only の出力を行に分ける` |
 
@@ -97,6 +97,13 @@ CI そのものはタスクの定義の確認の方法で確かめる（下の�
 | テスト条件：lint の違反・テストの失敗で `ci` が失敗する | 作業用のブランチ（このブランチから作る）で **draft の PR を main 向けに作り**、lint の違反を入れたコミットを push → `check` の失敗を見る → それを戻してテストが失敗するコミットを push → 失敗を見る。確かめたら PR を閉じ、ブランチを消す。結果（実行のURL）をPRに書く |
 | 共通：lint・typecheck・test・build・test:e2e が通る、レビューで CRITICAL・HIGH がない | 手元で実行する。code-reviewer エージェント。`yamllint` で `.github/` の YAML も検査される |
 
+## 確かめた結果
+
+- このタスクのPR（#13）：最初の版（E2E を含む）で `check` が2分28秒、`gitleaks` が10秒で成功した。E2E を外した後の版も成功した。
+- テスト条件：draft のPR（#14、`ci/T0-04-verify-failure`）で、lint の違反は `Lint` の手順で、テストの失敗は `Unit test` の手順で `check` が失敗した（run 43130485468・43130687146）。確かめた後に PR を閉じ、ブランチを消した。
+- 手元：`pnpm lint`・`pnpm typecheck`・`pnpm test`・`pnpm build`・`yamllint`・`actionlint` が通る。
+- コードレビュー（code-reviewer）：CRITICAL 0、HIGH 1、MEDIUM 2、LOW 3。HIGH・MEDIUM と LOW 2件を直した（「承認後に変えたこと」）。yamllint の依存の版の固定（LOW）は直さない（`yamllint` 本体の版は固定してあり、結果が揺れたら直す）。
+
 ## 判断が必要な点
 
 1. **文書だけのPRの扱い**：推奨は `paths-ignore` を使わず、job の中で変更されたファイルを見て、typecheck・test・build・e2e だけを飛ばす。
@@ -130,3 +137,6 @@ CI そのものはタスクの定義の確認の方法で確かめる（下の�
 |---|---|---|---|
 | E2E の実行 | `ci.yml` の `check` で PR ごとに実行する | 開発中は `ci.yml` から外し、`e2e.yml`（`workflow_dispatch`）で手動で実行する（D30）。リリース後は U15 | オーナーの判断（Actions の分数を抑えるため） |
 | CI で2回ビルドすること | `build` の手順を残し、E2E の起動でもう一度ビルドする | `ci.yml` のビルドは1回 | E2E を外したため |
+| 文書だけの判定（`.md`） | すべての `*.md` を文書とみなす | リポジトリの直下の `*.md` だけ | コードレビュー（MEDIUM）：`public/` の `.md` は配信される |
+| 文書だけの判定（リネーム） | `git diff --name-only` | `--no-renames` を付ける | コードレビュー（HIGH）：`app/` のファイルを `docs/` に移すと、移動先だけが出て文書だけと判定されていた |
+| `e2e.yml` の細部 | — | `concurrency` にプロジェクトを含める。失敗したときに `test-results/` も上げる。CODEOWNERS に Team がまだないことを書く | コードレビュー（MEDIUM・LOW） |
