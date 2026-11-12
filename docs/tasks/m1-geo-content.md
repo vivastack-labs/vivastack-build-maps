@@ -234,6 +234,7 @@
 - `scripts/validate-content.ts`（`pnpm content:validate`）：
   - 誤り（終了コード1）：スキーマ違反、件数、全言語・全モードがそろっていない、ファイル名と `code`・`id` が合わない、`id` の重複、ふりがなの誤り
   - 警告（終了コード0）：文字数が 7.3 の範囲外、`sources` が空、ふりがなのない漢字
+  - ふりがなは T1-06 の `checkRuby(text)` で調べる。返す値は `{ errors, warnings }` で、どちらも `{ index, message }`（`index` は文の中の位置。0始まり）の配列。ファイル名と項目の場所は呼ぶ側で前に付ける。`checkRuby` は言語を見ないので、日本語の文（`name.ja`・`description.ja.*` など）にだけ呼ぶ（中国語の文はすべて漢字の警告になる）。文字数は、誤りがない文だけを `plainText(text)` で数える（誤りがあると例外を投げる）。
 - `tests/fixtures/content/`：E2E 用のコンテンツ。全項目がある県（`reviewed` と `verified` が混ざった県を含む）と、名物・名所が空の県。
 - CIに `pnpm content:validate` を加える。
 
