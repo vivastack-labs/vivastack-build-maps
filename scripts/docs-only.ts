@@ -1,10 +1,13 @@
 import { readFileSync } from 'node:fs';
 
-// 12.1：アプリの動作に関係しない変更。これだけのPRでは、CI の typecheck・test・build・e2e を飛ばす（lint は実行する）
+// 12.1：アプリの動作に関係しない変更。これだけのPRでは、CI の typecheck・test・build を飛ばす（lint・gitleaks は実行する）
 const DOCS_DIRS = ['docs/', '.claude/', '.codex/', '.agents/'] as const;
 const DOCS_EXTENSION = '.md';
 
-const isDocsFile = (file: string): boolean => DOCS_DIRS.some(dir => file.startsWith(dir)) || file.endsWith(DOCS_EXTENSION);
+// .md は、リポジトリの直下（README.md など）だけを文書とみなす。public/ や app/ の下の .md は配信や読み込みの対象になりうる
+const isRootMarkdown = (file: string): boolean => !file.includes('/') && file.endsWith(DOCS_EXTENSION);
+
+const isDocsFile = (file: string): boolean => DOCS_DIRS.some(dir => file.startsWith(dir)) || isRootMarkdown(file);
 
 /** すべてのファイルが文書なら true。ファイルがないときは false（安全側：全部を実行する） */
 export const isDocsOnly = (files: readonly string[]): boolean => files.length > 0 && files.every(isDocsFile);

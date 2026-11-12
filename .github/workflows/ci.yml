@@ -52,7 +52,10 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: git diff --name-only "${BASE_SHA}...${HEAD_SHA}" | node scripts/docs-only.ts >> "$GITHUB_OUTPUT"
+        # --no-renames：リネームを移動元と移動先の両方で見る（app/ のファイルを docs/ に移した変更を文書だけとみなさない）
+        run: |
+          git diff --name-only --no-renames "${BASE_SHA}...${HEAD_SHA}" \
+            | node scripts/docs-only.ts >> "$GITHUB_OUTPUT"
 
       # ESLint・Prettier・markdownlint・yamllint。文書だけのPRでも実行する
       - name: Lint

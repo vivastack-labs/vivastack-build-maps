@@ -968,7 +968,7 @@ pnpm exec wrangler dev   # dist/ を Workers と同じ動きでローカル確�
 | `.github/workflows/link-check.yml` | **手動で実行**（`workflow_dispatch`） | 全コンテンツの出典URLのリンク切れチェック。結果はレポートとして残す |
 
 - リポジトリ全体がアプリなので、パスでの絞り込みは基本的にしない。
-- アプリの動作に関係しない変更（`docs/`・`.claude/`・`.codex/`・`.agents/` の下と `*.md`）だけのPRでは、`check` job の中で typecheck・test・build・e2e を飛ばす。lint（markdownlint・yamllint を含む）とgitleaksは実行する。判定は `scripts/docs-only.ts`（PRの分岐点からの `git diff --name-only` を見る。ファイルがないときは全部を実行する）。
+- アプリの動作に関係しない変更（`docs/`・`.claude/`・`.codex/`・`.agents/` の下と、リポジトリの直下の `*.md`）だけのPRでは、`check` job の中で typecheck・test・build を飛ばす。lint（markdownlint・yamllint を含む）とgitleaksは実行する。判定は `scripts/docs-only.ts`（PRの分岐点からの `git diff --name-only --no-renames` を見る。リネームは移動元と移動先の両方で判定する。ファイルがないときは全部を実行する）。`public/`・`app/` などの下の `.md` は、配信や読み込みの対象になりうるので文書とみなさない。
 - **E2E は開発中は PR ごとに実行しない**（D30。T0-04 でオーナーが決定）。private・Free の Actions は月2,000分までで、E2E は7プロジェクトを `workers: 1` で順に回すため時間がかかる。UI やルーティングを変えたPRでは、merge の前に `e2e.yml` を手動で実行して通ることを確かめる（`gh workflow run e2e.yml --ref <ブランチ> -f project=all`）。本番リリース後の扱いは U15 で決める。
 - `paths-ignore` は使わない（T0-04 で決定）。GitHubの公式ドキュメントのとおり、`paths-ignore` で実行されなかったworkflowのチェックは「Pending」のままになり、必須にしているとPRをmergeできないため。また、`paths-ignore` では文書だけのPRで markdownlint も実行されなくなる。
 
@@ -1024,7 +1024,7 @@ jobs:
       - uses: actions/setup-node@<SHA>        # node-version-file: .nvmrc、cache: pnpm
       - run: pipx install yamllint==1.33.0    # pnpm lint が使う
       - run: pnpm install --frozen-lockfile
-      - run: git diff --name-only "$BASE...$HEAD" | node scripts/docs-only.ts >> "$GITHUB_OUTPUT"
+      - run: git diff --name-only --no-renames "$BASE...$HEAD" | node scripts/docs-only.ts >> "$GITHUB_OUTPUT"
       - run: pnpm lint                        # ESLint・Prettier・markdownlint・yamllint。文書だけでも実行する
       # ここから下は、文書だけのPRでは飛ばす
       - run: pnpm typecheck

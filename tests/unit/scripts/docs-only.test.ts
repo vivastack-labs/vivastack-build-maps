@@ -4,7 +4,7 @@ import { isDocsOnly, parseChangedFiles } from '../../../scripts/docs-only';
 // 12.1：文書だけのPRでは、CI の重い手順（typecheck・test・build・e2e）を飛ばす。
 // paths-ignore を使うと必須のチェックが「Pending」のままになるため、job の中で判定する（T0-04）
 describe('isDocsOnly', () => {
-  test.each(['docs/development-overview.md', '.claude/hooks/scripts/x.js', '.codex/config.toml', '.agents/skills/x/SKILL.md', 'README.md', 'app/x/README.md'])(
+  test.each(['docs/development-overview.md', '.claude/hooks/scripts/x.js', '.codex/config.toml', '.agents/skills/x/SKILL.md', 'README.md', 'CHANGELOG.md'])(
     '12.1：%s だけの変更は文書だけとみなす',
     file => {
       // Act
@@ -15,7 +15,20 @@ describe('isDocsOnly', () => {
     }
   );
 
-  test.each(['app/[lang]/page.tsx', 'package.json', '.github/workflows/ci.yml', 'public/_headers', 'docs.ts', '.claudeignore', 'src/docs/x.ts', 'README.mdx'])(
+  test.each([
+    'app/[lang]/page.tsx',
+    'package.json',
+    '.github/workflows/ci.yml',
+    'public/_headers',
+    'docs.ts',
+    '.claudeignore',
+    'src/docs/x.ts',
+    'README.mdx',
+    'public/x.md',
+    'app/x/README.md',
+    'content/x.md'
+  ])(
+    // .md でも、リポジトリの直下と文書のディレクトリの下以外は、配信や読み込みの対象になりうるので文書とみなさない
     '12.1：%s を含む変更は文書だけとみなさない',
     file => {
       // Act
