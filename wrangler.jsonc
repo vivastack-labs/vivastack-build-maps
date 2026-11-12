@@ -1,0 +1,17 @@
+// 11.4 (2)：静的アセットだけの Worker。dist/ は pnpm build（next build → scripts/postbuild.ts）で作る
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "gotouchi-maps",
+  // 入れた wrangler（workerd 1.20261110.1）が対応する最新の日付
+  "compatibility_date": "2026-11-10",
+  "assets": {
+    "directory": "./dist",
+    // dist/maps/404.html（app/global-not-found.tsx）を返す
+    "not_found_handling": "404-page"
+  },
+  "routes": [{ "pattern": "build.vivagain.jp/maps*", "zone_name": "vivagain.jp" }],
+  // 本番を workers.dev で公開しない。preview_urls と同時に設定できるかは T0-06 で確かめる（U6）
+  "workers_dev": false,
+  // PRプレビュー（バージョンごとのURL）を有効にする
+  "preview_urls": true
+}
