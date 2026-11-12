@@ -9,8 +9,11 @@ import { parseFixTable } from './lib/fixes.ts';
 import { buildGeo, gzipSize, type GeoBuildResult } from './lib/geo-build.ts';
 import { readSoumuCodes } from './lib/soumu.ts';
 
+/** 変換の結果を書く場所 */
 export type OutputPaths = {
+  /** 市区町村の TopoJSON（NN.topo.json）を置くディレクトリ */
   readonly muniDir: string;
+  /** 都道府県の TopoJSON のファイル */
   readonly prefsFile: string;
 };
 

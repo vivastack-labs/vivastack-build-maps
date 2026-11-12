@@ -11,6 +11,7 @@ import mapshaper from 'mapshaper';
 import type { GeometryObject, Topology } from 'topojson-specification';
 import { assertFixesUsed, assertSameCodes, toMunicipality, type N03Row, type NamingSources } from './municipality.ts';
 
+/** 形の簡略化と量子化の設定 */
 export type SimplifySettings = {
   /** 簡略化の度合い（メートル。mapshaper の -simplify interval=） */
   readonly interval: number;
@@ -18,6 +19,7 @@ export type SimplifySettings = {
   readonly quantization: number;
 };
 
+/** 変換の設定。市区町村と都道府県で簡略化の度合いを変える */
 export type GeoBuildSettings = {
   readonly municipality: SimplifySettings;
   readonly prefecture: SimplifySettings;
@@ -39,6 +41,7 @@ export const GEO_BUILD_SETTINGS: GeoBuildSettings = {
 /** N03 の Shapefile のパス、またはテスト用の GeoJSON */
 export type N03Source = string | FeatureCollection;
 
+/** 変換の結果。どちらも経緯度のままの TopoJSON の文字列 */
 export type GeoBuildResult = {
   /** 都道府県の TopoJSON（オブジェクト名 prefectures） */
   readonly prefs: string;
@@ -53,6 +56,11 @@ const GZIP_LEVEL = 9;
 const LABEL_DIGITS = 4;
 const UNASSIGNED_SUFFIX = '000';
 
+/**
+ * N03 から都道府県と市区町村の TopoJSON を作る。
+ * 市区町村の名前・読み・ローマ字は総務省のコード表と修正表で付け、コードが合わない・修正が使われない・
+ * gzip 後の大きさが上限を超えるときはエラーにする。
+ */
 export async function buildGeo(source: N03Source, naming: NamingSources, settings: GeoBuildSettings = GEO_BUILD_SETTINGS): Promise<GeoBuildResult> {
   // 全国の Shapefile を2回読むので、メモリを抑えるために1つずつ動かす
   const municipalityOutputs = await runMapshaper(source, municipalityCommands(settings.municipality));

@@ -10,6 +10,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 
+/** Run に渡すコマンドの実行の設定 */
 export type RunOptions = {
   readonly cwd?: string;
   readonly env?: Readonly<Record<string, string>>;
@@ -22,6 +23,7 @@ export type RunOptions = {
 /** コマンドを実行して標準出力を返す。テストでは差し替える */
 export type Run = (command: string, args: readonly string[], options?: RunOptions) => string;
 
+/** 表の1行（1つの画面）。isSame は before と after の画像が同じ blob のとき true */
 export type ImageRow = {
   readonly name: string;
   readonly hasBefore: boolean;
@@ -162,6 +164,7 @@ type PublishInput = {
   readonly indexFile: string;
 };
 
+/** push した commit と、画像の名前 → blob（before・after） */
 export type PublishResult = {
   readonly commit: string;
   readonly before: ReadonlyMap<string, string>;

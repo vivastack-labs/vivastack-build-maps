@@ -3,6 +3,7 @@
 // fflate で展開して、共有文字列とシートの XML から必要な要素だけを取り出す。
 import { strFromU8, unzipSync } from 'fflate';
 
+/** 総務省の全国地方公共団体コードの表の1行 */
 export type SoumuEntry = {
   /** N03 の N03_007 と同じ5桁（検査数字を除く） */
   readonly code: string;

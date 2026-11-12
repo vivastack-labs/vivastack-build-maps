@@ -17,12 +17,14 @@ export type { Prefecture } from './content-schema.generated.ts';
 /** 誤り・警告。line は YAML の行（1始まり）。path は `specialties[0].description.ja.kids` の形 */
 export type ContentIssue = { readonly file: string; readonly line?: number; readonly path: string; readonly message: string };
 
+/** validateContent の結果。prefectures は形が通った県だけ（code の順） */
 export type ContentResult = {
   readonly prefectures: readonly Prefecture[];
   readonly errors: readonly ContentIssue[];
   readonly warnings: readonly ContentIssue[];
 };
 
+/** CONTENT_DIR がないときに読むディレクトリ */
 export const DEFAULT_CONTENT_DIR = 'content/prefectures';
 
 const FILE_NAME = /^\d{2}-[a-z]+(-[a-z]+)*\.yaml$/u;

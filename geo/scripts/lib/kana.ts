@@ -43,6 +43,7 @@ const SUFFIX_READINGS: ReadonlyMap<string, readonly string[]> = new Map([
 
 type Token = { readonly kind: 'mora'; readonly romaji: string } | { readonly kind: 'hatsuon' } | { readonly kind: 'sokuon' };
 
+/** 名前を語幹と接尾辞（市・町・村・区など）に分けたもの */
 export type SplitName = { readonly stem: string; readonly suffix: string };
 
 /**

@@ -12,7 +12,9 @@ export type N03Row = {
   readonly N03_007: string;
 };
 
+/** 市区町村の TopoJSON の properties に入れる値 */
 export type Municipality = {
+  /** 団体コード（5桁。検査数字を除く） */
   readonly code: string;
   readonly name: { readonly ja: string; readonly en: string };
   /** ひらがな。政令指定都市の区は市名を含む読み（さっぽろしちゅうおうく） */
@@ -21,7 +23,9 @@ export type Municipality = {
   readonly cityName?: string;
 };
 
+/** 市区町村の名前・読み・ローマ字を付けるための資料 */
 export type NamingSources = {
+  /** 総務省のコード表（団体コード → 名前と読み） */
   readonly soumu: ReadonlyMap<string, SoumuEntry>;
   /** 読み（ひらがな）の修正。before・after は、政令指定都市の区では市名を含む読み */
   readonly kanaFixes: FixTable;
