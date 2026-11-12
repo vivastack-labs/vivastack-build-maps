@@ -28,6 +28,7 @@ Node.js は `.nvmrc` の版（26）を使う。Node.js 25 以降は corepack が
 nvm use
 corepack enable
 pnpm install
+git config --add remote.origin.fetch '^refs/heads/screenshots'   # 初回だけ。PRの画像のブランチを、ふだんの fetch・pull で取らない
 pnpm dev          # http://localhost:3000/maps/ja/（3000番が使用中なら別の番号で起動する）
 pnpm lint         # ESLint・Prettier・markdownlint・yamllint
 pnpm typecheck    # tsc --noEmit
@@ -42,6 +43,8 @@ pnpm test:e2e --project=chromium               # E2E を1プロジェクトだ�
 gh workflow run e2e.yml --ref <ブランチ> -f project=all   # CI で E2E を手動で動かす（UI・ルーティングを変えたPRは merge の前に）
 pnpm screenshots > <ファイル>   # PRに載せる before（origin/main）・after のスクリーンショットを撮り、screenshots ブランチに push して、PR本文の表を出す
 ```
+
+`screenshots` ブランチ（PRに載せる画像。main と履歴を共有しない）は、ふつうの `git clone`・`git fetch` ではほかのブランチと一緒にダウンロードされ、PRごとに増えていく。clone の直後に上の `git config` を実行し、すでに取ってしまった追跡ブランチは `git update-ref -d refs/remotes/origin/screenshots` で消す。clone の時点から取らないなら、`git clone --single-branch` で main だけを取り、`git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'` でほかのブランチを取れるように戻してから、上の `git config` を実行する。
 
 `pnpm test` はカバレッジの基準も確かめるので、一部のテストだけを動かすときは `pnpm vitest run` を使う。`pnpm lint` は `yamllint`（Python 製。pnpm では入らない）を使うので、別に入れておく。
 
@@ -90,7 +93,7 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
 - **コミット**：`<type>: <description>`（feat / fix / refactor / docs / test / chore / perf / ci）。`<type>` は英語のまま、`<description>` と本文は日本語で書く（例：`docs: 操作仕様を追加`）。PR のタイトルも `<type>: <description>` の形式にするが、`<description>` は英語で書く（例：`docs: add interaction spec`）。
 - **コーディング**：イミュータブルに書く、小さな関数・ファイル、境界での入力検証。→ `coding-style.md`
 - **セキュリティ**：シークレットをリポジトリ・ログ・PR に書かない（gitleaks で検査）。→ `security.md`
-- **画面の変更**：画面が変わるPRには、`pnpm screenshots` で撮った before/after の表を本文に載せる。撮る画面は `tests/screenshots/pages.spec.ts`、画像は `screenshots` ブランチ（main と履歴を共有しない。消さない）に置く。
+- **画面の変更**：画面が変わるPRには、`pnpm screenshots` で撮った before/after の表を本文に載せる。撮る画面は `tests/screenshots/pages.spec.ts`、画像は `screenshots` ブランチ（main と履歴を共有しない。消さない。ふだんの fetch では取らない）に置く。
 - `--no-verify` や force push など、hooks・検査を回避する操作はしない。
 - lint や formatter の設定（`.prettierrc`、`.markdownlint.json`、`.yamllint` など）は、指示がない限り変えない。
 
