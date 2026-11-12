@@ -39,8 +39,9 @@ lib64/
 !plugins/*/scripts/lib/**
 # Keep library files in .claude directories
 !.claude/*/lib
-# Keep app library code (src/lib/) despite the Python lib/ rule above
+# Keep app library code (src/lib/) and its tests despite the Python lib/ rule above
 !src/lib/
+!tests/unit/lib/
 # Keep geo build library code (geo/scripts/lib/) and its tests for the same reason
 !geo/scripts/lib/
 !tests/unit/geo/scripts/lib/
