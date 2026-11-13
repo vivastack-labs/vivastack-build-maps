@@ -12,11 +12,11 @@
 ## 作る・変えるファイル（この順番）
 
 1. `tests/unit/i18n/messages.test.ts`（先に書く。Red）
-2. `src/i18n/ja.ts`：基準の辞書。`as const` を付けず、`export type Messages = DeepReadonly<typeof ja>` 相当の型を出す（文字列リテラルにしないので、en・zh が `satisfies Messages` で同じ形を持つことだけを型で強制できる）。
-   - 地方名は `Record<Region, string>`。`Region` は `src/lib/content-schema.generated.ts` の `region` の型から取る（コンテンツの `region` と辞書のキーがずれたら型で落ちる）。
-   - `{ kids, adult }` の値の型は `ModeTextValue`（`src/i18n/ja.ts` か `src/i18n/messages.ts` に置く）。
-3. `src/i18n/en.ts`・`src/i18n/zh.ts`：`satisfies Messages`。
-4. `src/i18n/messages.ts`：`getMessages(lang: Lang): Messages`。
+2. `src/i18n/ja.ts`：基準の辞書。`as const` を付けずに `jaSource` を書き、`export type Messages = DeepReadonly<typeof jaSource>` を出す（文字列リテラルにしないので、en・zh が `satisfies Messages` で同じ形を持つことだけを型で強制できる）。`export const ja: Messages = jaSource` で、書き換えを型で防ぐ。`DeepReadonly` は関数をそのまま通す。
+   - 地方名は `satisfies Record<Region, string>`。`Region` は `src/lib/content-schema.generated.ts` の `Prefecture['region']`（コンテンツの `region` と辞書のキーがずれたら型で落ちる）。
+   - `{ kids, adult }` の値の型は `ModeTextValue`（`ja.ts` に置く）。ja の5か所に `satisfies ModeTextValue` を付け、つづりの誤りを ja の時点で落とす。
+3. `src/i18n/en.ts`・`src/i18n/zh.ts`：`export const en: Messages = { … } satisfies Messages`。
+4. `src/i18n/messages.ts`：`getMessages(lang: Lang): Messages`。`Messages`・`ModeTextValue` を再 export する。
 5. `src/i18n/format.ts`：`formatNumber(lang, value)`。ロケールは `htmlLang(lang)`（`ja`・`en`・`zh-Hans`）を使う。`Intl.NumberFormat` は言語ごとに1つ作って使い回す。
 6. `tests/unit/components/ModeText.test.tsx` → `src/components/ModeText.tsx`
    - `<ModeText text={{ kids, adult }} />` は `<span class="kids">…</span><span class="adult">…</span>` を出す。中身は `RubyText` で描く（en・zh は記法がないので、そのまま文字になる）。
@@ -26,7 +26,7 @@
    - `app/[lang]/page.tsx`：`SITE_NAME` を消し、`<h1><RubyText text={getMessages(lang).siteName} /></h1>`。
    - `app/global-not-found.tsx`：見出し・リンク・`metadata.title` を辞書の `notFound` から取る。`title` は `plainText()` で読みを除く。
 9. `tests/e2e/lang.spec.ts`：`<body>` の計算後の `font-family` が、言語ごとの並びの先頭のフォントで始まることを確かめる（D27）。
-10. ドキュメント：`docs/tasks/m2-map-core.md` の T2-03（サイト名の移動はこのタスクで済んだ、と直す）、`AGENTS.md`（アーキテクチャに辞書の場所と使い方を1項目）、`tests/screenshots/pages.spec.ts`（404 の画面を足す）。
+10. ドキュメント：`docs/tasks/m2-map-core.md` の T2-03（サイト名の移動はこのタスクで済んだ、と直す。T3-05 の前に `ModeText` を使うときの注意）・T2-08（`lang="ja"` の要素にはフォントが切り替わらないこと）、`AGENTS.md`（アーキテクチャに辞書の場所と使い方を1項目）、`tests/screenshots/pages.spec.ts`（404 の画面を足す）。
 
 ## 先に書くテスト
 
@@ -97,6 +97,8 @@ E2E（`tests/e2e/lang.spec.ts`。手動で実行）：
 
 ## 判断が必要な点
 
+オーナーが7つとも推奨案で承認した（2026-11-13）。
+
 1. **日本語の文言は、ふりがなの付いていない漢字を0にするか**（テスト条件は「`checkRuby()` を誤りなしで通る」だけ）
    - 推奨：警告も0にする。理由：UI の文言はこども向け・おとな向けの両方で表示され、ふりがなON（F-MODE-02）のときに読みのない漢字が混ざると、こどもが読めない。文言は数十件なので負担は小さい。
 2. **`{ kids, adult }` にする文言**
@@ -114,7 +116,10 @@ E2E（`tests/e2e/lang.spec.ts`。手動で実行）：
 
 ## 承認後に変えたこと
 
-- 文言の表の `|`：ふりがなの記法の `|` が Markdown の表の列の区切りと読まれ、markdownlint（MD056）が落ちたので、表の中だけ `\|` にエスケープした（内容は変えていない）。
-- `Messages` の型：`ja.ts` の `typeof ja` を `messages.ts` の `DeepReadonly` で読み取り専用にした。`ModeTextValue` は `messages.ts` に置いた。
-- 文言の訳（レビューの指摘）：en `zoom.reset` を `Show all`、en `notFound.backToTop` を `Back to home page`、zh `card.guide.adult` を `请将鼠标移到都道府县上，或点击选择`、zh `muni.listSummary` を `市区町村列表` に直した。「＋」は U+2212 の「−」と対になる半角の `+`（U+002B）に3言語ともそろえた。
-- 型：`ja.ts` に `jaSource` を置き、`Messages`（`DeepReadonly<typeof jaSource>`）と `ModeTextValue` も `ja.ts` に置いて、`messages.ts` から再 export する。`ja`・`en`・`zh` は `Messages` 型で書き出す（書き換えを型で防ぐ）。`DeepReadonly` は関数をそのまま通す。ja の `{ kids, adult }` と地方名には `satisfies` を付けた。
+| 項目 | 承認したとき | 実際 | 理由 |
+|---|---|---|---|
+| 計画の文言の表 | 記法の `\|` をそのまま書く | 表の中だけ `\|` にエスケープした（内容は同じ） | 記法の `\|` が表の列の区切りと読まれ、markdownlint（MD056）が落ちた |
+| `Messages`・`ModeTextValue` の置き場所 | `typeof ja` から型を作る。`ModeTextValue` は `ja.ts` か `messages.ts` | `ja.ts` に `jaSource`・`Messages`・`ModeTextValue` を置き、`messages.ts` から再 export。`ja`・`en`・`zh` は `Messages` 型で書き出す。`DeepReadonly` は関数をそのまま通す | レビュー（LOW-1・LOW-2）：書き出した辞書を型の上で書き換えられた。関数を入れると呼べなくなった |
+| ja の `{ kids, adult }` | 型の指定なし | `satisfies ModeTextValue` を付けた | レビュー（LOW-3）：`adlut` のようなつづりの誤りが、実行時のテストの対象から黙って外れる |
+| 訳 | 表の案 | en `zoom.reset` は `Show all`、`notFound.backToTop` は `Back to home page`、zh `card.guide.adult` は `请将鼠标移到都道府县上，或点击选择`、`muni.listSummary` は `市区町村列表` | レビュー（LOW-4）：より自然な言い方 |
+| 「+」の字 | ja・zh は全角の「＋」、en は半角 | 3言語とも半角の `+`（U+002B） | レビュー（LOW-5）：記号は言語によらないので、言語でボタンの見た目を変えない。「−」（U+2212）と対になる |
