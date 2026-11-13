@@ -116,4 +116,3 @@ E2E（`tests/e2e/lang.spec.ts`。手動で実行）：
 
 - 文言の表の `|`：ふりがなの記法の `|` が Markdown の表の列の区切りと読まれ、markdownlint（MD056）が落ちたので、表の中だけ `\|` にエスケープした（内容は変えていない）。
 - `Messages` の型：`ja.ts` の `typeof ja` を `messages.ts` の `DeepReadonly` で読み取り専用にした。`ModeTextValue` は `messages.ts` に置いた。
-- `docs/development-plan.md`：T2-02 の状態を「完了」にした。
