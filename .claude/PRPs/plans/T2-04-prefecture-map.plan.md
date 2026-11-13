@@ -13,60 +13,83 @@
 
 1. テストを先に書く（Red）。下の「先に書くテスト」。
 2. `package.json`：`topojson-client` を `devDependencies` から `dependencies` に移す（判断 2）。
-3. `src/features/map/prefPaths.ts`（サーバーでだけ使う。ビルド時に動く）：
-   - `geo/data/prefs.topo.json` を読み、`topojson-client` の `feature()` で GeoJSON にする。
-   - 県ごとに `createProjection(code)` を `geoPath(...).digits(1)` に渡してパスを作る（沖縄県は自動で点線枠に移る）。
-   - 小笠原村のうち `viewBox` の外に出る島は形から除く（判断 1。案 A のとき）。
-   - 県名ラベルの位置：`projectPoint(label, code)` に、重なりを避けるための手で決めたずらし（`LABEL_OFFSETS`。viewBox の単位）を足す（判断 3）。
-   - 返す形：`{ code, d, label: { x, y } }[]`（県コードの順）。入力の形が想定と違えば例外（ビルドを止める）。
-4. `app/globals.css`：`@theme` に色の変数を足す（判断 4・5）。
+3. `src/features/map/pathContext.ts`：`geoPath(projection, context)` に渡す context。座標を 0.1 単位の整数に丸め、各リングを `M` の絶対座標で始めて、続きを `l` の差分で書く（レビューを受けて追加。パスが HTML と RSC のデータの2か所に入るため、短くする）。
+4. `src/features/map/projection.ts`：県コードの正規表現を `PREF_CODE_PATTERN` として export する（`prefPaths.ts` と共有）。先頭のコメントに U16 の決定を書く。
+5. `src/features/map/prefPaths.ts`（サーバーでだけ使う。ビルド時に動く）：
+   - `loadPrefPaths()` が `geo/data/prefs.topo.json` を読み、`buildPrefPaths(topology)` が形を確かめてから、`topojson-client` の `feature()` で GeoJSON にする。
+   - 県ごとに `createProjection(code)` と `pathContext.ts` の context でパスを作る（沖縄県は自動で点線枠に移る）。
+   - `viewBox` の外に出る島は形から除く（判断 1。島（ポリゴン）ごとに、投影した外接矩形が `viewBox` と重ならないものを除く。一部だけ入る島は残す）。全部が外にある県は例外にする。
+   - 県名ラベルの位置：`projectPoint(label, code)` に、重なりを避けるための手で決めたずらし（`LABEL_OFFSETS`。言語ごと。zh は ja と共有）を足す（判断 3）。文字の大きさは `LABEL_FONT_SIZE`（ja・zh 16、en 13）。
+   - 返す形：`{ code, d, labels: { ja, en, zh } }[]`（県コードの順）。入力の形が想定と違えば例外（ビルドを止める）。
+6. `src/features/map/regions.ts`：8地方の順と、Tailwind の塗り・色見本のクラス名（全部を書いた文字列。Tailwind がクラスを拾えるように組み立てない）。
+7. `app/globals.css`：`@theme` に色の変数を足す（判断 4・5）。
    - 8地方の塗り `--color-region-<地方>`、海 `--color-map-sea`、県境・海岸線 `--color-map-border`、県名ラベル `--color-map-label`、海域名 `--color-map-sea-label`、点線枠 `--color-map-frame`。
    - ページの背景・文字 `--color-page-bg`・`--color-page-text`（判断 5）。
    - ダーク：`@media (prefers-color-scheme: dark) { :root { ... } }` で同じ変数を上書きする。
    - 県名ラベルを隠す幅の区切り `--breakpoint-map-label: 821px` を定義し、`max-map-label:hidden`（幅821px未満＝820px以下で隠す）で使う。
-5. `src/components/JapanMap.tsx`（サーバーコンポーネント）：
-   - `<svg viewBox="0 0 1000 1130" role="group" aria-label="日本地図">`（`map.label` を `plainText`）。中に拡大・縮小用の `<g data-map-layer>`。
-   - 海の背景の `<rect>`、県のパス（`data-pref`・`data-region`・`role="button"`・`aria-label`＝その言語の県名。ふりがなを除く）、沖縄の点線枠（`OKINAWA_FRAME`）、海域名 2つ、県名ラベル（`aria-hidden="true"`。パスの `aria-label` と重複するため）。
-   - 県名・地方は `loadContent()` の結果から引き、`page.tsx` から props で受け取る（コンテンツの読み込みを1か所にするため）。
-6. `src/components/MapLegend.tsx`（サーバーコンポーネント）：8地方の色見本と地方名（`regions.*` を `RubyText`）。`<ul>`。「準備中」は T3-02。
-7. `src/components/MapArea.tsx`：仮の箱を置き換える。`<section data-area="map">` の中に、`aspect-ratio` が `VIEWBOX` の箱（その中に `JapanMap`）と、その下に `MapLegend`。
-8. `app/[lang]/page.tsx`：`loadContent()` を呼び、`MapArea` に `lang` と県の一覧を渡す。
-9. `app/[lang]/layout.tsx`：`<body>` に `bg-page-bg text-page-text`（判断 5）。
-10. `tests/screenshots/pages.spec.ts`：`ja-top-dark`（`prepare` で `page.emulateMedia({ colorScheme: 'dark' })`）を足す。
-11. ドキュメント：U16 の決定を開発概要書（6.6 (1)、未決事項の表→決定事項）、`projection.ts` の先頭のコメント、開発計画 第4章に書く。T2-06・T2-08 の定義に、U16 の決定で必要になることを書き足す。
+8. `src/components/JapanMap.tsx`（サーバーコンポーネント。props は `{ lang, prefectures }`）：
+   - `<svg viewBox="0 0 1000 1130" role="group" aria-label="日本地図">`（`map.label` を `plainText`）。海の背景の `<rect>` は、拡大・縮小用の `<g data-map-layer>` の外に置く（T2-06 で背景が動かないように）。
+   - `<g data-map-layer>` の中に、県のパス（`data-pref`・`data-region`・`role="button"`・`aria-label`＝その言語の県名。ふりがなを除く）、沖縄の点線枠（`OKINAWA_FRAME`）、海域名 2つ（`plainText`）、県名ラベル（`aria-hidden="true"`。「都・府・県・县」を省く）。
+   - 県名・地方は `page.tsx` から受け取ったコンテンツから引く。パスは `loadPrefPaths()` から引き、コンテンツの県コードの形がなければ例外にする。
+9. `src/components/MapLegend.tsx`（サーバーコンポーネント）：8地方の色見本と地方名（`regions.*` を `RubyText`）。`<ul>`。「準備中」は T3-02。
+10. `src/components/MapArea.tsx`：仮の箱を置き換える。`<section data-area="map">` の中に、`aspect-ratio` が `VIEWBOX` の箱（`data-map-box`。その中に `JapanMap`）と、その下に `MapLegend`。
+11. `app/[lang]/page.tsx`：`loadContent()` を呼び、`MapArea` に `lang` と県の一覧を渡す。
+12. `app/[lang]/layout.tsx`：`<body>` に `bg-page-bg text-page-text`（判断 5）。
+13. `tests/screenshots/pages.spec.ts`：`ja-top-dark`（`prepare` で `page.emulateMedia({ colorScheme: 'dark' })`）を足す。
+14. ドキュメント：U16 の決定（D36）を開発概要書（6.6 (1)、未決事項の表、決定事項の表、版 0.8）、`projection.ts` の先頭のコメント、開発計画 第5章に書く。T2-04・T2-06・T2-08 の定義と `AGENTS.md`（地図の描画）に書き足す。
 
 ## 先に書くテスト
 
-### 単体（`tests/unit/features/map/prefPaths.test.ts`、node）
+### 単体（node）
 
-- `F-MAP-01：47県のパスがあり、どれも空でない`
-- `F-MAP-01：県コードが 01〜47 の順に1つずつある`
-- `F-MAP-01：県名ラベルの位置がすべて viewBox の中にある`
-- `F-MAP-02：沖縄県の県名ラベルが点線枠の中にある`
-- `U16：どの県のパスの座標も viewBox の外に出ない`（判断 1 が案 A のとき。パスの数値を読んで確かめる）
-- `prefs.topo.json の形が違うと例外にする`（オブジェクト名がない・`code` がない、の2つ。読み込む関数に TopoJSON を渡せるようにして確かめる）
+- `tests/unit/features/map/pathContext.test.ts`
+  - `F-MAP-01：小さな正方形が、絶対座標の M と、差分の l と、z の文字列になる`
+  - `座標は 0.1 単位に丸め、先頭の0と、負の数・小数点の前の区切りを省く`
+  - `0.1 の丸めの誤差が、差分を足してもたまらない（最後の点が絶対座標で丸めた値と同じ）`
+  - `丸めて同じ座標になった続きの点は書かない`・`丸めると3点に満たないリングは書かない`・`複数のリングは、それぞれ M の絶対座標から書き始める`・`始点に戻る最後の点（閉じる点）は書かない`・`d3 が点（arc）を描こうとしたら例外にする（県の形には点がない）`
+- `tests/unit/features/map/prefPaths.test.ts`（相対のパスを絶対座標に戻す補助は `path-helpers.ts`）
+  - `F-MAP-01：47県のパスがあり、どれも空でない`
+  - `F-MAP-01：県コードが 01〜47 の順に1つずつある`
+  - `F-MAP-01：県名ラベルの位置がすべて viewBox の中にある（ja・en・zh）`
+  - `F-MAP-02：沖縄県の県名ラベルが点線枠の中にある（ja・en・zh）`
+  - `F-MAP-01：重なりを避けるずらしは、県コードを指し、小さい量である`
+  - `F-MAP-01：県名ラベルの文字の大きさは、横に長い英語のほうが小さい`
+  - `U16：今のデータでは、どの県のパスの座標も viewBox の外に出ない`・`U16：東京都の形に、viewBox の中の父島が残る`
+  - `F-MAP-01：県の形と県名ラベルの位置を返す`・`F-MAP-01：パスは M の絶対座標と、l の差分でできていて、元の座標と 0.1 以内で同じである`
+  - `prefs.topo.json の形が違うと例外にする`：オブジェクト名 prefectures がない／Topology でない／code がない・label が経緯度でない／形が Polygon・MultiPolygon でない
+  - `U16：viewBox の外に出る島を除く`：(a) 内側の島と外側の島を持つとき、内側の島だけが残る／(b) 一部だけ viewBox からはみ出す島は残る／(c) 県の形が全部 viewBox の外にあると例外にする
+- `tests/unit/features/map/regions.test.ts`
+  - `F-MAP-03：8地方があり、辞書の地方名と同じ順に並ぶ`
+  - `F-MAP-01：地方ごとに、@theme の色の変数に対応する塗りと色見本のクラスがある`
 
 ### コンポーネント（jsdom）
 
 - `tests/unit/components/JapanMap.test.tsx`
   - `5.2：県のパスが47個あり、role="button" と aria-label（ふりがなを除いた県名）を持つ`（ja・en・zh）
   - `F-MAP-01：県のパスの data-region がコンテンツの地方と同じである`
+  - `5.2：地図の svg は viewBox と、言語ごとの名前（ふりがなを除く）を持つ`
   - `F-MAP-06：海域名（日本海・太平洋）を、その言語で出す`
-  - `5.2：県名ラベルは aria-hidden である`
+  - `F-MAP-02：沖縄県の点線枠がある`
+  - `5.2：県名ラベルは aria-hidden である（パスの aria-label と重複するため）`
+  - `F-MAP-01：県名ラベルは「都・府・県」（中国語は「县」）を省き、北海道はそのまま出す`
+  - `F-MAP-01：県名ラベルは幅820px以下で隠す（max-map-label:hidden）`
+  - `F-MAP-01：コンテンツの県コードからパスを引けないときは、パスのない県を描かずに例外にする`
 - `tests/unit/components/MapLegend.test.tsx`
-  - `F-MAP-03：凡例に8地方が地方の順にある`
+  - `F-MAP-03：凡例に8地方が地方の順にある`（ja・en・zh）
+  - `F-MAP-03：色見本は地方の色（@theme の変数）で塗り、スクリーンリーダーには読ませない`
 - `tests/unit/components/MapArea.test.tsx`（変更）
-  - `4.11.7：地図の箱の縦横比が viewBox と同じである`（箱が `section` の中の要素に変わるので、見る要素を直す）
+  - `4.11.7：地図の箱の縦横比が地図の viewBox と同じである`
+  - `F-MAP-03：地図の箱の下に凡例がある`
 
 ### E2E（`tests/e2e/map.spec.ts`。手動で実行）
 
 - `F-MAP-01・5.2：県の形が47個あり、aria-label が県名である`（ja・en・zh。県名はコンテンツから `plainText` で作る）
+- `F-MAP-02：沖縄県の形が点線枠の中にある`（`getBBox()` で比べる）
+- `F-MAP-04：colorScheme が dark のとき、県の塗りと海の色がライトのときと変わる`
 - `F-MAP-01：幅820pxでは県名ラベルが見えず、幅821pxでは見える`（PC のプロジェクトだけ）
 - `F-MAP-01：県名ラベルどうしが重ならない`（ja・en・zh。`getBBox()` で viewBox の単位で比べる。フォントで幅が変わるので chromium だけ）
-- `F-MAP-02：沖縄県の形が点線枠の中にある`（`getBBox()` で比べる）
-- `F-MAP-03：凡例に8地方がある`
-- `F-MAP-04：colorScheme が dark のとき、県の塗りの色がライトのときと変わる`
-- `F-MAP-06：海域名が2つ表示される`
+- `F-MAP-03：凡例に8地方がある`（ja・en・zh）
+- `F-MAP-06：海域名が2つ表示される`（ja・en・zh）
 - `D24：JavaScriptを無効にしても、県の形が47個ある`（`test.use({ javaScriptEnabled: false })`）
 
 ## 完了条件の確かめ方
@@ -141,8 +164,14 @@ F-MAP-04 はこのタスクの参照仕様だが、ページ全体のダーク�
 
 ## 承認後に変えたこと
 
-- 判断1（U16）：案A。硫黄島だけが除かれた（`prefs.topo.json` の東京都の島は、父島と硫黄島の2つだけで、母島・南鳥島・沖ノ鳥島は入っていない。市区町村のファイルには入っている）。判定は、島（ポリゴン）ごとに、投影した外接矩形が viewBox と重ならないものを除く。
-- 判断3：県名ラベルの文字の大きさは、ja・zh が 16、en が 13（英語は横に長く、16 では重なりを避けきれない）。`LABEL_OFFSETS` は言語ごと（zh は ja と共有）。`PrefPath` の `label` は `labels`（言語ごと）にした。
-- 海域名は、`<text>` の中でふりがなを使えないので、`plainText` で出す。
-- 色は計画の表のとおり。ただし中国地方だけ、orange から cyan に変えた（ライト cyan-200 `#a5f3fc`、ダーク cyan-800 `#155e75`）。近畿（amber）と隣り合い、ライト・ダークの両方でほぼ同じ色に見えたため。文字との比は、ライトが slate-900 と 14.3:1、ダークが slate-50 と 6.9:1。
-- レビューを受けて、県のパスを相対座標（`M` の絶対座標＋`l` の差分、0.1 単位の整数）で書くようにした（`pathContext.ts`）。パスが HTML と RSC のデータの2か所に入るため。県のコードの正規表現は `projection.ts` の `PREF_CODE_PATTERN` にまとめ、`JapanMap` は地図のデータにない県コードで例外を投げる。
+| 項目 | 承認したとき | 実際 | 理由 |
+|---|---|---|---|
+| U16 で除かれる島（判断 1） | 硫黄島・南鳥島・沖ノ鳥島が外に出る見込み | 除かれるのは硫黄島だけ | `prefs.topo.json` の東京都には、小笠原村の島が父島と硫黄島しか入っていない（母島・南鳥島・沖ノ鳥島は市区町村のファイルにだけある） |
+| 県名ラベルの文字の大きさ（判断 3） | 全言語 16 | ja・zh 16、en 13 | 英語は横に長く、16 では重なりを避けきれない |
+| `LABEL_OFFSETS`（判断 3） | 1つの表 | 言語ごと（zh は ja と共有）。`PrefPath` の `label` は `labels` | 重なる組が言語で違う |
+| 海域名 | `RubyText` で出す想定 | `plainText` で出す | SVG の `<text>` の中では `<ruby>` を使えない |
+| 中国地方の色（判断 4） | orange-200 / orange-800 | cyan-200 `#a5f3fc` / cyan-800 `#155e75` | 近畿（amber）と隣り合い、ライト・ダークの両方でほぼ同じ色に見えた。文字との比はライト 14.3:1、ダーク 6.9:1 |
+| パスの書き方 | `geoPath(...).digits(1)`（絶対座標） | `pathContext.ts`（`M` の絶対座標＋`l` の差分、0.1 単位の整数） | レビューの指摘。パスが HTML と RSC のデータの2か所に入るため。最初の読み込みが gzip で 267KB → 228KB |
+| 県コードの正規表現 | `prefPaths.ts` に書く | `projection.ts` の `PREF_CODE_PATTERN` を共有 | レビューの指摘（重複） |
+| 地方の表 | なし | `regions.ts` を追加 | 凡例と地図で地方の順・クラス名を共有するため |
+| 決定事項を書く章 | 開発計画 第4章 | 第5章 | 未決事項の表は第5章にあった |
