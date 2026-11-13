@@ -2,10 +2,8 @@ import { join } from 'node:path';
 import { test, type Page } from '@playwright/test';
 import { LANGS } from '../../src/i18n/lang';
 
-// PRに載せるスクリーンショットの画面（playwright.screenshots.config.ts）。
-// before（main）でも、このファイルを今のブランチから写して撮る。
-// 画面が変わるタスクでは、変わった状態（例：県を選んでパネルを開いた状態）を SCENES に足す。
-// main にまだない画面は before で失敗し、PR本文の表では「なし」になる
+// PRに載せるスクリーンショットの画面（playwright.screenshots.config.ts）。今の作業ツリーだけを撮る（before は撮らない）。
+// 画面が変わるタスクでは、変わった状態（例：県を選んでパネルを開いた状態）を SCENES に足す
 type Scene = {
   readonly name: string;
   readonly path: string;
