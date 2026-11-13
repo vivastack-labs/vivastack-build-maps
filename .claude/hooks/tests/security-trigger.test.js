@@ -26,6 +26,26 @@ test('PATTERNS: matches sensitive content', () => {
   assert.ok(PATTERNS.test('axios.get(url)'));
 });
 
+test('PATTERNS: matches database and HTTP queries', () => {
+  assert.ok(PATTERNS.test('db.query("SELECT * FROM users WHERE id = " + id)'));
+  assert.ok(PATTERNS.test('const query = `SELECT * FROM t`'));
+  assert.ok(PATTERNS.test('const params = new URLSearchParams(req.query)'));
+  assert.ok(PATTERNS.test('query-builder.ts'));
+});
+
+// issue #33: DOM を調べるテストのコードは、DB や HTTP のクエリではない
+test('PATTERNS: does not match DOM and Testing Library query APIs', () => {
+  assert.ok(!PATTERNS.test("container.querySelector('h1')"));
+  assert.ok(!PATTERNS.test("document.querySelectorAll('[data-area]')"));
+  assert.ok(!PATTERNS.test("screen.queryByRole('banner')"));
+  assert.ok(!PATTERNS.test("screen.queryAllByText('地図')"));
+});
+
+test('buildFlaggedList: does not flag component tests that only use DOM queries (issue #33)', () => {
+  const diff = "+  const heading = container.querySelector('h1');\n+  expect(screen.queryByRole('navigation')).toBeNull();";
+  assert.deepEqual(buildFlaggedList(['tests/unit/components/Header.test.tsx'], () => diff), []);
+});
+
 test('PATTERNS: does not match common non-sensitive names', () => {
   assert.ok(!PATTERNS.test('index.js'));
   assert.ok(!PATTERNS.test('README.md'));

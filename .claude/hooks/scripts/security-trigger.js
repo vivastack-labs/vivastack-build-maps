@@ -1,7 +1,8 @@
 'use strict';
 const { execSync } = require('child_process');
 
-const PATTERNS = /auth|login|logout|session|token|jwt|passw|credential|oauth|\.db[^a-z]|query|\.sql|migrat|schema|upload|download|readFile|writeFile|createReadStream|createWriteStream|fetch\(|axios|httpClient|apiKey|api_key|ANTHROPIC_API_KEY|secret|crypto\.|encrypt|decrypt|bcrypt|hash\(/i;
+// query は、DOM の querySelector(All) と Testing Library の queryBy*・queryAllBy* を除く（DB・HTTP のクエリではないため。issue #33）
+const PATTERNS = /auth|login|logout|session|token|jwt|passw|credential|oauth|\.db[^a-z]|query(?!Selector|By|AllBy)|\.sql|migrat|schema|upload|download|readFile|writeFile|createReadStream|createWriteStream|fetch\(|axios|httpClient|apiKey|api_key|ANTHROPIC_API_KEY|secret|crypto\.|encrypt|decrypt|bcrypt|hash\(/i;
 
 function buildFlaggedList(files, getDiff) {
   const flagged = [];
