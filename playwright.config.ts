@@ -33,7 +33,7 @@ export default defineConfig({
   ],
   webServer: {
     command: `pnpm build && pnpm exec wrangler dev --port ${PORT}`,
-    url: `${BASE_URL}/maps/ja/`,
+    url: `${BASE_URL}/ja/`,
     reuseExistingServer: false,
     // wrangler の利用状況を送らない
     env: { WRANGLER_SEND_METRICS: 'false' },

@@ -3,11 +3,11 @@
 | 項目 | 内容 |
 |---|---|
 | ドキュメント | docs/development-overview.md |
-| 版 | 0.6（ドラフト） |
+| 版 | 0.7（ドラフト） |
 | 作成日 | 2026-11-11 |
-| 更新日 | 2026-11-11（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正） |
+| 更新日 | 2026-11-13（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）） |
 | リポジトリ | vivastack-labs/vivastack-build-maps（リポジトリ直下がアプリ本体） |
-| 公開URL | `https://build.vivagain.jp/maps/{ja,en,zh}/` |
+| 公開URL | `https://maps.vivastack-dev.workers.dev/{ja,en,zh}/` |
 | ステータス | 検討フェーズの決定事項を反映。「要検証」とした項目は実装時に確定する |
 
 ---
@@ -167,8 +167,8 @@
 
 | ID | 要件 |
 |---|---|
-| F-I18N-01 | URLは `/maps/ja/`、`/maps/en/`、`/maps/zh/` とする |
-| F-I18N-02 | `/maps` へのアクセスは `/maps/ja/` へリダイレクト（301）する。**ブラウザの言語設定による自動の振り分けはしない** |
+| F-I18N-01 | URLは `/ja/`、`/en/`、`/zh/` とする |
+| F-I18N-02 | `/` へのアクセスは `/ja/` へリダイレクト（301）する。**ブラウザの言語設定による自動の振り分けはしない** |
 | F-I18N-03 | 各ページに言語切替ボタンと `hreflang`（`ja` / `en` / `zh-Hans` / `x-default`）を設定する |
 | F-I18N-04 | 画面の文言（UI）も3言語に対応する |
 | F-I18N-05 | 市区町村名は、英語はローマ字（ヘボン式）、中国語は日本語の漢字表記をそのまま使う（MVP） |
@@ -217,7 +217,7 @@
 - 最大化中のシングルクリックで何もしないのは、元に戻すダブルクリックで固定が外れないようにするため。
 - キーボードは、フォーカス＝ホバー、Enter／Space＝クリック、Shift + Enter＝ダブルクリックとして扱う。
 - 県名さくいんのボタンも、この表に従う（F-IDX-02）。
-- 言語を切り替えるときは、固定している県をURLのハッシュ（例：`/maps/en/#pref-13`）で引き継ぐ。ページを開いたときにハッシュがあれば、その県を固定する。
+- 言語を切り替えるときは、固定している県をURLのハッシュ（例：`/en/#pref-13`）で引き継ぐ。ページを開いたときにハッシュがあれば、その県を固定する。
 
 #### 4.11.3 スマホ（タッチ操作）
 
@@ -381,9 +381,9 @@ flowchart LR
   end
 
   subgraph CF["Cloudflare"]
-    W["Worker: gotouchi-maps<br/>Static Assets only"]
-    R["Route<br/>build.vivagain.jp/maps*"]
-    V["Preview URL<br/>*.workers.dev"]
+    W["Worker: maps<br/>Static Assets only"]
+    R["workers.dev<br/>maps.vivastack-dev.workers.dev"]
+    V["Preview URL<br/>*-maps.vivastack-dev.workers.dev"]
     ACC[Cloudflare Access]
     WA[Web Analytics]
     R --> W
@@ -402,7 +402,7 @@ flowchart LR
 
 | 層 | 採用 | 備考 |
 |---|---|---|
-| フレームワーク | Next.js（App Router、`output: 'export'`） | `basePath: '/maps'`、`trailingSlash: true` |
+| フレームワーク | Next.js（App Router、`output: 'export'`） | `trailingSlash: true`。`basePath` は付けない（D35） |
 | 言語 | TypeScript（strict） | |
 | 地図描画 | SVG＋d3-geo＋topojson-client | 背景地図は使わない |
 | スタイル | Tailwind CSS v4（`@tailwindcss/postcss`） | 書き方は下記（D26） |
@@ -458,28 +458,28 @@ flowchart LR
 
 ### 6.4 配信の構成とURL
 
-- Worker名は `gotouchi-maps`（案）。割り当ては **Route**（`build.vivagain.jp/maps*`）。
-  - Custom Domainにしない理由：Custom Domainはホスト名全体を1つのWorkerに割り当てる方式のため。将来、`build.vivagain.jp` の別のパスに別アプリを置けるようにしておく。
-- 静的出力の構成（D29）：
+- Worker名は `maps`。本番は **workers.dev**（`https://maps.vivastack-dev.workers.dev/`。`vivastack-dev` はアカウントの workers.dev のサブドメイン）で公開する（D35）。
+  - ドメインのルートをこのアプリだけで使うので、URLにプレフィックス（以前の案の `/maps`）を付けない。Next.js の `basePath` も使わない。
+  - 以前の案は Route（`build.vivagain.jp/maps*`）だった。専用のドメインに変えたので、DNS と Route の設定は要らない。
+- 静的出力の構成（D29・D35）：
 
 ```
 dist/                       ← wrangler の assets.directory
 ├─ _redirects
 ├─ _headers
-└─ maps/
-   ├─ ja/index.html
-   ├─ en/index.html
-   ├─ zh/index.html
-   ├─ 404.html                ← app/global-not-found.tsx
-   ├─ _next/...
-   ├─ geo/muni/01.topo.json ... 47.topo.json   ← 都道府県の地図はHTMLに埋め込むので配信しない（6.6）
-   ├─ manifest.webmanifest
-   └─ sw.js
+├─ ja/index.html
+├─ en/index.html
+├─ zh/index.html
+├─ 404.html                 ← app/global-not-found.tsx
+├─ _next/...
+├─ geo/muni/01.topo.json ... 47.topo.json   ← 都道府県の地図はHTMLに埋め込むので配信しない（6.6）
+├─ manifest.webmanifest
+└─ sw.js
 ```
 
-- **`out/` の構成（U8。T0-03 で確認、Next.js 16.4.6）**：`basePath` を指定しても、`out/` の中は `/maps` の下にまとまらない（`out/ja/index.html`、`out/_next/...`、`out/404.html` が直下に出る）。一方、HTMLの中の参照は `/maps/_next/...` のように `/maps` 付きで出る。
-- そのため、`scripts/postbuild.ts` で `out/` の中身を `dist/maps/` に移し、`_redirects`・`_headers`（`public/` に置き、Next.js が `out/` の直下にコピーする）だけを `dist/` の直下に置く。`out/` の構成が版で変わっても、この組み立ては変えずに済む（R7）。`pnpm build` は `next build` → `node scripts/postbuild.ts` の順に実行する。
-- 404 のページは `dist/maps/404.html`（`app/global-not-found.tsx`。`<html lang="ja">`）。`wrangler.jsonc` の `not_found_handling: "404-page"` で、`/maps/` の下の存在しないパスにはこのページが 404 で返る。
+- `scripts/postbuild.ts` で、`out/` をそのままの構成で `dist/` にコピーする（`_redirects`・`_headers` は `public/` に置き、Next.js が `out/` の直下にコピーする）。`out/` を直接配信せずに `dist/` に分けておくのは、静的出力の後の工程（CSPのハッシュの書き込み、`sw.js` の生成。6.6、U13）をここに加えるため。`pnpm build` は `next build` → `node scripts/postbuild.ts` の順に実行する。
+- 以前の案（`basePath: '/maps'`）では、`out/` の中が `/maps` の下にまとまらず（Next.js 16.4.6。U8）、`dist/maps/` に移していた。D35 でこの移動はなくなった。
+- 404 のページは `dist/404.html`（`app/global-not-found.tsx`。`<html lang="ja">`）。`wrangler.jsonc` の `not_found_handling: "404-page"` で、存在しないパスにはこのページが 404 で返る。
 
 ### 6.5 ディレクトリ構成（案）
 
@@ -685,7 +685,7 @@ spots:                     # ちょうど3件。項目の構成は specialties �
 | ファイル | 内容 | 読み込むタイミング |
 |---|---|---|
 | `geo/data/prefs.topo.json` | 47都道府県の形、県名ラベルの位置（オブジェクト名 `prefectures`。属性は `code`（`01`〜`47`）と `label`（`[経度, 緯度]`）。形もラベルも経緯度のままで、沖縄の別枠の変換値は入れない。`src/features/map/projection.ts` にある。6.6 (1)） | ビルド時（SVGのパスにしてHTMLに埋め込む。配信しない。6.6） |
-| `public/geo/muni/{01..47}.topo.json`（配信先は `/maps/geo/muni/`） | その県の市区町村（政令指定都市は区）の形と、名前・読みがな・ローマ字（オブジェクト名 `municipalities`）。所属未定地は入れない（8.2、D34） | 県を最大化したとき |
+| `public/geo/muni/{01..47}.topo.json`（配信先は `/geo/muni/`） | その県の市区町村（政令指定都市は区）の形と、名前・読みがな・ローマ字（オブジェクト名 `municipalities`）。所属未定地は入れない（8.2、D34） | 県を最大化したとき |
 
 市区町村ごとに次の項目を持つ：
 
@@ -881,9 +881,9 @@ flowchart TB
 | 単体 | Vitest | ふりがなのパーサー、距離の計算、表示範囲の計算と拡大縮小、ラベル間引き、操作の状態遷移（mapReducer。4.11.2）、コンテンツの読み込み | ドメインロジックのカバレッジ90%以上（全体は `.claude/rules/testing.md` の基準どおり80%以上） |
 | コンポーネント | Vitest＋Testing Library | カード、さくいん、モード・ふりがなの切替、言語切替 | 主な状態がすべて表示できること |
 | データ | Vitest＋JSON Schema | 全YAMLのスキーマ、件数（3件ずつ）、全言語・全モードがそろっているか、文字数、ふりがな | CIで必ず実行 |
-| E2E | Playwright（PC＋スマホ＋タブレット。5.3） | ホバー、固定、最大化、拡大縮小・移動、キーボード操作、言語・モードの切替、`/maps` のリダイレクト | 第4章の主要な要件をすべて確認。開発中は CI では PR ごとに実行せず、手動で実行する（12.1、D30） |
+| E2E | Playwright（PC＋スマホ＋タブレット。5.3） | ホバー、固定、最大化、拡大縮小・移動、キーボード操作、言語・モードの切替、`/` のリダイレクト | 第4章の主要な要件をすべて確認。開発中は CI では PR ごとに実行せず、手動で実行する（12.1、D30） |
 | アクセシビリティ | @axe-core/playwright | 3言語 × 2モード × ライト・ダーク | 違反0件 |
-| 表示速度 | Lighthouse CI | `/maps/ja/`、`/maps/en/`、`/maps/zh/` | 第5章 5.1 の基準値 |
+| 表示速度 | Lighthouse CI | `/ja/`、`/en/`、`/zh/` | 第5章 5.1 の基準値 |
 
 ---
 
@@ -894,9 +894,9 @@ flowchart TB
 | サービス | 必要なもの | 備考 |
 |---|---|---|
 | GitHub | `vivastack-labs/vivastack-build-maps`、Actionsの有効化、Environments（`preview` / `production`） | レビュアーは `vivastack-labs` 組織のメンバー（GitHub Teamで管理）。リポジトリは private、組織は Free プラン。この組み合わせでは、ブランチ保護と Environments を使えない（11.5、U14） |
-| Cloudflare | 既存アカウント（vivagain.jpのゾーンがあるもの）、Workers Freeプラン、workers.devのサブドメイン登録 | プレビューURLは workers.dev 上にしか発行できない |
+| Cloudflare | 既存アカウント、Workers Freeプラン、workers.devのサブドメイン（`vivastack-dev`。登録済み） | 本番もプレビューURLも workers.dev 上に出す（D35）。ゾーンは使わない |
 | Cloudflare Zero Trust（Access） | 無料プランで組織を作り、プレビューURLを保護する | 無料枠の人数と、支払い方法の登録が必要かどうかは**要確認** |
-| Cloudflare Web Analytics | `build.vivagain.jp` を登録 | プロキシ経由なので、計測タグを埋め込まない自動設定が使える見込み |
+| Cloudflare Web Analytics | `maps.vivastack-dev.workers.dev` を登録 | 自動設定はプロキシ経由のサイト（自分のゾーン）向けで、workers.dev では使えない見込み。計測用のJSスニペットをHTMLに埋め込む（D35。**要確認**） |
 | Claude Code | Pro / Maxプランのサブスクリプション（またはAPIキー） | 開発とコンテンツ生成に使う。CIではAIを動かさないので、GitHubにAnthropicのAPIキーは置かない |
 
 ### 11.2 シークレット・IDの一覧と保存場所
@@ -906,7 +906,7 @@ flowchart TB
 | `CLOUDFLARE_API_TOKEN` | GitHub Environment Secrets（`preview` / `production`） | wranglerでのデプロイ | 機密。このアプリ専用。有効期限を設けて定期的に更新する |
 | `CLOUDFLARE_ACCOUNT_ID` | GitHub Secrets | wranglerでのデプロイ | 公式には機密とされていないが、Secretとして扱う |
 | `GITHUB_TOKEN` | Actionsが自動で発行 | PRにプレビューURLをコメントする | workflowで `pull-requests: write` だけを付与する |
-| Web Analyticsのトークン | （自動設定なら不要） | アクセス解析 | 公開されても問題ない値 |
+| Web Analyticsのトークン | リポジトリ（ビルド時に埋め込む） | アクセス解析（JSスニペット。D35） | 公開されても問題ない値（HTMLに出る） |
 
 - シークレットは、リポジトリ、`.env`、ログ、PRのコメントには一切書かない。
 - ローカルからのデプロイ作業は `wrangler login`（OAuth）で行い、トークンを手元に保存しない。
@@ -919,68 +919,62 @@ flowchart TB
 |---|---|---|
 | Account | Workers Scripts: Edit | 自分のアカウントだけ |
 | Account | Account Settings: Read | 同上 |
-| Zone | Workers Routes: Edit | **vivagain.jpだけ** |
 | User | Memberships: Read / User Details: Read | wranglerが必要とする場合だけ |
 
-- **要検証**：Zone側の「Workers Routes: Edit」の正式名称と、最小限の組み合わせは、公式ドキュメントからは確定できなかった。権限を絞ったトークンで `wrangler deploy` と `wrangler versions upload` を試して確定し、本書を更新する。
+- **要検証**：最小限の組み合わせは、公式ドキュメントからは確定できなかった。Route を使わない（D35）ので、Zone の権限は要らない見込み。権限を絞ったトークンで `wrangler deploy` と `wrangler versions upload` を試して確定し、本書を更新する。
 - 有効期限は1年とし、期限が切れる前に更新する（手順は第13章）。
 
 ### 11.4 Cloudflareの事前設定
 
-**(1) DNS**
+**(1) workers.dev のサブドメイン**
 
-- `build.vivagain.jp` のレコードを**プロキシ有効**で作る。Routeを使うにはプロキシ経由のDNSレコードが必要と公式に書かれている。
-- Worker専用のホスト名なので、ダミーのアドレス（`AAAA 100::`）でよい見込み。
-- 既存サイト（vivagain.jpのほかのホスト名）には影響しない。
+- アカウントの workers.dev のサブドメインは `vivastack-dev`（登録済み）。本番のURLは `https://<Worker名>.<サブドメイン>.workers.dev/`（`https://maps.vivastack-dev.workers.dev/`）になる（D35）。
+- 専用のドメインなので、DNS のレコードと Route は作らない。
 
 **(2) wrangler.jsonc**
 
 ```jsonc
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "gotouchi-maps",
+  "name": "maps",
   "compatibility_date": "YYYY-MM-DD",          // 実装時の日付
   "assets": {
     "directory": "./dist",
     "not_found_handling": "404-page"
   },
-  "routes": [
-    { "pattern": "build.vivagain.jp/maps*", "zone_name": "vivagain.jp" }
-  ],
-  "workers_dev": false,                        // 本番を workers.dev で公開しない
+  "workers_dev": true,                         // 本番を workers.dev で公開する（D35）
   "preview_urls": true                         // PRプレビュー（バージョンごとのURL）を有効にする
 }
 ```
 
-- **要検証**：`workers_dev: false` と `preview_urls: true` を同時に設定できるかは、公式ドキュメントに記載がない。実際に試して確認する。
+- 本番を workers.dev で公開する（D35）ので、`workers_dev: true` と `preview_urls: true` の組み合わせになる。以前の要検証（U6：`workers_dev: false` と同時に設定できるか）はなくなった。
 
 **(3) `_redirects`（`dist/` の直下に置く）**
 
 ```
-/maps   /maps/ja/  301
-/maps/  /maps/ja/  301
+/  /ja/  301
 ```
 
 **(4) `_headers`（`dist/` の直下に置く。例）**
 
 ```
-/maps/*
+/*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), camera=(), microphone=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   Content-Security-Policy: （実装時に決める。5.5 を参照）
 
-/maps/geo/*
+/geo/*
   Cache-Control: public, max-age=86400
 
-/maps/_next/static/*
+/_next/static/*
   Cache-Control: public, max-age=31536000, immutable
 ```
 
 **(5) Cloudflare Access（プレビューURLの保護）**
 
-- 公式ドキュメントでは、Accessで「本番の workers.dev URL、プレビューURL、またはその両方を保護できる」とされている。
+- 公式ドキュメントでは、Accessで「本番の workers.dev URL、プレビューURL、またはその両方を保護できる」とされている。本番も workers.dev で一般公開する（D35）ので、**プレビューURLだけ**を保護する（本番の workers.dev URL は保護しない）。
 - 許可するのは、オーナーとレビュアーのメールアドレスだけにする。ログインはメールのワンタイムPINで行う。
 - 設定手順（ダッシュボードのどこで有効にするか）は**要確認**。確定したら本書に追記する。
 - プレビューのページはすべて `noindex` にする。
@@ -1019,7 +1013,7 @@ nvm install            # .nvmrc の版を入れる
 npm install -g corepack   # Node.js 25 以降は同梱されない
 corepack enable
 pnpm install
-pnpm dev              # http://localhost:3000/maps/ja/
+pnpm dev              # http://localhost:3000/ja/
 pnpm test             # Vitest
 pnpm test:e2e         # Playwright
 pnpm build            # 静的出力を作り、dist/ を組み立てる
@@ -1137,7 +1131,7 @@ jobs:
 - `e2e.yml`（手動）は、選んだプロジェクトが使うブラウザだけを `playwright install --with-deps` で入れ、`pnpm test:e2e` を実行する。サーバーは `webServer` の `pnpm build` → `wrangler dev`。E2E は CI では `workers: 1`・`retries: 2` で動く（`playwright.config.ts`）。失敗したときのレポートは Actions の Artifact（`playwright-report`、14日）に残る。
 - 本番用のworkflow（`deploy.yml`）も同じ構成にする。違いは、`on: push`（`main`）、`environment: production`、`pnpm build`（reviewedのみ）、`command: deploy` の4点。
 - フォークからのPRにはSecretsが渡らないため、プレビューへのデプロイは行われない（このリポジトリではフォークからのPRを想定しない）。
-- プレビューURLの形式（`<alias>-<worker名>.<サブドメイン>.workers.dev`）と、出力から取り出す方法は実装時に確認する。
+- プレビューURLの形式（`<alias>-<worker名>.<サブドメイン>.workers.dev`。このアプリでは `pr-N-maps.vivastack-dev.workers.dev` の見込み）と、出力から取り出す方法は実装時に確認する。
 
 ### 12.4 リンク切れチェック（手動実行）
 
@@ -1172,7 +1166,7 @@ jobs:
 | R4 | プレビューURLの公開 | レビュー前のコンテンツが外に出る | Cloudflare Access、`noindex` |
 | R5 | API Tokenの漏えい | 不正にデプロイされる | 最小権限、アプリ専用、Environment Secrets、有効期限、ActionのSHA固定 |
 | R6 | 地図データが重い | スマホで表示が遅い | 県ごとに分けて必要なときに読み込む、形の簡略化、Lighthouse CIの基準値 |
-| R7 | Next.jsの静的出力とbasePathの組み合わせ | パスの不整合で表示されない | ビルド後に `dist/` を組み立てるスクリプトを用意し、E2Eテストで確認する |
+| R7 | Next.jsの静的出力の構成とパス | パスの不整合で表示されない | `basePath` を使わず（D35）、`dist/` を配信する `wrangler dev` に対するE2Eテストで確認する |
 | R8 | 解説文の量（1,692本）が多く、時間がかかる | 公開が遅れる | 1県＝1PRで並行して進める。期限は設けない |
 | R9 | CSPとNext.jsのインラインスクリプトの相性 | ページが動かない、または保護が弱くなる | ビルド後にインラインスクリプトのハッシュを集めてCSPに書き込む（6.6）。CSP違反が出ないことをE2Eで確認する |
 | R10 | 境界が確定していない地域の扱い | 誤解を招く | データが暫定である旨を明記する |
@@ -1204,7 +1198,7 @@ flowchart LR
 | M3 カード・多言語・モード | カード、出典表示、言語切替、モード・ふりがな切替、UI文言 | F-CARD / F-I18N / F-MODE / F-SRC のE2Eが通る |
 | M4 PWA・品質 | PWA、CSPなどのヘッダー、アクセシビリティ対応、表示速度の改善、「このサイトについて」・プライバシーポリシー | axe違反0件、Lighthouseが基準値以内 |
 | M5 コンテンツ | 生成用スキルと検証エージェントの用意、レビュー基準、47県分の作成とレビュー | 全項目が `reviewed` |
-| M6 公開 | 本番デプロイ、Web Analyticsの確認 | `https://build.vivagain.jp/maps/ja/` で公開されている |
+| M6 公開 | 本番デプロイ、Web Analyticsの確認 | `https://maps.vivastack-dev.workers.dev/ja/` で公開されている |
 
 ---
 
@@ -1217,7 +1211,7 @@ flowchart LR
 | U3 | PWAでオフライン時に使える範囲 | 第5章 5.4 の案 | M4 |
 | U4 | ~~スタイルの方式（CSS Modules / Tailwind CSS）~~ | 決定（D26）：Tailwind CSS v4。第6章 6.2 | — |
 | U5 | API Tokenの最小権限 | 第11章 11.3 で要検証 | M0 |
-| U6 | `workers_dev: false` と `preview_urls: true` を同時に設定できるか | 第11章 11.4 で要検証 | M0 |
+| U6 | ~~`workers_dev: false` と `preview_urls: true` を同時に設定できるか~~ | 不要になった（D35）：本番を workers.dev で公開するので `workers_dev: true`。第11章 11.4 (2) | — |
 | U7 | Accessの設定手順、Zero Trust無料プランの条件 | 第11章 11.4 で要確認 | M0 |
 | U8 | ~~basePathを指定したときの静的出力の構成~~ | 決定（D29）：第6章 6.4 | — |
 | U9 | ~~政令指定都市の区がN03に区単位で入っているか~~ | 決定（D31）：第8章 8.2 | — |
@@ -1242,10 +1236,10 @@ flowchart LR
 | D5 | 公開範囲 | 無料で一般公開。収益化しない |
 | D6 | 解説文 | 削減しない（3言語 × 2モード）。できるだけ簡潔にする（第7章 7.3） |
 | D7 | 多言語 | ja / en / zh（簡体字のみ） |
-| D8 | URL | `https://build.vivagain.jp/maps/{ja,en,zh}/`。ブラウザの言語による自動振り分けはしない |
+| D8 | URL | `https://maps.vivastack-dev.workers.dev/{ja,en,zh}/`（D35 で変更）。ブラウザの言語による自動振り分けはしない |
 | D9 | MVPの範囲 | プロトタイプの全機能＋改善点。検索・お気に入り・クイズ・カテゴリ絞り込みはPHASE 2 |
 | D10 | 技術 | Next.js（静的出力）＋TypeScript、地図はSVG＋TopoJSON |
-| D11 | 配信 | Cloudflare Workers（Static Assets）、Route `build.vivagain.jp/maps*` |
+| D11 | 配信 | Cloudflare Workers（Static Assets）、workers.dev（D35 で変更。以前は Route `build.vivagain.jp/maps*`） |
 | D12 | CI/CD | GitHub Actions＋wrangler-action |
 | D13 | 確認体制 | AI生成 → 検証エージェント → チームのレビュアーが全件レビュー・承認 → オーナーがmerge |
 | D14 | 出典 | カードに折りたたみで表示する。出典がなければ「出典なし」と明記する |
@@ -1263,12 +1257,13 @@ flowchart LR
 | D26 | スタイルの方式 | Tailwind CSS v4。設定はCSS（`@theme`、`@custom-variant`）に書き、色はCSS変数だけを使う（6.2） |
 | D27 | フォント | Webフォントは使わず、システムフォントを言語ごとに指定する（6.2） |
 | D28 | UI文言の多言語化 | ライブラリは使わず、型付きの自前の辞書にする。日本語の文言にもふりがなの記法を使う（6.2） |
-| D29 | 配信するファイルの組み立て | `out/` の構成にかかわらず、`scripts/postbuild.ts` で `dist/maps/` に組み立てる。`_redirects`・`_headers` は `dist/` の直下（6.4） |
+| D29 | 配信するファイルの組み立て | `scripts/postbuild.ts` で `out/` から `dist/` を組み立てる。D35 からは `out/` の構成のままコピーする（以前は `dist/maps/` に移していた）。`_redirects`・`_headers` は `dist/` の直下（6.4） |
 | D30 | 開発中の E2E の実行 | CI では PR ごとに実行せず、`e2e.yml` を手動で実行する。Actions の分数を抑えるため。本番リリース後は U15 で決める（12.1） |
 | D31 | 政令指定都市の区の形 | N03 の区ごとの形をそのまま使う。N03 には20市すべての区（合計171）が区ごとの形とコードで入っていて、市全体の形はない（8.2） |
 | D32 | 読みがなと県庁の位置の出典 | 読みがなは総務省の「都道府県コード及び市区町村コード」、県庁の位置は地理院地図で調べた値。どちらも公共データ利用規約（第1.0版）で、出典を書いて使う。国土地理院は県庁の位置の一覧を公表していない（8.1） |
 | D33 | 市区町村名の読みがなとローマ字 | 総務省のカナから機械的に作る。ローマ字はヘボン式で、長音を書かず（`Tokyo`）、ん はいつも `n`（`Kanonji`）。市・区・町・村はハイフンで分ける（`Sapporo-shi`）。区は `Chuo-ku, Sapporo-shi`。機械的に作ると間違うものは、団体コードで引く修正表で直す（7.4.1） |
 | D34 | 地図データの変換 | mapshaper で、簡略化は市区町村100m・都道府県1km（距離で指定）。所属未定地は市区町村のファイルに入れず、県の形に含める。名前は N03、読みは総務省のカナ（コードで照合）。修正表は「直す前」の値を持つ（8.2、`geo/README.md`） |
+| D35 | 配信先のドメイン | workers.dev の専用のドメイン `https://maps.vivastack-dev.workers.dev/` で公開する（Worker名 `maps`）。ドメインのルートをこのアプリだけで使うので、`basePath`（`/maps`）をやめ、URLは `/{ja,en,zh}/`、`/` は `/ja/` へ 301。DNS・Route は使わない。Web Analytics は JSスニペットを埋め込む（6.4、11.1、11.4） |
 
 ## 付録B. 参考資料
 
@@ -1276,14 +1271,13 @@ flowchart LR
 - [国土数値情報ダウンロードサイト コンテンツ利用規約](https://nlftp.mlit.go.jp/ksj/other/agreement_01.html)
 - [Cloudflare Workers – Migrate from Pages to Workers](https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/)
 - [Cloudflare Workers – GitHub Actions](https://developers.cloudflare.com/workers/ci-cd/external-cicd/github-actions/)
-- [Cloudflare Workers – Routes](https://developers.cloudflare.com/workers/configuration/routing/routes/)
 - [Cloudflare Workers – workers.dev](https://developers.cloudflare.com/workers/configuration/routing/workers-dev/)
 - [Cloudflare Workers – Version URLs](https://developers.cloudflare.com/workers/versions-and-deployments/version-urls/)
 - [Cloudflare Workers – Wrangler configuration](https://developers.cloudflare.com/workers/wrangler/configuration/)
 - [Cloudflare Workers – Static Assets: Redirects](https://developers.cloudflare.com/workers/static-assets/redirects/)
 - [Cloudflare Workers – Static Assets: Headers](https://developers.cloudflare.com/workers/static-assets/headers/)
+- [Cloudflare Web Analytics – Get started](https://developers.cloudflare.com/web-analytics/get-started/)
 - [Cloudflare Workers – Limits](https://developers.cloudflare.com/workers/platform/limits/)
 - [Cloudflare – API token permissions](https://developers.cloudflare.com/fundamentals/api/reference/permissions/)
 - [Cloudflare – Find account and zone IDs](https://developers.cloudflare.com/fundamentals/account/find-account-and-zone-ids/)
 - [Next.js – Static Exports](https://nextjs.org/docs/app/guides/static-exports)
-- [Next.js – basePath](https://nextjs.org/docs/app/api-reference/config/next-config-js/basePath)

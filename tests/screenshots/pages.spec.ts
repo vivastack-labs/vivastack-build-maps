@@ -12,7 +12,7 @@ type Scene = {
   readonly prepare?: (page: Page) => Promise<void>;
 };
 
-const SCENES: readonly Scene[] = LANGS.map(lang => ({ name: `${lang}-top`, path: `/maps/${lang}/` }));
+const SCENES: readonly Scene[] = LANGS.map(lang => ({ name: `${lang}-top`, path: `/${lang}/` }));
 
 const OUT_DIR = process.env.SCREENSHOT_OUT ?? '';
 

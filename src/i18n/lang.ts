@@ -1,4 +1,4 @@
-/** F-I18N-01・D7：対応する言語（URL の /maps/{lang}/ の部分） */
+/** F-I18N-01・D7：対応する言語（URL の /{lang}/ の部分） */
 export const LANGS = ['ja', 'en', 'zh'] as const;
 
 /** 対応する言語のコード */
