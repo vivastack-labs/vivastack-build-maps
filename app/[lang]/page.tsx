@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { CardArea } from '@/components/CardArea';
 import { IndexArea } from '@/components/IndexArea';
 import { MapArea } from '@/components/MapArea';
+import { MapStateProvider } from '@/components/MapStateProvider';
 import { isLang } from '@/i18n/lang';
 import { loadContent } from '@/lib/content';
 
@@ -17,14 +18,17 @@ export default async function Page({ params }: Props) {
   const prefectures = loadContent();
 
   return (
+    // T2-05：地図とカードが同じ状態を見る。MapStateProvider は DOM の要素を出さないので、grid の子は変わらない
     <main className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-3">
-      <div className="min-w-0 lg:col-span-2">
-        <MapArea lang={lang} prefectures={prefectures} />
-      </div>
-      <CardArea lang={lang} />
-      <div className="min-w-0 lg:col-span-2">
-        <IndexArea lang={lang} />
-      </div>
+      <MapStateProvider>
+        <div className="min-w-0 lg:col-span-2">
+          <MapArea lang={lang} prefectures={prefectures} />
+        </div>
+        <CardArea lang={lang} prefectures={prefectures} />
+        <div className="min-w-0 lg:col-span-2">
+          <IndexArea lang={lang} />
+        </div>
+      </MapStateProvider>
     </main>
   );
 }

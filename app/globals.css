@@ -34,6 +34,8 @@
   --color-map-sea-label: #0f172a;
   --color-map-border: #64748b;
   --color-map-frame: #64748b;
+  /* T2-05：固定中・最大化中の県の塗り。8地方の寒色〜中間色と見分けがつく暖色（色の値は仮。T4 で見直す） */
+  --color-map-selected: #fbbf24;
   --color-page-bg: #ffffff;
   --color-page-text: #0f172a;
 
@@ -57,6 +59,7 @@
     --color-map-sea-label: #f8fafc;
     --color-map-border: #94a3b8;
     --color-map-frame: #94a3b8;
+    --color-map-selected: #d97706;
     --color-page-bg: #0f172a;
     --color-page-text: #f8fafc;
   }
