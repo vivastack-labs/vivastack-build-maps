@@ -8,9 +8,9 @@ const CASES = [
 ] as const;
 
 for (const { lang, htmlLang } of CASES) {
-  test(`F-I18N-01・D27：/maps/${lang}/ が表示され、<html lang> が ${htmlLang} である`, async ({ page }) => {
+  test(`F-I18N-01・D27：/${lang}/ が表示され、<html lang> が ${htmlLang} である`, async ({ page }) => {
     // Act
-    const response = await page.goto(`/maps/${lang}/`);
+    const response = await page.goto(`/${lang}/`);
 
     // Assert
     expect(response?.status()).toBe(200);

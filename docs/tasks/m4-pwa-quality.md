@@ -45,8 +45,8 @@
 ### 実装内容
 
 - オフラインで使える範囲（開発計画 5章 U3 の推奨案）と、Service Worker のツール（U13 の推奨案）を決める。結果を開発概要書 5.4 と第16章に書く。
-- Web App Manifest：言語ごとに用意し（`start_url` は `/maps/{lang}/`、名前はその言語）、HTMLからリンクする。アイコンを用意する。
-- Service Worker（`dist/maps/sw.js`）：
+- Web App Manifest：言語ごとに用意し（`start_url` は `/{lang}/`、名前はその言語）、HTMLからリンクする。アイコンを用意する。
+- Service Worker（`dist/sw.js`）：
   - アプリの枠組み（HTML・JavaScript・CSS）を、インストールのときにキャッシュする。
   - 市区町村データは、一度読み込んだ県だけキャッシュする。
 - Service Worker を登録するスクリプトは外部ファイルにする（CSP のハッシュを増やさないため）。
@@ -99,7 +99,7 @@
 
 ### 実装内容
 
-- `lighthouserc`：`/maps/ja/`・`/maps/en/`・`/maps/zh/` をスマホの設定で測る。基準：Performance 90以上、LCP 2.5秒以下、CLS 0.1以下。
+- `lighthouserc`：`/ja/`・`/en/`・`/zh/` をスマホの設定で測る。基準：Performance 90以上、LCP 2.5秒以下、CLS 0.1以下。
 - INP は Lighthouse（実験室の計測）では測れないので、代わりに TBT を基準にする（値は着手時に決め、開発概要書 5.1 に書く）。
 - 最初に読み込むサイズ（300KB以下）は、T3-08 の `scripts/measure-size.ts` で確かめる。
 - `ci.yml`・`deploy.yml` に `pnpm lhci` を加える。

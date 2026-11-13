@@ -13,10 +13,10 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 
 導入済み：Next.js・TypeScript・Tailwind CSS・ESLint（eslint-plugin-jsdoc を含む）・Prettier・Vitest・Testing Library・Playwright・wrangler・GitHub Actions（PRのチェック）・Dependabot・d3-geo・mapshaper・topojson-client（テストだけ）・yaml・ajv・json-schema-to-typescript。それ以外はまだ入っていない（予定）。
 
-- Next.js（App Router、`output: 'export'`、`basePath: '/maps'`）＋ TypeScript（strict）
+- Next.js（App Router、`output: 'export'`。`basePath` は付けない）＋ TypeScript（strict）
 - 地図：SVG ＋ d3-geo ＋ topojson-client（国土数値情報 N03 2026年版から作る TopoJSON）
 - テスト：Vitest、Testing Library、Playwright、axe-core、Lighthouse CI
-- 配信：Cloudflare Workers（Static Assets）。CI/CD は GitHub Actions ＋ wrangler-action
+- 配信：Cloudflare Workers（Static Assets）。本番は workers.dev の専用のドメイン `https://maps.vivastack-dev.workers.dev/`（Worker名 `maps`。D35）。CI/CD は GitHub Actions ＋ wrangler-action
 - パッケージ管理：**pnpm**（npm / yarn は使わない）
 - Next.js は 16 系で、学習データより新しい変更がある。Next.js のコードを書く前に、インストールされた版に同梱のドキュメント（`node_modules/next/dist/docs/`）の該当する章を読み、非推奨の警告に従う。
 
@@ -29,13 +29,13 @@ nvm use
 corepack enable
 pnpm install
 git config --add remote.origin.fetch '^refs/heads/screenshots'   # 初回だけ。PRの画像のブランチを、ふだんの fetch・pull で取らない
-pnpm dev          # http://localhost:3000/maps/ja/（3000番が使用中なら別の番号で起動する）
+pnpm dev          # http://localhost:3000/ja/（3000番が使用中なら別の番号で起動する）
 pnpm lint         # ESLint・Prettier・markdownlint・yamllint
 pnpm typecheck    # tsc --noEmit
 pnpm test         # Vitest（カバレッジの基準を下回ると失敗する）
 pnpm test:e2e     # Playwright（PC・スマホ・タブレットの7プロジェクト）
-pnpm build        # next build で out/ を作り、scripts/postbuild.ts で dist/ に組み立てる
-pnpm exec wrangler dev   # dist/ を本番の Workers と同じ形で配信する（http://localhost:8787/maps/ja/。先に pnpm build）
+pnpm build        # next build で out/ を作り、scripts/postbuild.ts で dist/ にコピーする
+pnpm exec wrangler dev   # dist/ を本番の Workers と同じ形で配信する（http://localhost:8787/ja/。先に pnpm build）
 pnpm content:validate   # コンテンツの YAML を検証する（誤りで終了コード1。CONTENT_DIR で読むディレクトリを変える）
 pnpm content:types      # スキーマから型（src/lib/content-schema.generated.ts）を作り直す（スキーマを変えたら実行してコミット）
 pnpm geo:build    # 地図データを作り直す（年1回、手で実行。原データの取得は geo/README.md。毎回のビルドでは動かさない）
@@ -88,7 +88,7 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
 - カバレッジの対象は `src/`・`scripts/`・`geo/scripts/`。`app/` は E2E（`tests/e2e/`）で確かめる。async の Server Component（ページ・レイアウト）は Vitest で描画できないので、E2E で確かめる。ドメインロジック（`src/lib/`・`src/features/`・`geo/scripts/lib/`）は 90% 以上を `vitest.config.ts` で強制している。
 - 地図データ（7.4、D34）：N03 から `pnpm geo:build` で2種類の TopoJSON を作り、コミットする。どちらも経緯度のままで、投影と沖縄の別枠への移動は描くときに `src/features/map/projection.ts` だけで行う（設定は定数。都道府県と市区町村で同じ投影にして境界を合わせるため）。
   - `geo/data/prefs.topo.json`（`prefectures`）：ビルド時に SVG のパスにして HTML に埋め込む。配信しない。
-  - `public/geo/muni/NN.topo.json`（`municipalities`）：県を最大化したときに `/maps/geo/muni/` から読み込む。市区町村は `code` で引く（名前・読みが同じ市区町村がある）。
+  - `public/geo/muni/NN.topo.json`（`municipalities`）：県を最大化したときに `/geo/muni/` から読み込む。市区町村は `code` で引く（名前・読みが同じ市区町村がある）。
   - 変換は総務省のコード表と照合し、修正表の `before` が合わない・大きさが基準を超えるなどで止まる。コミットした出力は `tests/data/geo.test.ts` が CI で検査する。
 - ふりがなの記法 `{漢字|よみ}`（7.2）：`src/lib/ruby.ts` の `parseRuby`（誤りがあれば例外）・`checkRuby`（誤りと警告の一覧）・`plainText`（読みを除く）と、`<ruby>` を描く `src/components/RubyText.tsx`。`dangerouslySetInnerHTML` は使わない。
 - コンテンツ（7.1）：ビルドでは `src/lib/content.ts` の `loadContent()`（誤りがあれば例外。県を `code` の順に返す）を使い、検証は `validateContent()`（誤り・警告をすべて返す）。どちらも `CONTENT_DIR`（既定は `content/prefectures/`）を読む。`scripts/` から Node.js で直接読み込むので、`src/lib/` の相対の import には `.ts` を付ける。本番の `reviewed` だけの絞り込みは T3-02。

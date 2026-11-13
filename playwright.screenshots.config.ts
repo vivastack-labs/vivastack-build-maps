@@ -22,7 +22,7 @@ export default defineConfig({
   ],
   webServer: {
     command: `pnpm build && pnpm exec wrangler dev --port ${PORT}`,
-    url: `${BASE_URL}/maps/ja/`,
+    url: `${BASE_URL}/ja/`,
     reuseExistingServer: false,
     env: { WRANGLER_SEND_METRICS: 'false' },
     timeout: 180_000

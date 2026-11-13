@@ -143,10 +143,9 @@
 ### 実装内容
 
 - Cloudflare：
-  - DNS：`build.vivagain.jp` のレコードをプロキシ有効で作る（11.4 (1)）。
-  - workers.dev のサブドメインを登録する。
+  - workers.dev のサブドメイン `vivastack-dev` は登録済み（11.4 (1)。D35。DNS のレコードと Route は作らない）。
   - API Token：11.3 の権限から始め、T0-06 のデプロイが通る最小の組み合わせに絞る（開発計画 5章 U5 の推奨案）。有効期限は1年。
-  - Zero Trust を有効にし、Access でプレビューURLを保護する。許可するのはオーナーとレビュアーのメールアドレスだけ（11.4 (5)）。
+  - Zero Trust を有効にし、Access でプレビューURLを保護する（本番の workers.dev URL は一般公開なので保護しない。D35）。許可するのはオーナーとレビュアーのメールアドレスだけ（11.4 (5)）。
 - GitHub：
   - Environments（`preview` / `production`）と Secrets（11.2）。
   - ブランチ保護（11.5）。
@@ -173,7 +172,7 @@
 - **種別**：ci
 - **依存関係**：T0-04、T0-05
 - **目的**：PRごとにプレビューURLで確認でき、`main` に merge したら本番に自動で出るようにする。
-- **参照仕様**：6.1、12.1〜12.3、11.4 (2)・(5)、U6、R4
+- **参照仕様**：6.1、12.1〜12.3、11.4 (2)・(5)、D35、R4
 
 ### 実装内容
 
@@ -182,14 +181,12 @@
 - `ci.yml` に `preview` job を加える（`needs: check`。文書だけのPRでは `check` が build を飛ばすので、`check` の `docs_only` を job の出力にして、プレビューも飛ばす）：`wrangler versions upload --preview-alias pr-N`、PRにプレビューURLをコメントする（同じPRでは1つのコメントを更新する）。
 - `.github/workflows/deploy.yml`：`main` への push で `wrangler deploy`（`environment: production`）。
 - `pnpm build:preview`：この時点では `pnpm build` と同じ内容に、`noindex`（`<meta name="robots" content="noindex">`）を加えたもの。コンテンツの絞り込みは T3-02 で加える。
-- `workers_dev: false` と `preview_urls: true` を同時に設定できるか確かめる（開発計画 5章 U6 の推奨案）。結果を開発概要書（11.4 (2)、第16章の U6）に書く。
 - プレビューURLの形式と、wrangler の出力から取り出す方法を開発概要書 12.3 に書く。
 
 ### 完了条件
 
 - このタスクのPRのプレビューURLで、Access の認証の後に3言語の空のページが表示される。
-- merge 後、`https://build.vivagain.jp/maps/ja/` に空のページが表示され、`/maps` が `/maps/ja/` にリダイレクトされる（M0 の完了条件）。
-- 開発概要書の U6 が決定になっている。
+- merge 後、`https://maps.vivastack-dev.workers.dev/ja/` に空のページが表示され、`/` が `/ja/` にリダイレクトされる（M0 の完了条件）。Access の認証なしで開ける。
 
 ### テスト条件
 

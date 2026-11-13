@@ -2,7 +2,7 @@
 
 項目の意味と進め方は [development-plan.md](../development-plan.md) の第1章、進み具合は第3章にある。参照仕様の章番号は [開発概要書](../development-overview.md) のもの。
 
-マイルストーンの完了条件：`https://build.vivagain.jp/maps/ja/` で公開されている。
+マイルストーンの完了条件：`https://maps.vivastack-dev.workers.dev/ja/` で公開されている。
 
 ---
 
@@ -37,19 +37,19 @@
 
 ### 実装内容
 
-- Cloudflare Web Analytics に `build.vivagain.jp` を登録する（11.1）。
+- Cloudflare Web Analytics に `maps.vivastack-dev.workers.dev` を登録する（11.1）。workers.dev では自動設定が使えない見込みなので、ダッシュボードで確かめ、使えなければ計測用のJSスニペット（トークン入り）をHTMLに埋め込む（D35。CSP は T4-01 で Web Analytics のドメインを許可済み）。結果を開発概要書 11.1 に書く。
 - `CHANGELOG.md` に v1.0.0 を書き、`main` に merge して本番にデプロイする。
 - 本番のURLに対する確認用の E2E（読むだけの操作）を用意し、デプロイの後に実行する。
 
 ### 完了条件
 
-- `https://build.vivagain.jp/maps/ja/` で公開されている（M6 の完了条件）。
+- `https://maps.vivastack-dev.workers.dev/ja/` で公開されている（M6 の完了条件）。
 - Web Analytics で計測できている。
 
 ### テスト条件
 
 - E2E（本番のURL）：
   - 3言語のページが表示される。
-  - `/maps` が `/maps/ja/` にリダイレクトされる（F-I18N-02）。
+  - `/` が `/ja/` にリダイレクトされる（F-I18N-02）。
   - CSP などのヘッダーが付いている（5.5）。
   - 「準備中」の県がない（全項目が `reviewed`。4.11.4）。
