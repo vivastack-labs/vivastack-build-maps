@@ -1,7 +1,7 @@
 import type { Messages } from './messages.ts';
 
 /** 英語の辞書。ふりがなの記法は使わない（7.2） */
-export const en = {
+export const en: Messages = {
   siteName: 'Japan Local Specialties Map',
   map: {
     label: 'Map of Japan'
@@ -11,7 +11,7 @@ export const en = {
     inLabel: 'Zoom in',
     out: '−',
     outLabel: 'Zoom out',
-    reset: 'Reset'
+    reset: 'Show all'
   },
   regions: {
     hokkaido: 'Hokkaido',
@@ -63,6 +63,6 @@ export const en = {
   },
   notFound: {
     title: 'Page not found',
-    backToTop: 'Go to top page'
+    backToTop: 'Back to home page'
   }
 } satisfies Messages;

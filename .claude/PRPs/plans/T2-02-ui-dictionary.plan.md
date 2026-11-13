@@ -65,12 +65,12 @@ E2E（`tests/e2e/lang.spec.ts`。手動で実行）：
 |---|---|---|---|
 | `siteName` | ご{当地\|とうち}めいぶつ{日本地図\|にほんちず} | Japan Local Specialties Map | 日本各地名产地图 |
 | `map.label`（`aria-label`） | {日本地図\|にほんちず} | Map of Japan | 日本地图 |
-| `zoom.in` / `zoom.inLabel` | ＋ / {拡大\|かくだい} | + / Zoom in | ＋ / 放大 |
+| `zoom.in` / `zoom.inLabel` | + / {拡大\|かくだい} | + / Zoom in | + / 放大 |
 | `zoom.out` / `zoom.outLabel` | − / {縮小\|しゅくしょう} | − / Zoom out | − / 缩小 |
-| `zoom.reset` | {全体\|ぜんたい} | Reset | 全图 |
+| `zoom.reset` | {全体\|ぜんたい} | Show all | 全图 |
 | `regions.*` | {北海道\|ほっかいどう}{地方\|ちほう} 〜 {九州\|きゅうしゅう}{地方\|ちほう}（8つ） | Hokkaido, Tohoku, Kanto, Chubu, Kinki, Chugoku, Shikoku, Kyushu | 北海道地方 〜 九州地方 |
 | `seas.japanSea` / `seas.pacific` | {日本海\|にほんかい} / {太平洋\|たいへいよう} | Sea of Japan / Pacific Ocean | 日本海 / 太平洋 |
-| `card.guide`（こ／お） | {県\|けん}にマウスをのせるか、タップしてね ／ {県\|けん}にマウスをのせるか、タップしてください | Hover over or tap a prefecture! ／ Hover over or tap a prefecture. | 把鼠标移到都道府县上，或点一下吧 ／ 请将鼠标移到都道府县上，或点击该地区 |
+| `card.guide`（こ／お） | {県\|けん}にマウスをのせるか、タップしてね ／ {県\|けん}にマウスをのせるか、タップしてください | Hover over or tap a prefecture! ／ Hover over or tap a prefecture. | 把鼠标移到都道府县上，或点一下吧 ／ 请将鼠标移到都道府县上，或点击选择 |
 | `card.maximize` / `card.restore` | {大\|おお}きくして{市区町村\|しくちょうそん}を{見\|み}る / {元\|もと}の{大\|おお}きさにもどす | Enlarge to see municipalities / Back to original size | 放大查看市区町村 / 恢复原来大小 |
 | `comingSoon.label` | {準備中\|じゅんびちゅう} | Coming soon | 准备中 |
 | `comingSoon.card`（こ／お） | {名物\|めいぶつ}・{名所\|めいしょ}は{準備中\|じゅんびちゅう}だよ ／ …{準備中\|じゅんびちゅう}です | Specialties and sights are coming soon! ／ …coming soon. | 名产和名胜正在准备中哦 ／ 名产和名胜正在准备中 |
@@ -78,9 +78,9 @@ E2E（`tests/e2e/lang.spec.ts`。手動で実行）：
 | `muni.loadFailed`（こ／お） | {市区町村\|しくちょうそん}を{読\|よ}み{込\|こ}めなかったよ ／ {市区町村\|しくちょうそん}を{読\|よ}み{込\|こ}めませんでした | Couldn't load the municipalities. ／ Failed to load municipalities. | 没能加载市区町村 ／ 市区町村加载失败 |
 | `muni.offline`（こ／お） | インターネットにつながっていないので、{表示\|ひょうじ}できないよ ／ オフラインのため{表示\|ひょうじ}できません | You're offline, so this can't be shown. ／ Unavailable while offline. | 没有联网，所以无法显示 ／ 离线状态下无法显示 |
 | `muni.retry`（こ／お） | もう{一度\|いちど} ／ {再試行\|さいしこう} | Try again ／ Retry | 再试一次 ／ 重试 |
-| `muni.listSummary` | {市区町村\|しくちょうそん}の{一覧\|いちらん} | List of municipalities | 市区町村一览 |
+| `muni.listSummary` | {市区町村\|しくちょうそん}の{一覧\|いちらん} | List of municipalities | 市区町村列表 |
 | `index.heading` | {県名\|けんめい}さくいん | Prefecture index | 都道府县索引 |
-| `notFound.title` / `notFound.backToTop` | ページが{見\|み}つかりません / トップページへ | Page not found / Go to top page | 找不到页面 / 返回首页 |
+| `notFound.title` / `notFound.backToTop` | ページが{見\|み}つかりません / トップページへ | Page not found / Back to home page | 找不到页面 / 返回首页 |
 
 - 属性に入れる文言（`aria-label` など）は CSS で切り替えられないので、`{ kids, adult }` にしない。
 - en・zh の `{ kids, adult }` は、同じ文でもよい（両方があることだけを確かめる）。
@@ -116,3 +116,5 @@ E2E（`tests/e2e/lang.spec.ts`。手動で実行）：
 
 - 文言の表の `|`：ふりがなの記法の `|` が Markdown の表の列の区切りと読まれ、markdownlint（MD056）が落ちたので、表の中だけ `\|` にエスケープした（内容は変えていない）。
 - `Messages` の型：`ja.ts` の `typeof ja` を `messages.ts` の `DeepReadonly` で読み取り専用にした。`ModeTextValue` は `messages.ts` に置いた。
+- 文言の訳（レビューの指摘）：en `zoom.reset` を `Show all`、en `notFound.backToTop` を `Back to home page`、zh `card.guide.adult` を `请将鼠标移到都道府县上，或点击选择`、zh `muni.listSummary` を `市区町村列表` に直した。「＋」は U+2212 の「−」と対になる半角の `+`（U+002B）に3言語ともそろえた。
+- 型：`ja.ts` に `jaSource` を置き、`Messages`（`DeepReadonly<typeof jaSource>`）と `ModeTextValue` も `ja.ts` に置いて、`messages.ts` から再 export する。`ja`・`en`・`zh` は `Messages` 型で書き出す（書き換えを型で防ぐ）。`DeepReadonly` は関数をそのまま通す。ja の `{ kids, adult }` と地方名には `satisfies` を付けた。

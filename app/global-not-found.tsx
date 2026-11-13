@@ -10,10 +10,10 @@ import './globals.css';
 // global-not-found で404のページ全体を出す。言語が分からないので、/ のリダイレクト先（F-I18N-02）と同じ ja にする。
 // 文言は UI 文言の辞書（T2-02、D28）から取る。<title> は読みを除く
 const NOT_FOUND_LANG: Lang = 'ja';
-const messages = getMessages(NOT_FOUND_LANG);
+const MESSAGES = getMessages(NOT_FOUND_LANG);
 
 export const metadata: Metadata = {
-  title: plainText(messages.notFound.title)
+  title: plainText(MESSAGES.notFound.title)
 };
 
 export default function GlobalNotFound() {
@@ -22,11 +22,11 @@ export default function GlobalNotFound() {
       <body>
         <main>
           <h1>
-            <RubyText text={messages.notFound.title} />
+            <RubyText text={MESSAGES.notFound.title} />
           </h1>
           <p>
             <Link href={`/${NOT_FOUND_LANG}/`}>
-              <RubyText text={messages.notFound.backToTop} />
+              <RubyText text={MESSAGES.notFound.backToTop} />
             </Link>
           </p>
         </main>

@@ -1,13 +1,13 @@
 import type { Messages } from './messages.ts';
 
 /** 中国語（簡体字）の辞書。ふりがなの記法は使わない（7.2） */
-export const zh = {
+export const zh: Messages = {
   siteName: '日本各地名产地图',
   map: {
     label: '日本地图'
   },
   zoom: {
-    in: '＋',
+    in: '+',
     inLabel: '放大',
     out: '−',
     outLabel: '缩小',
@@ -30,7 +30,7 @@ export const zh = {
   card: {
     guide: {
       kids: '把鼠标移到都道府县上，或点一下吧',
-      adult: '请将鼠标移到都道府县上，或点击该地区'
+      adult: '请将鼠标移到都道府县上，或点击选择'
     },
     maximize: '放大查看市区町村',
     restore: '恢复原来大小'
@@ -56,7 +56,7 @@ export const zh = {
       kids: '再试一次',
       adult: '重试'
     },
-    listSummary: '市区町村一览'
+    listSummary: '市区町村列表'
   },
   index: {
     heading: '都道府县索引'
