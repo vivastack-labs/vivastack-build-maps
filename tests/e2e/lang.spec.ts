@@ -18,3 +18,27 @@ for (const { lang, htmlLang } of CASES) {
     await expect(page.locator('html')).toHaveAttribute('lang', htmlLang);
   });
 }
+
+// 6.2 D27：システムフォントを言語ごとに指定する。Tailwind の @theme は使われない変数を出力から省くことがあり、
+// :lang() の上書きが消えても単体テストでは気付けないので、計算後の font-family で確かめる
+const FONT_CASES = [
+  { lang: 'ja', first: 'Hiragino Sans' },
+  { lang: 'en', first: 'system-ui' },
+  { lang: 'zh', first: 'PingFang SC' }
+] as const;
+
+// 計算後の font-family の引用符の付け方はブラウザで違う（chromium は "Hiragino Sans"、Firefox・WebKit は付けないことがある）ので、外して比べる
+const firstFamily = (fontFamily: string): string => (fontFamily.split(',')[0] ?? '').trim().replace(/^["']|["']$/g, '');
+
+for (const { lang, first } of FONT_CASES) {
+  test(`D27：/${lang}/ の本文のフォントの並びが、その言語のものである（先頭は ${first}）`, async ({ page }) => {
+    // Arrange
+    await page.goto(`/${lang}/`);
+
+    // Act
+    const fontFamily = await page.evaluate(() => getComputedStyle(document.body).fontFamily);
+
+    // Assert
+    expect(firstFamily(fontFamily)).toBe(first);
+  });
+}

@@ -91,6 +91,7 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
   - `public/geo/muni/NN.topo.json`（`municipalities`）：県を最大化したときに `/geo/muni/` から読み込む。市区町村は `code` で引く（名前・読みが同じ市区町村がある）。
   - 変換は総務省のコード表と照合し、修正表の `before` が合わない・大きさが基準を超えるなどで止まる。コミットした出力は `tests/data/geo.test.ts` が CI で検査する。
 - ふりがなの記法 `{漢字|よみ}`（7.2）：`src/lib/ruby.ts` の `parseRuby`（誤りがあれば例外）・`checkRuby`（誤りと警告の一覧）・`plainText`（読みを除く）と、`<ruby>` を描く `src/components/RubyText.tsx`。`dangerouslySetInnerHTML` は使わない。
+- UI文言の辞書（6.2 D28）：`src/i18n/ja.ts`（基準）・`en.ts`・`zh.ts`。`getMessages(lang)`（`src/i18n/messages.ts`）で引く。文言を足すときは `ja.ts` に書くと、`en.ts`・`zh.ts`（`satisfies Messages`）はキーが足りなければ typecheck で落ちる。日本語はふりがなの記法つきで書き、`RubyText` で描く（`aria-label` など属性は `plainText()` で読みを除く）。こども向け・おとな向けで言い方を変える文は `{ kids, adult }` にして、`ModeText` で両方を出す（表示の切替は T3-05 の CSS）。数は `formatNumber(lang, value)`。フォントは `app/globals.css` の `--font-sans` を `:root:lang()` で言語ごとに切り替える（D27）。
 - コンテンツ（7.1）：ビルドでは `src/lib/content.ts` の `loadContent()`（誤りがあれば例外。県を `code` の順に返す）を使い、検証は `validateContent()`（誤り・警告をすべて返す）。どちらも `CONTENT_DIR`（既定は `content/prefectures/`）を読む。`scripts/` から Node.js で直接読み込むので、`src/lib/` の相対の import には `.ts` を付ける。本番の `reviewed` だけの絞り込みは T3-02。
 - `next.config.ts` の `agentRules: false` は消さない。消すと `next dev` が `AGENTS.md` に英語の指示を書き込む。
 

@@ -12,7 +12,11 @@ type Scene = {
   readonly prepare?: (page: Page) => Promise<void>;
 };
 
-const SCENES: readonly Scene[] = LANGS.map(lang => ({ name: `${lang}-top`, path: `/${lang}/` }));
+const SCENES: readonly Scene[] = [
+  ...LANGS.map(lang => ({ name: `${lang}-top`, path: `/${lang}/` })),
+  // 存在しないパスの404（app/global-not-found.tsx）。404のステータスでも、page.goto は例外にならずに撮れる
+  { name: 'ja-not-found', path: '/ja/no-such-page/' }
+];
 
 const OUT_DIR = process.env.SCREENSHOT_OUT ?? '';
 
