@@ -187,6 +187,7 @@ T2-01・T2-02 は M1 と並行して進められる。
 - 「＋」「−」「全体」のボタン（辞書の文言、`aria-label`）。
 - 最大化したら県に寄り、解除したら全体表示に戻す。東京都に寄るときは、小笠原村まで範囲に入れると本土が小さくなる（T1-03）ので、範囲は父島（北緯28度より南）を除いた形の外接矩形にして、本土と伊豆諸島に寄る（U16、D36）。東京都のパスには父島が残っている（枠の下端に小さく見える）ので、範囲はパスの外接矩形ではなく、緯度で除いて求める。移動できる範囲の制限は、T2-08 が小笠原村を実際の位置に描くので、東京都では小笠原村まで動ける広さにする。
 - `prefers-reduced-motion` のときは、動きの時間を0にする（F-ZOOM-05）。
+- T2-05 で結線した状態を使う：最大化の状態（`maximized`）は `useMapState()`（`MapStateProvider` の Context）から読む。`MapInteraction` が地図の `<svg>` を包む `<div>` でクリックを受けているので、d3-zoom のドラッグの後に `click` が県に届いて固定が変わらないか確かめ、変わるなら d3-zoom の `clickDistance` などで区別する。E2E は `[data-map-ready]` を待ってから操作する。
 
 ### 完了条件
 
@@ -319,6 +320,7 @@ T2-01・T2-02 は M1 と並行して進められる。
 
 - `src/components/PrefIndex.tsx`：8地方ごとに県名を並べる。サーバーで出力する。T2-03 の `IndexArea`（見出し `index.heading` だけ）の中に入れる。
 - 各県名は `<a href="#pref-NN">` として出力する（JavaScriptがないときはリンクとして動く。6.6 (2)）。JavaScriptがあるときは、地図と同じ操作（ホバー・クリック・ダブルクリック）を `mapReducer` に渡す。固定中の県は `aria-pressed` などで分かるようにする。
+- T2-05 の部品を使う：状態は `useMapState()` の `dispatch` に渡す。DOM のイベントから `MapEvent` への変換は `src/features/map/pointer.ts` の `toMapEvent`・`prefFromTarget`（項目に `data-pref` を付ける）、属性の書き換えは `src/features/map/mapDom.ts` の `applyPrefState`（`aria-pressed`・`data-state`）を使う。さくいんの項目はサーバーで `aria-pressed="false"` を付けて出力する。E2E は `tests/e2e/interaction.spec.ts` の `PrefLocator`（県の要素を引く関数）にさくいんの項目を引く関数を足し、末尾の呼び出しの配列に1行足す。
 
 ### 完了条件
 
@@ -346,6 +348,7 @@ T2-01・T2-02 は M1 と並行して進められる。
 - 地図全体をTabの停止位置1つにする（roving tabindex）。地図に入ったときは、固定中の県に、なければ北海道にフォーカスする。
 - ←↑ で前の県、→↓ で次の県（県コード順）、Home で北海道、End で沖縄県。
 - フォーカス＝ホバー、Enter・Space＝クリック、Shift + Enter＝ダブルクリックとして `mapReducer` に渡す。
+  - T2-05 の `useMapState()` の `dispatch` に `MapEvent`（`hover`・`click`・`doubleClick`）を渡す。キーボードの操作は DOM の `click` を経由せず、`dispatch` に直接渡す（`MapInteraction` の `click` は直前の `pointerdown` の種類を前提にしているため）。E2E は `[data-map-ready]` を待ってからキーを押す。
 - 地図にフォーカスがあるとき、`+` `-` `0` で拡大・縮小・全体表示、Esc で解除。
 - フォーカス中の県に、見える枠を付ける（`focus-visible`）。
 
