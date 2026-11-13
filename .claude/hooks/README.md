@@ -43,6 +43,23 @@
 | `lib/hook-flags.js` | `isHookEnabled(hookId, profiles)` — プロファイル判定とホック無効化リスト管理 |
 | `lib/sanitize.js` | AWS キー・GitHub トークン・JWT・PEM・`password=` 等のシークレットをマスク |
 | `lib/state.js` | `statePath()` / `atomicWrite()` / `readJSON()` — `~/.claude/vivastack-cc-workflows/` 下の状態管理 |
+| `lib/git-command.js` | `gitInvocations(command)` — Bash のコマンドを `&&`・`;`・`\|` などで区切り、引用符を外して git の呼び出しを取り出す（issue #36）。行の継続・ヒアドキュメント（本文は読み飛ばす）・コマンド置換・リダイレクト・`if`/`then`/`{`/`!`・`sudo`/`env`/`xargs` などのラッパー・`sh -c`・`cd`/`git -C` を扱う。サブシェル `( ... )` の中の `cd` は外にも効くものとして扱う。見ない書き方は「hook が見ない書き方」の表を参照。`parseCommitArgs()` — git commit の引数をオプションとパスに分ける |
+
+#### hook が見ない書き方（`lib/git-command.js` を使う hook に共通）
+
+`block-no-verify`・`block-force-push`・`security-trigger` は、エージェントの事故を防ぐための確認で、わざと回避するコマンドまでは止めない。次の書き方は見ない。
+
+| 書き方 | 例 |
+|---|---|
+| シェルの標準入力・スクリプトのファイルから渡すコマンド | `bash <<'EOF'`、`echo 'git push -f' \| sh`、`bash ./deploy.sh` |
+| `eval`・変数に入れたコマンド・git のエイリアスの展開 | `eval "$cmd"`、`$g push -f`、`git ci -n`（`alias.ci=commit`） |
+| 表にないラッパー | `setsid`・`doas`・`ionice`・`watch`・`ssh host git ...` |
+| 引用符なしのヒアドキュメントの本文の中のコマンド置換、`(( 1 << 2 ))` | `cat <<EOF` の本文の `$(git push -f)` |
+| `export` した環境変数 | `export GIT_INDEX_FILE=...; git commit`、`export GIT_CONFIG_KEY_0=core.hooksPath` |
+| git 以外のコマンドがインデックスを変える | `node -e "...git add..." && git commit` |
+| `git add -f` した ignore 済みのファイル（同じコマンドで commit するとき） | `git add -f ig.ts && git commit` |
+| commit 以外で commit を作る操作 | `git commit-tree` ＋ `git update-ref`、`git merge`、`git cherry-pick` |
+| ブランチを消す push | `git push --delete`、`git push origin :main` |
 
 ---
 
@@ -166,8 +183,9 @@ Bash ツール実行前に評価される。`{ decision: 'block', reason }` を�
 ```text
 PreToolUse (Bash)
   └─► run(input)
-        ├─► コマンドが git コマンドでなければ → null
-        ├─► --no-verify / -n / core.hooksPath= を検出
+        ├─► コマンドを区切り、git の呼び出しを1つずつ取り出す（lib/git-command.js）
+        ├─► --no-verify（省略形を含む）/ git commit の -n / core.hooksPath の設定 /
+        │   --no-verify を足すエイリアスを検出
         │     → block
         └─► 検出なし → null
 ```
@@ -176,9 +194,10 @@ PreToolUse (Bash)
 
 | パターン | 説明 |
 |---------|------|
-| `--no-verify` | git commit/push の hook 無効化フラグ |
-| `-n` (短縮形) | `--no-verify` の短縮形 |
-| `core.hooksPath=` | git 設定でフックパスを上書きする手法 |
+| `--no-verify` | git commit/push などの hook 無効化フラグ |
+| `-n` (短縮形) | git commit の `--no-verify` の短縮形。`-anm` のようにまとめた形も含む。`git log -n`・`git grep -n` など、ほかのサブコマンドの `-n` は止めない |
+| `core.hooksPath` | `git -c core.hooksPath=...`・`--config-env=core.hooksPath=...`・`git config core.hooksPath <値>`・環境変数 `GIT_CONFIG_KEY_<n>=core.hooksPath`（キーだけの読む指定・消す指定は除く） |
+| エイリアス | `git config alias.ci "commit --no-verify"`・`git -c alias.ci="commit --no-verify" ci` |
 
 **返り値**
 
@@ -191,7 +210,8 @@ null
 
 **ポイント**
 
-- git コマンド以外には反応しない
+- git コマンド以外には反応しない。`git status; grep -n foo x` の `grep -n` や、コミットメッセージの中の語にも反応しない
+- `cat > m <<EOF && git commit --no-verify` のように、前に別のコマンドをつないだ git も確かめる
 - CI での `--no-verify` 許可が必要なら `VCW_DISABLED_HOOKS` で除外
 
 ---
@@ -352,13 +372,23 @@ null
 ```text
 PreToolUse (Bash)
   └─► run(input)
-        ├─► git commit / git push 以外 → null
+        ├─► コマンドの中に git commit がなければ → null（つないだコマンドの commit もすべて見る。push は見ない）
         ├─► SECURITY_REVIEWED=1 が設定済み → null (bypass)
-        ├─► git diff --cached --name-only でステージ済みファイルを取得
+        ├─► GIT_INDEX_FILE・GIT_DIR などを指定した commit・--git-dir・--work-tree の commit
+        │   → block（確かめられない）
+        ├─► 調べるリポジトリ：元の作業ディレクトリ（必ず）と、cd・git -C を反映した commit の場所
+        │   （cd の行き先が変数・置換で分からないときは元の場所。リポジトリの外・ないディレクトリは除く）
+        ├─► commit を実行するリポジトリ（cd・git -C を反映）のルートで、対象のファイルを取得
+        │     ふつう：git diff --cached（ステージ済み。削除したファイルは名前だけ）
+        │     commit の前にインデックスを変える git（読むだけのもの以外）がある・git commit -a・パスの指定：
+        │       ステージ前の変更と追跡していないファイルも
+        ├─► トップレベルの tests/・*.test.*/*.spec.*・Markdown・src/lib/*.generated.ts・pnpm-lock.yaml は除く
         ├─► ファイル名がセキュリティパターンに一致するか検査
         │     (auth / login / session / token / jwt / password / credential /
         │      oauth / DB操作 / ファイルI/O / HTTPクライアント / 暗号 など)
-        ├─► diff の内容が同パターンに一致するか検査
+        ├─► diff の追加した行が同パターンに一致するか検査
+        ├─► 一致あり・HEAD とステージの内容が mark-security-reviewed.js で記録したものと同じ → null
+        ├─► リポジトリの中での git の失敗・読めないファイル → block（黙って通さない）
         └─► 一致あり → block & security-reviewer エージェント使用を指示
 ```
 
@@ -376,8 +406,13 @@ null
 
 **ポイント**
 
-- `SECURITY_REVIEWED=1` を設定すれば bypass できる
-- ファイル名マッチと diff 内容マッチの両方を検査する
+- **確認の促しで、攻撃を防ぐ仕組みではない。** レビューの後に `node .claude/hooks/scripts/mark-security-reviewed.js` を実行すると、今の HEAD とステージの内容の指紋（SHA-256）を `.git/security-reviewed` に書き、同じ内容の git commit だけを通す。HEAD かステージの内容が変われば、また止まる。セッションの中（エージェント）からも使えるので、レビューせずに記録することもできてしまう（`SECURITY_REVIEWED=1` はセッションの中から使えず、そのたびにオーナーが手でコミットしていた。それを解消するために、確かめる力を少し弱めた）
+- 同じコマンドで git add などをしてから commit するときは、レビューの前に内容を確かめられないので、記録があっても止め、コマンドを分けるよう伝える
+- パスと diff は `--literal-pathspecs`・`core.quotepath=false`・`--no-color --no-ext-diff --no-textconv --text` で読む（日本語・`:` で始まるファイル名、色・外部 diff・`.gitattributes` の設定に左右されない）
+- ファイルごとに git を実行するので、ファイルがとても多いと hook の制限時間（10秒）を超えることがある。超えると Claude Code は止めずに進む
+- `SECURITY_REVIEWED=1` を設定すれば bypass できる（Claude Code のプロセスの環境変数なので、セッションの中からは設定できない）
+- ファイル名マッチと diff の追加した行のマッチの両方を検査する。前後の行・消した行は見ない（検出語を消す変更は見ない）
+- `query` は DOM の `querySelector(All)` と Testing Library の `queryBy*`・`queryAllBy*` を除く（issue #33）。`auth` は `author` を除く。`schema` は対象にしない（DB がなく、`content/schema/` の JSON Schema に当たるため）
 
 ---
 
@@ -1000,10 +1035,11 @@ node tests/<name>.test.js  # 単一テスト実行
 | `createTempDir()` | `os.tmpdir()` 下に一時ディレクトリを作成。`{ tmpDir, cleanup }` を返す |
 | `withEnv(vars, fn)` | 環境変数を一時的に上書きして `fn()` を実行後に元に戻す |
 
-### テストファイル一覧 (21 ファイル)
+### テストファイル一覧 (24 ファイル)
 
 | ファイル | 対象スクリプト |
 |---------|--------------|
+| `block-force-push.test.js` | `block-force-push.js` |
 | `block-no-verify.test.js` | `block-no-verify.js` |
 | `auto-tmux-dev.test.js` | `auto-tmux-dev.js` |
 | `claude-md-suggest.test.js` | `claude-md-suggest.js` |
@@ -1012,6 +1048,7 @@ node tests/<name>.test.js  # 単一テスト実行
 | `format-typecheck.test.js` | `format-typecheck.js` |
 | `format-yaml.test.js` | `format-yaml.js` |
 | `gateguard-fact-force.test.js` | `gateguard-fact-force.js` |
+| `git-command.test.js` | `lib/git-command.js` |
 | `gitleaks.test.js` | `gitleaks.js` |
 | `hook-flags.test.js` | `lib/hook-flags.js` |
 | `mcp-health-check.test.js` | `mcp-health-check.js` |
@@ -1020,7 +1057,7 @@ node tests/<name>.test.js  # 単一テスト実行
 | `quality-gate.test.js` | `quality-gate.js` |
 | `run-with-flags.test.js` | `run-with-flags.js` |
 | `sanitize.test.js` | `lib/sanitize.js` |
-| `security-trigger.test.js` | `security-trigger.js` |
+| `security-trigger.test.js` | `security-trigger.js`・`mark-security-reviewed.js` |
 | `session-start.test.js` | `session-start.js` |
 | `shellcheck.test.js` | `shellcheck.js` |
 | `state.test.js` | `lib/state.js` |
@@ -1048,7 +1085,7 @@ cat .claude/hooks/logs/hooks-log-$(date +%Y-%m-%d).jsonl | jq .
 | `VCW_HOOK_PROFILE=minimal` | 安全必須フックのみ実行 |
 | `VCW_HOOK_PROFILE=strict` | 追加強制フックを含めて実行 |
 | `VCW_DISABLED_HOOKS=hookId1,hookId2` | 特定フックを一時的に無効化 |
-| `SECURITY_REVIEWED=1` | `security-trigger.js` をバイパス |
+| `SECURITY_REVIEWED=1` | `security-trigger.js` をバイパス（セッションの中からは `mark-security-reviewed.js` を使う） |
 | `VCW_GOVERNANCE_CAPTURE=1` | `governance-capture.js` を有効化 |
 
 ### よく使うデバッグコマンド
