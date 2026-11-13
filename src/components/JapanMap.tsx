@@ -14,6 +14,11 @@ type Props = {
 
 /** 海域名の文字の大きさ（viewBox の単位） */
 const SEA_LABEL_FONT_SIZE = 24;
+/**
+ * 県のパスの操作の見た目（D26）。マウスをのせると少し薄く（Tailwind の hover: は (hover: hover) のときだけ効くので、タッチで色が残らない）、
+ * 固定中・最大化中は aria-pressed で塗りを変える。状態の属性は `MapInteraction` が書き換える
+ */
+const PREF_INTERACTION_CLASS = 'cursor-pointer hover:opacity-80 aria-pressed:fill-map-selected';
 /** 海域名の位置（viewBox の座標。文字の中心） */
 const SEA_LABEL_POSITIONS = {
   japanSea: { x: 370, y: 470 },
@@ -36,9 +41,17 @@ function pathOf(paths: ReadonlyMap<string, PrefPath>, code: string): PrefPath {
   return path;
 }
 
+/** 県の形（1つのパス）。固定の状態は `aria-pressed` に出すので、サーバーでは `false` で始める（5.2） */
+function PrefShape({ lang, prefecture, d }: { readonly lang: Lang; readonly prefecture: Prefecture; readonly d: string }) {
+  const { code, region, name } = prefecture;
+  return (
+    <path data-pref={code} data-region={region} role="button" aria-pressed="false" aria-label={plainText(name[lang])} d={d} className={`${REGION_FILL_CLASS[region]} ${PREF_INTERACTION_CLASS}`} />
+  );
+}
+
 /**
  * 都道府県の地図（SVG。F-MAP-01〜04・06、D24）。ビルド時に HTML へ出力するので、JavaScript がなくても見える。
- * 色は `app/globals.css` の @theme の変数（ライト・ダーク。D26）。操作は T2-05、拡大・縮小は T2-06。
+ * 色は `app/globals.css` の @theme の変数（ライト・ダーク。D26）。操作は `MapInteraction`（T2-05）、拡大・縮小は T2-06。
  * `<svg>` は親の箱いっぱいに広がる。箱の縦横比は `VIEWBOX` と同じにする（`MapArea`）。
  */
 export function JapanMap({ lang, prefectures }: Props) {
@@ -50,8 +63,8 @@ export function JapanMap({ lang, prefectures }: Props) {
       <rect data-map-sea x={0} y={0} width={VIEWBOX.width} height={VIEWBOX.height} className="fill-map-sea" />
       <g data-map-layer>
         <g className="stroke-map-border" strokeWidth={0.8} strokeLinejoin="round">
-          {prefectures.map(({ code, region, name }) => (
-            <path key={code} data-pref={code} data-region={region} role="button" aria-label={plainText(name[lang])} d={pathOf(pathByCode, code).d} className={REGION_FILL_CLASS[region]} />
+          {prefectures.map(prefecture => (
+            <PrefShape key={prefecture.code} lang={lang} prefecture={prefecture} d={pathOf(pathByCode, prefecture.code).d} />
           ))}
         </g>
         <rect data-okinawa-frame {...OKINAWA_FRAME} fill="none" strokeWidth={1.5} strokeDasharray="6 4" className="stroke-map-frame" />

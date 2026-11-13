@@ -30,6 +30,26 @@ describe('JapanMap', () => {
     });
   }
 
+  test('5.2：県のパスはどれも aria-pressed="false" で始まる（固定の状態はクライアントが書き換える）', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
+
+    const paths = [...container.querySelectorAll('path[data-pref]')];
+    expect(paths).toHaveLength(47);
+    for (const path of paths) {
+      expect(path.getAttribute('aria-pressed')).toBe('false');
+      expect(path.hasAttribute('data-state')).toBe(false);
+    }
+  });
+
+  test('D26：県のパスに、ホバー・固定の見た目のクラスがある', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
+
+    const className = container.querySelector('path[data-pref="13"]')?.getAttribute('class') ?? '';
+    expect(className).toContain('cursor-pointer');
+    expect(className).toContain('hover:opacity-80');
+    expect(className).toContain('aria-pressed:fill-map-selected');
+  });
+
   test('F-MAP-01：県のパスの data-region がコンテンツの地方と同じである', () => {
     const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
 

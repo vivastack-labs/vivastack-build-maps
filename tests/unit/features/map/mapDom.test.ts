@@ -1,0 +1,115 @@
+// @vitest-environment jsdom
+import { beforeEach, describe, expect, test } from 'vitest';
+import { applyCardState, applyPrefState } from '@/features/map/mapDom';
+import { INITIAL_MAP_STATE, type MapState } from '@/features/map/state';
+
+const MAP_HTML = `
+  <svg>
+    <path data-pref="01" aria-pressed="false"></path>
+    <path data-pref="13" aria-pressed="false"></path>
+    <path data-pref="47" aria-pressed="false"></path>
+  </svg>`;
+
+const CARD_HTML = `
+  <div>
+    <p data-card-guide>案内文</p>
+    <p data-card-pref="01" hidden>北海道</p>
+    <p data-card-pref="13" hidden>東京都</p>
+  </div>`;
+
+const pref = (code: string): Element => document.querySelector(`[data-pref="${code}"]`) as Element;
+const card = (code: string): HTMLElement => document.querySelector(`[data-card-pref="${code}"]`) as HTMLElement;
+const guide = (): HTMLElement => document.querySelector('[data-card-guide]') as HTMLElement;
+
+describe('applyPrefState', () => {
+  beforeEach(() => {
+    document.body.innerHTML = MAP_HTML;
+  });
+
+  test('4.11.2：固定中の県だけ aria-pressed が true になり、data-state が pinned になる', () => {
+    const state: MapState = { ...INITIAL_MAP_STATE, pinned: '13' };
+
+    applyPrefState(document.body, state);
+
+    expect(pref('13').getAttribute('aria-pressed')).toBe('true');
+    expect(pref('13').getAttribute('data-state')).toBe('pinned');
+    for (const other of ['01', '47']) {
+      expect(pref(other).getAttribute('aria-pressed')).toBe('false');
+      expect(pref(other).hasAttribute('data-state')).toBe(false);
+    }
+  });
+
+  test('F-ZOOM-04：最大化中の県は data-state が maximized になる（aria-pressed は true）', () => {
+    const state: MapState = { ...INITIAL_MAP_STATE, pinned: '13', maximized: '13' };
+
+    applyPrefState(document.body, state);
+
+    expect(pref('13').getAttribute('data-state')).toBe('maximized');
+    expect(pref('13').getAttribute('aria-pressed')).toBe('true');
+  });
+
+  test('固定を解除すると aria-pressed が false に戻り、data-state がなくなる', () => {
+    applyPrefState(document.body, { ...INITIAL_MAP_STATE, pinned: '13' });
+
+    applyPrefState(document.body, INITIAL_MAP_STATE);
+
+    expect(pref('13').getAttribute('aria-pressed')).toBe('false');
+    expect(pref('13').hasAttribute('data-state')).toBe(false);
+  });
+
+  test('別の県に固定を移すと、前の県の属性が戻る', () => {
+    applyPrefState(document.body, { ...INITIAL_MAP_STATE, pinned: '13' });
+
+    applyPrefState(document.body, { ...INITIAL_MAP_STATE, pinned: '01' });
+
+    expect(pref('13').getAttribute('aria-pressed')).toBe('false');
+    expect(pref('01').getAttribute('aria-pressed')).toBe('true');
+  });
+
+  test('値が変わらない要素は書き換えない', () => {
+    const records: MutationRecord[] = [];
+    const observer = new MutationObserver(list => records.push(...list));
+    observer.observe(document.body, { attributes: true, subtree: true });
+    applyPrefState(document.body, { ...INITIAL_MAP_STATE, pinned: '13' });
+    records.push(...observer.takeRecords());
+    records.length = 0;
+
+    applyPrefState(document.body, { ...INITIAL_MAP_STATE, pinned: '13' });
+
+    expect([...records, ...observer.takeRecords()]).toHaveLength(0);
+    observer.disconnect();
+  });
+});
+
+describe('applyCardState', () => {
+  beforeEach(() => {
+    document.body.innerHTML = CARD_HTML;
+  });
+
+  test('4.11.1：表示する県のカードだけ hidden が外れ、案内文が隠れる', () => {
+    applyCardState(document.body, '13');
+
+    expect(card('13').hidden).toBe(false);
+    expect(card('01').hidden).toBe(true);
+    expect(guide().hidden).toBe(true);
+  });
+
+  test('県がないときは案内文だけが見える', () => {
+    applyCardState(document.body, '13');
+
+    applyCardState(document.body, null);
+
+    expect(card('13').hidden).toBe(true);
+    expect(card('01').hidden).toBe(true);
+    expect(guide().hidden).toBe(false);
+  });
+
+  test('県を切り替えると、前の県のカードは隠れる', () => {
+    applyCardState(document.body, '13');
+
+    applyCardState(document.body, '01');
+
+    expect(card('13').hidden).toBe(true);
+    expect(card('01').hidden).toBe(false);
+  });
+});
