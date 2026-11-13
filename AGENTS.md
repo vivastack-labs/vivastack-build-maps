@@ -45,7 +45,7 @@ pnpm vitest run -t "F-I18N-01"                 # テスト名で絞る（テス�
 pnpm vitest run --project data                 # データの検査（tests/data/）だけを動かす
 pnpm test:e2e --project=chromium               # E2E を1プロジェクトだけ動かす
 gh workflow run e2e.yml --ref <ブランチ> -f project=all   # CI で E2E を手動で動かす（UI・ルーティングを変えたPRは merge の前に）
-pnpm screenshots > <ファイル>   # PRに載せる before（origin/main）・after のスクリーンショットを撮り、screenshots ブランチに push して、PR本文の表を出す
+pnpm screenshots > <ファイル>   # PRに載せる after（今の作業ツリー）のスクリーンショットを撮り、screenshots ブランチに push して、PR本文の表を出す
 ```
 
 `screenshots` ブランチ（PRに載せる画像。main と履歴を共有しない）は、ふつうの `git clone`・`git fetch` ではほかのブランチと一緒にダウンロードされ、PRごとに増えていく。clone の直後に上の `git config` を実行し、すでに取ってしまった追跡ブランチは `git update-ref -d refs/remotes/origin/screenshots` で消す。clone の時点から取らないなら、`git clone --single-branch` で main だけを取り、`git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'` でほかのブランチを取れるように戻してから、上の `git config` を実行する。
@@ -107,7 +107,7 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
 - **コミット**：`<type>: <description>`（feat / fix / refactor / docs / test / chore / perf / ci）。`<type>` は英語のまま、`<description>` と本文は日本語で書く（例：`docs: 操作仕様を追加`）。PR のタイトルも `<type>: <description>` の形式にするが、`<description>` は英語で書く（例：`docs: add interaction spec`）。
 - **コーディング**：イミュータブルに書く、小さな関数・ファイル、境界での入力検証、export には JSDoc。→ `coding-style.md`
 - **セキュリティ**：シークレットをリポジトリ・ログ・PR に書かない（gitleaks で検査）。→ `security.md`
-- **画面の変更**：画面が変わるPRには、`pnpm screenshots` で撮った before/after の表を本文に載せる。撮る画面は `tests/screenshots/pages.spec.ts`、画像は `screenshots` ブランチ（main と履歴を共有しない。消さない。ふだんの fetch では取らない）に置く。
+- **画面の変更**：画面が変わるPRには、`pnpm screenshots` で撮った after の表を本文に載せる（before は前のPRの after で見られるので撮らない）。撮る画面は `tests/screenshots/pages.spec.ts`、画像は `screenshots` ブランチ（main と履歴を共有しない。消さない。ふだんの fetch では取らない）に置く。
 - `--no-verify` や force push など、hooks・検査を回避する操作はしない。
 - lint や formatter の設定（`.prettierrc`、`.markdownlint.json`、`.yamllint` など）は、指示がない限り変えない。
 

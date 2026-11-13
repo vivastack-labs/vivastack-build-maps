@@ -3,22 +3,10 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-import {
-  captureAfter,
-  captureBefore,
-  execRun,
-  imageRows,
-  listPngs,
-  markdownTable,
-  prScreenshots,
-  publishScreenshots,
-  repoOf,
-  screenshotIdOf,
-  type Run,
-  type RunOptions
-} from '../../../scripts/pr-screenshots';
+import { captureScreenshots, execRun, listPngs, markdownTable, prScreenshots, publishScreenshots, repoOf, screenshotIdOf, type Run, type RunOptions } from '../../../scripts/pr-screenshots';
 
-// 画面が変わるPRに、before（main）と after（作業ブランチ）のスクリーンショットを載せる。
+// 画面が変わるPRに、作業ブランチの画面（after）のスクリーンショットを載せる。
+// before は前のPRの after で見られるので撮らない。
 // 画像は main と履歴を共有しない screenshots ブランチに置き、PR本文から commit の URL で参照する
 
 type Call = { readonly command: string; readonly args: readonly string[]; readonly options: RunOptions };
@@ -107,7 +95,7 @@ describe('listPngs', () => {
     expect(names).toEqual(['a.png', 'b.png']);
   });
 
-  test('ディレクトリがなければ空にする（before を1枚も撮れなかったとき）', () => {
+  test('ディレクトリがなければ空にする（1枚も撮れなかったとき）', () => {
     // Act
     const names = listPngs(join(workDir, 'missing'));
 
@@ -116,140 +104,36 @@ describe('listPngs', () => {
   });
 });
 
-describe('imageRows', () => {
-  test('before・after の名前を合わせて並べ、片方にしかないものも行にする', () => {
-    // Arrange
-    const before = new Map([
-      ['ja-top-pc.png', 'h1'],
-      ['old-pc.png', 'h2']
-    ]);
-    const after = new Map([
-      ['ja-top-pc.png', 'h3'],
-      ['ja-panel-pc.png', 'h4']
-    ]);
-
-    // Act
-    const rows = imageRows(before, after);
-
-    // Assert
-    expect(rows).toEqual([
-      { name: 'ja-panel-pc.png', hasBefore: false, hasAfter: true, isSame: false },
-      { name: 'ja-top-pc.png', hasBefore: true, hasAfter: true, isSame: false },
-      { name: 'old-pc.png', hasBefore: true, hasAfter: false, isSame: false }
-    ]);
-  });
-
-  test('before と after の中身が同じなら isSame にする', () => {
-    // Act
-    const rows = imageRows(new Map([['ja-top-pc.png', 'h1']]), new Map([['ja-top-pc.png', 'h1']]));
-
-    // Assert
-    expect(rows).toEqual([{ name: 'ja-top-pc.png', hasBefore: true, hasAfter: true, isSame: true }]);
-  });
-});
-
 describe('markdownTable', () => {
-  const base = { repo: 'owner/repo', commit: 'abc123', id: 'feat-T2-03-x', baseRef: 'origin/main', baseCommit: 'def4567890', isBeforeComplete: true };
-
-  test('画像を commit の URL で埋め込み、before・after を1行に並べる', () => {
+  test('画像を commit の URL で埋め込み、画面ごとに1行にする', () => {
     // Act
-    const markdown = markdownTable({ ...base, rows: [{ name: 'ja-top-pc.png', hasBefore: true, hasAfter: true, isSame: false }] });
+    const markdown = markdownTable({ repo: 'owner/repo', commit: 'abc123', id: 'feat-T2-03-x', headCommit: 'def4567890', names: ['ja-top-pc.png', 'ja-top-sp.png'] });
 
     // Assert
     expect(markdown).toContain('## 画面の変更');
-    expect(markdown).toContain('`origin/main`（def4567）');
-    expect(markdown).toContain('| 画面 | before | after |');
-    expect(markdown).toContain(
-      '| ja-top-pc | <img src="https://github.com/owner/repo/blob/abc123/feat-T2-03-x/before/ja-top-pc.png?raw=true" width="360" alt="before：ja-top-pc"> | <img src="https://github.com/owner/repo/blob/abc123/feat-T2-03-x/after/ja-top-pc.png?raw=true" width="360" alt="after：ja-top-pc"> |'
-    );
-  });
-
-  test('片方にしかない画像は「なし」、同じ画像は「（変化なし）」と書く', () => {
-    // Act
-    const markdown = markdownTable({
-      ...base,
-      rows: [
-        { name: 'new-pc.png', hasBefore: false, hasAfter: true, isSame: false },
-        { name: 'same-pc.png', hasBefore: true, hasAfter: true, isSame: true }
-      ]
-    });
-
-    // Assert
-    expect(markdown).toMatch(/\| new-pc \| なし \| <img /);
-    expect(markdown).toMatch(/\| same-pc（変化なし） \| <img /);
+    expect(markdown).toContain('このブランチ（def4567）');
+    expect(markdown).toContain('| 画面 | after |');
+    expect(markdown).toContain('| ja-top-pc | <img src="https://github.com/owner/repo/blob/abc123/feat-T2-03-x/ja-top-pc.png?raw=true" width="360" alt="ja-top-pc"> |');
+    expect(markdown).toContain('| ja-top-sp | <img src="https://github.com/owner/repo/blob/abc123/feat-T2-03-x/ja-top-sp.png?raw=true" width="360" alt="ja-top-sp"> |');
+    // before は撮らない
+    expect(markdown).not.toContain('before');
   });
 });
 
-const writeCaptureFiles = (repoRoot: string): void => {
-  writePngs(join(repoRoot, 'tests/screenshots'), ['pages.spec.ts']);
-  writeFileSync(join(repoRoot, 'playwright.screenshots.config.ts'), 'config');
-};
-
-describe('captureBefore', () => {
-  test('base の commit を worktree に取り出し、撮影の設定を今のブランチから写してから撮り、worktree を消す', () => {
-    // Arrange
-    const repoRoot = join(workDir, 'repo');
-    writeCaptureFiles(repoRoot);
-    const worktreeDir = join(workDir, 'base');
-    const outDir = join(workDir, 'before');
-    const { run, calls, lines } = fakeRun();
-
-    // Act
-    const isComplete = captureBefore(run, { repoRoot, baseCommit: 'base1234', worktreeDir, outDir });
-
-    // Assert
-    expect(isComplete).toBe(true);
-    expect(lines()).toEqual([
-      `git worktree add --detach ${worktreeDir} base1234`,
-      'pnpm install --frozen-lockfile',
-      'pnpm exec playwright test --config playwright.screenshots.config.ts',
-      `git worktree remove --force ${worktreeDir}`
-    ]);
-    expect(readFileSync(join(worktreeDir, 'playwright.screenshots.config.ts'), 'utf8')).toBe('config');
-    expect(existsSync(join(worktreeDir, 'tests/screenshots/pages.spec.ts'))).toBe(true);
-    expect(calls[2]?.options).toMatchObject({ cwd: worktreeDir, env: { SCREENSHOT_OUT: outDir } });
-  });
-
-  test('撮影に失敗しても止めずに false を返す（main にまだない画面は撮れない）', () => {
-    // Arrange
-    const repoRoot = join(workDir, 'repo');
-    writeCaptureFiles(repoRoot);
-    const { run } = fakeRun({}, ['pnpm exec playwright']);
-
-    // Act
-    const isComplete = captureBefore(run, { repoRoot, baseCommit: 'base1234', worktreeDir: join(workDir, 'base'), outDir: join(workDir, 'before') });
-
-    // Assert
-    expect(isComplete).toBe(false);
-  });
-
-  test('途中で失敗しても worktree を消し、元のエラーを投げる', () => {
-    // Arrange
-    const repoRoot = join(workDir, 'repo');
-    writeCaptureFiles(repoRoot);
-    const worktreeDir = join(workDir, 'base');
-    const { run, calls } = fakeRun({}, ['pnpm install', 'git worktree remove']);
-
-    // Act・Assert
-    expect(() => captureBefore(run, { repoRoot, baseCommit: 'base1234', worktreeDir, outDir: join(workDir, 'before') })).toThrow(/pnpm install/);
-    expect(calls.at(-1)).toMatchObject({ args: ['worktree', 'remove', '--force', worktreeDir], options: { allowFailure: true } });
-  });
-});
-
-describe('captureAfter', () => {
+describe('captureScreenshots', () => {
   test('今の作業ツリーで撮る。撮影の失敗は止める', () => {
     // Arrange
     const { run, calls } = fakeRun();
 
     // Act
-    captureAfter(run, { repoRoot: '/repo', outDir: '/out/after' });
+    captureScreenshots(run, { repoRoot: '/repo', outDir: '/out/shots' });
 
     // Assert
     expect(calls).toEqual([
       {
         command: 'pnpm',
         args: ['exec', 'playwright', 'test', '--config', 'playwright.screenshots.config.ts'],
-        options: { cwd: '/repo', env: { SCREENSHOT_OUT: '/out/after' }, showOutput: true }
+        options: { cwd: '/repo', env: { SCREENSHOT_OUT: '/out/shots' }, showOutput: true }
       }
     ]);
   });
@@ -257,16 +141,14 @@ describe('captureAfter', () => {
 
 describe('publishScreenshots', () => {
   const setup = () => {
-    const beforeDir = join(workDir, 'before');
-    const afterDir = join(workDir, 'after');
-    writePngs(beforeDir, ['ja-top-pc.png']);
-    writePngs(afterDir, ['ja-top-pc.png']);
-    return { beforeDir, afterDir, indexFile: join(workDir, 'index') };
+    const outDir = join(workDir, 'shots');
+    writePngs(outDir, ['ja-top-sp.png', 'ja-top-pc.png']);
+    return { outDir, indexFile: join(workDir, 'index') };
   };
 
   test('screenshots ブランチがあれば、先頭の commit だけを取り、それを親にして、このPRの画像だけの commit を push する', () => {
     // Arrange
-    const { beforeDir, afterDir, indexFile } = setup();
+    const { outDir, indexFile } = setup();
     const { run, calls, lines } = fakeRun({
       'git ls-remote': 'parent1\trefs/heads/screenshots\n',
       'git rev-parse --verify FETCH_HEAD': 'parent1\n',
@@ -276,21 +158,20 @@ describe('publishScreenshots', () => {
     });
 
     // Act
-    const result = publishScreenshots(run, { repoRoot: '/repo', id: 'feat-x', beforeDir, afterDir, indexFile });
+    const result = publishScreenshots(run, { repoRoot: '/repo', id: 'feat-x', outDir, indexFile });
 
     // Assert
-    expect(result.commit).toBe('commit1');
-    expect(result.before).toEqual(new Map([['ja-top-pc.png', 'blob1']]));
+    expect(result).toEqual({ commit: 'commit1', names: ['ja-top-pc.png', 'ja-top-sp.png'] });
     expect(lines()).toEqual([
       'git ls-remote --heads origin refs/heads/screenshots',
       // 過去のPRの画像は取らない。追跡ブランチも作らない（ふだんの fetch の対象から外しているため）
       'git fetch --depth=1 --refmap= origin refs/heads/screenshots',
       'git rev-parse --verify FETCH_HEAD',
       'git read-tree --empty',
-      `git hash-object -w ${join(beforeDir, 'ja-top-pc.png')}`,
-      'git update-index --add --cacheinfo 100644,blob1,feat-x/before/ja-top-pc.png',
-      `git hash-object -w ${join(afterDir, 'ja-top-pc.png')}`,
-      'git update-index --add --cacheinfo 100644,blob1,feat-x/after/ja-top-pc.png',
+      `git hash-object -w ${join(outDir, 'ja-top-pc.png')}`,
+      'git update-index --add --cacheinfo 100644,blob1,feat-x/ja-top-pc.png',
+      `git hash-object -w ${join(outDir, 'ja-top-sp.png')}`,
+      'git update-index --add --cacheinfo 100644,blob1,feat-x/ja-top-sp.png',
       'git write-tree',
       'git commit-tree tree1 -p parent1 -m chore: feat-x のスクリーンショット',
       'git push origin commit1:refs/heads/screenshots',
@@ -305,11 +186,11 @@ describe('publishScreenshots', () => {
 
   test('screenshots ブランチがなければ、親のない commit で作る', () => {
     // Arrange
-    const { beforeDir, afterDir, indexFile } = setup();
+    const { outDir, indexFile } = setup();
     const { run, lines } = fakeRun({ 'git write-tree': 'tree1\n', 'git commit-tree': 'commit1\n', 'git hash-object': 'blob1\n' });
 
     // Act
-    publishScreenshots(run, { repoRoot: '/repo', id: 'feat-x', beforeDir, afterDir, indexFile });
+    publishScreenshots(run, { repoRoot: '/repo', id: 'feat-x', outDir, indexFile });
 
     // Assert
     expect(lines().some(line => line.startsWith('git fetch'))).toBe(false);
@@ -318,20 +199,20 @@ describe('publishScreenshots', () => {
 
   test('リモートに問い合わせられなければ止める（ブランチがないとみなして、親のない commit を作らない）', () => {
     // Arrange
-    const { beforeDir, afterDir, indexFile } = setup();
+    const { outDir, indexFile } = setup();
     const { run, lines } = fakeRun({}, ['git ls-remote']);
 
     // Act・Assert
-    expect(() => publishScreenshots(run, { repoRoot: '/repo', id: 'feat-x', beforeDir, afterDir, indexFile })).toThrow(/ls-remote/);
+    expect(() => publishScreenshots(run, { repoRoot: '/repo', id: 'feat-x', outDir, indexFile })).toThrow(/ls-remote/);
     expect(lines().some(line => line.startsWith('git push'))).toBe(false);
   });
 
-  test('after が1枚もなければエラーにする（撮影に失敗している）', () => {
+  test('画像が1枚もなければエラーにする（撮影に失敗している）', () => {
     // Arrange
     const { run } = fakeRun();
 
     // Act・Assert
-    expect(() => publishScreenshots(run, { repoRoot: '/repo', id: 'feat-x', beforeDir: join(workDir, 'x'), afterDir: join(workDir, 'y'), indexFile: join(workDir, 'index') })).toThrow(/after/);
+    expect(() => publishScreenshots(run, { repoRoot: '/repo', id: 'feat-x', outDir: join(workDir, 'missing'), indexFile: join(workDir, 'index') })).toThrow(/スクリーンショットがありません/);
   });
 });
 
@@ -355,9 +236,8 @@ describe('publishScreenshots（実際の git）', () => {
 
   const publish = (repo: string, id: string, names: readonly string[]) => {
     const dir = join(workDir, `shots-${id}-${names.length}`);
-    writePngs(join(dir, 'before'), names);
-    writePngs(join(dir, 'after'), names);
-    return publishScreenshots(execRun, { repoRoot: repo, id, beforeDir: join(dir, 'before'), afterDir: join(dir, 'after'), indexFile: join(dir, 'index') });
+    writePngs(join(dir, 'out'), names);
+    return publishScreenshots(execRun, { repoRoot: repo, id, outDir: join(dir, 'out'), indexFile: join(dir, 'index') });
   };
 
   test('初めは親のない commit を作り、次からは親を付ける。過去のPRの画像は、その commit から見られる', () => {
@@ -373,8 +253,8 @@ describe('publishScreenshots（実際の git）', () => {
     expect(git(remote, 'log', '--format=%P', first.commit)).toBe('');
     expect(git(remote, 'rev-parse', 'screenshots')).toBe(third.commit);
     expect(git(remote, 'rev-list', '--count', 'screenshots')).toBe('3');
-    expect(git(remote, 'ls-tree', '-r', '--name-only', 'screenshots').split('\n')).toEqual(['feat-a/after/top.png', 'feat-a/before/top.png']);
-    expect(git(remote, 'ls-tree', '-r', '--name-only', first.commit).split('\n')).toEqual(['feat-a/after/old.png', 'feat-a/after/top.png', 'feat-a/before/old.png', 'feat-a/before/top.png']);
+    expect(git(remote, 'ls-tree', '-r', '--name-only', 'screenshots').split('\n')).toEqual(['feat-a/top.png']);
+    expect(git(remote, 'ls-tree', '-r', '--name-only', first.commit).split('\n')).toEqual(['feat-a/old.png', 'feat-a/top.png']);
     // 作業リポジトリには追跡ブランチを作らない（push でも作られない）
     expect(git(repo, 'branch', '-r')).toBe('');
     // 作業リポジトリの index には何も入れない
@@ -409,11 +289,11 @@ describe('execRun', () => {
 });
 
 describe('prScreenshots', () => {
-  const setupRun = (responses: Readonly<Record<string, string>>, shouldWriteBefore = true) => {
+  const setupRun = (responses: Readonly<Record<string, string>>) => {
     const repoRoot = join(workDir, 'repo');
-    writeCaptureFiles(repoRoot);
     const fake = fakeRun({
       'git rev-parse --show-toplevel': `${repoRoot}\n`,
+      'git rev-parse HEAD': 'head1234567\n',
       'git remote get-url origin': 'https://github.com/owner/repo.git\n',
       'git hash-object': 'blob1\n',
       'git commit-tree': 'commit1\n',
@@ -422,47 +302,41 @@ describe('prScreenshots', () => {
     // 撮影の代わりに、SCREENSHOT_OUT に画像を置く
     const run: Run = (command, args, options = {}) => {
       const out = options.env?.SCREENSHOT_OUT;
-      if (args.includes('playwright') && out && (shouldWriteBefore || out.endsWith('after'))) writePngs(out, ['ja-top-pc.png']);
+      if (args.includes('playwright') && out) writePngs(out, ['ja-top-pc.png']);
       return fake.run(command, args, options);
     };
     const warnings: string[] = [];
     return { run, lines: fake.lines, warnings, warn: (message: string) => warnings.push(message), tempDir: join(workDir, 'tmp') };
   };
 
-  test('before・after を撮って push し、PR本文に貼る表を返す', () => {
+  test('今の作業ツリーだけを撮って push し、PR本文に貼る表を返す（before は撮らない）', () => {
     // Arrange
-    const { run, lines, warnings, warn, tempDir } = setupRun({
-      'git rev-parse --abbrev-ref HEAD': 'feat/T2-03-map\n',
-      'git rev-parse --verify origin/main': 'base1234567\n'
-    });
+    const { run, lines, warnings, warn, tempDir } = setupRun({ 'git rev-parse --abbrev-ref HEAD': 'feat/T2-03-map\n' });
 
     // Act
     const markdown = prScreenshots(run, { argv: [], tempDir, warn });
 
     // Assert
-    expect(lines()).toContain('git fetch origin main');
-    expect(lines()).toContain(`git worktree add --detach ${join(tempDir, 'base')} base1234567`);
-    expect(markdown).toContain('`origin/main`（base123）');
-    expect(markdown).toContain('https://github.com/owner/repo/blob/commit1/feat-T2-03-map/after/ja-top-pc.png?raw=true');
-    expect(markdown).toContain('ja-top-pc（変化なし）');
+    expect(lines().filter(line => line.includes('playwright'))).toHaveLength(1);
+    expect(lines().some(line => line.startsWith('git worktree') || line.startsWith('git fetch origin main'))).toBe(false);
+    expect(markdown).toContain('このブランチ（head123）');
+    expect(markdown).toContain('| ja-top-pc | <img src="https://github.com/owner/repo/blob/commit1/feat-T2-03-map/ja-top-pc.png?raw=true"');
     expect(warnings).toEqual([]);
   });
 
-  test('--id と --base で、ディレクトリ名と比べる相手を変えられる', () => {
+  test('--id で、screenshots ブランチのディレクトリ名を変えられる', () => {
     // Arrange
-    const { run, lines, warn, tempDir } = setupRun({ 'git rev-parse --verify origin/develop': 'dev1234\n' }, false);
+    const { run, lines, warn, tempDir } = setupRun({});
 
     // Act
-    const markdown = prScreenshots(run, { argv: ['--id', 'custom', '--base', 'origin/develop'], tempDir, warn });
+    const markdown = prScreenshots(run, { argv: ['--id', 'custom'], tempDir, warn });
 
     // Assert
-    expect(lines()).toContain('git fetch origin develop');
     expect(lines()).not.toContain('git rev-parse --abbrev-ref HEAD');
-    expect(markdown).toContain('/custom/after/ja-top-pc.png');
-    expect(markdown).toMatch(/\| ja-top-pc \| なし \| <img /);
+    expect(markdown).toContain('/custom/ja-top-pc.png');
   });
 
-  test('未コミットの変更があれば警告する（after に写るが、PRには入らない）', () => {
+  test('未コミットの変更があれば警告する（画像に写るが、PRには入らない）', () => {
     // Arrange
     const { run, warnings, warn, tempDir } = setupRun({ 'git rev-parse --abbrev-ref HEAD': 'feat/x\n', 'git status --porcelain': ' M app/x.tsx\n' });
 
@@ -473,29 +347,25 @@ describe('prScreenshots', () => {
     expect(warnings).toEqual([expect.stringContaining('コミットしていない変更')]);
   });
 
-  test('before の撮影に失敗したら警告し、表にも注記する', () => {
+  test('撮影に失敗したら止める（push しない）', () => {
     // Arrange
-    const { run: baseRun, warnings, warn, tempDir } = setupRun({ 'git rev-parse --abbrev-ref HEAD': 'feat/x\n' }, false);
+    const { run: baseRun, lines, warn, tempDir } = setupRun({ 'git rev-parse --abbrev-ref HEAD': 'feat/x\n' });
     const run: Run = (command, args, options = {}) => {
-      const output = baseRun(command, args, options);
-      if (args.includes('playwright') && !options.env?.SCREENSHOT_OUT?.endsWith('after')) throw new Error('playwright failed');
-      return output;
+      if (args.includes('playwright')) throw new Error('playwright failed');
+      return baseRun(command, args, options);
     };
 
-    // Act
-    const markdown = prScreenshots(run, { argv: [], tempDir, warn });
-
-    // Assert
-    expect(warnings).toEqual([expect.stringContaining('before の撮影に失敗')]);
-    expect(markdown).toContain('> before の撮影に失敗した画面があります');
+    // Act・Assert
+    expect(() => prScreenshots(run, { argv: [], tempDir, warn })).toThrow(/playwright failed/);
+    expect(lines().some(line => line.startsWith('git push'))).toBe(false);
   });
 
-  test.each([['main'], ['origin/--upload-pack=x'], ['origin/a b']])('--base %s はエラーにする（origin/<ブランチ> の形だけを受け付ける）', base => {
+  test.each([['--base', 'origin/main'], ['--unknown']])('なくなった引数・知らない引数 %s はエラーにする', (...argv) => {
     // Arrange
     const { run, warn, tempDir } = setupRun({});
 
     // Act・Assert
-    expect(() => prScreenshots(run, { argv: ['--base', base], tempDir, warn })).toThrow(/origin\//);
+    expect(() => prScreenshots(run, { argv, tempDir, warn })).toThrow();
   });
 
   test('--id が安全でなければエラーにする', () => {
