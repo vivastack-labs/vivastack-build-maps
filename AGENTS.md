@@ -92,6 +92,7 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
   - 変換は総務省のコード表と照合し、修正表の `before` が合わない・大きさが基準を超えるなどで止まる。コミットした出力は `tests/data/geo.test.ts` が CI で検査する。
 - ふりがなの記法 `{漢字|よみ}`（7.2）：`src/lib/ruby.ts` の `parseRuby`（誤りがあれば例外）・`checkRuby`（誤りと警告の一覧）・`plainText`（読みを除く）と、`<ruby>` を描く `src/components/RubyText.tsx`。`dangerouslySetInnerHTML` は使わない。
 - UI文言の辞書（6.2 D28）：`src/i18n/ja.ts`（基準）・`en.ts`・`zh.ts`。`getMessages(lang)`（`src/i18n/messages.ts`）で引く。文言を足すときは `ja.ts` に書くと、`en.ts`・`zh.ts`（`satisfies Messages`）はキーが足りなければ typecheck で落ちる。日本語はふりがなの記法つきで書き、`RubyText` で描く（`aria-label` など属性は `plainText()` で読みを除く）。こども向け・おとな向けで言い方を変える文は `{ kids, adult }` にして、`ModeText` で両方を出す（表示の切替は T3-05 の CSS）。数は `formatNumber(lang, value)`。フォントは `app/globals.css` の `--font-sans` を `:root:lang()` で言語ごとに切り替える（D27）。
+- 画面の枠組み（4.11.7、T2-03）：`Header`（サイト名の `<h1>`）・`Footer` は `app/[lang]/layout.tsx` に置き、`<title>` も `generateMetadata` で出す。地図・カード・さくいん（`MapArea`・`CardArea`・`IndexArea`）は `app/[lang]/page.tsx` に置く。各領域は `data-area` で見分け、1024px以上で地図とカードが2列、それより狭いと1列。ランドマークは `header`・`main`・`footer` の3つだけにする（領域の `section` に `aria-label` を付けない）。
 - コンテンツ（7.1）：ビルドでは `src/lib/content.ts` の `loadContent()`（誤りがあれば例外。県を `code` の順に返す）を使い、検証は `validateContent()`（誤り・警告をすべて返す）。どちらも `CONTENT_DIR`（既定は `content/prefectures/`）を読む。`scripts/` から Node.js で直接読み込むので、`src/lib/` の相対の import には `.ts` を付ける。本番の `reviewed` だけの絞り込みは T3-02。
 - `next.config.ts` の `agentRules: false` は消さない。消すと `next dev` が `AGENTS.md` に英語の指示を書き込む。
 
