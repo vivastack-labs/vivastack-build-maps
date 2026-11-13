@@ -1,5 +1,18 @@
 /* 6.2 D26：Tailwind CSS v4。色・フォントは @theme の CSS 変数として定義する */
 @import 'tailwindcss';
 
+/* 6.2 D27：Webフォントは使わず、言語ごとにシステムフォントを指定する。
+   --font-sans は Tailwind の preflight が html の font-family に使うので、ページ全体に効く。
+   ここは en の並び。ja・zh は下の :lang() で上書きする */
 @theme {
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* <html lang> は ja・en・zh-Hans。:lang(zh) は zh-Hans にも一致する */
+:root:lang(ja) {
+  --font-sans: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', Meiryo, 'Noto Sans JP', sans-serif;
+}
+
+:root:lang(zh) {
+  --font-sans: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
 }

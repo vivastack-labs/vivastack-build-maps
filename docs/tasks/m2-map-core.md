@@ -84,7 +84,7 @@ T2-01・T2-02 は M1 と並行して進められる。
 - `src/components/` に Header（サイト名だけ。切替のボタンは T3-05・T3-07）、MapArea、CardArea（仮の表示）、IndexArea、Footer。
 - 1024px以上：2列（地図が約2/3、カードはスクロールしても見える位置に固定）。768〜1023px：縦に並べる（地図 → カード）。768px未満：地図を全幅にし、カードは仮に地図の下に出す（下から出るパネルは T3-06）。
 - ランドマーク（`header`・`main`・`footer`）を付ける。
-- `<title>` を言語ごとに出す（`app/[lang]/layout.tsx` の `generateMetadata`。サイト名は T2-02 の辞書から取る。T0-01 の仮のサイト名は辞書に移す）。
+- `<title>` を言語ごとに出す（`app/[lang]/layout.tsx` の `generateMetadata`。サイト名は T2-02 の辞書（`getMessages(lang).siteName`。読みを除くには `plainText()`）から取る）。T0-01 の仮のサイト名（トップの `<h1>`、404 のページ）は T2-02 で辞書に移し終えた。
 
 ### 完了条件
 
