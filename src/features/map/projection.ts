@@ -47,7 +47,8 @@ export const OKINAWA_TRANSFORM = { scale: 1, dx: 326, dy: -978 } as const;
 /** 沖縄県を入れる点線枠（viewBox の座標） */
 export const OKINAWA_FRAME = { x: 20, y: 20, width: 500, height: 305 } as const;
 
-const PREF_CODE = /^(0[1-9]|[1-3][0-9]|4[0-7])$/;
+/** 県コード（01〜47 の2桁の文字列）の形 */
+export const PREF_CODE_PATTERN = /^(0[1-9]|[1-3][0-9]|4[0-7])$/;
 const MAX_LONGITUDE = 180;
 const MAX_LATITUDE = 90;
 
@@ -88,7 +89,7 @@ function okinawaPlacement(): { readonly scale: number; readonly translate: Point
 }
 
 function assertPrefCode(prefCode: string): void {
-  if (!PREF_CODE.test(prefCode)) {
+  if (!PREF_CODE_PATTERN.test(prefCode)) {
     throw new Error(`県コードは 01〜47 の2桁で指定してください（${prefCode}）`);
   }
 }

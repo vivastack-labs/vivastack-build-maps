@@ -10,7 +10,8 @@ import { feature } from 'topojson-client';
 import type { GeometryCollection, Topology } from 'topojson-specification';
 import prefsTopology from '../../../geo/data/prefs.topo.json' with { type: 'json' };
 import { LANGS, type Lang } from '@/i18n/lang';
-import { createProjection, projectPoint, VIEWBOX, type LonLat } from './projection.ts';
+import { createRelativePathContext } from './pathContext.ts';
+import { createProjection, PREF_CODE_PATTERN, projectPoint, VIEWBOX, type LonLat } from './projection.ts';
 
 /** 県名ラベルの位置（viewBox の座標。文字の中心） */
 export type LabelPosition = { readonly x: number; readonly y: number };
@@ -21,12 +22,6 @@ export type PrefPath = {
   readonly d: string;
   readonly labels: Readonly<Record<Lang, LabelPosition>>;
 };
-
-/** パスの座標の小数の桁数。1桁（0.1px）なら見た目は変わらず、HTML が小さくなる（5.1） */
-const PATH_DIGITS = 1;
-
-/** 県コードが 01〜47 か */
-const PREF_CODE = /^(0[1-9]|[1-3][0-9]|4[0-7])$/u;
 
 /**
  * 県名ラベルの文字の大きさ（viewBox の単位）。幅821pxで、ja・zh は約13px。
@@ -129,13 +124,15 @@ export function buildPrefPaths(topology: unknown): readonly PrefPath[] {
 
 function toPrefPath({ code, label, geometry }: PrefFeature): PrefPath {
   const projection = createProjection(code);
-  const path = geoPath(projection).digits(PATH_DIGITS);
-  const polygons = (geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates).filter(rings => overlapsViewBox(path.bounds({ type: 'Polygon', coordinates: rings })));
+  const measure = geoPath(projection);
+  const polygons = (geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates).filter(rings => overlapsViewBox(measure.bounds({ type: 'Polygon', coordinates: rings })));
   if (polygons.length === 0) {
     throw new Error(`県 ${code} の形が viewBox の中にありません`);
   }
-  const d = path({ type: 'MultiPolygon', coordinates: polygons });
-  if (d === null) {
+  const context = createRelativePathContext();
+  geoPath(projection, context)({ type: 'MultiPolygon', coordinates: polygons });
+  const d = context.toString();
+  if (d === '') {
     throw new Error(`県 ${code} の形をパスにできません`);
   }
   const [x, y] = projectPoint(label, code);
@@ -165,7 +162,7 @@ function readFeatures(topology: unknown): readonly PrefFeature[] {
   const { features } = feature(topology as unknown as Topology, object as unknown as GeometryCollection<GeoJsonProperties>);
   return features.map(({ properties, geometry }) => {
     const code = properties?.code;
-    if (typeof code !== 'string' || !PREF_CODE.test(code)) {
+    if (typeof code !== 'string' || !PREF_CODE_PATTERN.test(code)) {
       throw new Error(`県の属性 code が 01〜47 の文字列ではありません（${String(code)}）`);
     }
     const label: unknown = properties?.label;

@@ -81,7 +81,9 @@ test.describe('県名ラベル', () => {
 
   for (const lang of LANGS) {
     test(`F-MAP-01：県名ラベルどうしが重ならない（${lang}）`, async ({ page, browserName, isMobile }) => {
-      // 文字の幅はフォントで変わる。重ならない配置は、chromium（既定のフォント）で確かめる
+      // 文字の幅はフォントで変わる。重ならない配置は、chromium（既定のフォント）で確かめる。
+      // getBBox() は文字の外接矩形（ascent＋descent。字の見た目より縦に大きい）で測るので、runner のフォントが変わると結果が変わる。
+      // 落ちたら、まずフォントの違いを疑う（ずらしは `prefPaths.ts` の LABEL_OFFSETS。文字の大きさは LABEL_FONT_SIZE）
       test.skip(browserName !== 'chromium' || isMobile, 'フォントで幅が変わるので、PC の chromium だけで確かめる');
       await page.setViewportSize({ width: 1280, height: 900 });
       await page.goto(`/${lang}/`);

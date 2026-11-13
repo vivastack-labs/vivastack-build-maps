@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import { JapanMap } from '@/components/JapanMap';
 import { VIEWBOX } from '@/features/map/projection';
@@ -102,5 +102,19 @@ describe('JapanMap', () => {
     const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
 
     expect(container.querySelector('[data-pref-labels]')?.getAttribute('class')).toContain('max-map-label:hidden');
+  });
+});
+
+describe('JapanMap の入力の確かめ', () => {
+  test('F-MAP-01：コンテンツの県コードからパスを引けないときは、パスのない県を描かずに例外にする', () => {
+    // Arrange：県コードの形は正しいが、地図のデータにない県（99）
+    const first = prefectures[0];
+    if (!first) throw new Error('県がない');
+    const unknown = { ...first, code: '99' } as unknown as (typeof prefectures)[number];
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    // Act・Assert
+    expect(() => render(<JapanMap lang="ja" prefectures={[...prefectures, unknown]} />)).toThrow(/99/u);
+    vi.restoreAllMocks();
   });
 });

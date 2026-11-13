@@ -1,4 +1,4 @@
-import { LABEL_FONT_SIZE, loadPrefPaths } from '@/features/map/prefPaths';
+import { LABEL_FONT_SIZE, loadPrefPaths, type PrefPath } from '@/features/map/prefPaths';
 import { OKINAWA_FRAME, VIEWBOX } from '@/features/map/projection';
 import { REGION_FILL_CLASS } from '@/features/map/regions';
 import type { Lang } from '@/i18n/lang';
@@ -27,6 +27,15 @@ function labelText(name: string): string {
   return plainText(name).replace(PREF_SUFFIX, '');
 }
 
+/** 県コードから地図のデータ（パス・ラベルの位置）を引く。ない県は、描かずに止める（ビルドで気付くため） */
+function pathOf(paths: ReadonlyMap<string, PrefPath>, code: string): PrefPath {
+  const path = paths.get(code);
+  if (!path) {
+    throw new Error(`県コード ${code} の形が地図のデータ（prefs.topo.json）にありません`);
+  }
+  return path;
+}
+
 /**
  * 都道府県の地図（SVG。F-MAP-01〜04・06、D24）。ビルド時に HTML へ出力するので、JavaScript がなくても見える。
  * 色は `app/globals.css` の @theme の変数（ライト・ダーク。D26）。操作は T2-05、拡大・縮小は T2-06。
@@ -42,7 +51,7 @@ export function JapanMap({ lang, prefectures }: Props) {
       <g data-map-layer>
         <g className="stroke-map-border" strokeWidth={0.8} strokeLinejoin="round">
           {prefectures.map(({ code, region, name }) => (
-            <path key={code} data-pref={code} data-region={region} role="button" aria-label={plainText(name[lang])} d={pathByCode.get(code)?.d} className={REGION_FILL_CLASS[region]} />
+            <path key={code} data-pref={code} data-region={region} role="button" aria-label={plainText(name[lang])} d={pathOf(pathByCode, code).d} className={REGION_FILL_CLASS[region]} />
           ))}
         </g>
         <rect data-okinawa-frame {...OKINAWA_FRAME} fill="none" strokeWidth={1.5} strokeDasharray="6 4" className="stroke-map-frame" />
@@ -69,9 +78,9 @@ export function JapanMap({ lang, prefectures }: Props) {
           dominantBaseline="central"
         >
           {prefectures.map(({ code, name }) => {
-            const label = pathByCode.get(code)?.labels[lang];
+            const label = pathOf(pathByCode, code).labels[lang];
             return (
-              <text key={code} data-pref-label={code} x={label?.x} y={label?.y}>
+              <text key={code} data-pref-label={code} x={label.x} y={label.y}>
                 {labelText(name[lang])}
               </text>
             );
