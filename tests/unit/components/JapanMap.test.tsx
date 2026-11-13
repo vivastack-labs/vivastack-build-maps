@@ -1,0 +1,106 @@
+import { render } from '@testing-library/react';
+import { describe, expect, test } from 'vitest';
+
+import { JapanMap } from '@/components/JapanMap';
+import { VIEWBOX } from '@/features/map/projection';
+import { LANGS } from '@/i18n/lang';
+import { getMessages } from '@/i18n/messages';
+import { loadContent } from '@/lib/content';
+import { plainText } from '@/lib/ruby';
+import { textWithoutRuby } from './base-text';
+
+const prefectures = loadContent();
+
+describe('JapanMap', () => {
+  for (const lang of LANGS) {
+    test(`5.2：県のパスが47個あり、role="button" と aria-label（ふりがなを除いた県名）を持つ（${lang}）`, () => {
+      // Arrange・Act
+      const { container } = render(<JapanMap lang={lang} prefectures={prefectures} />);
+
+      // Assert
+      const paths = [...container.querySelectorAll('path[data-pref]')];
+      expect(paths).toHaveLength(47);
+      for (const [i, path] of paths.entries()) {
+        const prefecture = prefectures[i];
+        expect(path.getAttribute('data-pref')).toBe(prefecture?.code);
+        expect(path.getAttribute('role')).toBe('button');
+        expect(path.getAttribute('aria-label')).toBe(plainText(prefecture?.name[lang] ?? ''));
+        expect(path.getAttribute('d')).toMatch(/^M/u);
+      }
+    });
+  }
+
+  test('F-MAP-01：県のパスの data-region がコンテンツの地方と同じである', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
+
+    for (const prefecture of prefectures) {
+      const path = container.querySelector(`path[data-pref="${prefecture.code}"]`);
+      expect(path?.getAttribute('data-region')).toBe(prefecture.region);
+      expect(path?.getAttribute('class')).toContain(`fill-region-${prefecture.region}`);
+    }
+  });
+
+  test('5.2：地図の svg は viewBox と、言語ごとの名前（ふりがなを除く）を持つ', () => {
+    for (const lang of LANGS) {
+      const { container, unmount } = render(<JapanMap lang={lang} prefectures={prefectures} />);
+
+      const svg = container.querySelector('svg');
+      expect(svg?.getAttribute('viewBox')).toBe(`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`);
+      expect(svg?.getAttribute('role')).toBe('group');
+      expect(svg?.getAttribute('aria-label')).toBe(plainText(getMessages(lang).map.label));
+      expect(svg?.querySelector('[data-map-layer]')).not.toBeNull();
+      unmount();
+    }
+  });
+
+  test('F-MAP-06：海域名（日本海・太平洋）を、その言語で出す', () => {
+    for (const lang of LANGS) {
+      const { container, unmount } = render(<JapanMap lang={lang} prefectures={prefectures} />);
+
+      const seas = [...container.querySelectorAll('[data-sea-label]')];
+      const { japanSea, pacific } = getMessages(lang).seas;
+      expect(seas.map(sea => textWithoutRuby(sea))).toEqual([plainText(japanSea), plainText(pacific)]);
+      unmount();
+    }
+  });
+
+  test('F-MAP-02：沖縄県の点線枠がある', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
+
+    const frame = container.querySelector('[data-okinawa-frame]');
+    expect(frame?.getAttribute('stroke-dasharray')).toBeTruthy();
+    expect(frame?.getAttribute('fill')).toBe('none');
+  });
+
+  test('5.2：県名ラベルは aria-hidden である（パスの aria-label と重複するため）', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
+
+    const labels = container.querySelector('[data-pref-labels]');
+    expect(labels?.getAttribute('aria-hidden')).toBe('true');
+    expect(labels?.querySelectorAll('text')).toHaveLength(47);
+  });
+
+  test('F-MAP-01：県名ラベルは「都・府・県」（中国語は「县」）を省き、北海道はそのまま出す', () => {
+    const label = (lang: 'ja' | 'en' | 'zh', code: string) => {
+      const { container, unmount } = render(<JapanMap lang={lang} prefectures={prefectures} />);
+      const text = container.querySelector(`[data-pref-label="${code}"]`)?.textContent;
+      unmount();
+      return text;
+    };
+
+    expect(label('ja', '01')).toBe('北海道');
+    expect(label('ja', '13')).toBe('東京');
+    expect(label('ja', '26')).toBe('京都');
+    expect(label('ja', '27')).toBe('大阪');
+    expect(label('ja', '02')).toBe('青森');
+    expect(label('zh', '13')).toBe('东京');
+    expect(label('zh', '02')).toBe('青森');
+    expect(label('en', '13')).toBe('Tokyo');
+  });
+
+  test('F-MAP-01：県名ラベルは幅820px以下で隠す（max-map-label:hidden）', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
+
+    expect(container.querySelector('[data-pref-labels]')?.getAttribute('class')).toContain('max-map-label:hidden');
+  });
+});

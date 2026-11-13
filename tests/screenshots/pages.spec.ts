@@ -12,6 +12,8 @@ type Scene = {
 
 const SCENES: readonly Scene[] = [
   ...LANGS.map(lang => ({ name: `${lang}-top`, path: `/${lang}/` })),
+  // F-MAP-04：端末の設定がダークのときの色
+  { name: 'ja-top-dark', path: '/ja/', prepare: page => page.emulateMedia({ colorScheme: 'dark' }) },
   // 存在しないパスの404（app/global-not-found.tsx）。404のステータスでも、page.goto は例外にならずに撮れる
   { name: 'ja-not-found', path: '/ja/no-such-page/' }
 ];

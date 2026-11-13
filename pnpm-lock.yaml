@@ -181,6 +181,9 @@ importers:
       react-dom:
         specifier: 19.3.1
         version: 19.3.1(react@19.3.1)
+      topojson-client:
+        specifier: 3.1.0
+        version: 3.1.0
       yaml:
         specifier: 2.9.1
         version: 2.9.1
@@ -260,9 +263,6 @@ importers:
       tailwindcss:
         specifier: 4.3.5
         version: 4.3.5
-      topojson-client:
-        specifier: 3.1.0
-        version: 3.1.0
       typescript:
         specifier: ~6.0.3
         version: 6.0.3
