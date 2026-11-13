@@ -31,15 +31,15 @@
 4. `src/components/MapStateProvider.tsx`（`'use client'`）：Context と `useMapState()`（Provider の外で呼ぶと例外）。
 5. `src/components/MapInteraction.tsx`（`'use client'`）：地図の箱（`data-map-box`）の中身を包む `<div>`。
    - `onPointerDown`（直前の `pointerType` を ref に覚える）・`onPointerOver`・`onPointerOut`・`onClick`・`onDoubleClick` を付ける。中身は `<svg>` だけなので、`<svg>` にまとめて付けるのと同じ（イベントの委譲。判断 3）。
-   - `useEffect` で `applyPrefState(ref.current, state)`。マウントしたら `data-map-ready` を付ける（E2E が、ハイドレーションの後に操作するため。判断 7）。
-6. `src/components/CardSwitch.tsx`（`'use client'`）：カードの中身を包む `<div>`。`useEffect` で `applyCardState(ref.current, cardPref(state))`。
-7. `src/components/JapanMap.tsx`：県のパスに `aria-pressed="false"` を付け（判断 5）、見た目のクラスを足す（判断 6）：`cursor-pointer`、マウスをのせたときの `hover:opacity-80`、固定中の `aria-pressed:fill-map-selected`。
+   - `useLayoutEffect` で `applyPrefState(ref.current, state)`（ホバーの見た目が1フレーム遅れないように）。マウントしたら `useEffect` で `data-map-ready` を付ける（E2E が、ハイドレーションの後に操作するため。判断 7）。県のパスの要素は作り直さない前提（作り直すと状態と属性がずれる）を JSDoc に書く。
+6. `src/components/CardSwitch.tsx`（`'use client'`）：カードの中身を包む `<div>`。`useLayoutEffect` で `applyCardState(ref.current, cardPref(state))`。
+7. `src/components/JapanMap.tsx`：県のパス1つぶんを `PrefShape` に切り出し（関数が50行を超えたため）、県のパスに `aria-pressed="false"` を付け（判断 5）、見た目のクラスを足す（判断 6）：`cursor-pointer`、マウスをのせたときの `hover:opacity-80`、固定中の `aria-pressed:fill-map-selected`。
 8. `src/components/MapArea.tsx`：`JapanMap` を `MapInteraction` で包む。
 9. `src/components/CardArea.tsx`：props に `prefectures` を足す。`CardSwitch` の中に、案内文（`data-card-guide`）と、47県の県名（`<p data-card-pref="NN" hidden>`。`RubyText`）を出す（判断 1）。
 10. `app/[lang]/page.tsx`：`<main>` の中を `MapStateProvider` で包み、`CardArea` に `prefectures` を渡す。
 11. `app/globals.css`：`--color-map-selected`（ライト・ダーク）を足す（判断 6）。
 12. `tests/screenshots/pages.spec.ts`：県を固定した状態の画面（`ja-pinned`）を `SCENES` に足す（判断 9）。
-13. ドキュメント：`AGENTS.md` のアーキテクチャに「操作の結線」を1項目足す。T2-06・T2-10・T2-11・T3-03 の定義に、後のタスクに関係すること（Context から `dispatch` する、`[data-card-pref]` を切り替える、`data-map-ready` を待つ）を書き足す。
+13. ドキュメント：`AGENTS.md` のアーキテクチャに「操作の結線」を1項目足す。T2-06・T2-10・T2-11・T3-03 の定義に、後のタスクに関係すること（Context から `dispatch` する、`[data-card-pref]` を切り替える、`data-map-ready` を待つ）を書き足す。T3-03 には、Tailwind v4 の preflight が `[hidden]` を `display: none !important` にするので、`:target` で見せる規則にも `!important` が要ることを、T2-06 には Apple Pencil（`pen`）のダブルタップの確認項目を書き足す（レビューの指摘）。
 
 ## 先に書くテスト
 
@@ -59,11 +59,15 @@
   - `固定を解除すると aria-pressed が false に戻り、data-state がなくなる`
   - `4.11.1：表示する県のカードだけ hidden が外れ、案内文が隠れる`・`県がないときは案内文だけが見える`
 
+`pointer.test.ts`・`mapDom.test.ts` は `.test.ts` に置き、先頭の `// @vitest-environment jsdom` で jsdom で動かす。
+
 ### コンポーネント（jsdom）
 
 - `tests/unit/components/MapInteraction.test.tsx`（`MapStateProvider` ＋ `MapInteraction` ＋ `CardSwitch` を小さな SVG で組む）
   - `F-CARD-01：マウスで県にのると、カードの県名が変わる`
+  - `4.11.1：県から海へマウスを動かしても、カードは残る`
   - `F-CARD-07：クリックで固定すると aria-pressed が true になり、別の県にのってもカードが変わらない`
+  - `4.11.2：同じ県のクリックと海のクリックで固定が解除される`
   - `F-ZOOM-04：ダブルクリックで最大化と固定になる`
   - `4.11.3：タッチでは、のってもカードが変わらず、ダブルクリックしても最大化しない`
   - `マウントすると data-map-ready が付く`
@@ -74,7 +78,7 @@
 ### E2E（`tests/e2e/interaction.spec.ts`）
 
 県の要素を引く関数を引数に取る形にして、T2-10 でさくいん（F-IDX-02）でも同じテストを回せるようにする（判断 10）。
-操作の前に `[data-map-ready]` を待つ。ホバーの対象は、外接矩形の中心が自分の形の中にある県（例：長野県 20・岐阜県 21）にする（東京都は島を含むので中心が海になる）。
+操作の前に `[data-map-ready]` を待つ。「変わらない」ことを確かめる前には、`settle()`（`requestAnimationFrame` を2回待つ）で操作の反映を待つ（待たないと、反映の前の DOM を見て空振りする）。ホバーの対象は、外接矩形の中心が自分の形の中にある県（例：長野県 20・岐阜県 21）にする（東京都は島を含むので中心が海になる）。
 
 - PC（`hasTouch` でないプロジェクト：chromium・firefox・webkit）
   - `F-CARD-01：県にホバーすると、カードの県名が変わる`
@@ -82,9 +86,12 @@
   - `F-CARD-07：クリックで固定し、別の県にホバーしてもカードが変わらない`
   - `4.11.2：同じ県のクリックで固定を解除する`・`4.11.2：海のクリックで固定を解除する`
   - `F-ZOOM-04：ダブルクリックで最大化と固定になる`・`4.11.2：最大化中のクリックでは何も変わらない`
+  - `4.11.2：固定中に別の県をクリックすると、固定がその県に移る`
+  - `4.11.2：最大化中に同じ県をダブルクリックすると最大化だけが解け、固定は残る`
+  - `4.11.2：最大化中に別の県をダブルクリックすると、その県に切り替わる`
 - スマホ・タブレット（`hasTouch` のプロジェクト：iphone・pixel・ipad-portrait・ipad-landscape）
   - `4.11.3：タップで固定する`
-  - `4.11.3：同じ県を続けて2回タップしても最大化しない`
+  - `4.11.3：同じ県を続けて2回タップしても最大化しない`（`tap()` を2回続けても `dblclick` が出るとは限らないので、タッチの `dblclick` の除外は `MapInteraction.test.tsx` で確かめる）
 
 ## 完了条件の確かめ方
 
@@ -115,3 +122,14 @@
    理由：このタスクで変わる見た目は、固定した県の塗りとカードの県名だけ。
 10. **E2E を T2-10 で使い回す形** — 推奨：テストの本体を「県の要素を引く関数」を受け取る形にして、今は地図の `path[data-pref]` で呼ぶ。
     理由：T2-10 の定義に「T2-05 のテストを、地図とさくいんの両方で実行する形にする」とある。今その形にしておくと、T2-10 は呼ぶ側を1つ足すだけで済む。
+
+## 承認後に変えたこと
+
+| 項目 | 承認したとき | 実際 | 理由 |
+|---|---|---|---|
+| `JapanMap` | 県のパスに属性とクラスを足す | パス1つぶんを `PrefShape` に切り出した | 属性が増えて、関数が50行（`max-lines-per-function`）を超えた |
+| 属性の書き換え | `useEffect` | `useLayoutEffect`（`data-map-ready` は `useEffect` のまま） | レビューの指摘。ホバーの見た目が、画面を一度描いた後に1フレーム遅れて変わるため。React 19 の SSR では警告が出ない |
+| E2E の「変わらない」の確かめ方 | ホバーの直後に確かめる | `settle()` で反映を待ってから確かめる | レビューの指摘。待たないと、壊れた実装でも通る（わざと壊して落ちることを確かめた） |
+| E2E の 4.11.2 の行 | PC 7本 | PC 10本（固定を移す、最大化中の同じ県・別の県のダブルクリックを追加） | レビューの指摘。完了条件「4.11.2 のとおり」に関わる行を E2E でも確かめる |
+| E2E の海の操作 | 画面の座標を計算して操作する | `locator.hover/click({ position })` | 画面の高さを超える位置を `page.mouse` で操作すると届かず、空振りする |
+| E2E の県名の比べ方 | 表示の文字列で比べる | `<rt>`（ふりがな）を除いて比べる | ふりがなが本文に入り、`toHaveText` が合わない |
