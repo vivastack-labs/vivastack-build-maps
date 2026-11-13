@@ -45,6 +45,14 @@ async function clickSea(page: Page): Promise<void> {
   await page.locator('[data-map-sea]').click({ position: await seaPosition(page) });
 }
 
+/**
+ * 画面への反映を待つ（requestAnimationFrame を2回）。「変わらない」ことを確かめる前に呼ぶ。
+ * 待たないと、操作が反映される前の DOM を見て、実装が壊れていてもテストが通ってしまう
+ */
+async function settle(page: Page): Promise<void> {
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+}
+
 /** カードに表示されている県名（hidden でないもの）を確かめる。県がなければ案内文が見える */
 async function expectCard(page: Page, code: string | null): Promise<void> {
   const shown = page.locator('[data-card-pref]:not([hidden])');
@@ -98,6 +106,7 @@ function definePointerTests(prefOf: PrefLocator): void {
       await expectCard(page, NAGANO);
 
       await hoverSea(page);
+      await settle(page);
 
       await expectCard(page, NAGANO);
     });
@@ -108,6 +117,7 @@ function definePointerTests(prefOf: PrefLocator): void {
       await prefOf(page, NAGANO).click();
       await expectState(mapPref(page, NAGANO), 'pinned');
       await prefOf(page, GIFU).hover();
+      await settle(page);
 
       await expectCard(page, NAGANO);
       await expectState(mapPref(page, GIFU), null);
@@ -152,10 +162,47 @@ function definePointerTests(prefOf: PrefLocator): void {
       await prefOf(page, NAGANO).click();
       await prefOf(page, GIFU).click();
       await clickSea(page);
+      await settle(page);
 
       await expectState(mapPref(page, NAGANO), 'maximized');
       await expectState(mapPref(page, GIFU), null);
       await expectCard(page, NAGANO);
+    });
+
+    test('4.11.2：固定中に別の県をクリックすると、固定がその県に移る', async ({ page }) => {
+      await open(page);
+      await prefOf(page, NAGANO).click();
+      await expectState(mapPref(page, NAGANO), 'pinned');
+
+      await prefOf(page, GIFU).click();
+
+      await expectState(mapPref(page, GIFU), 'pinned');
+      await expectState(mapPref(page, NAGANO), null);
+      await expectCard(page, GIFU);
+    });
+
+    test('4.11.2：最大化中に同じ県をダブルクリックすると最大化だけが解け、固定は残る', async ({ page }) => {
+      await open(page);
+      await prefOf(page, NAGANO).dblclick();
+      await expectState(mapPref(page, NAGANO), 'maximized');
+
+      await prefOf(page, NAGANO).dblclick();
+
+      // 最大化が解けるので data-state は maximized でなくなり、固定中（pinned・aria-pressed="true"）が残る
+      await expectState(mapPref(page, NAGANO), 'pinned');
+      await expectCard(page, NAGANO);
+    });
+
+    test('4.11.2：最大化中に別の県をダブルクリックすると、その県に切り替わる', async ({ page }) => {
+      await open(page);
+      await prefOf(page, NAGANO).dblclick();
+      await expectState(mapPref(page, NAGANO), 'maximized');
+
+      await prefOf(page, GIFU).dblclick();
+
+      await expectState(mapPref(page, GIFU), 'maximized');
+      await expectState(mapPref(page, NAGANO), null);
+      await expectCard(page, GIFU);
     });
   });
 }
@@ -183,7 +230,9 @@ function defineTouchTests(prefOf: PrefLocator): void {
       await prefOf(page, NAGANO).tap();
       await prefOf(page, NAGANO).tap();
 
-      // 1回目で固定、2回目のタップ（クリック）で固定を解除する。最大化にはならない
+      // 1回目で固定、2回目のタップ（クリック）で固定を解除する。最大化にはならない。
+      // tap() を2回続けても dblclick が出るとは限らない（端末による）ので、このテストはクリックの結果だけを確かめる。
+      // タッチの dblclick を無視すること（4.11.3）は、MapInteraction.test.tsx で dblclick を直接起こして確かめている
       await expectState(mapPref(page, NAGANO), null);
       await expect(page.locator('[data-state="maximized"]')).toHaveCount(0);
     });

@@ -83,6 +83,7 @@
 - プレビューでは、「下書き」の項目に印を表示する。
 - T2-05 の仮の表示を置き換え、表示する県のカードの `hidden` を外す。
   - 切り替えの仕組みは T2-05 の `CardSwitch`（`'use client'`）と `applyCardState`（`src/features/map/mapDom.ts`）をそのまま使う。`CardArea` の仮の `<p data-card-pref="NN" hidden>`（県名だけ）を、`PrefCard`（`data-card-pref="NN"` と `hidden` を付ける）に置き換える。案内文（`data-card-guide`）は残し、県がないときだけ見せる。`CardSwitch` の中に置けば、クライアントの変更は要らない。
+  - Tailwind v4 の preflight は `[hidden]` を `display: none !important` にする（`node_modules/tailwindcss/preflight.css`）。JavaScript なしで `:target` のカードを見せるには、`[data-card-pref]:target { display: block !important }` のような `!important` 付きの規則が要る。
 - JavaScriptがないとき：CSS の `:target` で、ハッシュの県のカードを表示する。
 - カードの内容をクライアントコンポーネントの props に渡さない（6.6 (2)）。
 - 本物のカードが画面より高くなると、sticky のままでは下が見えない。`lg:max-h-[calc(100dvh-2rem)] lg:overflow-y-auto` などで、カードの中をスクロールできるようにする（T2-03 の `CardArea` は 1024px以上で sticky）。

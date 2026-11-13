@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, type ReactNode } from 'react';
 import { applyCardState } from '@/features/map/mapDom';
 import { cardPref } from '@/features/map/state';
 import { useMapState } from './MapStateProvider';
@@ -14,7 +14,7 @@ export function CardSwitch({ children }: { readonly children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const pref = cardPref(state);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (ref.current) applyCardState(ref.current, pref);
   }, [pref]);
 
