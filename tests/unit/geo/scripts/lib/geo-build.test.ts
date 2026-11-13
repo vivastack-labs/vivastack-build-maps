@@ -1,10 +1,10 @@
-import { geoBounds } from 'd3-geo';
+import { geoBounds, geoContains } from 'd3-geo';
 import type { GeometryCollection, Topology } from 'topojson-specification';
 import { feature } from 'topojson-client';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { buildGeo, GEO_BUILD_SETTINGS, type GeoBuildResult } from '../../../../../geo/scripts/lib/geo-build';
 import type { NamingSources } from '../../../../../geo/scripts/lib/municipality';
-import { N03_SAMPLE, SOUMU_SAMPLE } from '../../../../fixtures/geo/n03-sample';
+import { islandFeature, N03_SAMPLE, SOUMU_SAMPLE } from '../../../../fixtures/geo/n03-sample';
 
 // 第8章・7.4・F-MUNI-01：N03 から、県ごとの市区町村の TopoJSON と、都道府県の TopoJSON を作る
 const NAMING: NamingSources = {
@@ -116,5 +116,47 @@ describe('buildGeo', () => {
 
     // Act / Assert
     await expect(buildGeo(N03_SAMPLE, naming)).rejects.toThrow('01203');
+  });
+});
+
+describe('buildGeo：県の形の小さな島', () => {
+  // 千代田区（13101）の飛び地として、海に島を2つ置く。どちらも簡略化の度合い（1km）より細い
+  // - 約1.5km²（経度0.012°×緯度0.012°）：残す
+  // - 約0.17km²（経度0.004°×緯度0.004°）：除く
+  const LARGE_ISLAND: readonly [number, number] = [139.75, 34.0];
+  const SMALL_ISLAND: readonly [number, number] = [139.85, 34.0];
+  const withIslands = {
+    ...N03_SAMPLE,
+    features: [...N03_SAMPLE.features, islandFeature(LARGE_ISLAND, 0.012), islandFeature(SMALL_ISLAND, 0.004)]
+  };
+
+  let prefsJson: string;
+
+  beforeAll(async () => {
+    prefsJson = (await buildGeo(withIslands, NAMING)).prefs;
+  });
+
+  const tokyoPrefOf = (json: string) => {
+    const prefs = parse(json);
+    const tokyo = feature(prefs, prefs.objects.prefectures as Collection).features.find(f => codeOf(f) === '13');
+    if (!tokyo) throw new Error('東京都の形がありません');
+    return tokyo;
+  };
+
+  test('7.4：県の形に、簡略化の度合いより細くても 1km² 以上の島を残す', () => {
+    // Assert：島の中心が県の形に含まれる
+    expect(geoContains(tokyoPrefOf(prefsJson), [LARGE_ISLAND[0] + 0.006, LARGE_ISLAND[1] + 0.006])).toBe(true);
+  });
+
+  test('7.4：県の形から、1km² より小さな島を除く', () => {
+    // Act
+    const tokyo = tokyoPrefOf(prefsJson);
+
+    // Assert：形は本土の1つと、残した島の1つだけ
+    const [[, south]] = geoBounds(tokyo);
+    expect(tokyo.geometry.type).toBe('MultiPolygon');
+    expect(tokyo.geometry.type === 'MultiPolygon' ? tokyo.geometry.coordinates.length : 1).toBe(2);
+    expect(south).toBeCloseTo(34.0, 1);
+    expect(geoContains(tokyo, [SMALL_ISLAND[0] + 0.002, SMALL_ISLAND[1] + 0.002])).toBe(false);
   });
 });

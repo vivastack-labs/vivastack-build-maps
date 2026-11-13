@@ -19,10 +19,16 @@ export type SimplifySettings = {
   readonly quantization: number;
 };
 
+/** 都道府県の形の設定。簡略化に加えて、残す島の下限を持つ */
+export type PrefectureSettings = SimplifySettings & {
+  /** 県の形に残す島の面積の下限（平方メートル。mapshaper の -filter-islands min-area=） */
+  readonly minIslandArea: number;
+};
+
 /** 変換の設定。市区町村と都道府県で簡略化の度合いを変える */
 export type GeoBuildSettings = {
   readonly municipality: SimplifySettings;
-  readonly prefecture: SimplifySettings;
+  readonly prefecture: PrefectureSettings;
   /** 1県分の市区町村データの、gzip 後の上限（バイト。5.1） */
   readonly maxGzipBytes: number;
 };
@@ -31,10 +37,11 @@ export type GeoBuildSettings = {
  * 値と理由は geo/README.md（D34）。
  * - 市区町村：100m。最大化した県を画面いっぱいに描いても角ばりが目立たず、最大の北海道でも100KBに収まる。
  * - 都道府県：1km。HTML に SVG のパスとして埋め込む（6.6 (1)）ので、最初の読み込み（5.1）に効く。全国の表示では見分けられない。
+ *   島は 1km² 以上を残す。それより小さな島は全国の表示で1pxに満たず、県を最大化すると市区町村の形で描かれる。
  */
 export const GEO_BUILD_SETTINGS: GeoBuildSettings = {
   municipality: { interval: 100, quantization: 50_000 },
-  prefecture: { interval: 1000, quantization: 100_000 },
+  prefecture: { interval: 1000, quantization: 100_000, minIslandArea: 1_000_000 },
   maxGzipBytes: 100_000
 };
 
@@ -86,12 +93,17 @@ function municipalityCommands({ interval, quantization }: SimplifySettings): str
   ].join(' ');
 }
 
+// keep-shapes は形（feature）ごとに1つの輪を残すだけで、1つの形の中の小さな島は簡略化で消える。
+// そこで、県ごとにまとめた形を島ごとの形に分け（-explode）、小さな島を除いてから簡略化し、県ごとにまとめ直す。
 // innerX・innerY は、いちばん大きな形の内側の点（polylabel）。北海道の北方領土や東京都の島ではなく、本土に付く
-function prefectureCommands({ interval, quantization }: SimplifySettings): string {
+function prefectureCommands({ interval, quantization, minIslandArea }: PrefectureSettings): string {
   return [
     '-each "pref=N03_007.slice(0,2)"',
     '-dissolve pref',
+    '-explode',
+    `-filter-islands min-area=${minIslandArea}`,
     `-simplify interval=${interval} keep-shapes`,
+    '-dissolve pref',
     '-each "lon=this.innerX, lat=this.innerY"',
     `-o format=topojson quantization=${quantization}`
   ].join(' ');

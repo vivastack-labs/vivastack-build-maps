@@ -3,6 +3,9 @@
 // 形と項目の意味は開発概要書 7.4・7.4.1 と geo/README.md。
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { geoContains } from 'd3-geo';
+import { feature } from 'topojson-client';
+import type { GeometryCollection, Topology } from 'topojson-specification';
 import { describe, expect, test } from 'vitest';
 import { GEO_BUILD_SETTINGS, gzipSize } from '../../geo/scripts/lib/geo-build';
 
@@ -105,6 +108,35 @@ describe('都道府県（geo/data/prefs.topo.json）', () => {
 
     // Assert
     expect(outside.map(geometry => geometry.properties)).toEqual([]);
+  });
+
+  const topology = JSON.parse(prefs.text) as Topology<{ prefectures: GeometryCollection<{ code?: unknown; label?: unknown }> }>;
+  const prefFeatures = feature(topology, topology.objects.prefectures).features;
+
+  test('7.4：県名ラベルの位置が、その県の形の中にある', () => {
+    // Act
+    const outside = prefFeatures.filter(pref => {
+      const label = pref.properties.label;
+      return !(Array.isArray(label) && geoContains(pref, [Number(label[0]), Number(label[1])]));
+    });
+
+    // Assert
+    expect(outside.map(pref => pref.properties.code)).toEqual([]);
+  });
+
+  // 1km² 以上の島は県の形に残す（geo/README.md）。県ごとにまとめた形を簡略化すると、keep-shapes でも小さな島が消えていた
+  test.each([
+    ['13', '母島', [142.16, 26.65]],
+    ['13', '南鳥島', [153.98, 24.29]],
+    ['35', '彦島', [130.9, 33.94]],
+    ['37', '小豆島', [134.25, 34.49]],
+    ['42', '宇久島', [129.13, 33.27]]
+  ] as const)('7.4：%s の県の形に、1km² 以上の島（%s）がある', (code, _name, point) => {
+    // Arrange
+    const pref = prefFeatures.find(f => f.properties.code === code);
+
+    // Assert
+    expect(pref && geoContains(pref, [...point])).toBe(true);
   });
 
   test('7.4：形のない県がない', () => {

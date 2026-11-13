@@ -16,13 +16,13 @@ type N03Properties = {
 
 const SIZE = 0.1;
 
-function square(lon: number, lat: number, properties: N03Properties): Feature<Polygon, N03Properties> {
+function square(lon: number, lat: number, properties: N03Properties, size: number = SIZE): Feature<Polygon, N03Properties> {
   // GeoJSON の外側の輪は反時計回り
   const ring = [
     [lon, lat],
-    [lon + SIZE, lat],
-    [lon + SIZE, lat + SIZE],
-    [lon, lat + SIZE],
+    [lon + size, lat],
+    [lon + size, lat + size],
+    [lon, lat + size],
     [lon, lat]
   ];
   return { type: 'Feature', properties, geometry: { type: 'Polygon', coordinates: [ring] } };
@@ -50,6 +50,11 @@ export const N03_SAMPLE: FeatureCollection<Polygon, N03Properties> = {
     square(139.8, 35.6, tokyo('所属未定地', '13000'))
   ]
 };
+
+/** 千代田区（13101）の、海に浮かぶ1辺 `size` 度の四角い島（左下が `lonLat`）。県の形の小さな島の扱いを確かめる */
+export function islandFeature(lonLat: readonly [number, number], size: number): Feature<Polygon, N03Properties> {
+  return square(lonLat[0], lonLat[1], tokyo('千代田区', '13101'), size);
+}
 
 /** 総務省のコード表のうち、N03_SAMPLE の市区町村に要る行（カナは半角） */
 export const SOUMU_SAMPLE: readonly (readonly [code: string, name: string, kana: string])[] = [
