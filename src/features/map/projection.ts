@@ -13,7 +13,9 @@
  * - 縮尺 3300・位置 (468, 544)・viewBox 1000×1130：N03 2026年版の形の外接矩形
  *   （沖縄県と小笠原村を除く。対馬・五島、北方領土、竹島、奄美群島・与論島、伊豆諸島の南の岩礁まで）が、
  *   上下左右に約20の余白で入るように、T1-03 で試算して丸めた値。
- * - 小笠原村（父島・南鳥島・沖ノ鳥島）は viewBox の外に出る。扱いは U16（T2-04 で決める）。
+ * - 小笠原村（父島・南鳥島・沖ノ鳥島）は viewBox の外に出る。U16（D36）：別枠は作らず、実際の位置のまま投影する。
+ *   都道府県の形（T2-04、`prefPaths.ts`）では viewBox の外に出る島を除き、父島は枠の下端に小さく残る。
+ *   市区町村の形（T2-08）は小笠原村も実際の位置に描くので、この投影は小笠原村に特別な規則を持たない。
  * - 沖縄県（尖閣諸島・大東諸島を含む）は、等倍のまま左上の点線枠に移す（F-MAP-02）。
  *   等倍なら他の県と大きさを比べられ、左上（日本海の西側）には陸地がないので等倍でも収まる。
  *   与論島（鹿児島県）と伊平屋島（沖縄県）は近く、座標では区別できないので、移すかどうかは県コードで決める。
@@ -45,7 +47,8 @@ export const OKINAWA_TRANSFORM = { scale: 1, dx: 326, dy: -978 } as const;
 /** 沖縄県を入れる点線枠（viewBox の座標） */
 export const OKINAWA_FRAME = { x: 20, y: 20, width: 500, height: 305 } as const;
 
-const PREF_CODE = /^(0[1-9]|[1-3][0-9]|4[0-7])$/;
+/** 県コード（01〜47 の2桁の文字列）の形 */
+export const PREF_CODE_PATTERN = /^(0[1-9]|[1-3][0-9]|4[0-7])$/;
 const MAX_LONGITUDE = 180;
 const MAX_LATITUDE = 90;
 
@@ -86,7 +89,7 @@ function okinawaPlacement(): { readonly scale: number; readonly translate: Point
 }
 
 function assertPrefCode(prefCode: string): void {
-  if (!PREF_CODE.test(prefCode)) {
+  if (!PREF_CODE_PATTERN.test(prefCode)) {
     throw new Error(`県コードは 01〜47 の2桁で指定してください（${prefCode}）`);
   }
 }

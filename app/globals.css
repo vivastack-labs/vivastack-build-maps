@@ -16,3 +16,48 @@
 :root:lang(zh) {
   --font-sans: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
 }
+
+/* F-MAP-01〜04：地図とページの色。ライトは淡い色に濃い文字、ダークは濃い色に明るい文字（Tailwind の 200・800 番台）。
+   県名ラベルは縁取りを付けず、文字の色と地方の塗り・海の色が直接 4.5:1 以上になる組み合わせにする（T4-03 で確かめる）。
+   色の値はここだけに書き、部品は fill-region-kanto のようなクラスで使う（D26） */
+@theme {
+  --color-region-hokkaido: #bae6fd;
+  --color-region-tohoku: #c7d2fe;
+  --color-region-kanto: #a7f3d0;
+  --color-region-chubu: #d9f99d;
+  --color-region-kinki: #fde68a;
+  --color-region-chugoku: #a5f3fc;
+  --color-region-shikoku: #fecdd3;
+  --color-region-kyushu: #f5d0fe;
+  --color-map-sea: #f0f9ff;
+  --color-map-label: #0f172a;
+  --color-map-sea-label: #0f172a;
+  --color-map-border: #64748b;
+  --color-map-frame: #64748b;
+  --color-page-bg: #ffffff;
+  --color-page-text: #0f172a;
+
+  /* 県名ラベルを隠す幅。max-map-label: は幅821px未満（820px以下）で効く（F-MAP-01） */
+  --breakpoint-map-label: 821px;
+}
+
+/* F-MAP-04：端末の設定（prefers-color-scheme）がダークのとき、同じ変数を上書きする */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-region-hokkaido: #075985;
+    --color-region-tohoku: #3730a3;
+    --color-region-kanto: #065f46;
+    --color-region-chubu: #3f6212;
+    --color-region-kinki: #92400e;
+    --color-region-chugoku: #155e75;
+    --color-region-shikoku: #9f1239;
+    --color-region-kyushu: #86198f;
+    --color-map-sea: #0f172a;
+    --color-map-label: #f8fafc;
+    --color-map-sea-label: #f8fafc;
+    --color-map-border: #94a3b8;
+    --color-map-frame: #94a3b8;
+    --color-page-bg: #0f172a;
+    --color-page-text: #f8fafc;
+  }
+}

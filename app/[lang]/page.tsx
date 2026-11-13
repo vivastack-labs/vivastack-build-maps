@@ -3,6 +3,7 @@ import { CardArea } from '@/components/CardArea';
 import { IndexArea } from '@/components/IndexArea';
 import { MapArea } from '@/components/MapArea';
 import { isLang } from '@/i18n/lang';
+import { loadContent } from '@/lib/content';
 
 type Props = {
   params: Promise<{ lang: string }>;
@@ -12,11 +13,13 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
+  // D24：ビルド時に県の基本情報（県名・地方）を読み、地図に埋め込む。読み込みはここで1回だけ行う
+  const prefectures = loadContent();
 
   return (
     <main className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-3">
       <div className="min-w-0 lg:col-span-2">
-        <MapArea />
+        <MapArea lang={lang} prefectures={prefectures} />
       </div>
       <CardArea lang={lang} />
       <div className="min-w-0 lg:col-span-2">
