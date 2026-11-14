@@ -180,7 +180,7 @@
 - `deploy.yml` で E2E を実行するかを決める（開発中は PR ごとに実行しない。D30）。推奨は実行しない（merge の前に `e2e.yml` を手動で実行して確かめるため。分数を抑える）。
 - `ci.yml` に `preview` job を加える（`needs: check`。文書だけのPRでは `check` が build を飛ばすので、`check` の `docs_only` を job の出力にして、プレビューも飛ばす）：`wrangler versions upload --preview-alias pr-N`、PRにプレビューURLをコメントする（同じPRでは1つのコメントを更新する）。
 - `.github/workflows/deploy.yml`：`main` への push で `wrangler deploy`（`environment: production`）。
-- `pnpm build:preview`：この時点では `pnpm build` と同じ内容に、`noindex`（`<meta name="robots" content="noindex">`）を加えたもの。コンテンツの絞り込みは T3-02 で加える。
+- `pnpm build:preview`：`BUILD_TARGET=preview` でビルドする（`next build` と `scripts/postbuild.ts`）。`noindex`（`<meta name="robots" content="noindex">`）と、コンテンツの絞り込み（すべての項目を出して「下書き」の印を付ける）を加えたもの。T3-02 で作った（`package.json` の `build`・`build:preview`、`src/lib/publish.ts`、`app/[lang]/layout.tsx` の `generateMetadata`）。ここ（T0-06）では、`ci.yml` の `preview` job が使う `pnpm build:preview` の出力に `noindex` が付くことを確かめる。
 - プレビューURLの形式と、wrangler の出力から取り出す方法を開発概要書 12.3 に書く。
 
 ### 完了条件
@@ -191,7 +191,7 @@
 ### テスト条件
 
 - 単体：wrangler の出力からプレビューURLを取り出す関数（実際の出力を元にしたフィクスチャで確かめる。URLがないときはエラーにする）。
-- E2E：`pnpm build:preview` の出力には `noindex` が付き、`pnpm build` の出力には付かない（R4）。
+- E2E：`pnpm build:preview` の出力には `noindex` が付き、`pnpm build` の出力には付かない（R4）。T3-02 で、`tests/e2e-preview/preview.spec.ts`（`pnpm test:e2e:preview`）と `tests/e2e/pending.spec.ts` に作った。
 
 ---
 

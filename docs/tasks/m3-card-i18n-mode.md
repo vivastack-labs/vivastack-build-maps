@@ -82,7 +82,9 @@
 - `src/components/PrefCard.tsx`（サーバーコンポーネント）を47県分出力し、`id="pref-NN"` と `hidden` を付ける。
 - カードの中身（4.11.7 の順）：見出し（地方名・県名・県庁所在地）、東京からの距離、行き方（交通手段・経路・所要時間。「目安」と書く）、名物3つ（絵文字・名前・解説）、名所3つ、最大化ボタン（「大きくして市区町村を見る」／「元の大きさにもどす」）、市区町村の一覧（T2-08）。解説文は `ModeText` でこども向け・おとな向けの両方を出す。
 - 「準備中」の県のカード：県名、県庁所在地、距離と「名物・名所は準備中です」（4.11.4）。
+  - T3-02 で分かったこと：`CardArea` の `prefectures` は `publish.ts` の結果（`PublishedPrefecture`）。`pending` が `true` の県が「準備中」で、名物・名所は空・`access` はない（本番）。文言は辞書の `comingSoon.card`（`{ kids, adult }` なので `ModeText`）が既にある。
 - プレビューでは、「下書き」の項目に印を表示する。
+  - T3-02 で分かったこと：`PublishedPrefecture` の `access`・`specialties[]`・`spots[]` の各項目に `draft: boolean`（`status !== 'reviewed'`）が付いている（本番の内容を出す県は、すべて `false`）。プレビューでは `pending` が常に `false`。印の文言は T3-03 で辞書に足す。
 - T3-01 で、仮のカード（`CardArea` の `<div data-card-pref hidden>`）に距離の行（`<p data-card-distance>`。`distanceText(lang, distanceOf(distances, code))`（距離がない県は例外にする `distanceOf` も一緒に移す）。`distances` は `page.tsx` が `distancesFromTokyo()` で1回だけ求める）を足してある。東京都（`TOKYO_CODE`）のカードは基準の点なので、距離の行を出さない（F-CARD-03 は東京都庁から県庁所在地まで）。`PrefCard` の「東京からの距離」には、この行をそのまま移す（`data-card-distance` と、`CardArea` の `distances` の props、`CardArea.test.tsx` の距離のテストも合わせる）。
   - `distanceText`（辞書に依存）を `PrefCard` 側か `src/i18n/` に移し、`distance.ts` を計算だけにするかを T3-03 で決める。
 - T2-05 の仮の表示を置き換え、表示する県のカードの `hidden` を外す。
