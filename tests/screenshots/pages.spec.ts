@@ -105,7 +105,7 @@ const SCENES: readonly Scene[] = [
   { name: 'ja-top-dark', path: '/ja/', prepare: page => page.emulateMedia({ colorScheme: 'dark' }) },
   // T2-05：県（長野県）をクリックして固定した状態。固定した県の塗りと、カードの県名が変わる。最大化は ja-maximized で撮る
   { name: 'ja-pinned', path: '/ja/', prepare: pinPref },
-  // T3-01：東京からの距離。固定した県（長野県）のカードに「東京から約 … km」が出る。en・zh で、3言語の文言と桁区切りを確かめる
+  // T3-01：東京からの距離。固定した県（長野県）のカードに「東京から約 … km」が出る。en・zh で、3言語の文言を確かめる（桁区切りは単体テストで確かめる）
   { name: 'en-pinned', path: '/en/', prepare: pinPref },
   { name: 'zh-pinned', path: '/zh/', prepare: pinPref },
   // T2-10：県名さくいん。さくいんの長野県を固定した状態（8地方の県名の一覧は、各言語の top の全体の画像に入る）（項目の固定中の色と、地図・カードが連動する）

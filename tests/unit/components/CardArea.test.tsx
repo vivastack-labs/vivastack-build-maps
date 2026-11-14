@@ -6,7 +6,7 @@ import { MapStateProvider } from '@/components/MapStateProvider';
 import { LANGS } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
 import { loadContent } from '@/lib/content';
-import { distancesFromTokyo, distanceText } from '@/lib/distance';
+import { distancesFromTokyo, distanceText, TOKYO_CODE } from '@/lib/distance';
 import { plainText } from '@/lib/ruby';
 import { textWithoutRuby } from './base-text';
 
@@ -58,13 +58,13 @@ describe('CardArea', () => {
       }
     });
 
-    test(`F-CARD-03：各県のカードに東京からの距離を出す（${lang}）`, () => {
+    test(`F-CARD-03：東京都以外の46県のカードに東京からの距離を出す（${lang}）`, () => {
       // Arrange・Act
       const { container } = renderCard(lang);
 
       // Assert
-      const cards = [...container.querySelectorAll<HTMLElement>('[data-card-pref]')];
-      expect(cards).toHaveLength(47);
+      const cards = [...container.querySelectorAll<HTMLElement>('[data-card-pref]')].filter(card => card.getAttribute('data-card-pref') !== TOKYO_CODE);
+      expect(cards).toHaveLength(46);
       for (const card of cards) {
         const code = card.getAttribute('data-card-pref') ?? '';
         const distance = card.querySelector<HTMLElement>('[data-card-distance]');
@@ -74,6 +74,16 @@ describe('CardArea', () => {
       // 沖縄県は 1,000km 以上なので、桁区切りが入る
       const okinawa = container.querySelector('[data-card-pref="47"] [data-card-distance]') as HTMLElement;
       expect(okinawa.textContent).toMatch(/1,5\d0/);
+    });
+
+    test(`F-CARD-03：東京都のカードには距離の行を出さない（基準の点。${lang}）`, () => {
+      // Arrange・Act
+      const { container } = renderCard(lang);
+
+      // Assert
+      const tokyo = container.querySelector(`[data-card-pref="${TOKYO_CODE}"]`) as HTMLElement;
+      expect(tokyo.querySelector('[data-card-name]')).not.toBeNull();
+      expect(tokyo.querySelector('[data-card-distance]')).toBeNull();
     });
   }
 });

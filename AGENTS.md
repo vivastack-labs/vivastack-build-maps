@@ -126,7 +126,7 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
   - フォーカスの枠：県のパスの `focus-visible:outline-solid`（太さは `calc(4px / var(--zoom-k, 1))`。`JapanMap` の `PREF_FOCUS_CLASS`）。地図の箱 `[data-map-box]` は `overflow-clip`。
   - 「再試行」が成功してボタンが消えたら、押したときにフォーカスがボタンにあった場合だけ、最大化した県のパスへフォーカスを戻す（`MuniStatus`。`useRestoreFocusAfterRetry`）。
   - E2E は `tests/e2e/keyboard.spec.ts`（PC のプロジェクトだけ。`tabIntoMap` で Tab を押して地図に入る）と、`index.spec.ts`（さくいんの Esc）。倍率は層の `data-zoom-scale` で読む。
-- 東京からの距離（T3-01。F-CARD-03、7.5）：`src/lib/distance.ts`（純粋関数）の `distancesFromTokyo(prefectures)` が、県の `capital` の緯度経度から、東京都庁（code `"13"`）からのハバーサイン距離（半径 6,371km）を10km 単位に丸めて、県コード → km の `Map` にする（東京都がなければ例外）。`app/[lang]/page.tsx` がビルド時に1回だけ求めて `CardArea` に渡し、`distanceText(lang, km)`（辞書の `card.distance`。`RubyText` で描く）で `<p data-card-distance>` に出す。T3-03 で `PrefCard` に移す。
+- 東京からの距離（T3-01。F-CARD-03、7.5）：`src/lib/distance.ts`（純粋関数）の `distancesFromTokyo(prefectures)` が、県の `capital` の緯度経度から、東京都庁（code `"13"`）からのハバーサイン距離（半径 6,371km）を10km 単位に丸めて、県コード → km の `Map` にする（東京都がなければ例外）。`app/[lang]/page.tsx` がビルド時に1回だけ求めて `CardArea` に渡し、`distanceText(lang, km)`（辞書の `card.distance`。`RubyText` で描く）で `<p data-card-distance>` に出す。東京都（`TOKYO_CODE`）のカードは基準の点なので、距離の行を出さない（F-CARD-03 は東京都庁から県庁所在地まで。`distancesFromTokyo` は東京都に 0 を返す）。T3-03 で `PrefCard` に移す。
 - コンテンツ（7.1）：ビルドでは `src/lib/content.ts` の `loadContent()`（誤りがあれば例外。県を `code` の順に返す）を使い、検証は `validateContent()`（誤り・警告をすべて返す）。どちらも `CONTENT_DIR`（既定は `content/prefectures/`）を読む。`scripts/` から Node.js で直接読み込むので、`src/lib/` の相対の import には `.ts` を付ける。本番の `reviewed` だけの絞り込みは T3-02。
 - `next.config.ts` の `agentRules: false` は消さない。消すと `next dev` が `AGENTS.md` に英語の指示を書き込む。
 

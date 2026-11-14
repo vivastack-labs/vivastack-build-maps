@@ -15,8 +15,8 @@ export const EARTH_RADIUS_KM = 6371;
 /** 距離を丸める単位（km。7.5） */
 const ROUND_UNIT_KM = 10;
 
-/** 距離の基準にする県（東京都）のコード */
-const TOKYO_CODE = '13';
+/** 距離の基準にする県（東京都）のコード。東京都のカードは基準の点なので、距離の行を出さない（F-CARD-03） */
+export const TOKYO_CODE = '13';
 
 const toRadians = (degrees: number): number => (degrees * Math.PI) / 180;
 
