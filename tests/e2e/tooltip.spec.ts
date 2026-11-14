@@ -35,14 +35,14 @@ const textWithoutRt = (locator: Locator): Promise<string> =>
   });
 
 /** 形を画面に入れてから、形の内側の点を返す（動きが止まるのを待つ） */
-async function pointOn(page: Page, locator: Locator): Promise<{ readonly x: number; readonly y: number }> {
+async function pointOn(locator: Locator): Promise<{ readonly x: number; readonly y: number }> {
   await locator.scrollIntoViewIfNeeded();
   return settledPoint(locator);
 }
 
 /** 県の形の内側にマウスを動かす。マウスの位置を返す */
 async function hoverPref(page: Page, code: string): Promise<{ readonly x: number; readonly y: number }> {
-  const point = await pointOn(page, page.locator(PREF(code)));
+  const point = await pointOn(page.locator(PREF(code)));
   await page.mouse.move(point.x, point.y);
   return point;
 }
@@ -133,7 +133,7 @@ test.describe('PC（マウス）', () => {
   test('F-TIP-02：最大化中、札幌市中央区にマウスをのせると「札幌市中央区」と読みが出る', async ({ page }) => {
     await open(page);
     await maximize(page, HOKKAIDO);
-    const { x, y } = await pointOn(page, page.locator('[data-muni="01101"]'));
+    const { x, y } = await pointOn(page.locator('[data-muni="01101"]'));
 
     await page.mouse.move(x, y);
 
@@ -148,7 +148,7 @@ test.describe('PC（マウス）', () => {
   test('F-I18N-05：英語のページの市区町村のツールチップはローマ字だけ', async ({ page }) => {
     await open(page, 'en');
     await maximize(page, HOKKAIDO);
-    const { x, y } = await pointOn(page, page.locator('[data-muni="01101"]'));
+    const { x, y } = await pointOn(page.locator('[data-muni="01101"]'));
 
     await page.mouse.move(x, y);
 
@@ -164,7 +164,7 @@ test.describe('スマホ・タブレット（タッチ）', () => {
 
   test('4.11.3：県をタップしても、ツールチップは出ない', async ({ page }) => {
     await open(page);
-    const { x, y } = await pointOn(page, page.locator(PREF(HOKKAIDO)));
+    const { x, y } = await pointOn(page.locator(PREF(HOKKAIDO)));
 
     await page.touchscreen.tap(x, y);
     await settle(page);
