@@ -74,7 +74,7 @@ async function clickSea(page: Page): Promise<void> {
   await page.locator('[data-map-sea]').click({ position: await seaPosition(page) });
 }
 
-/** カードに表示されている県名（hidden でないもの）を確かめる。県がなければ案内文が見える */
+/** カードに表示されている県名（hidden でないカードの data-card-name）を確かめる。県がなければ案内文が見える */
 async function expectCard(page: Page, code: string | null): Promise<void> {
   const shown = page.locator('[data-card-pref]:not([hidden])');
   if (code === null) {
@@ -83,10 +83,10 @@ async function expectCard(page: Page, code: string | null): Promise<void> {
     return;
   }
   await expect(shown).toHaveCount(1);
-  // 県名のふりがな（<rt>）は本文に含めずに比べる
+  // 県名（data-card-name。カードには距離の行もある。T3-01）を、ふりがな（<rt>）を本文に含めずに比べる
   await expect
     .poll(() =>
-      shown.evaluate(element => {
+      shown.locator('[data-card-name]').evaluate(element => {
         const copy = element.cloneNode(true) as Element;
         copy.querySelectorAll('rt').forEach(rt => rt.remove());
         return copy.textContent;

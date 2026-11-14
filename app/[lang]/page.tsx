@@ -5,6 +5,7 @@ import { MapArea } from '@/components/MapArea';
 import { MapStateProvider } from '@/components/MapStateProvider';
 import { isLang } from '@/i18n/lang';
 import { loadContent } from '@/lib/content';
+import { distancesFromTokyo } from '@/lib/distance';
 
 type Props = {
   params: Promise<{ lang: string }>;
@@ -16,6 +17,8 @@ export default async function Page({ params }: Props) {
   if (!isLang(lang)) notFound();
   // D24：ビルド時に県の基本情報（県名・地方）を読み、地図に埋め込む。読み込みはここで1回だけ行う
   const prefectures = loadContent();
+  // 7.5：東京からの距離もビルド時に1回だけ計算する（サーバーコンポーネントなので、計算のコードはクライアントに入らない）
+  const distances = distancesFromTokyo(prefectures);
 
   return (
     // T2-05：地図とカードが同じ状態を見る。MapStateProvider は DOM の要素を出さないので、grid の子は変わらない
@@ -24,7 +27,7 @@ export default async function Page({ params }: Props) {
         <div className="min-w-0 lg:col-span-2">
           <MapArea lang={lang} prefectures={prefectures} />
         </div>
-        <CardArea lang={lang} prefectures={prefectures} />
+        <CardArea lang={lang} prefectures={prefectures} distances={distances} />
         <div className="min-w-0 lg:col-span-2">
           <IndexArea lang={lang} prefectures={prefectures} />
         </div>
