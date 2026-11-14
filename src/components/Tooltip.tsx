@@ -26,6 +26,7 @@ type Hit = {
 };
 
 const MAP_BOX_SELECTOR = '[data-map-box]';
+const ESCAPE_KEY = 'Escape';
 const POINTER_EVENTS = ['pointerover', 'pointermove', 'pointerdown', 'pointerup'] as const;
 
 const attributeOf = (element: Element | null, selector: string, name: string): string | null => element?.closest(selector)?.getAttribute(name) ?? null;
@@ -59,7 +60,7 @@ type Point = { readonly x: number; readonly y: number };
  * 地図の箱（`[data-map-box]`）でマウスの動きを受け、マウスの下にあるもの（`hit`。同じ値なら変えない）を返す。
  * 動きのたびに、ツールチップの位置（`transform`）だけを書く（React を描き直さない）。マウスの位置は `pointerRef` に残す。
  * マウスを動かさずに地図が動くと、`hit` は古くなる。ホイール（d3-zoom が伝播を止めるので capture で受ける）と、
- * 最大化の変化（`maximized`。解除でマウスの下が変わる）では `hit` を捨て、次にマウスが動くまで隠す。
+ * 最大化の変化（`maximized`。解除でマウスの下が変わる）と、Esc（WCAG 1.4.13）でも `hit` を捨て、次にマウスが動くまで隠す。
  */
 function usePointerHit(rootRef: RefObject<HTMLDivElement | null>, maximized: PrefCode | null): { readonly hit: Hit | null; readonly pointerRef: RefObject<Point | null> } {
   const pointerRef = useRef<Point | null>(null);
@@ -78,6 +79,11 @@ function usePointerHit(rootRef: RefObject<HTMLDivElement | null>, maximized: Pre
       setHit(previous => (isSameHit(previous, next) ? previous : next));
     };
     const onLeave = () => setHit(null);
+    // WCAG 1.4.13：Esc で隠す。フォーカスが地図の外にあっても、マウスが地図の上ならツールチップは出ているので、document で受ける
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === ESCAPE_KEY) setHit(null);
+    };
+    document.addEventListener('keydown', onKeyDown);
     for (const name of POINTER_EVENTS) box.addEventListener(name, onPointer);
     box.addEventListener('pointerleave', onLeave);
     box.addEventListener('wheel', onLeave, { capture: true, passive: true });
@@ -85,6 +91,7 @@ function usePointerHit(rootRef: RefObject<HTMLDivElement | null>, maximized: Pre
       for (const name of POINTER_EVENTS) box.removeEventListener(name, onPointer);
       box.removeEventListener('pointerleave', onLeave);
       box.removeEventListener('wheel', onLeave, { capture: true });
+      document.removeEventListener('keydown', onKeyDown);
     };
   }, [rootRef]);
   // 最大化が変わったら、古い hit を捨てる（次にマウスが動くまで隠れる）。描画中に状態を直す形（React の推奨。effect の setState は使わない）

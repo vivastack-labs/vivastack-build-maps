@@ -25,6 +25,14 @@ describe('MapArea', () => {
     expect(box.querySelector('svg')).not.toBeNull();
   });
 
+  test('T2-11：地図の箱は overflow-clip（スクロールできない箱にして、フォーカスで地図がずれないようにする）', () => {
+    const { container } = renderMapArea();
+
+    const className = container.querySelector('[data-map-box]')?.getAttribute('class') ?? '';
+    expect(className).toContain('overflow-clip');
+    expect(className).not.toContain('overflow-hidden');
+  });
+
   test('T2-05：地図は MapInteraction で包まれ、マウントすると data-map-ready が付く', () => {
     const { container } = renderMapArea();
 

@@ -219,6 +219,21 @@ describe('PrefIndexInteraction', () => {
     expect(screen.getByTestId('hovered')).toHaveTextContent('12');
   });
 
+  test('F-KB-05: さくいんでも Esc で最大化を解除し、もう1回で固定を解除する', () => {
+    render(<Fixture />);
+    const tokyo = screen.getByTestId('tokyo');
+    act(() => tokyo.focus());
+    pressKey(tokyo, { key: 'Enter', shiftKey: true });
+    expect(tokyo).toHaveAttribute('data-state', 'maximized');
+
+    expect(pressKey(tokyo, { key: 'Escape' })).toBe(true);
+    expect(tokyo).toHaveAttribute('data-state', 'pinned');
+
+    pressKey(tokyo, { key: 'Escape' });
+    expect(tokyo).toHaveAttribute('aria-pressed', 'false');
+    expect(tokyo).not.toHaveAttribute('data-state');
+  });
+
   test('マウントすると data-index-ready が付く', () => {
     const { container } = render(<Fixture />);
 

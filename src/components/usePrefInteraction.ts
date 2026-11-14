@@ -45,10 +45,10 @@ type Options = {
   /** マウントしたら根に付ける属性（E2E がハイドレーションの完了を待つ）。`data-map-ready`・`data-index-ready` */
   readonly readyAttribute: string;
   /**
-   * キーの処理。Ctrl・Meta・Alt つきとキーの繰り返しは、呼ぶ前に除く。
+   * キーの処理。Ctrl・Meta・Alt つきとキーの繰り返しは、呼ぶ前に除く（`event.currentTarget` は根の要素）。
    * 省くと `dispatchKey`（Enter・Space・Shift + Enter・Esc）だけを行う
    */
-  readonly onKey?: (event: KeyboardEvent) => void;
+  readonly onKey?: (event: KeyboardEvent<HTMLElement>) => void;
 };
 
 /** 根の要素に付けるイベントのハンドラー（`onClick` は呼ぶ側が決める） */
@@ -57,7 +57,7 @@ type Handlers = {
   readonly onPointerOver: (event: PointerEvent) => void;
   readonly onPointerOut: (event: PointerEvent) => void;
   readonly onDoubleClick: (event: MouseEvent) => void;
-  readonly onKeyDown: (event: KeyboardEvent) => void;
+  readonly onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
   readonly onFocus: (event: FocusEvent) => void;
   readonly onBlur: (event: FocusEvent) => void;
 };
