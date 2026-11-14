@@ -1,6 +1,9 @@
 // キーボードの操作を、状態遷移の操作（MapEvent）に変える規則（4.11.2）。DOM を使わない純粋関数。
 import type { MapEvent, PrefCode } from './state';
 
+/** Esc の `KeyboardEvent.key`。`Tooltip` も使う */
+export const ESCAPE_KEY = 'Escape';
+
 /** `keyToMapEvent` の入力。`pref` は操作の対象（フォーカスしている）県 */
 export type KeyInput = {
   /** `KeyboardEvent.key`。Space は `' '` */
@@ -15,14 +18,15 @@ export type KeyInput = {
  * 県名さくいん（T2-10）と地図（T2-11）が同じ規則を使う。
  */
 export function keyToMapEvent({ key, shiftKey, pref }: KeyInput): MapEvent | null {
-  if (key === 'Escape') return { type: 'escape' };
+  if (key === ESCAPE_KEY) return { type: 'escape' };
   if (pref === null) return null;
   if (key === 'Enter') return shiftKey ? { type: 'doubleClick', pref } : { type: 'click', pref };
   if (key === ' ' && !shiftKey) return { type: 'click', pref };
   return null;
 }
 
-const FIRST_PREF: PrefCode = '01';
+/** 最初の県（北海道）。Home の移動先で、Tab の停止位置の初期値（`JapanMap` のサーバーの出力もこれを使う） */
+export const FIRST_PREF: PrefCode = '01';
 const LAST_PREF: PrefCode = '47';
 const PREF_CODE_LENGTH = 2;
 

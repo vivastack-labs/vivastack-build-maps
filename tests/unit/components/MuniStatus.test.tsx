@@ -246,6 +246,26 @@ describe('MuniStatus', () => {
     expect(document.activeElement).not.toBe(screen.getByTestId('pref-21'));
   });
 
+  test('T2-11: 再試行がまた失敗したら、後で同じ県を最大化し直して読み込めても、フォーカスを動かさない', async () => {
+    const { calls, loader } = fakeLoader();
+    const { root } = renderStatus(loader);
+    press('maximize-20');
+    act(() => calls[0]?.notify(failed));
+    const retry = root().querySelector('[data-muni-retry]') as HTMLButtonElement;
+    retry.focus();
+    fireEvent.click(retry);
+    act(() => calls[1]?.notify(failed));
+
+    // 最大化を解除（Esc など）して、また最大化する
+    press('maximize-20');
+    press('maximize-20');
+    act(() => calls[2]?.notify({ kind: 'loaded', data: gridTopology('20') }));
+    await flushConversion();
+
+    expect(root().getAttribute('data-muni-status')).toBe('loaded');
+    expect(document.activeElement).toBe(document.body);
+  });
+
   test('4.11.5: 再試行でないふつうの読み込み中は、ボタンを出さない', () => {
     const { calls, loader } = fakeLoader();
     const { root } = renderStatus(loader);

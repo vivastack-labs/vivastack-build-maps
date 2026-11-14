@@ -30,19 +30,28 @@ function findPrefPath(root: Element | null, pref: PrefCode): SVGElement | null {
  * 読み込みの間にフォーカスがほかへ移ったとき、別の県に切り替えたときは動かさない。
  * `onRetryClick` をボタンの `onClick` に、`rootRef` をボタンを含む要素に付ける。
  */
-function useRestoreFocusAfterRetry(maximized: PrefCode | null, isLoaded: boolean) {
+function useRestoreFocusAfterRetry(maximized: PrefCode | null, kind: string | undefined) {
   const rootRef = useRef<HTMLDivElement>(null);
   /** 再試行を押したときにフォーカスがボタンにあれば、そのときの最大化の県 */
   const pendingPref = useRef<PrefCode | null>(null);
+  const hasFailed = kind === 'failed' || kind === 'offline';
+
+  // 別の県への切り替え・解除、再試行がまた失敗したときは、覚えたものを捨てる（後で読み込めたときに、利用者の操作と関係なくフォーカスが飛ばないように）
+  useEffect(() => {
+    pendingPref.current = null;
+  }, [maximized]);
+  useEffect(() => {
+    if (hasFailed) pendingPref.current = null;
+  }, [hasFailed]);
 
   useEffect(() => {
     const pref = pendingPref.current;
-    if (!isLoaded || pref === null) return;
+    if (kind !== 'loaded' || pref === null) return;
     pendingPref.current = null;
     // ボタンが消えるとフォーカスは body に落ちる。ほかの要素にあるなら、利用者が移したので動かさない
     const isLost = document.activeElement === null || document.activeElement === document.body;
     if (pref === maximized && isLost) findPrefPath(rootRef.current, pref)?.focus();
-  }, [isLoaded, maximized]);
+  }, [kind, maximized]);
 
   const onRetryClick = (event: MouseEvent<HTMLButtonElement>) => {
     pendingPref.current = document.activeElement === event.currentTarget ? maximized : null;
@@ -64,7 +73,7 @@ export function MuniStatus({ labels, loader }: Props) {
   const { status, isRetrying, retry } = useMuniShapes(state.maximized, loader);
   const hasProblem = status?.kind === 'failed' || status?.kind === 'offline';
   const isShown = status?.kind === 'slow' || hasProblem || isRetrying;
-  const { rootRef, onRetryClick } = useRestoreFocusAfterRetry(state.maximized, status?.kind === 'loaded');
+  const { rootRef, onRetryClick } = useRestoreFocusAfterRetry(state.maximized, status?.kind);
 
   return (
     <div

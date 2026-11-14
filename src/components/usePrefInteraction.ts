@@ -36,9 +36,17 @@ function handleFocus(event: FocusEvent, dispatch: Dispatch): void {
   if (pref !== null && event.target.matches(':focus-visible')) dispatch({ type: 'hover', pref });
 }
 
-/** 県からフォーカスが外れたらホバーを解除する。別の県へ移るだけなら解除しない（移った先のホバーは focus で書く。マウスで移ったときは、マウスのホバーを残す） */
-function handleBlur(event: FocusEvent, dispatch: Dispatch): void {
-  if (prefFromTarget(event.target) !== null && prefFromTarget(event.relatedTarget) === null) dispatch({ type: 'hoverEnd' });
+/**
+ * `target` が、`root` の中の県の要素（`data-pref`）か。地図の外にある県の項目（さくいんの `<a data-pref>`）は、`root` の外なので `false`。
+ * フォーカスが地図の外へ出たかの判定に使う（`blur` の `relatedTarget`）。
+ */
+export function isPrefInside(root: Element, target: EventTarget | null): boolean {
+  return target instanceof Node && root.contains(target) && prefFromTarget(target) !== null;
+}
+
+/** 県からフォーカスが外れたらホバーを解除する。同じ根の中の別の県へ移るだけなら解除しない（移った先のホバーは focus で書く。マウスで移ったときは、マウスのホバーを残す） */
+function handleBlur(event: FocusEvent<HTMLElement>, dispatch: Dispatch): void {
+  if (prefFromTarget(event.target) !== null && !isPrefInside(event.currentTarget, event.relatedTarget)) dispatch({ type: 'hoverEnd' });
 }
 
 type Options = {
@@ -59,13 +67,12 @@ type Handlers = {
   readonly onDoubleClick: (event: MouseEvent) => void;
   readonly onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
   readonly onFocus: (event: FocusEvent) => void;
-  readonly onBlur: (event: FocusEvent) => void;
+  readonly onBlur: (event: FocusEvent<HTMLElement>) => void;
 };
 
 type Result = {
   readonly ref: RefObject<HTMLDivElement | null>;
   readonly state: MapState;
-  readonly dispatch: Dispatch;
   readonly handlers: Handlers;
   /** クリックを `mapReducer` に渡す（直前の pointerdown の種類で、タッチかどうかを決める） */
   readonly sendClick: (target: EventTarget) => void;
@@ -113,5 +120,5 @@ export function usePrefInteraction({ readyAttribute, onKey }: Options): Result {
     onBlur: event => handleBlur(event, dispatch)
   };
 
-  return { ref, state, dispatch, handlers, sendClick: target => send('click', target, lastPointerType.current) };
+  return { ref, state, handlers, sendClick: target => send('click', target, lastPointerType.current) };
 }

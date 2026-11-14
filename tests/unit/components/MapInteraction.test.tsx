@@ -124,6 +124,10 @@ describe('MapInteraction', () => {
   });
 });
 
+function HoveredProbe() {
+  return <output data-testid="hovered">{useMapState().state.hovered ?? ''}</output>;
+}
+
 /** 県のパスはサーバーの出力と同じく、北海道だけ tabindex=0 で始める。キーボードの操作の確かめに使う */
 function KeyboardFixture({ zoom = null }: { readonly zoom?: MapZoomControls | null }) {
   return (
@@ -132,6 +136,11 @@ function KeyboardFixture({ zoom = null }: { readonly zoom?: MapZoomControls | nu
         <button type="button" data-testid="outside">
           外
         </button>
+        {/* 地図の外にある県の項目（県名さくいん）。地図の外なので、地図の停止位置・ホバーの判定では「外」 */}
+        <a href="#pref-13" role="button" data-testid="index-tokyo" data-pref="13" aria-pressed="false">
+          東京都
+        </a>
+        <HoveredProbe />
         <MapInteraction>
           <svg>
             <path data-testid="hokkaido" data-pref="01" tabIndex={0} aria-pressed="false" />
@@ -235,6 +244,29 @@ describe('MapInteraction: キーボード', () => {
     expect(tabStops()).toEqual(['47']);
     focus('outside');
     expect(tabStops()).toEqual(['13']);
+  });
+
+  test('F-KB-01: 地図からさくいん（地図の外の data-pref）へフォーカスが移っても、停止位置は固定中の県（なければ北海道）に戻る', () => {
+    render(<KeyboardFixture />);
+    focus('hokkaido');
+    press('hokkaido', 'ArrowRight');
+    expect(tabStops()).toEqual(['02']);
+
+    focus('index-tokyo');
+
+    expect(tabStops()).toEqual(['01']);
+  });
+
+  test('4.11.3: 地図からさくいんへ移ると、地図のホバーは解除する（キーボードでないフォーカスなら、さくいん側はホバーしない）', () => {
+    render(<KeyboardFixture />);
+    focus('tokyo');
+    expect(byId('hovered')).toHaveTextContent('13');
+    const item = byId('index-tokyo');
+    vi.spyOn(item, 'matches').mockImplementation(selector => selector !== ':focus-visible');
+
+    focus('index-tokyo');
+
+    expect(byId('hovered')).toBeEmptyDOMElement();
   });
 
   test('F-KB-02: Enter・Space で固定する', () => {

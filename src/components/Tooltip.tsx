@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { ESCAPE_KEY } from '@/features/map/keyboard';
 import { applyTipState } from '@/features/map/mapDom';
 import type { MuniLoader, MuniProperties } from '@/features/map/muniLoader';
 import { muniTooltipText, tooltipPosition, tooltipTarget, type TooltipTarget } from '@/features/map/tooltip';
@@ -26,7 +27,6 @@ type Hit = {
 };
 
 const MAP_BOX_SELECTOR = '[data-map-box]';
-const ESCAPE_KEY = 'Escape';
 const POINTER_EVENTS = ['pointerover', 'pointermove', 'pointerdown', 'pointerup'] as const;
 
 const attributeOf = (element: Element | null, selector: string, name: string): string | null => element?.closest(selector)?.getAttribute(name) ?? null;

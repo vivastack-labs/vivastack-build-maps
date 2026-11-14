@@ -7,7 +7,7 @@ import { prefFromTarget } from '@/features/map/pointer';
 import type { PrefCode } from '@/features/map/state';
 import { useMapState } from './MapStateProvider';
 import { useMapZoom, type MapZoomControls } from './MapZoom';
-import { dispatchKey, usePrefInteraction } from './usePrefInteraction';
+import { dispatchKey, isPrefInside, usePrefInteraction } from './usePrefInteraction';
 
 /** 県のパスにフォーカスを移す。要素がなければ何もしない（`code` は `navigateKey` が作る2桁の数字） */
 function focusPref(root: HTMLElement, code: PrefCode): void {
@@ -74,8 +74,8 @@ export function MapInteraction({ children }: { readonly children: ReactNode }) {
       }}
       onBlur={event => {
         handlers.onBlur(event);
-        // 別の県へ移るだけなら、移った先の focus が書く
-        if (prefFromTarget(event.relatedTarget) === null) setFocused(null);
+        // 地図の中の別の県へ移るだけなら、移った先の focus が書く。さくいん（地図の外の `data-pref`）へ移ったときは、地図の外に出たとみなす
+        if (!isPrefInside(event.currentTarget, event.relatedTarget)) setFocused(null);
       }}
       onClick={event => sendClick(event.target)}
     >

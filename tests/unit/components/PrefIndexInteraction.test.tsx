@@ -29,6 +29,10 @@ function Fixture() {
           </li>
         </ul>
       </PrefIndexInteraction>
+      {/* さくいんの外にある県の要素（地図のパスなど） */}
+      <button type="button" data-testid="outside-pref" data-pref="01">
+        北海道
+      </button>
       <CardSwitch>
         <p data-card-guide>案内文</p>
         <p data-card-pref="13" hidden>
@@ -207,6 +211,18 @@ describe('PrefIndexInteraction', () => {
 
     expect(visibleCard()).toEqual(['千葉県']);
     expect(screen.getByTestId('hovered')).toHaveTextContent('12');
+  });
+
+  test('4.11.3: さくいんから、さくいんの外の県の要素（地図）へフォーカスが移ると、さくいんのホバーは解除する', () => {
+    render(<Fixture />);
+    act(() => screen.getByTestId('tokyo').focus());
+    expect(screen.getByTestId('hovered')).toHaveTextContent('13');
+    const outside = screen.getByTestId('outside-pref');
+    vi.spyOn(outside, 'matches').mockImplementation(selector => selector !== ':focus-visible');
+
+    act(() => outside.focus());
+
+    expect(screen.getByTestId('hovered')).toBeEmptyDOMElement();
   });
 
   test('マウスで押して移ったフォーカスの blur では、マウスのホバーを解除しない', () => {

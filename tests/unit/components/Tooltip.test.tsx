@@ -88,6 +88,14 @@ describe('Tooltip：県', () => {
     expect(root().hidden).toBe(false);
   });
 
+  test('アンマウントした後に Esc を押しても、例外にならない（document の listener を外している）', () => {
+    const { unmount } = renderTooltip();
+    move(screen.getByTestId('hokkaido'));
+    unmount();
+
+    expect(() => fireEvent.keyDown(document.body, { key: 'Escape' })).not.toThrow();
+  });
+
   test('Esc 以外のキーでは隠れない', () => {
     renderTooltip();
     move(screen.getByTestId('hokkaido'));
