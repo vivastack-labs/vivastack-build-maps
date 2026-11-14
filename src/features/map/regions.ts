@@ -1,4 +1,5 @@
 import type { Prefecture } from '@/lib/content-schema.generated';
+import type { Shade } from './muniShapes';
 
 /** 地方のキー。コンテンツの region と同じ */
 export type Region = Prefecture['region'];
@@ -31,4 +32,16 @@ export const REGION_SWATCH_CLASS: Readonly<Record<Region, string>> = {
   chugoku: 'bg-region-chugoku',
   shikoku: 'bg-region-shikoku',
   kyushu: 'bg-region-kyushu'
+};
+
+/**
+ * 市区町村の塗りのクラス（濃淡の段階 0〜4。T2-08、F-MUNI-01）。マウスをのせたときの塗りも含む。
+ * 色は app/globals.css の `--color-muni-*`
+ */
+export const MUNI_SHADE_CLASS: Readonly<Record<Shade, string>> = {
+  0: 'fill-muni-0 hover:fill-muni-hover',
+  1: 'fill-muni-1 hover:fill-muni-hover',
+  2: 'fill-muni-2 hover:fill-muni-hover',
+  3: 'fill-muni-3 hover:fill-muni-hover',
+  4: 'fill-muni-4 hover:fill-muni-hover'
 };

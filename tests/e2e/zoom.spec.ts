@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { settle } from './helpers';
+import { dblclickAtCenter, settle } from './helpers';
 
 // F-ZOOM-01〜05、4.11.2・4.11.3：拡大・縮小・移動（T2-06）。
 // 倍率は地図の層（<g data-map-layer>）の data-zoom-scale で読む。動き（300ms）の途中を見ないよう、
@@ -7,6 +7,7 @@ import { settle } from './helpers';
 // ホバー・クリックの対象は interaction.spec.ts と同じ、外接矩形の中心が自分の形の中にある長野県（20）。
 
 const NAGANO = '20';
+const YAMANASHI = '19';
 const LAYER = '[data-map-layer]';
 
 /** 操作の前に、ハイドレーションが終わるのを待つ（終わる前の操作は失われる） */
@@ -144,7 +145,8 @@ test.describe('PC のマウス操作', () => {
   test('F-ZOOM-01：最大化しても、県名ラベルの画面の上の高さと県境の線の太さは全体表示のときとほぼ同じ', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', '見た目の大きさの検査は chromium だけで足りる');
     await open(page);
-    const label = page.locator(`[data-pref-label="${NAGANO}"]`);
+    // 最大化した県（長野県）の県名ラベルは、市区町村のラベルと重なるので隠す（T2-08）。隣の山梨県のラベルで確かめる
+    const label = page.locator(`[data-pref-label="${YAMANASHI}"]`);
     const heightOf = async (): Promise<number> => (await label.boundingBox())?.height ?? 0;
     const before = await heightOf();
     expect(before).toBeGreaterThan(0);
@@ -164,7 +166,8 @@ test.describe('PC のマウス操作', () => {
     await page.locator(`path[data-pref="${NAGANO}"]`).dblclick();
     await expect.poll(() => scaleOf(page)).toBeGreaterThan(2);
 
-    await page.locator(`path[data-pref="${NAGANO}"]`).dblclick();
+    // 最大化した県の上には市区町村の形が重なるので、座標でダブルクリックする（helpers.ts）
+    await dblclickAtCenter(page, page.locator(`path[data-pref="${NAGANO}"]`));
 
     await expectScale(page, 1);
   });

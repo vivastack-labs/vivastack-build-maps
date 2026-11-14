@@ -56,7 +56,7 @@ export const en: Messages = {
       kids: 'Try again',
       adult: 'Retry'
     },
-    listSummary: 'List of municipalities'
+    listSummary: 'List of municipalities (%n)'
   },
   index: {
     heading: 'Prefecture index'

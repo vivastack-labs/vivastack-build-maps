@@ -1,6 +1,8 @@
+import type { ReactNode } from 'react';
 import { LABEL_FONT_SIZE, loadPrefPaths, type PrefPath } from '@/features/map/prefPaths';
 import { OKINAWA_FRAME, VIEWBOX } from '@/features/map/projection';
 import { REGION_FILL_CLASS } from '@/features/map/regions';
+import { zoomInvariant } from '@/features/map/zoomInvariant';
 import type { Lang } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
 import type { Prefecture } from '@/lib/content-schema.generated';
@@ -10,15 +12,9 @@ type Props = {
   readonly lang: Lang;
   /** 県の一覧（県コードの順）。名前と地方を引く。読み込みは呼ぶ側で1回だけ行う */
   readonly prefectures: readonly Prefecture[];
+  /** 地図の層（`<g data-map-layer>`）の最後（県名ラベルの上）に置くもの。最大化した県の市区町村の層（T2-08） */
+  readonly children?: ReactNode;
 };
-
-/**
- * 拡大しても画面の上の大きさが変わらない長さ（viewBox の単位 ÷ 倍率）。倍率は `MapZoom` が地図の層に書く CSS 変数 `--zoom-k`。
- * 変数がないとき（JavaScript なし）・倍率が1のときは、基準の大きさのまま。
- */
-function zoomInvariant(size: number): string {
-  return `calc(${size}px / var(--zoom-k, 1))`;
-}
 
 /** 海域名の文字の大きさ（viewBox の単位） */
 const SEA_LABEL_FONT_SIZE = 24;
@@ -27,6 +23,8 @@ const SEA_LABEL_FONT_SIZE = 24;
  * 固定中・最大化中は aria-pressed で塗りを変える。状態の属性は `MapInteraction` が書き換える
  */
 const PREF_INTERACTION_CLASS = 'cursor-pointer hover:opacity-80 aria-pressed:fill-map-selected';
+/** F-MUNI-04：県を最大化している間は、最大化した県以外を薄くする（`MapInteraction` の `group/map` に `data-map-maximized` が付く） */
+const PREF_DIMMED_CLASS = 'group-data-[map-maximized]/map:not-data-[state=maximized]:opacity-40';
 /** 県境の線・沖縄の枠の線の太さ（viewBox の単位。倍率1のとき） */
 const BORDER_WIDTH = 0.8;
 const FRAME_WIDTH = 1.5;
@@ -56,7 +54,15 @@ function pathOf(paths: ReadonlyMap<string, PrefPath>, code: string): PrefPath {
 function PrefShape({ lang, prefecture, d }: { readonly lang: Lang; readonly prefecture: Prefecture; readonly d: string }) {
   const { code, region, name } = prefecture;
   return (
-    <path data-pref={code} data-region={region} role="button" aria-pressed="false" aria-label={plainText(name[lang])} d={d} className={`${REGION_FILL_CLASS[region]} ${PREF_INTERACTION_CLASS}`} />
+    <path
+      data-pref={code}
+      data-region={region}
+      role="button"
+      aria-pressed="false"
+      aria-label={plainText(name[lang])}
+      d={d}
+      className={`${REGION_FILL_CLASS[region]} ${PREF_INTERACTION_CLASS} ${PREF_DIMMED_CLASS}`}
+    />
   );
 }
 
@@ -65,7 +71,7 @@ function PrefShape({ lang, prefecture, d }: { readonly lang: Lang; readonly pref
  * 色は `app/globals.css` の @theme の変数（ライト・ダーク。D26）。操作は `MapInteraction`（T2-05）、拡大・縮小・移動は `MapZoom`（T2-06。`<g data-map-layer>` を動かす。`<svg>` は touch-action: none で、指の操作をブラウザに取られない。4.11.3）。
  * `<svg>` は親の箱いっぱいに広がる。箱の縦横比は `VIEWBOX` と同じにする（`MapArea`）。
  */
-export function JapanMap({ lang, prefectures }: Props) {
+export function JapanMap({ lang, prefectures, children }: Props) {
   const messages = getMessages(lang);
   const pathByCode = new Map(loadPrefPaths().map(path => [path.code, path]));
 
@@ -104,12 +110,14 @@ export function JapanMap({ lang, prefectures }: Props) {
           {prefectures.map(({ code, name }) => {
             const label = pathOf(pathByCode, code).labels[lang];
             return (
-              <text key={code} data-pref-label={code} x={label.x} y={label.y}>
+              // 最大化した県のラベルは、市区町村のラベルと重なるので隠す（`MapInteraction` が data-state を書く。T2-08）
+              <text key={code} data-pref-label={code} x={label.x} y={label.y} className="data-[state=maximized]:hidden">
                 {labelText(name[lang])}
               </text>
             );
           })}
         </g>
+        {children}
       </g>
     </svg>
   );

@@ -171,4 +171,23 @@ describe('JapanMap の入力の確かめ', () => {
     expect(() => render(<JapanMap lang="ja" prefectures={[...prefectures, unknown]} />)).toThrow(/99/u);
     vi.restoreAllMocks();
   });
+
+  test('T2-08：children は地図の層（data-map-layer）の最後（県名ラベルの上）に置かれる', () => {
+    const { container } = render(
+      <JapanMap lang="ja" prefectures={prefectures}>
+        <g data-test-child />
+      </JapanMap>
+    );
+
+    const layer = container.querySelector('[data-map-layer]') as SVGGElement;
+    expect(layer.lastElementChild?.hasAttribute('data-test-child')).toBe(true);
+  });
+
+  test('F-MUNI-04：県のパスは、最大化中は最大化した県以外を薄くするクラスを持つ', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
+
+    const path = container.querySelector('path[data-pref]') as SVGPathElement;
+    expect(path.getAttribute('class')).toContain('opacity-40');
+    expect(container.querySelector('[data-pref-label]')?.getAttribute('class')).toContain('data-[state=maximized]:hidden');
+  });
 });

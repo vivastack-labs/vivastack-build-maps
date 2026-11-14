@@ -5,7 +5,7 @@ import type { Messages } from '@/i18n/messages';
 import { useMapState } from './MapStateProvider';
 import { ModeText } from './ModeText';
 import { RubyText } from './RubyText';
-import { useMuniData } from './useMuniData';
+import { useMuniShapes } from './useMuniShapes';
 
 type Props = {
   /** 文言（辞書の `muni`） */
@@ -21,11 +21,12 @@ const RETRY_BUTTON_CLASS = 'ml-2 inline-flex h-8 items-center rounded border bor
  * 最大化は読み込みを待たない。ここは文言とボタンだけを出す。読み込み中は 300ms を超えたときだけ「読み込み中」、
  * 失敗・オフラインのときは文言と「再試行」。成功したら何も出さない。「再試行」の読み込み中は、ボタンを残して `aria-disabled` にする（フォーカスを保つ）。
  * `aria-live` の領域は最初から DOM に置く（あとから足すと読み上げられないことがあるため）。
- * 外側の `data-muni-status`（`loading`・`slow`・`loaded`・`failed`・`offline`。最大化していなければ属性なし）を E2E と T2-08 が読む。
+ * 外側の `data-muni-status`（`loading`・`slow`・`loaded`・`failed`・`offline`。最大化していなければ属性なし）を E2E が読む。
+ * `loaded` は市区町村の形に変換できたとき（T2-08）。変換できなければ `failed`。
  */
 export function MuniStatus({ labels, loader }: Props) {
   const { state } = useMapState();
-  const { status, isRetrying, retry } = useMuniData(state.maximized, loader);
+  const { status, isRetrying, retry } = useMuniShapes(state.maximized, loader);
   const hasProblem = status?.kind === 'failed' || status?.kind === 'offline';
   const isShown = status?.kind === 'slow' || hasProblem || isRetrying;
 

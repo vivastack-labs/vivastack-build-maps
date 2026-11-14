@@ -1,5 +1,5 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
-import { settle } from './helpers';
+import { dblclickAtCenter, settle } from './helpers';
 
 // F-MUNI-05、4.11.5：市区町村データの読み込み（T2-07）。応答は page.route で変える。
 // 読み込みの状態は、地図の箱の中の [data-muni-status]（loading・slow・loaded・failed・offline）と、
@@ -135,8 +135,8 @@ test('F-MUNI-05：同じ県をもう一度最大化しても読み込み直さ�
   await maximize(page);
   await expect(muniStatus(page, 'loaded')).toBeAttached();
 
-  // 解除して、もう一度最大化する
-  await maximize(page);
+  // 解除して、もう一度最大化する（最大化した県の上には市区町村の形が重なるので、解除は座標でダブルクリックする）
+  await dblclickAtCenter(page, page.locator(PREF));
   await expect(page.locator(PREF)).not.toHaveAttribute('data-state', 'maximized');
   await expect.poll(() => scaleOf(page)).toBe(1);
   await maximize(page);
