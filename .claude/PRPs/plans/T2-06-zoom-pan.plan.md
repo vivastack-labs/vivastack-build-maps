@@ -104,10 +104,18 @@ E2E は `[data-map-ready]` を待ってから操作する（T2-05 と同じ）�
 
 ## 承認後に変えたこと
 
-- `viewport.ts` に `constrainTransform` を足した：計画は「`fitTransform` を d3 の constrain に通す」だったが、d3-zoom は constrain を公開せず、`zoom.transform` も範囲に合わせないので、同じ計算を純粋関数にして単体テストした。
+- `viewport.ts` に `constrainTransform` を足した：計画は「`fitTransform` を d3 の constrain に通す」だったが、d3-zoom の constrain は `zoom.constrain()` で取り出せても、`zoom.transform` には使われず、寄る先を範囲に合わせて渡す必要がある。この計算は d3 の既定の constrain と同じ（`zoom().constrain()` の結果と一致することを単体テストで確かめた）なので、DOM を使わない純粋関数にして、`fitTransform` の結果をこの関数に通してから d3 に渡す形にした。
 - `MapZoom` の props：`bounds`・`labels`（辞書の `zoom` をそのまま渡す）・`children`。見える文字は辞書の `in`・`out`・`reset`（`RubyText`）、`aria-label` は `+`・`−`・「全体」とも付けた（「全体」は読みの二重読みを避けるため）。
-- 動きの途中で「＋」を押したときは、途中の倍率ではなく目標の倍率から1回分進める（`pending.k`。ホイール・ドラッグが入ったら消す）。E2E で、続けて2回押して 1.5 のままになる不具合が見つかったため。
+- 動きの途中で「＋」を押したときは、途中の倍率ではなく目標の変換から1回分進める（`pending`。レビューで、倍率だけだと寄った県から外れた位置で止まると指摘されたため、変換ごと持つ。表示の中心のまわりで倍率を変え、`constrainTransform` に通す）。操作（`sourceEvent` がある `start`）が始まったら消す。E2E で、続けて2回押して 1.5 のままになる不具合が見つかったため。
 - 実データの県の範囲の検査は、新しい `tests/data/prefBounds.test.ts` に置いた（`geo.test.ts` はファイルを直接読む検査のため）。
 - `interaction.spec.ts`：最大化すると県が海の矩形を覆い、Playwright の `click()` が届かなくなるので、最大化中の海のクリックは `dispatchEvent('click')` にした。
 - スクリーンショットの最大化は、東京都の外接矩形の中心が海なので、`dblclick` のイベントを県のパスに直接送る。
 - ピンチは pixel の CDP で入れた（`--repeat-each=6` で安定）。T4-06 には、iPhone の確認と Apple Pencil だけを書き足した。
+
+### レビューの後に変えたこと
+
+- 線の太さと県名ラベル・海域名の文字の大きさは、拡大しても画面の上で変わらない（オーナーの判断）。`MapZoom` が地図の層に CSS 変数 `--zoom-k`（倍率）を書き、`JapanMap` が `calc(基準 / var(--zoom-k, 1))` で大きさを決める。JavaScript がないとき・倍率1のときは今と同じ大きさ。海域名もラベルと同じ扱いにした（見た目で、拡大しても読める大きさのまま邪魔にならないため）。
+- 線の太さに `vector-effect: non-scaling-stroke` は使わなかった。この指定は線の太さを「画面の CSS px」で決めるので、倍率1でも viewBox の縮尺（スマホの幅360pxでは0.36）が効かなくなり、今より太くなる。`calc(基準 / var(--zoom-k, 1))` なら倍率1で今と同じ。沖縄の点線枠の破線の間隔（`6 4`）は地図の形の一部として拡大に合わせて変わる。
+- 操作（ドラッグ・ホイール・クリック）の終わりに、倍率を範囲に・位置を移動できる範囲に収める（`normalizeView`）。寄る動きを途中で止めたとき、倍率が下限より小さいまま残らないため（動かさないクリックで止めた場合も `end` が出るので直る）。
+- 後片付けで `shownPref` を戻す。`attachZoom` は `zoom.transform(zoomIdentity)` で d3 の内部の変換と層をそろえる。県の範囲は `Object.hasOwn` で引く。
+- E2E：`settle()` を `tests/e2e/helpers.ts` に移し、「固定は変わらない」の前に待つ。最大化中に押す隣の県は、きわどい岐阜県（21）から山梨県（19）に替えた。スクリーンショットは、寄る動きが終わるまで待つ。

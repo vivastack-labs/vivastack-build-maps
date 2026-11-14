@@ -1,5 +1,18 @@
+import { zoom, zoomIdentity } from 'd3-zoom';
 import { describe, expect, test } from 'vitest';
-import { BASE_SCALE_EXTENT, constrainTransform, fitTransform, MAXIMIZED_ZOOM_IN_RATIO, panExtent, scaleExtent, stepScale, ZOOM_STEP, type Bounds } from '@/features/map/viewport';
+import {
+  BASE_SCALE_EXTENT,
+  clampScale,
+  constrainTransform,
+  fitTransform,
+  MAXIMIZED_ZOOM_IN_RATIO,
+  panExtent,
+  scaleExtent,
+  stepScale,
+  zoomAbout,
+  ZOOM_STEP,
+  type Bounds
+} from '@/features/map/viewport';
 
 const SIZE = { width: 1000, height: 1000 } as const;
 const IDENTITY = { k: 1, x: 0, y: 0 } as const;
@@ -134,4 +147,64 @@ describe('constrainTransform', () => {
   test('constrainTransform は恒等変換を viewBox と同じ範囲のとき動かさない（F-ZOOM-02）', () => {
     expect(constrainTransform(IDENTITY, SIZE, extent)).toEqual(IDENTITY);
   });
+});
+
+describe('zoomAbout', () => {
+  test('zoomAbout は表示領域の中心を動かさずに倍率を変える（F-ZOOM-01）', () => {
+    // k=2・x=-200・y=-400 の中心 (500, 500) は、世界の (350, 450)
+    const t = { k: 2, x: -200, y: -400 };
+
+    const next = zoomAbout(t, 4, SIZE);
+
+    expect(next).toEqual({ k: 4, x: -900, y: -1300 });
+    expect(next.k * 350 + next.x).toBeCloseTo(500);
+    expect(next.k * 450 + next.y).toBeCloseTo(500);
+  });
+
+  test('zoomAbout は倍率が同じなら同じ変換を返し、倍率が不正なら例外にする', () => {
+    expect(zoomAbout({ k: 2, x: -200, y: -400 }, 2, SIZE)).toEqual({ k: 2, x: -200, y: -400 });
+    expect(() => zoomAbout(IDENTITY, 0, SIZE)).toThrow();
+    expect(() => zoomAbout({ k: 0, x: 0, y: 0 }, 1, SIZE)).toThrow();
+  });
+});
+
+describe('clampScale', () => {
+  test('clampScale は倍率を範囲の中に収める（4.11.2）', () => {
+    expect(clampScale(0.5, [1, 8])).toBe(1);
+    expect(clampScale(3, [1, 8])).toBe(3);
+    expect(clampScale(20, [1, 8])).toBe(8);
+    expect(() => clampScale(Number.NaN, [1, 8])).toThrow();
+  });
+});
+
+describe('constrainTransform は d3-zoom の既定の constrain と同じ結果になる', () => {
+  const extent: Bounds = { x0: 0, y0: 0, x1: 1000, y1: 1000 };
+  const d3Constrain = zoom().constrain();
+  const viewport: [[number, number], [number, number]] = [
+    [0, 0],
+    [SIZE.width, SIZE.height]
+  ];
+  const translateExtent: [[number, number], [number, number]] = [
+    [extent.x0, extent.y0],
+    [extent.x1, extent.y1]
+  ];
+  const cases = [
+    ['範囲の中', { k: 2, x: -200, y: -400 }],
+    ['左上へはみ出す', { k: 2, x: 200, y: 100 }],
+    ['右下へはみ出す', { k: 2, x: -1900, y: -1900 }],
+    ['範囲より表示領域が大きい', { k: 0.5, x: 0, y: 0 }],
+    ['縦だけはみ出す', { k: 3, x: -600, y: 300 }]
+  ] as const;
+
+  for (const [name, t] of cases) {
+    test(`${name}（F-ZOOM-03）`, () => {
+      const expected = d3Constrain(zoomIdentity.translate(t.x, t.y).scale(t.k), viewport, translateExtent);
+
+      const actual = constrainTransform(t, SIZE, extent);
+
+      expect(actual.k).toBeCloseTo(expected.k);
+      expect(actual.x).toBeCloseTo(expected.x);
+      expect(actual.y).toBeCloseTo(expected.y);
+    });
+  }
 });

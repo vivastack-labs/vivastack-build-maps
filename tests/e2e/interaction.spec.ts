@@ -1,6 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { loadContent } from '../../src/lib/content';
 import { plainText } from '../../src/lib/ruby';
+import { settle } from './helpers';
 
 // F-CARD-01・07、F-ZOOM-04、4.11.1〜4.11.3：ホバー・固定・最大化の結線（T2-05）。
 // 県の要素を引く関数を引数に取る形にしてあり、T2-10 でさくいん（F-IDX-02）の要素でも同じテストを回す。
@@ -10,6 +11,8 @@ import { plainText } from '../../src/lib/ruby';
 const prefectures = loadContent();
 const NAGANO = '20';
 const GIFU = '21';
+// 長野県を最大化したとき、表示の内側に中心が来る隣の県（岐阜県の中心は表示の左端に近く、きわどい）
+const YAMANASHI = '19';
 
 /** 県の要素を引く関数（地図の `path[data-pref]`、さくいんの項目など） */
 type PrefLocator = (page: Page, code: string) => Locator;
@@ -43,14 +46,6 @@ async function hoverSea(page: Page): Promise<void> {
 /** 海をクリックする */
 async function clickSea(page: Page): Promise<void> {
   await page.locator('[data-map-sea]').click({ position: await seaPosition(page) });
-}
-
-/**
- * 画面への反映を待つ（requestAnimationFrame を2回）。「変わらない」ことを確かめる前に呼ぶ。
- * 待たないと、操作が反映される前の DOM を見て、実装が壊れていてもテストが通ってしまう
- */
-async function settle(page: Page): Promise<void> {
-  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 }
 
 /** カードに表示されている県名（hidden でないもの）を確かめる。県がなければ案内文が見える */
@@ -160,13 +155,13 @@ function definePointerTests(prefOf: PrefLocator): void {
       await expectState(mapPref(page, NAGANO), 'maximized');
 
       await prefOf(page, NAGANO).click();
-      await prefOf(page, GIFU).click();
+      await prefOf(page, YAMANASHI).click();
       // 最大化すると県が動いて海の矩形の上を覆う（T2-06）ので、海の矩形へ直接 click を送る（海の1点を押すのではなく）
       await page.locator('[data-map-sea]').dispatchEvent('click');
       await settle(page);
 
       await expectState(mapPref(page, NAGANO), 'maximized');
-      await expectState(mapPref(page, GIFU), null);
+      await expectState(mapPref(page, YAMANASHI), null);
       await expectCard(page, NAGANO);
     });
 
@@ -199,11 +194,11 @@ function definePointerTests(prefOf: PrefLocator): void {
       await prefOf(page, NAGANO).dblclick();
       await expectState(mapPref(page, NAGANO), 'maximized');
 
-      await prefOf(page, GIFU).dblclick();
+      await prefOf(page, YAMANASHI).dblclick();
 
-      await expectState(mapPref(page, GIFU), 'maximized');
+      await expectState(mapPref(page, YAMANASHI), 'maximized');
       await expectState(mapPref(page, NAGANO), null);
-      await expectCard(page, GIFU);
+      await expectCard(page, YAMANASHI);
     });
   });
 }

@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { StrictMode } from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { MapStateProvider, useMapState } from '@/components/MapStateProvider';
@@ -19,6 +20,9 @@ function Probe() {
       <output data-testid="maximized">{state.maximized ?? ''}</output>
       <button type="button" onClick={() => dispatch({ type: 'doubleClick', pref: '20' })}>
         maximize
+      </button>
+      <button type="button" onClick={() => dispatch({ type: 'doubleClick', pref: 'constructor' })}>
+        maximize-unknown
       </button>
     </div>
   );
@@ -167,5 +171,72 @@ describe('MapZoom', () => {
     fireEvent.click(button('拡大'));
 
     await vi.waitFor(() => expect(scaleOf(container)).toBeCloseTo(ZOOM_STEP ** 2), { timeout: 2000 });
+  });
+
+  test('動きの途中の「＋」でも、寄っている県の中心が表示の中心から外れない（F-ZOOM-04）', async () => {
+    stubReducedMotion(false);
+    const { container } = render(<Fixture />);
+    const fit = fitTransform(NAGANO.fit, VIEWBOX, FIT_PADDING);
+
+    fireEvent.click(button('maximize'));
+    fireEvent.click(button('拡大'));
+
+    // 目標は「県に寄った変換を、表示の中心のまわりで1.5倍にしたもの」。県の中心は表示の中心（500, 565）に残る
+    await vi.waitFor(() => expect(scaleOf(container)).toBeCloseTo(fit.k * ZOOM_STEP, 1), { timeout: 2000 });
+    const match = /translate\(([-\d.]+),([-\d.]+)\) scale\(([\d.]+)\)/u.exec(container.querySelector('[data-map-layer]')?.getAttribute('transform') ?? '');
+    const [x, y, k] = [Number(match?.[1]), Number(match?.[2]), Number(match?.[3])];
+    expect(k * ((NAGANO.fit.x0 + NAGANO.fit.x1) / 2) + x).toBeCloseTo(VIEWBOX.width / 2, 0);
+    expect(k * ((NAGANO.fit.y0 + NAGANO.fit.y1) / 2) + y).toBeCloseTo(VIEWBOX.height / 2, 0);
+  });
+
+  test('寄る動きを途中で止めても、倍率が下限（県全体が収まる倍率）より小さいまま残らない（4.11.2）', async () => {
+    stubReducedMotion(false);
+    const { container } = render(<Fixture />);
+    const fit = fitTransform(NAGANO.fit, VIEWBOX, FIT_PADDING);
+    const svg = container.querySelector('svg') as SVGSVGElement;
+
+    // 寄り始めた直後（倍率が1に近いまま）に、動かさずにクリックして動きを止める
+    fireEvent.click(button('maximize'));
+    // jsdom は MouseEvent の view に Window しか受け付けず、テストの window はそれと別物なので、後から view を足す
+    const view = svg.ownerDocument.defaultView as Window;
+    const down = new MouseEvent('mousedown', { bubbles: true, button: 0, clientX: 10, clientY: 10 });
+    Object.defineProperty(down, 'view', { value: view });
+    fireEvent(svg, down);
+    const up = new MouseEvent('mouseup', { bubbles: true, clientX: 10, clientY: 10 });
+    Object.defineProperty(up, 'view', { value: view });
+    fireEvent(view, up);
+
+    expect(scaleOf(container)).toBeGreaterThanOrEqual(fit.k - 0.01);
+  });
+
+  test('倍率を CSS 変数 --zoom-k に書く（線・文字の画面の上の大きさを保つため。F-ZOOM-01）', () => {
+    const { container } = render(<Fixture />);
+    const layer = container.querySelector('[data-map-layer]') as SVGGElement;
+    expect(layer.style.getPropertyValue('--zoom-k')).toBe('1');
+
+    fireEvent.click(button('拡大'));
+
+    expect(layer.style.getPropertyValue('--zoom-k')).toBe('1.5');
+  });
+
+  test('県の範囲にないコード（Object.prototype のキーを含む）を最大化しても、何も動かさず例外にならない', () => {
+    const { container } = render(<Fixture />);
+
+    fireEvent.click(button('maximize-unknown'));
+
+    expect(scaleOf(container)).toBe(1);
+  });
+
+  test('StrictMode（マウント・後片付け・再マウント）でも、全体表示で始まり、ボタンが効く（F-ZOOM-01）', () => {
+    const { container } = render(
+      <StrictMode>
+        <Fixture />
+      </StrictMode>
+    );
+    expect(scaleOf(container)).toBe(1);
+
+    fireEvent.click(button('拡大'));
+
+    expect(scaleOf(container)).toBeCloseTo(ZOOM_STEP);
   });
 });

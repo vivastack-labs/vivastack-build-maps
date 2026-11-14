@@ -76,11 +76,26 @@ export function scaleExtent(fitScale: number | null): ScaleExtent {
   return [fitScale, Math.max(BASE_SCALE_EXTENT[1], fitScale * MAXIMIZED_ZOOM_IN_RATIO)];
 }
 
+/** 倍率を範囲の中に収める */
+export function clampScale(k: number, [min, max]: ScaleExtent): number {
+  assertScale(k);
+  return Math.min(max, Math.max(min, k));
+}
+
 /** 「＋」（`direction` が 1）・「−」（-1）1回分の倍率。`extent` を超えない */
 export function stepScale(k: number, direction: 1 | -1, extent: ScaleExtent): number {
   assertScale(k);
-  const [min, max] = extent;
-  return Math.min(max, Math.max(min, k * ZOOM_STEP ** direction));
+  return clampScale(k * ZOOM_STEP ** direction, extent);
+}
+
+/** 表示領域の中心を動かさずに、倍率を `k` にした変換（「＋」「−」の拡大・縮小）。範囲には合わせないので、`constrainTransform` に通す */
+export function zoomAbout(transform: ZoomTransform, k: number, size: Size): ZoomTransform {
+  assertScale(k);
+  assertScale(transform.k);
+  assertSize(size);
+  const cx = size.width / 2;
+  const cy = size.height / 2;
+  return { k, x: cx - ((cx - transform.x) / transform.k) * k, y: cy - ((cy - transform.y) / transform.k) * k };
 }
 
 /**

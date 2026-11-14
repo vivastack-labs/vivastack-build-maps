@@ -1,7 +1,8 @@
-import { render } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 import { describe, expect, test, vi } from 'vitest';
 
 import { JapanMap } from '@/components/JapanMap';
+import { LABEL_FONT_SIZE } from '@/features/map/prefPaths';
 import { VIEWBOX } from '@/features/map/projection';
 import { LANGS } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
@@ -130,6 +131,31 @@ describe('JapanMap のタッチ操作', () => {
     const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
 
     expect(container.querySelector('svg')?.getAttribute('class')).toContain('touch-none');
+  });
+});
+
+describe('JapanMap の拡大しても変わらない大きさ（T2-06）', () => {
+  const pattern = (px: number) => new RegExp(`^calc\\(${px}px / var\\(--zoom-k, 1\\)\\)$`, 'u');
+
+  test('F-ZOOM-01：県名ラベル・海域名の文字の大きさは、言語ごとの基準を --zoom-k で割る（倍率1・JavaScript なしでは今と同じ）', () => {
+    for (const lang of LANGS) {
+      const { container } = render(<JapanMap lang={lang} prefectures={prefectures} />);
+
+      const labels = container.querySelector('[data-pref-labels]') as SVGGElement;
+      expect(labels.style.fontSize).toMatch(pattern(LABEL_FONT_SIZE[lang]));
+      for (const sea of container.querySelectorAll<SVGTextElement>('[data-sea-label]')) {
+        expect(sea.style.fontSize).toMatch(pattern(24));
+      }
+      cleanup();
+    }
+  });
+
+  test('F-ZOOM-01：県境の線と沖縄の枠の太さは、--zoom-k で割る（画面の上の太さを保つ）', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
+
+    const borders = container.querySelector('[data-map-layer] > g.stroke-map-border') as SVGGElement;
+    expect(borders.style.strokeWidth).toMatch(pattern(0.8));
+    expect((container.querySelector('[data-okinawa-frame]') as SVGRectElement).style.strokeWidth).toMatch(pattern(1.5));
   });
 });
 

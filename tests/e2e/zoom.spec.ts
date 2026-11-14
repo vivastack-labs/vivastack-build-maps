@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { settle } from './helpers';
 
 // F-ZOOM-01〜05、4.11.2・4.11.3：拡大・縮小・移動（T2-06）。
 // 倍率は地図の層（<g data-map-layer>）の data-zoom-scale で読む。動き（300ms）の途中を見ないよう、
@@ -106,6 +107,8 @@ test.describe('PC のマウス操作', () => {
 
     await expect.poll(() => transformOf(page)).not.toBe(before);
     expect(await scaleOf(page)).toBeCloseTo(2.25, 2);
+    // 固定が「変わらない」ことは、操作の反映を待ってから確かめる（待たないと、固定される前の DOM を見て通ってしまう）
+    await settle(page);
     await expect(page.locator('[data-pref][aria-pressed="true"]')).toHaveCount(0);
   });
 
@@ -136,6 +139,24 @@ test.describe('PC のマウス操作', () => {
         return isInside ? Math.max(pref.width / box.width, pref.height / box.height) : null;
       })
       .toBeGreaterThanOrEqual(0.85);
+  });
+
+  test('F-ZOOM-01：最大化しても、県名ラベルの画面の上の高さと県境の線の太さは全体表示のときとほぼ同じ', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', '見た目の大きさの検査は chromium だけで足りる');
+    await open(page);
+    const label = page.locator(`[data-pref-label="${NAGANO}"]`);
+    const heightOf = async (): Promise<number> => (await label.boundingBox())?.height ?? 0;
+    const before = await heightOf();
+    expect(before).toBeGreaterThan(0);
+
+    await page.locator(`path[data-pref="${NAGANO}"]`).dblclick();
+    await expect.poll(() => scaleOf(page)).toBeGreaterThan(5);
+
+    // 文字の大きさは「基準 ÷ 倍率」なので、画面の上の高さは倍率によらない
+    await expect.poll(async () => (await heightOf()) / before).toBeCloseTo(1, 1);
+    // 線の太さも「基準 ÷ 倍率」。倍率をかけると、全体表示のときの太さ（0.8）に戻る
+    const strokeWidth = await page.locator('[data-map-layer] > g.stroke-map-border').evaluate(element => Number.parseFloat(getComputedStyle(element).strokeWidth));
+    expect(strokeWidth * (await scaleOf(page))).toBeCloseTo(0.8, 1);
   });
 
   test('F-ZOOM-04：最大化を解除すると全体表示に戻る', async ({ page }) => {
@@ -212,6 +233,8 @@ test.describe('スマホのタッチ操作（pixel。Chromium の CDP）', () =>
     await touch('touchEnd', -80);
 
     await expect.poll(() => transformOf(page)).not.toBe(before);
+    // 固定が「変わらない」ことは、操作の反映を待ってから確かめる（待たないと、固定される前の DOM を見て通ってしまう）
+    await settle(page);
     await expect(page.locator('[data-pref][aria-pressed="true"]')).toHaveCount(0);
   });
 });

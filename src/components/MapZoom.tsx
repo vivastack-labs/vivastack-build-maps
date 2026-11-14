@@ -6,7 +6,20 @@ import { zoom as createZoom, zoomIdentity, zoomTransform, type D3ZoomEvent, type
 import { useEffect, useRef, type ReactNode } from 'react';
 import { VIEWBOX } from '@/features/map/projection';
 import type { PrefCode } from '@/features/map/state';
-import { BASE_SCALE_EXTENT, constrainTransform, FIT_PADDING, fitTransform, panExtent, scaleExtent, stepScale, ZOOM_DURATION_MS, type Bounds, type ZoomTransform } from '@/features/map/viewport';
+import {
+  BASE_SCALE_EXTENT,
+  clampScale,
+  constrainTransform,
+  FIT_PADDING,
+  fitTransform,
+  panExtent,
+  scaleExtent,
+  stepScale,
+  zoomAbout,
+  ZOOM_DURATION_MS,
+  type Bounds,
+  type ZoomTransform
+} from '@/features/map/viewport';
 import type { Messages } from '@/i18n/messages';
 import { plainText } from '@/lib/ruby';
 import { useMapState } from './MapStateProvider';
@@ -25,18 +38,21 @@ type Props = {
 };
 
 type Zoom = ZoomBehavior<SVGSVGElement, unknown>;
-/** 動いている途中の目標の倍率を持つ入れ物（`attachZoom` の中の変数を読み書きする） */
-type Pending = { readonly get: () => number | null; readonly set: (k: number | null) => void };
+/** 動いている途中の目標の変換を持つ入れ物（`attachZoom` の中の変数を読み書きする） */
+type Pending = { readonly get: () => ZoomTransform | null; readonly set: (target: ZoomTransform | null) => void };
 
 /**
- * d3-zoom の付いた `<svg>`。`pending` は、動いている途中のボタン・最大化の目標の倍率（なければ `null`）。
- * 動きの途中でもう一度「＋」を押したとき、途中の倍率ではなく目標の倍率から1回分を進めるために持つ。
- * ホイール・ピンチ・ドラッグ（`sourceEvent` がある zoom）が入ったら消す。
+ * d3-zoom の付いた `<svg>`。`pending` は、動いている途中のボタン・最大化の目標の変換（なければ `null`）。
+ * 動きの途中でもう一度「＋」を押したとき、途中の変換ではなく目標の変換から1回分を進めるために持つ（寄った県から外れない）。
+ * ホイール・ピンチ・ドラッグ・クリック（`sourceEvent` がある操作）が始まったら消す。
  */
 type Handle = { readonly svg: SVGSVGElement; readonly zoom: Zoom; readonly pending: Pending };
 
 /** 3px までの動きはクリックとして通す。それを超えるドラッグの後の click は d3-zoom が止める（県の固定が変わらない） */
 const CLICK_DISTANCE = 3;
+/** 変換が同じとみなす差 */
+const EPSILON = 1e-6;
+const IDENTITY: ZoomTransform = { k: 1, x: 0, y: 0 };
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 const BUTTON_CLASS = 'inline-flex h-10 min-w-10 items-center justify-center rounded border border-map-border bg-page-bg px-2 text-lg leading-none text-page-text hover:opacity-80';
 
@@ -48,9 +64,18 @@ const toD3 = ({ k, x, y }: ZoomTransform) => zoomIdentity.translate(x, y).scale(
 const isReducedMotion = (): boolean => typeof window.matchMedia === 'function' && window.matchMedia(REDUCED_MOTION_QUERY).matches;
 const round = (value: number): number => Math.round(value * 1000) / 1000;
 
+const currentTransform = (svg: SVGSVGElement): ZoomTransform => {
+  const { k, x, y } = zoomTransform(svg);
+  return { k, x, y };
+};
+const currentExtent = (zoom: Zoom): Bounds => {
+  const [[x0, y0], [x1, y1]] = zoom.translateExtent();
+  return { x0, y0, x1, y1 };
+};
+
 /**
  * 動かす。動きを減らす設定（F-ZOOM-05）のときは d3-transition を使わず、同期で最終の位置にする
- * （長さ0の transition でも反映は次のフレームになるため）。
+ * （長さ0の transition でも反映は次のフレームになるため）。`target` は範囲に合わせてから渡す。
  */
 function moveTo({ svg, zoom, pending }: Handle, target: ZoomTransform): void {
   const selection = select(svg);
@@ -58,22 +83,29 @@ function moveTo({ svg, zoom, pending }: Handle, target: ZoomTransform): void {
     pending.set(null);
     selection.call(zoom.transform, toD3(target));
   } else {
-    pending.set(target.k);
+    pending.set(target);
     selection.transition().duration(ZOOM_DURATION_MS).call(zoom.transform, toD3(target));
   }
 }
 
-/** 「＋」「−」1回分の倍率にする。範囲は今の `scaleExtent` */
-function stepBy({ svg, zoom, pending }: Handle, direction: 1 | -1): void {
-  const k = stepScale(pending.get() ?? zoomTransform(svg).k, direction, zoom.scaleExtent());
-  const selection = select(svg);
-  if (isReducedMotion()) {
-    pending.set(null);
-    selection.call(zoom.scaleTo, k);
-  } else {
-    pending.set(k);
-    selection.transition().duration(ZOOM_DURATION_MS).call(zoom.scaleTo, k);
-  }
+/** 「＋」「−」1回分。動いている途中なら、その目標の変換から、表示の中心のまわりで倍率を変える */
+function stepBy(handle: Handle, direction: 1 | -1): void {
+  const { svg, zoom, pending } = handle;
+  const base = pending.get() ?? currentTransform(svg);
+  const k = stepScale(base.k, direction, zoom.scaleExtent());
+  moveTo(handle, constrainTransform(zoomAbout(base, k, VIEWBOX), VIEWBOX, currentExtent(zoom)));
+}
+
+/**
+ * 操作（ドラッグ・ホイール・クリックなど）の後、倍率を範囲に、位置を移動できる範囲に収める。
+ * 寄る動きを途中で止めると、倍率が下限（県全体が収まる倍率）より小さいまま残るため。
+ */
+function normalizeView({ svg, zoom }: Handle): void {
+  const current = currentTransform(svg);
+  const k = clampScale(current.k, zoom.scaleExtent());
+  const next = constrainTransform(zoomAbout(current, k, VIEWBOX), VIEWBOX, currentExtent(zoom));
+  const isSame = [next.k - current.k, next.x - current.x, next.y - current.y].every(difference => Math.abs(difference) < EPSILON);
+  if (!isSame) select(svg).call(zoom.transform, toD3(next));
 }
 
 /**
@@ -81,24 +113,28 @@ function stepBy({ svg, zoom, pending }: Handle, direction: 1 | -1): void {
  * 県の範囲がわからないとき（ビルドの対象外のコード）は何もしない。
  */
 function showPref(handle: Handle, pref: PrefCode | null, bounds: Props['bounds']): void {
+  if (pref !== null && !Object.hasOwn(bounds, pref)) return;
   const entry = pref === null ? null : bounds[pref];
-  if (pref !== null && entry === undefined) return;
   const extent = panExtent(entry?.pan ?? null);
   const fit = entry ? fitTransform(entry.fit, VIEWBOX, FIT_PADDING) : null;
   handle.zoom.scaleExtent([...scaleExtent(fit?.k ?? null)]).translateExtent(toExtent(extent));
-  moveTo(handle, fit ? constrainTransform(fit, VIEWBOX, extent) : { k: 1, x: 0, y: 0 });
+  moveTo(handle, fit ? constrainTransform(fit, VIEWBOX, extent) : IDENTITY);
 }
 
-/** d3-zoom を `<svg>` に付け、`<g data-map-layer>` の `transform` と `data-zoom-scale` を書く（サーバーの出力は描き直さない） */
+/**
+ * d3-zoom を `<svg>` に付け、`<g data-map-layer>` の `transform`・`data-zoom-scale`・CSS 変数 `--zoom-k` を書く
+ * （サーバーの出力は描き直さない）。`--zoom-k` は、線の太さと県名ラベルの文字の大きさを、画面の上で一定に保つのに使う（`JapanMap`）。
+ */
 function attachZoom(svg: SVGSVGElement): Handle | null {
-  const layer = svg.querySelector('[data-map-layer]');
+  const layer = svg.querySelector<SVGGElement>('[data-map-layer]');
   if (layer === null) return null;
-  const write = (transform: ZoomTransform) => {
-    layer.setAttribute('transform', `translate(${round(transform.x)},${round(transform.y)}) scale(${round(transform.k)})`);
-    layer.setAttribute('data-zoom-scale', String(round(transform.k)));
+  const write = ({ k, x, y }: ZoomTransform) => {
+    layer.setAttribute('transform', `translate(${round(x)},${round(y)}) scale(${round(k)})`);
+    layer.setAttribute('data-zoom-scale', String(round(k)));
+    layer.style.setProperty('--zoom-k', String(round(k)));
   };
-  let pendingK: number | null = null;
-  const pending: Pending = { get: () => pendingK, set: k => (pendingK = k) };
+  let pendingTarget: ZoomTransform | null = null;
+  const pending: Pending = { get: () => pendingTarget, set: target => (pendingTarget = target) };
   const zoom: Zoom = createZoom<SVGSVGElement, unknown>()
     .extent([
       [0, 0],
@@ -107,15 +143,20 @@ function attachZoom(svg: SVGSVGElement): Handle | null {
     .scaleExtent([...BASE_SCALE_EXTENT])
     .translateExtent(toExtent(panExtent(null)))
     .clickDistance(CLICK_DISTANCE)
-    .on('zoom', (event: D3ZoomEvent<SVGSVGElement, unknown>) => {
-      // 操作（ホイール・ピンチ・ドラッグ）が入ったら、動いている途中のボタンの目標は無効にする
+    // 操作が始まったら、動いている途中のボタンの目標は無効にする（動かさないクリックで動きが止まったときも）
+    .on('start', (event: D3ZoomEvent<SVGSVGElement, unknown>) => {
       if (event.sourceEvent) pending.set(null);
-      write(event.transform);
+    })
+    .on('zoom', (event: D3ZoomEvent<SVGSVGElement, unknown>) => write(event.transform))
+    .on('end', (event: D3ZoomEvent<SVGSVGElement, unknown>) => {
+      if (event.sourceEvent) normalizeView(handle);
     });
+  const handle: Handle = { svg, zoom, pending };
   // ダブルクリックでの拡大は使わない（最大化に使う。4.11.2）
   select(svg).call(zoom).on('dblclick.zoom', null);
-  write({ k: 1, x: 0, y: 0 });
-  return { svg, zoom, pending };
+  // d3 の内部の変換と層の属性を、全体表示にそろえる（zoom イベントで write が呼ばれる）
+  select(svg).call(zoom.transform, zoomIdentity);
+  return handle;
 }
 
 /**
@@ -139,6 +180,8 @@ export function MapZoom({ bounds, labels, children }: Props) {
     return () => {
       select(svg).interrupt().on('.zoom', null);
       handleRef.current = null;
+      // 次のマウント（StrictMode の再マウントなど）で、最大化中の県に寄り直す
+      shownPref.current = null;
     };
   }, []);
 

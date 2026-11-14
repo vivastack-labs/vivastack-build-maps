@@ -26,6 +26,8 @@ function maximizePref(code: string): (page: Page) => Promise<void> {
     // 東京都は外接矩形の中心が海なので、ダブルクリックのイベントを県のパスに直接送る
     await page.locator(`path[data-pref="${code}"]`).dispatchEvent('dblclick');
     await page.locator(`path[data-pref="${code}"][data-state="maximized"]`).waitFor();
+    // 寄る動きが終わる（倍率が1でなくなる）のを待つ
+    await page.locator('[data-map-layer]:not([data-zoom-scale="1"])').waitFor();
     await page.mouse.move(0, 0);
   };
 }
