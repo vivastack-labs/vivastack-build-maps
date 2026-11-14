@@ -23,6 +23,13 @@ const SEA_LABEL_FONT_SIZE = 24;
  * 固定中・最大化中は aria-pressed で塗りを変える。状態の属性は `MapInteraction` が書き換える
  */
 const PREF_INTERACTION_CLASS = 'cursor-pointer hover:opacity-80 aria-pressed:fill-map-selected';
+/**
+ * 2.4.7：キーボードのフォーカス（`:focus-visible`）の枠。さくいんと同じ色。SVG の中の outline の太さは viewBox と拡大の倍率で変わるので、
+ * 倍率（`--zoom-k`。層に書かれる）で割って、画面の上で一定に近づける（`zoomInvariant` と同じ考え方）
+ */
+const PREF_FOCUS_CLASS = 'focus-visible:outline-solid focus-visible:outline-[length:calc(4px/var(--zoom-k,1))] focus-visible:outline-slate-900 dark:focus-visible:outline-slate-50';
+/** Tab の停止位置にする県（roving tabindex の初期値。F-KB-01。クライアントが `rovingPref` の県に書き換える） */
+const INITIAL_TAB_STOP = '01';
 /** F-MUNI-04：県を最大化している間は、最大化した県以外を薄くする（`MapInteraction` の `group/map` に `data-map-maximized` が付く） */
 const PREF_DIMMED_CLASS = 'group-data-[map-maximized]/map:not-data-[state=maximized]:opacity-40';
 /** 県境の線・沖縄の枠の線の太さ（viewBox の単位。倍率1のとき） */
@@ -50,7 +57,7 @@ function pathOf(paths: ReadonlyMap<string, PrefPath>, code: string): PrefPath {
   return path;
 }
 
-/** 県の形（1つのパス）。固定の状態は `aria-pressed` に出すので、サーバーでは `false` で始める（5.2） */
+/** 県の形（1つのパス）。固定の状態は `aria-pressed` に出すので、サーバーでは `false` で始める（5.2）。`tabIndex` は北海道だけ 0 で、ハイドレーション前から Tab の停止位置が1つになる */
 function PrefShape({ lang, prefecture, d }: { readonly lang: Lang; readonly prefecture: Prefecture; readonly d: string }) {
   const { code, region, name } = prefecture;
   return (
@@ -60,8 +67,9 @@ function PrefShape({ lang, prefecture, d }: { readonly lang: Lang; readonly pref
       role="button"
       aria-pressed="false"
       aria-label={plainText(name[lang])}
+      tabIndex={code === INITIAL_TAB_STOP ? 0 : -1}
       d={d}
-      className={`${REGION_FILL_CLASS[region]} ${PREF_INTERACTION_CLASS} ${PREF_DIMMED_CLASS}`}
+      className={`${REGION_FILL_CLASS[region]} ${PREF_INTERACTION_CLASS} ${PREF_FOCUS_CLASS} ${PREF_DIMMED_CLASS}`}
     />
   );
 }
