@@ -104,4 +104,10 @@ E2E は `[data-map-ready]` を待ってから操作する（T2-05 と同じ）�
 
 ## 承認後に変えたこと
 
-（実装の後に書く）
+- `viewport.ts` に `constrainTransform` を足した：計画は「`fitTransform` を d3 の constrain に通す」だったが、d3-zoom は constrain を公開せず、`zoom.transform` も範囲に合わせないので、同じ計算を純粋関数にして単体テストした。
+- `MapZoom` の props：`bounds`・`labels`（辞書の `zoom` をそのまま渡す）・`children`。見える文字は辞書の `in`・`out`・`reset`（`RubyText`）、`aria-label` は `+`・`−`・「全体」とも付けた（「全体」は読みの二重読みを避けるため）。
+- 動きの途中で「＋」を押したときは、途中の倍率ではなく目標の倍率から1回分進める（`pending.k`。ホイール・ドラッグが入ったら消す）。E2E で、続けて2回押して 1.5 のままになる不具合が見つかったため。
+- 実データの県の範囲の検査は、新しい `tests/data/prefBounds.test.ts` に置いた（`geo.test.ts` はファイルを直接読む検査のため）。
+- `interaction.spec.ts`：最大化すると県が海の矩形を覆い、Playwright の `click()` が届かなくなるので、最大化中の海のクリックは `dispatchEvent('click')` にした。
+- スクリーンショットの最大化は、東京都の外接矩形の中心が海なので、`dblclick` のイベントを県のパスに直接送る。
+- ピンチは pixel の CDP で入れた（`--repeat-each=6` で安定）。T4-06 には、iPhone の確認と Apple Pencil だけを書き足した。

@@ -11,7 +11,7 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 
 ## 技術スタック
 
-導入済み：Next.js・TypeScript・Tailwind CSS・ESLint（eslint-plugin-jsdoc を含む）・Prettier・Vitest・Testing Library・Playwright・wrangler・GitHub Actions（PRのチェック）・Dependabot・d3-geo・mapshaper・topojson-client（テストだけ）・yaml・ajv・json-schema-to-typescript。それ以外はまだ入っていない（予定）。
+導入済み：Next.js・TypeScript・Tailwind CSS・ESLint（eslint-plugin-jsdoc を含む）・Prettier・Vitest・Testing Library・Playwright・wrangler・GitHub Actions（PRのチェック）・Dependabot・d3-geo・d3-zoom・d3-selection・d3-transition・mapshaper・topojson-client（テストだけ）・yaml・ajv・json-schema-to-typescript。それ以外はまだ入っていない（予定）。
 
 - Next.js（App Router、`output: 'export'`。`basePath` は付けない）＋ TypeScript（strict）
 - 地図：SVG ＋ d3-geo ＋ topojson-client（国土数値情報 N03 2026年版から作る TopoJSON）
@@ -98,6 +98,7 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
   - `MapInteraction`（地図の `<svg>` を包む）：`pointerover`・`pointerout`・`click`・`dblclick` をまとめて受け、`src/features/map/pointer.ts` の `toMapEvent`（タッチはホバーとダブルタップを使わない。`click`・`dblclick` は直前の `pointerdown` の `pointerType` を使う）で `MapEvent` にする。状態は `mapDom.ts` の `applyPrefState` が県のパスの `aria-pressed`（固定中だけ `true`）・`data-state`（`pinned`／`maximized`）に書く。見た目は `aria-pressed:` のバリアントと `--color-map-selected`。マウントすると `data-map-ready` が付くので、E2E は操作の前にこれを待つ（ハイドレーション前の操作は失われる）。
   - `CardSwitch`（カードの中身を包む）：`applyCardState` が `[data-card-pref]` の `hidden` を切り替え、`[data-card-guide]`（案内文）は県がないときだけ見せる。今のカードは県名だけの仮の表示（T3-03 で置き換える）。
   - E2E は `tests/e2e/interaction.spec.ts`。県の要素を引く関数（`PrefLocator`）を受け取る形で、T2-10 でさくいんでも同じテストを回す。ホバー・クリックの対象は、外接矩形の中心が自分の形の中にある長野県（20）・岐阜県（21）（東京都は島を含むので中心が海になる）。
+- 拡大・縮小・移動（T2-06。F-ZOOM-01〜05、4.11.2・4.11.3）：`MapArea` が `MapInteraction` を `MapZoom`（`src/components/`）で包む。d3-zoom を `<svg>` に付けて操作（ホイール・ピンチ・ドラッグ。ダブルクリックでの拡大は無効、`clickDistance(3)`）を受け、`<g data-map-layer>` の `transform` と `data-zoom-scale`（倍率。E2E が読む）だけを書く（海の矩形は動かない）。「＋」「−」「全体」のボタンは `MapInteraction` の外（クリックが海のクリックにならないように）に重ねる。計算は `src/features/map/viewport.ts` の純粋関数（`fitTransform`・`scaleExtent`・`stepScale`・`panExtent`・`constrainTransform`）。最大化した県（`useMapState()` の `maximized`）に寄り、最大化中は倍率を「県が収まる倍率」〜「その4倍（8 以上）」にする。県の範囲は `prefPaths.ts` がビルド時に求める（`fitBounds`：寄る範囲。東京都は北緯28度より南の父島などを除く `FIT_EXCLUDE_SOUTH_OF`。`panBounds`：移動できる範囲。県のすべてのポリゴン）。`prefers-reduced-motion: reduce` のときは d3-transition を使わず同期で動かす（F-ZOOM-05）。最大化すると県が海の矩形の上を覆うので、E2E で最大化中に海をクリックするときは、海の矩形へ `dispatchEvent('click')` を送る。
 - コンテンツ（7.1）：ビルドでは `src/lib/content.ts` の `loadContent()`（誤りがあれば例外。県を `code` の順に返す）を使い、検証は `validateContent()`（誤り・警告をすべて返す）。どちらも `CONTENT_DIR`（既定は `content/prefectures/`）を読む。`scripts/` から Node.js で直接読み込むので、`src/lib/` の相対の import には `.ts` を付ける。本番の `reviewed` だけの絞り込みは T3-02。
 - `next.config.ts` の `agentRules: false` は消さない。消すと `next dev` が `AGENTS.md` に英語の指示を書き込む。
 
