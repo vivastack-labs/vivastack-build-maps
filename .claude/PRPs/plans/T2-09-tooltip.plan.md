@@ -14,7 +14,8 @@
 - **県のツールチップの中身はサーバーで出力する（判断 2）**：カード（`CardSwitch`）と同じく、47県ぶんの `<div data-tip-pref="NN" hidden>`（県名＋名物の名前の `<ul>`。名物がない県は県名だけ）をサーバーで出力し、クライアントは `hidden` と位置だけを書き換える（6.6 (2)）。県名・名物の名前は `RubyText` で描く（ふりがなの記法をクライアントで解かない。ふりがなの ON/OFF も CSS で効く）。解説文は出さない。
   - `src/components/MapTooltip.tsx`（サーバー）：中身を作り、`Tooltip` の `children` に渡す。
   - `src/components/Tooltip.tsx`（クライアント）：表示・位置・市区町村の中身。`MapArea` の `[data-map-box]` の中、`MapInteraction` の外（`MuniStatus` と同じ場所）に置く。
-- **イベントは地図の箱で受ける**：`Tooltip` が effect で親の `[data-map-box]` に `pointerover`・`pointermove`・`pointerout`（と `pointerdown`）のリスナーを付ける（`MapInteraction` は変えない）。位置は `pointermove` ごとに `style.transform` だけを書き、React を描き直さない。表示する対象（県・市区町村・なし）が変わったときだけ状態を変える。
+- **イベントは地図の箱で受ける**：`Tooltip` が effect で親の `[data-map-box]` に `pointerover`・`pointermove`・`pointerdown`・`pointerup` と `pointerleave` のリスナーを付ける（`MapInteraction` は変えない）。マウスの下の要素は各イベントの `target` で取る。位置はイベントごとに `style.transform` だけを書き、React を描き直さない。表示する対象（県・市区町村・なし）が変わったときだけ状態を変える。
+- **マウスを動かさずに地図が動いたら隠す**：ホイール（d3-zoom が伝播を止めるので capture で受ける）と、最大化の変化（`maximized`）では、マウスの下にあるもの（`hit`）を捨て、次にマウスが動くまで隠す（古い県・市区町村を出さない。レビューの指摘）。県の中身の切り替えは `mapDom.ts` の `applyTipState`。
 - **何を出すか（4.11.2、4.11.3）**は純粋関数 `src/features/map/tooltip.ts` の `tooltipTarget({ target の属性, maximized, pointerType, buttons })` で決める：
   - タッチ（`pointerType === 'touch'`）・ボタンを押している間（ドラッグでの移動中）→ なし。
   - 最大化していない：県（`data-pref`）の上 → 県のツールチップ（通常・固定中の両方）。
@@ -51,6 +52,9 @@
 - `4.11.3: pointerType が touch のときは出ない`
 - `F-TIP-02: 最大化中、市区町村にのせると名前と読みが出る（ja）`
 - `F-I18N-05: 英語では name.en、中国語では lang="ja" の name.ja`
+- `4.11.3: ボタンを押すと隠れ、離すと（マウスを動かさなくても）また出る`
+- `ホイールで地図が動くと、次にマウスを動かすまで隠れる`／`d3-zoom が伝播を止めても、ホイールで隠れる（capture で受ける）`
+- `最大化が変わると、次にマウスを動かすまで隠れる`
 - `ルートは aria-hidden`
 
 ### コンポーネント：`tests/unit/components/MapTooltip.test.tsx`
@@ -70,10 +74,12 @@ PC（`hasTouch` でないプロジェクト）：
 
 - `F-TIP-01: 名物のある県（北海道）にマウスをのせると、県名と名物3つの名前が出る`
 - `4.11.4: 名物がない県（沖縄県）では県名だけが出る`
-- `F-TIP-01: 海にマウスを動かすと隠れる`
-- `F-TIP-02: 最大化中、札幌市中央区にマウスをのせると「札幌市中央区」と「さっぽろしちゅうおうく」が出る`
+- `F-TIP-01: 県から海にマウスを動かすと隠れる`
+- `F-TIP-01: ツールチップはマウスの右下にずれて出て、地図の箱の中に収まる`
+- `F-TIP-02: 最大化中、札幌市中央区にマウスをのせると「札幌市中央区」と読みが出る`
+- `F-I18N-05: 英語のページの市区町村のツールチップはローマ字だけ`
 
-マウスの位置は `page.mouse.move`。凹んだ形の内側の点は `muni-render.spec.ts` の `pointInside`（`isPointInFill`）を `helpers.ts` に移して使う。
+マウスの位置は `page.mouse.move`。凹んだ形の内側の点は `muni-render.spec.ts` の `pointInside`・`settledPoint` を `helpers.ts` に移して使う（`settledPoint(locator)` を export）。Firefox・WebKit は `page.mouse` の座標を整数に切り捨てるので、`pointInside` は整数にしても形の中にある点を返す。
 
 タッチ（`hasTouch` のプロジェクト）：
 
@@ -86,7 +92,7 @@ PC（`hasTouch` でないプロジェクト）：
 3. `src/components/MapTooltip.tsx`（サーバー）と `src/components/Tooltip.tsx`（クライアント）とコンポーネントテスト。色は `app/globals.css` の `@theme` に `--color-tooltip-*`（ライト・ダーク）を足す。
 4. `src/components/MapArea.tsx` に置く。
 5. `tests/e2e/tooltip.spec.ts`、`helpers.ts` に `pointInside` を移す。
-6. `tests/screenshots/pages.spec.ts` に場面を足す：`ja-tooltip-pref`（北海道にのせる）、`ja-tooltip-muni`（北海道を最大化して札幌市中央区にのせる）。
+6. `tests/screenshots/pages.spec.ts` に場面を足す：`ja-tooltip-pref`（北海道にのせる）、`ja-tooltip-muni`（北海道を最大化して札幌市中央区にのせる）。どちらも PC だけで撮る（`Scene` の `pcOnly`。スマホはタッチでツールチップが出ない）。
 7. 文書：`AGENTS.md`（アーキテクチャにツールチップ、E2E がフィクスチャを使うこと）、`docs/tasks/m3-card-i18n-mode.md` の T3-02（ツールチップは `MapTooltip` が `publish.ts` の結果の名物を使えば県名だけになる）、`tests/fixtures/content/` の説明。
 
 ## 完了条件の確かめ方
@@ -101,3 +107,14 @@ PC（`hasTouch` でないプロジェクト）：
 3. **ツールチップを出す入力**：推奨はタッチ以外（マウス・ペン）（理由：カードのホバーの規則 `toMapEvent` と同じにする。ペンのホバーはマウスと同じ動き）。タスクの定義の「マウスのときだけ」に厳密に合わせるなら、ペンでは出さない。
 4. **市区町村の読みの出し方（日本語）**：推奨は名前の下の行に小さく読みを出し、ふりがなの ON/OFF に関係なく常に出す（理由：F-TIP-02 は読みを出すこと自体が要件で、区の読みは「さっぽろしちゅうおうく」と名前全体の読みなので、字ごとのふりがなにならない）。英語・中国語のページは読みを出さない（タスクの定義が「日本語のページ」とし、中国語の利用者にかなは役に立ちにくい）。
 5. **名物の表示**：名前だけを出し、絵文字は出さない（F-TIP-01 は「名物3つの名前」。絵文字はカードで出す）。
+
+## 承認後に変えたこと
+
+| 項目 | 承認したとき | 実際 | 理由 |
+|---|---|---|---|
+| 受けるイベント | `pointerover`・`pointermove`・`pointerout`（と `pointerdown`） | `pointerover`・`pointermove`・`pointerdown`・`pointerup`・`pointerleave`、ホイール（capture） | `pointermove` の `target` でマウスの下の要素を常に取れる。`pointerup` はクリックで固定したあとマウスを止めていても出すため、ホイールは古い県を出さないため（レビューの指摘） |
+| 最大化の変化 | 書いていなかった | 最大化が変わったら `hit` を捨て、次にマウスが動くまで隠す | 解除・切り替えでマウスの下が変わっても、古い県・市区町村を出さないため（レビューの指摘）。Esc で隠す処理（WCAG 1.4.13）は T2-11 の定義に書き足した |
+| 位置の規則 | 反転しても入らなければ箱の内側に寄せる | 反転前の位置を箱の内側に寄せる | 反転してもはみ出すときは、マウスに近い側に残すほうが読みやすい |
+| フィクスチャに合わせたテスト | `content.test.ts` の数だけ | `validate-content.test.ts` の数も直し、`content.test.ts` の一部（ファイル名と `code`、読めないファイル）は神奈川県・青森県を使う形にした | どちらもフィクスチャの県の数・中身に依存していた |
+| スクリーンショット | 2場面を足す | 2場面は PC だけで撮る | スマホ（タッチ）ではツールチップが出ないので、マウスで撮った画像は誤解を招く（レビューの指摘） |
+| E2E の補助関数 | `pointInside` を移すだけ | `pointInside` は整数の点を返し、`settledPoint` は 250ms の間隔で2回測って止まったと判断する | Firefox・WebKit は `page.mouse` の座標を整数に切り捨て、札幌市中央区の点が西区に当たった。WebKit では続けて測ると動きの途中で止まったと誤り、`muni-render.spec.ts` の F-MUNI-03 が main でも12回中5回落ちていた |
