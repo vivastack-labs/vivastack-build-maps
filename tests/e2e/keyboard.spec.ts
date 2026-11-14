@@ -49,12 +49,14 @@ test.describe('F-KB-01：Tab の停止位置（roving tabindex）', () => {
     await expect(shownCard(page)).toHaveAttribute('data-card-pref', '01');
   });
 
-  test('固定中の県があれば、地図の外から Shift + Tab で入るとその県にフォーカスする', async ({ page }) => {
+  test('固定中の県があれば、地図の外から Shift + Tab で入ると、フォーカスしていた県ではなく固定中の県にフォーカスする', async ({ page }) => {
     await open(page);
     await path(page, '20').focus();
     await page.keyboard.press('Enter');
     await expect(path(page, '20')).toHaveAttribute('data-state', 'pinned');
-    // 地図のすぐ後ろの要素（「＋」ボタン）へ出て、戻る
+    // 固定とは別の県（21）へフォーカスだけ移し、地図の外へ出る
+    await page.keyboard.press('ArrowRight');
+    expect(await focusedCode(page)).toBe('21');
     await page.keyboard.press('Tab');
     expect(await focusedCode(page)).toBeNull();
     await expect.poll(() => tabStops(page)).toEqual(['20']);
@@ -204,22 +206,24 @@ test.describe('2.4.7：フォーカスの枠', () => {
     expect(outline.width).toBeGreaterThan(0);
   });
 
-  test('拡大中に画面の外の県へフォーカスしても、地図の箱がスクロールせず、地図がずれない', async ({ page }) => {
+  // overflow-clip の防御の検査。overflow-hidden のままでも通る（<svg> が箱と同じ大きさで、層のはみ出しは <svg> で切られ、箱にスクロールできる範囲がないため）
+  test('拡大中に画面の外の県へフォーカスしても、地図の箱もページもスクロールしない（overflow-clip の防御。overflow-hidden でも通る）', async ({ page }) => {
+    // 動きを同期にして、拡大の途中を見ないようにする
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await open(page);
     await path(page, '20').focus();
     for (const expected of [1.5, 2.25, 3.375]) {
       await page.keyboard.press('+');
       await expectScale(page, expected);
     }
-    // 動きが止まって、層の位置が変わらなくなるのを待つ
-    const layer = page.locator(LAYER);
-    const before = await layer.getAttribute('transform');
+    const scrollOf = () => page.evaluate(() => ({ page: window.scrollY, top: document.querySelector('[data-map-box]')?.scrollTop, left: document.querySelector('[data-map-box]')?.scrollLeft }));
+    const before = await scrollOf();
 
     await page.keyboard.press('End');
 
     expect(await focusedCode(page)).toBe('47');
-    const scroll = await page.locator('[data-map-box]').evaluate(box => ({ top: box.scrollTop, left: box.scrollLeft }));
-    expect(scroll).toEqual({ top: 0, left: 0 });
-    expect(await layer.getAttribute('transform')).toBe(before);
+    const after = await scrollOf();
+    expect(after).toEqual({ ...before, top: 0, left: 0 });
+    expect(after.page).toBe(before.page);
   });
 });
