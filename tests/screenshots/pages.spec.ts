@@ -32,6 +32,13 @@ function maximizePref(code: string): (page: Page) => Promise<void> {
   };
 }
 
+/** 市区町村データが 404 になるようにしてから、長野県を最大化する。失敗の文言と「再試行」が出るのを待つ（T2-07） */
+async function maximizeWithMuniFailure(page: Page): Promise<void> {
+  await page.route('**/geo/muni/*.topo.json', route => route.fulfill({ status: 404, body: 'not found' }));
+  await maximizePref('20')(page);
+  await page.locator('[data-muni-status="failed"] [data-muni-retry]').waitFor();
+}
+
 const SCENES: readonly Scene[] = [
   ...LANGS.map(lang => ({ name: `${lang}-top`, path: `/${lang}/` })),
   // F-MAP-04：端末の設定がダークのときの色
@@ -41,6 +48,8 @@ const SCENES: readonly Scene[] = [
   // T2-06：県を最大化して寄った状態。長野県（県全体が収まる）と東京都（父島を除いて、本土と伊豆諸島に寄る。U16・D36）
   { name: 'ja-maximized', path: '/ja/', prepare: maximizePref('20') },
   { name: 'ja-maximized-tokyo', path: '/ja/', prepare: maximizePref('13') },
+  // T2-07：市区町村データの読み込みに失敗した状態。県の形で最大化したまま、地図の左上に文言と「再試行」が出る
+  { name: 'ja-maximized-muni-failed', path: '/ja/', prepare: maximizeWithMuniFailure },
   // 存在しないパスの404（app/global-not-found.tsx）。404のステータスでも、page.goto は例外にならずに撮れる
   { name: 'ja-not-found', path: '/ja/no-such-page/' }
 ];

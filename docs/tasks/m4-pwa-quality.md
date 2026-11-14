@@ -48,7 +48,7 @@
 - Web App Manifest：言語ごとに用意し（`start_url` は `/{lang}/`、名前はその言語）、HTMLからリンクする。アイコンを用意する。
 - Service Worker（`dist/sw.js`）：
   - アプリの枠組み（HTML・JavaScript・CSS）を、インストールのときにキャッシュする。
-  - 市区町村データは、一度読み込んだ県だけキャッシュする。
+  - 市区町村データは、一度読み込んだ県だけキャッシュする。T2-07 の `muniLoader` はふつうの `fetch` を使うので、Service Worker のキャッシュから返れば、オフラインでも成功になる（`navigator.onLine` が `false` でも先には止めない）。
 - Service Worker を登録するスクリプトは外部ファイルにする（CSP のハッシュを増やさないため）。
 
 ### 完了条件
