@@ -47,13 +47,16 @@ export function PrefIndex({ lang, prefectures }: Props) {
               .map(({ code, name, pending }) => (
                 <li key={code}>
                   <a href={`#pref-${code}`} role="button" tabIndex={0} aria-pressed="false" data-pref={code} className={ITEM_CLASS}>
-                    <RubyText text={name[lang]} />
-                    {/* 4.11.4：準備中の県は県名の後ろに（準備中）。ボタンの名前に含まれるので、スクリーンリーダーにも伝わる */}
-                    {pending && (
-                      <span data-index-pending>
-                        <RubyText text={comingSoon.indexSuffix} />
-                      </span>
-                    )}
+                    {/* flex の子を1つにする（`<a>` は inline-flex。子が2つだと、英語の（準備中）の先頭の空白が消えて「Tokyo(coming soon)」になる） */}
+                    <span>
+                      <RubyText text={name[lang]} />
+                      {/* 4.11.4：準備中の県は県名の後ろに（準備中）。ボタンの名前に含まれるので、スクリーンリーダーにも伝わる */}
+                      {pending && (
+                        <span data-index-pending>
+                          <RubyText text={comingSoon.indexSuffix} />
+                        </span>
+                      )}
+                    </span>
                   </a>
                 </li>
               ))}

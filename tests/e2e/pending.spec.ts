@@ -74,6 +74,14 @@ test.describe('4.11.4：準備中の県の表示', () => {
     expect(suffix).toBe('（準備中）');
   });
 
+  test('英語のさくいんは、県名と（準備中）の間に空白が見える（「Tokyo (coming soon)」）', async ({ page }) => {
+    await page.goto('/en/');
+
+    // innerText は、描かれた通りの文字（flex の子の先頭の空白は消える）
+    await expect(page.locator(`a[data-pref="${TOKYO}"]`)).toHaveText('Tokyo (coming soon)');
+    expect(await page.locator(`a[data-pref="${TOKYO}"]`).evaluate(element => (element as HTMLElement).innerText)).toBe('Tokyo (coming soon)');
+  });
+
   test('準備中の県の形の aria-label に（準備中）が付く', async ({ page }) => {
     await page.goto('/ja/');
 
@@ -98,40 +106,86 @@ test.describe('4.11.4：準備中の県の表示', () => {
   });
 });
 
+/** R1・R4 の request だけのテストは、ブラウザによらないので chromium だけで動かす */
+const CHROMIUM_ONLY = 'ブラウザによらない確認なので chromium だけで動かす';
+
+/** 東京都（準備中）の名物・名所。reviewed の項目も含めて、すべてが本番に出てはいけない（verified・draft が混ざることも確かめる） */
+function tokyoItems() {
+  const tokyo = prefOf(TOKYO);
+  const items = [...tokyo.specialties, ...tokyo.spots];
+  expect(items.map(item => item.status)).toContain('verified');
+  expect(items.map(item => item.status)).toContain('draft');
+  return items;
+}
+
+/** 項目の名前・解説文（ja・en・zh、こども・おとな）。ja はふりがなの記法つき */
+const textsOf = (item: ReturnType<typeof tokyoItems>[number]): readonly string[] => [...Object.values(item.name), ...Object.values(item.description).flatMap(({ kids, adult }) => [kids, adult])];
+
+/** Next.js が dist/ に出す、ページの RSC のデータ（`/<lang>/` の HTML のほかに、クライアントが読むファイル） */
+const rscPaths = (lang: string): readonly string[] => [`/${lang}/index.txt`, `/${lang}/__next._full.txt`, `/${lang}/__next.$d$lang.__PAGE__.txt`];
+
 test.describe('R1：本番用のビルドに、reviewed でない項目の文が含まれない', () => {
   for (const lang of LANGS) {
-    test(`HTML に、東京都の名物・名所（verified・draft を含む）の名前・解説文が1つも出てこない（${lang}）`, async ({ request }) => {
-      // Arrange：東京都は準備中なので、reviewed の項目も含めて、すべての文が出てはいけない
-      const tokyo = prefOf(TOKYO);
-      const items = [...tokyo.specialties, ...tokyo.spots];
-      expect(items.map(item => item.status)).toContain('verified');
-      expect(items.map(item => item.status)).toContain('draft');
-      const forbidden = items.flatMap(item => [...Object.values(item.name), ...Object.values(item.description).flatMap(({ kids, adult }) => [kids, adult])]);
+    test(`画面の文字（ふりがなを除く）に、東京都の名物・名所の名前・解説文が1つも出てこない。北海道の名物は出る（${lang}）`, async ({ page }) => {
+      // Arrange
+      const forbidden = tokyoItems().flatMap(item => textsOf(item).map(plainText));
 
-      // Act
-      const html = await (await request.get(`/${lang}/`)).text();
+      // Act：ふりがな（<rt>）と script（RSC のデータ。下の request のテストで確かめる）を除いた、ページ全体の文字。hidden の要素（ツールチップ）も含む
+      await page.goto(`/${lang}/`);
+      const body = await page.evaluate(() => {
+        const copy = document.body.cloneNode(true) as HTMLElement;
+        copy.querySelectorAll('rt, script').forEach(element => element.remove());
+        return copy.textContent ?? '';
+      });
 
-      // Assert：記法のままの文と、ふりがなを除いた文のどちらも出てこない
+      // Assert：<ruby> で文字が分かれていても、ふりがなを除けば連続した文になる
       for (const text of forbidden) {
-        expect(html).not.toContain(text);
-        expect(html).not.toContain(plainText(text));
+        expect(body).not.toContain(text);
       }
+      expect(body).not.toContain(plainText(prefOf(TOKYO).access?.route[lang] ?? '？'));
       // 比較のため：reviewed の北海道の名物の名前は出てくる
       for (const specialty of prefOf(HOKKAIDO).specialties) {
-        expect(html).toContain(plainText(specialty.name[lang]).slice(0, 4));
+        expect(body).toContain(plainText(specialty.name[lang]));
       }
-      // 行き方（東京都は reviewed）も出ない
-      expect(html).not.toContain(plainText(tokyo.access?.route.ja ?? '？'));
+    });
+
+    test(`HTML と RSC のデータに、東京都の名物・名所の id と、ふりがなのない文（en・zh）・記法のままの文が出てこない（${lang}）`, async ({ request }, testInfo) => {
+      test.skip(testInfo.project.name !== 'chromium', CHROMIUM_ONLY);
+      // Arrange：id は React の key として RSC のデータに出る。en・zh の文はふりがながないので、連続した文字列で探せる
+      const items = tokyoItems();
+      const forbidden = [...items.map(item => item.id), ...items.flatMap(item => textsOf(item))];
+
+      for (const path of [`/${lang}/`, ...rscPaths(lang)]) {
+        // Act
+        const response = await request.get(path);
+        expect(response.ok(), path).toBe(true);
+        const body = await response.text();
+
+        // Assert
+        for (const text of forbidden) {
+          expect(body, `${path} に ${text} が含まれている`).not.toContain(text);
+        }
+      }
+      // 比較のため：reviewed の北海道の名物の id は、RSC のデータに出る（探し方が合っている）
+      const rsc = (await Promise.all(rscPaths(lang).map(async path => (await request.get(path)).text()))).join('\n');
+      for (const specialty of prefOf(HOKKAIDO).specialties) {
+        expect(rsc).toContain(specialty.id);
+      }
     });
   }
 });
 
 test.describe('R4：本番用のビルドには noindex が付かない', () => {
   for (const lang of LANGS) {
-    test(`/${lang}/ に robots の noindex がない`, async ({ page, request }) => {
+    test(`/${lang}/ に robots の meta がない`, async ({ page }) => {
       await page.goto(`/${lang}/`);
 
       await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
+    });
+
+    test(`/${lang}/ の HTML に noindex がない`, async ({ request }, testInfo) => {
+      test.skip(testInfo.project.name !== 'chromium', CHROMIUM_ONLY);
+
       expect(await (await request.get(`/${lang}/`)).text()).not.toContain('noindex');
     });
   }
