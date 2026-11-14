@@ -197,4 +197,69 @@ describe('buildPrefPaths', () => {
       expect(() => buildPrefPaths(tokyoWith([island(160, 20)]))).toThrow(/viewBox/u);
     });
   });
+
+  describe('T2-06：fitBounds・panBounds（D36）', () => {
+    const island = (lon: number, lat: number, size = 0.1) => [
+      [lon, lat],
+      [lon, lat + size],
+      [lon + size, lat + size],
+      [lon + size, lat],
+      [lon, lat]
+    ];
+    const prefWith = (code: string, islands: readonly (readonly (readonly number[])[])[]) => ({
+      type: 'Topology',
+      arcs: islands,
+      objects: {
+        prefectures: {
+          type: 'GeometryCollection',
+          geometries: [{ type: 'MultiPolygon', arcs: islands.map((_, i) => [[i]]), properties: { code, label: [139.7, 35.7] } }]
+        }
+      }
+    });
+
+    test('fitBounds・panBounds は小さな TopoJSON の形の外接矩形になる（F-ZOOM-04）', () => {
+      // Arrange：神奈川県（14）として、2つの島を持つ形。外接矩形は、2つの島の四隅を投影した点を含む
+      const islands = [island(139.4, 35.4, 0.3), island(139.9, 35.1, 0.2)];
+
+      // Act
+      const [path] = buildPrefPaths(prefWith('14', islands));
+
+      // Assert：どの隅も外接矩形の中（誤差1px）にあり、端はどれかの隅に近い
+      const corners = islands.flatMap(ring => ring.map(([lon, lat]) => projectPoint([lon as number, lat as number], '14')));
+      const xs = corners.map(([x]) => x);
+      const ys = corners.map(([, y]) => y);
+      const { fitBounds, panBounds } = path as PrefPath;
+      expect(panBounds).toEqual(fitBounds);
+      expect(fitBounds.x0).toBeCloseTo(Math.min(...xs), 0);
+      expect(fitBounds.x1).toBeCloseTo(Math.max(...xs), 0);
+      expect(fitBounds.y0).toBeCloseTo(Math.min(...ys), 0);
+      expect(fitBounds.y1).toBeCloseTo(Math.max(...ys), 0);
+      // 小数1桁に丸めてある
+      for (const value of Object.values(fitBounds)) expect(Math.round(value * 10) / 10).toBe(value);
+    });
+
+    test('東京都の fitBounds は北緯28度より南のポリゴンを除き、panBounds は viewBox の外の島まで入る（D36）', () => {
+      // 本土、父島の位置（北緯27度・viewBox の中）、viewBox の外の島（北緯20度）
+      const mainland = island(139.6, 35.6, 0.2);
+      const south = island(142.1, 27, 0.2);
+      const far = island(160, 20, 0.2);
+
+      const [path] = buildPrefPaths(prefWith('13', [mainland, south, far]));
+
+      const [, mainlandBottom] = projectPoint([139.6, 35.6], '13');
+      const [, southY] = projectPoint([142.1, 27], '13');
+      const [farX] = projectPoint([160, 20], '13');
+      const { fitBounds, panBounds } = path as PrefPath;
+      // 寄る範囲は本土だけ（父島の y より上）。移動できる範囲は、除いた島・外の島まで入る
+      expect(fitBounds.y1).toBeLessThanOrEqual(mainlandBottom + 5);
+      expect(fitBounds.y1).toBeLessThan(southY);
+      expect(panBounds.y1).toBeGreaterThan(southY);
+      expect(panBounds.x1).toBeGreaterThan(farX - 1);
+      expect(panBounds.x1).toBeGreaterThan(VIEWBOX.width);
+    });
+
+    test('東京都の寄る範囲を除いた後に形が残らないと例外にする（D36）', () => {
+      expect(() => buildPrefPaths(prefWith('13', [island(142.1, 27, 0.2)]))).toThrow(/13/u);
+    });
+  });
 });

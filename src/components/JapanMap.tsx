@@ -12,6 +12,14 @@ type Props = {
   readonly prefectures: readonly Prefecture[];
 };
 
+/**
+ * 拡大しても画面の上の大きさが変わらない長さ（viewBox の単位 ÷ 倍率）。倍率は `MapZoom` が地図の層に書く CSS 変数 `--zoom-k`。
+ * 変数がないとき（JavaScript なし）・倍率が1のときは、基準の大きさのまま。
+ */
+function zoomInvariant(size: number): string {
+  return `calc(${size}px / var(--zoom-k, 1))`;
+}
+
 /** 海域名の文字の大きさ（viewBox の単位） */
 const SEA_LABEL_FONT_SIZE = 24;
 /**
@@ -19,6 +27,9 @@ const SEA_LABEL_FONT_SIZE = 24;
  * 固定中・最大化中は aria-pressed で塗りを変える。状態の属性は `MapInteraction` が書き換える
  */
 const PREF_INTERACTION_CLASS = 'cursor-pointer hover:opacity-80 aria-pressed:fill-map-selected';
+/** 県境の線・沖縄の枠の線の太さ（viewBox の単位。倍率1のとき） */
+const BORDER_WIDTH = 0.8;
+const FRAME_WIDTH = 1.5;
 /** 海域名の位置（viewBox の座標。文字の中心） */
 const SEA_LABEL_POSITIONS = {
   japanSea: { x: 370, y: 470 },
@@ -51,7 +62,7 @@ function PrefShape({ lang, prefecture, d }: { readonly lang: Lang; readonly pref
 
 /**
  * 都道府県の地図（SVG。F-MAP-01〜04・06、D24）。ビルド時に HTML へ出力するので、JavaScript がなくても見える。
- * 色は `app/globals.css` の @theme の変数（ライト・ダーク。D26）。操作は `MapInteraction`（T2-05）、拡大・縮小は T2-06。
+ * 色は `app/globals.css` の @theme の変数（ライト・ダーク。D26）。操作は `MapInteraction`（T2-05）、拡大・縮小・移動は `MapZoom`（T2-06。`<g data-map-layer>` を動かす。`<svg>` は touch-action: none で、指の操作をブラウザに取られない。4.11.3）。
  * `<svg>` は親の箱いっぱいに広がる。箱の縦横比は `VIEWBOX` と同じにする（`MapArea`）。
  */
 export function JapanMap({ lang, prefectures }: Props) {
@@ -59,21 +70,21 @@ export function JapanMap({ lang, prefectures }: Props) {
   const pathByCode = new Map(loadPrefPaths().map(path => [path.code, path]));
 
   return (
-    <svg viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`} role="group" aria-label={plainText(messages.map.label)} className="block size-full">
+    <svg viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`} role="group" aria-label={plainText(messages.map.label)} className="block size-full touch-none">
       <rect data-map-sea x={0} y={0} width={VIEWBOX.width} height={VIEWBOX.height} className="fill-map-sea" />
       <g data-map-layer>
-        <g className="stroke-map-border" strokeWidth={0.8} strokeLinejoin="round">
+        <g className="stroke-map-border" style={{ strokeWidth: zoomInvariant(BORDER_WIDTH) }} strokeLinejoin="round">
           {prefectures.map(prefecture => (
             <PrefShape key={prefecture.code} lang={lang} prefecture={prefecture} d={pathOf(pathByCode, prefecture.code).d} />
           ))}
         </g>
-        <rect data-okinawa-frame {...OKINAWA_FRAME} fill="none" strokeWidth={1.5} strokeDasharray="6 4" className="stroke-map-frame" />
+        <rect data-okinawa-frame {...OKINAWA_FRAME} fill="none" strokeDasharray="6 4" style={{ strokeWidth: zoomInvariant(FRAME_WIDTH) }} className="stroke-map-frame" />
         {(['japanSea', 'pacific'] as const).map(sea => (
           <text
             key={sea}
             data-sea-label
             {...SEA_LABEL_POSITIONS[sea]}
-            fontSize={SEA_LABEL_FONT_SIZE}
+            style={{ fontSize: zoomInvariant(SEA_LABEL_FONT_SIZE) }}
             textAnchor="middle"
             dominantBaseline="central"
             className="pointer-events-none fill-map-sea-label select-none"
@@ -86,7 +97,7 @@ export function JapanMap({ lang, prefectures }: Props) {
           data-pref-labels
           aria-hidden="true"
           className="pointer-events-none fill-map-label select-none max-map-label:hidden"
-          fontSize={LABEL_FONT_SIZE[lang]}
+          style={{ fontSize: zoomInvariant(LABEL_FONT_SIZE[lang]) }}
           textAnchor="middle"
           dominantBaseline="central"
         >

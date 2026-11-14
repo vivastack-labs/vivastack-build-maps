@@ -18,12 +18,29 @@ async function pinPref(page: Page): Promise<void> {
   await page.mouse.move(0, 0);
 }
 
+/** 動きを止めてから（最終の位置で撮るため）、県（コード）をダブルクリックして最大化し、マウスを地図から外す */
+function maximizePref(code: string): (page: Page) => Promise<void> {
+  return async page => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.locator('[data-map-ready]').waitFor({ state: 'attached' });
+    // 東京都は外接矩形の中心が海なので、ダブルクリックのイベントを県のパスに直接送る
+    await page.locator(`path[data-pref="${code}"]`).dispatchEvent('dblclick');
+    await page.locator(`path[data-pref="${code}"][data-state="maximized"]`).waitFor();
+    // 寄る動きが終わる（倍率が1でなくなる）のを待つ
+    await page.locator('[data-map-layer]:not([data-zoom-scale="1"])').waitFor();
+    await page.mouse.move(0, 0);
+  };
+}
+
 const SCENES: readonly Scene[] = [
   ...LANGS.map(lang => ({ name: `${lang}-top`, path: `/${lang}/` })),
   // F-MAP-04：端末の設定がダークのときの色
   { name: 'ja-top-dark', path: '/ja/', prepare: page => page.emulateMedia({ colorScheme: 'dark' }) },
-  // T2-05：県（長野県）をクリックして固定した状態。固定した県の塗りと、カードの県名が変わる。最大化は見た目が変わらない（拡大は T2-06）ので撮らない
+  // T2-05：県（長野県）をクリックして固定した状態。固定した県の塗りと、カードの県名が変わる。最大化は ja-maximized で撮る
   { name: 'ja-pinned', path: '/ja/', prepare: pinPref },
+  // T2-06：県を最大化して寄った状態。長野県（県全体が収まる）と東京都（父島を除いて、本土と伊豆諸島に寄る。U16・D36）
+  { name: 'ja-maximized', path: '/ja/', prepare: maximizePref('20') },
+  { name: 'ja-maximized-tokyo', path: '/ja/', prepare: maximizePref('13') },
   // 存在しないパスの404（app/global-not-found.tsx）。404のステータスでも、page.goto は例外にならずに撮れる
   { name: 'ja-not-found', path: '/ja/no-such-page/' }
 ];

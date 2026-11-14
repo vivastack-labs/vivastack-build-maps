@@ -153,6 +153,8 @@
 - Playwright のプロジェクトを 5.3 に合わせて整える：PC（Chromium・Firefox・WebKit）、スマホ（iPhone・Pixel）、タブレット（iPad の縦・横、Android タブレット）、画面幅（360px・768px・1024px・1366px）。
 - PC だけ・タッチだけのテストを、タグで分ける。
 - `docs/device-checklist.md`：公開前の実機確認のチェックリスト（端末、OSの版、確認する操作。ピンチ、パネル、オフラインなど CI で確かめられないものを含む）。
+  - T2-06 から引き継ぐ項目：Apple Pencil（`pointerType` が `pen`）のダブルタップで、最大化と Safari のダブルタップ拡大が重ならないこと（`touch-action: none` で解消する想定）。iPhone（WebKit は CDP が使えない）でのピンチ・スワイプによる拡大・移動。ピンチ（pixel の CDP）とスワイプは T2-06 の E2E で確かめている。
+  - スマホで地図の上を縦にスワイプしても、ページがスクロールしない（`touch-action: none`）。地図の上で指を置くとスクロールできなくなるので、使いにくくないか（地図の外側に余白があるか）を確かめる。
 
 ### 完了条件
 
