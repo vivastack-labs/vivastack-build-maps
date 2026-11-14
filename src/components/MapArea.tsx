@@ -2,7 +2,7 @@ import { loadPrefPaths } from '@/features/map/prefPaths';
 import { VIEWBOX } from '@/features/map/projection';
 import type { Lang } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
-import type { Prefecture } from '@/lib/content-schema.generated';
+import type { PublishedPrefecture } from '@/lib/publish';
 import { JapanMap } from './JapanMap';
 import { MapInteraction } from './MapInteraction';
 import { MapLegend } from './MapLegend';
@@ -13,7 +13,7 @@ import { MuniStatus } from './MuniStatus';
 
 type Props = {
   readonly lang: Lang;
-  readonly prefectures: readonly Prefecture[];
+  readonly prefectures: readonly PublishedPrefecture[];
 };
 
 /** 県コード → 寄る範囲・移動できる範囲。ビルド時に求めて `MapZoom` に渡す（47県で約3KB） */
@@ -39,7 +39,7 @@ export function MapArea({ lang, prefectures }: Props) {
         <MuniStatus labels={getMessages(lang).muni} />
         <MapTooltip lang={lang} prefectures={prefectures} />
       </div>
-      <MapLegend lang={lang} />
+      <MapLegend lang={lang} prefectures={prefectures} />
     </section>
   );
 }

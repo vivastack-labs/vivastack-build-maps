@@ -1,6 +1,6 @@
 import type { Lang } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
-import type { Prefecture } from '@/lib/content-schema.generated';
+import type { PublishedPrefecture } from '@/lib/publish';
 import { distanceText, TOKYO_CODE } from '@/lib/distance';
 import { CardSwitch } from './CardSwitch';
 import { MuniList } from './MuniList';
@@ -9,7 +9,7 @@ import { RubyText } from './RubyText';
 type Props = {
   readonly lang: Lang;
   /** 県の一覧（県コードの順）。県名を出す */
-  readonly prefectures: readonly Prefecture[];
+  readonly prefectures: readonly PublishedPrefecture[];
   /** 県コード → 東京からの距離（km。10km 単位。ビルド時に `distancesFromTokyo` で求める。7.5） */
   readonly distances: ReadonlyMap<string, number>;
 };

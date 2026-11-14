@@ -5,11 +5,11 @@ import { IndexArea } from '@/components/IndexArea';
 import { MapStateProvider } from '@/components/MapStateProvider';
 import { LANGS } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
-import { loadContent } from '@/lib/content';
+import { publishedPrefectures } from '../lib/published-helpers';
 import { plainText } from '@/lib/ruby';
 import { textWithoutRuby } from './base-text';
 
-const prefectures = loadContent();
+const prefectures = publishedPrefectures();
 
 describe('IndexArea', () => {
   for (const lang of LANGS) {

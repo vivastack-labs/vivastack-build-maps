@@ -36,8 +36,9 @@ export function roundTo10Km(km: number): number {
 /**
  * 県コード → 東京都庁からの距離（km。10km 単位）。東京都自身は 0。
  * 東京都（`code: "13"`）がなければ例外（コンテンツの設定の誤り。黙って 0 にしない）。
+ * 県コードと県庁の位置だけを読むので、`loadContent()` の結果も `publish()` の結果（`PublishedPrefecture`）も渡せる。
  */
-export function distancesFromTokyo(prefectures: readonly Prefecture[]): ReadonlyMap<string, number> {
+export function distancesFromTokyo(prefectures: readonly Pick<Prefecture, 'code' | 'capital'>[]): ReadonlyMap<string, number> {
   const tokyo = prefectures.find(({ code }) => code === TOKYO_CODE);
   if (tokyo === undefined) throw new Error(`東京都（code: "${TOKYO_CODE}"）がないので、東京からの距離を計算できません`);
   return new Map(prefectures.map(({ code, capital }) => [code, roundTo10Km(haversineKm(tokyo.capital, capital))]));

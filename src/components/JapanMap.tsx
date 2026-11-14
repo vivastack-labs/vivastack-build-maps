@@ -2,17 +2,17 @@ import type { ReactNode } from 'react';
 import { FIRST_PREF } from '@/features/map/keyboard';
 import { LABEL_FONT_SIZE, loadPrefPaths, type PrefPath } from '@/features/map/prefPaths';
 import { OKINAWA_FRAME, VIEWBOX } from '@/features/map/projection';
-import { REGION_FILL_CLASS } from '@/features/map/regions';
+import { PENDING_FILL_CLASS, PENDING_PATTERN_ID, REGION_FILL_CLASS } from '@/features/map/regions';
 import { zoomInvariant } from '@/features/map/zoomInvariant';
 import type { Lang } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
-import type { Prefecture } from '@/lib/content-schema.generated';
+import type { PublishedPrefecture } from '@/lib/publish';
 import { plainText } from '@/lib/ruby';
 
 type Props = {
   readonly lang: Lang;
-  /** 県の一覧（県コードの順）。名前と地方を引く。読み込みは呼ぶ側で1回だけ行う */
-  readonly prefectures: readonly Prefecture[];
+  /** 県の一覧（県コードの順）。名前・地方・「準備中」かどうかを引く。読み込みと絞り込み（`publish`）は呼ぶ側で1回だけ行う */
+  readonly prefectures: readonly PublishedPrefecture[];
   /** 地図の層（`<g data-map-layer>`）の最後（県名ラベルの上）に置くもの。最大化した県の市区町村の層（T2-08） */
   readonly children?: ReactNode;
 };
@@ -31,6 +31,9 @@ const PREF_INTERACTION_CLASS = 'cursor-pointer hover:opacity-80 aria-pressed:fil
 const PREF_FOCUS_CLASS = 'focus-visible:outline-solid focus-visible:outline-[length:calc(4px/var(--zoom-k,1))] focus-visible:outline-slate-900 dark:focus-visible:outline-slate-50';
 /** F-MUNI-04：県を最大化している間は、最大化した県以外を薄くする（`MapInteraction` の `group/map` に `data-map-maximized` が付く） */
 const PREF_DIMMED_CLASS = 'group-data-[map-maximized]/map:not-data-[state=maximized]:opacity-40';
+/** 「準備中」の斜線の間隔・太さ（viewBox の単位。倍率1のとき） */
+const PENDING_HATCH_PITCH = 7;
+const PENDING_HATCH_STROKE = 2;
 /** 県境の線・沖縄の枠の線の太さ（viewBox の単位。倍率1のとき） */
 const BORDER_WIDTH = 0.8;
 const FRAME_WIDTH = 1.5;
@@ -56,19 +59,34 @@ function pathOf(paths: ReadonlyMap<string, PrefPath>, code: string): PrefPath {
   return path;
 }
 
+/** 「準備中」の斜線の模様（4.11.4）。地と線の色は @theme の変数（ライト・ダーク）。斜線は拡大すると太くなる（地図の絵の一部） */
+function PendingPattern() {
+  return (
+    <defs>
+      <pattern id={PENDING_PATTERN_ID} width={PENDING_HATCH_PITCH} height={PENDING_HATCH_PITCH} patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width={PENDING_HATCH_PITCH} height={PENDING_HATCH_PITCH} className="fill-map-pending" />
+        <line x1={0} y1={0} x2={0} y2={PENDING_HATCH_PITCH} strokeWidth={PENDING_HATCH_STROKE} className="stroke-map-pending-stripe" />
+      </pattern>
+    </defs>
+  );
+}
+
 /** 県の形（1つのパス）。固定の状態は `aria-pressed` に出すので、サーバーでは `false` で始める（5.2）。`tabIndex` は北海道だけ 0 で、ハイドレーション前から Tab の停止位置が1つになる */
-function PrefShape({ lang, prefecture, d }: { readonly lang: Lang; readonly prefecture: Prefecture; readonly d: string }) {
-  const { code, region, name } = prefecture;
+function PrefShape({ lang, prefecture, d }: { readonly lang: Lang; readonly prefecture: PublishedPrefecture; readonly d: string }) {
+  const { code, region, name, pending } = prefecture;
+  // 4.11.4：準備中の県は、地方の色の代わりに斜線で塗る。斜線は見た目だけの情報なので、読み上げにも「（準備中）」を足す（WCAG 1.3.1）。操作はほかの県と同じ
+  const label = pending ? `${plainText(name[lang])}${plainText(getMessages(lang).comingSoon.indexSuffix)}` : plainText(name[lang]);
   return (
     <path
       data-pref={code}
       data-region={region}
+      {...(pending ? { 'data-pending': '' } : {})}
       role="button"
       aria-pressed="false"
-      aria-label={plainText(name[lang])}
+      aria-label={label}
       tabIndex={code === FIRST_PREF ? 0 : -1}
       d={d}
-      className={`${REGION_FILL_CLASS[region]} ${PREF_INTERACTION_CLASS} ${PREF_FOCUS_CLASS} ${PREF_DIMMED_CLASS}`}
+      className={`${pending ? PENDING_FILL_CLASS : REGION_FILL_CLASS[region]} ${PREF_INTERACTION_CLASS} ${PREF_FOCUS_CLASS} ${PREF_DIMMED_CLASS}`}
     />
   );
 }
@@ -84,6 +102,7 @@ export function JapanMap({ lang, prefectures, children }: Props) {
 
   return (
     <svg viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`} role="group" aria-label={plainText(messages.map.label)} className="block size-full touch-none">
+      <PendingPattern />
       <rect data-map-sea x={0} y={0} width={VIEWBOX.width} height={VIEWBOX.height} className="fill-map-sea" />
       <g data-map-layer>
         <g className="stroke-map-border" style={{ strokeWidth: zoomInvariant(BORDER_WIDTH) }} strokeLinejoin="round">

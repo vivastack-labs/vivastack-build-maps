@@ -1,6 +1,6 @@
 import type { Lang } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
-import type { Prefecture } from '@/lib/content-schema.generated';
+import type { PublishedPrefecture } from '@/lib/publish';
 import { PrefIndex } from './PrefIndex';
 import { PrefIndexInteraction } from './PrefIndexInteraction';
 import { RubyText } from './RubyText';
@@ -8,7 +8,7 @@ import { RubyText } from './RubyText';
 type Props = {
   readonly lang: Lang;
   /** 県の一覧（県コードの順）。県名と地方を出す */
-  readonly prefectures: readonly Prefecture[];
+  readonly prefectures: readonly PublishedPrefecture[];
 };
 
 /**
