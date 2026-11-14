@@ -48,3 +48,52 @@ export async function clickAtCenter(page: Page, locator: Locator): Promise<void>
   const { x, y } = await settledCenter(locator);
   await page.mouse.click(x, y);
 }
+
+/** `pointInside` が形を調べる格子の分割数 */
+const POINT_GRID = 24;
+
+/**
+ * 形の内側の点（表示の座標。整数）。外接矩形の中心にいちばん近い、形の中の点（凹んだ形でも形の中に取る）。
+ * Firefox・WebKit は `page.mouse` の座標を整数に切り捨てるので、整数にした点が形の中にあるものだけを選ぶ
+ * （全体表示の札幌市中央区のように数pxの形では、小数のままだと隣の市区町村に当たる）。
+ */
+async function pointInside(locator: Locator): Promise<{ readonly x: number; readonly y: number }> {
+  return locator.evaluate((element, grid) => {
+    const path = element as unknown as SVGGeometryElement;
+    const box = path.getBBox();
+    const ctm = path.getScreenCTM();
+    if (!ctm) throw new Error('座標の変換がありません');
+    const inverse = ctm.inverse();
+    const center = new DOMPoint(box.x + box.width / 2, box.y + box.height / 2).matrixTransform(ctm);
+    const best = Array.from({ length: grid * grid }, (_, i) =>
+      new DOMPoint(box.x + (box.width * ((i % grid) + 0.5)) / grid, box.y + (box.height * (Math.floor(i / grid) + 0.5)) / grid).matrixTransform(ctm)
+    )
+      .map(screen => ({ x: Math.floor(screen.x), y: Math.floor(screen.y) }))
+      .filter(screen => path.isPointInFill(new DOMPoint(screen.x, screen.y).matrixTransform(inverse)))
+      .sort((a, b) => Math.hypot(a.x - center.x, a.y - center.y) - Math.hypot(b.x - center.x, b.y - center.y))[0];
+    if (!best) throw new Error('形の内側の点が見つかりません');
+    return best;
+  }, POINT_GRID);
+}
+
+/** 点を比べる間隔（ms）。続けて呼ぶと、寄る動きの1フレームの間に2回測って「止まった」と誤る（WebKit で起きた） */
+const SETTLE_INTERVAL_MS = 250;
+
+/** 動きが止まって、点の位置が `SETTLE_INTERVAL_MS` の間変わらなくなるのを待ってから、その点を返す */
+export async function settledPoint(locator: Locator): Promise<{ readonly x: number; readonly y: number }> {
+  let previous = '';
+  let settled = { x: 0, y: 0 };
+  await expect
+    .poll(
+      async () => {
+        settled = await pointInside(locator);
+        const current = JSON.stringify(settled);
+        const isSame = current === previous;
+        previous = current;
+        return isSame;
+      },
+      { intervals: [SETTLE_INTERVAL_MS] }
+    )
+    .toBe(true);
+  return settled;
+}

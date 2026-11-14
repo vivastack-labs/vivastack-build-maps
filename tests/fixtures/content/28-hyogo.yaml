@@ -1,0 +1,20 @@
+# 県庁の位置（D32。2026-11-12 に確認）
+# - 庁舎の住所：兵庫県神戸市中央区下山手通5丁目10番1号（https://web.pref.hyogo.lg.jp/）
+# - 地理院地図の住所検索の点が、地理院地図で「兵庫県庁舎」と書かれた建物の上にあることを確かめた
+---
+id: hyogo
+code: "28"
+region: kinki
+name:
+  ja: "{兵庫県|ひょうごけん}"
+  en: "Hyogo"
+  zh: "兵库县"
+capital:
+  name:
+    ja: "{神戸市|こうべし}"
+    en: "Kobe"
+    zh: "神户市"
+  lat: 34.691177
+  lon: 135.183258
+specialties: []
+spots: []

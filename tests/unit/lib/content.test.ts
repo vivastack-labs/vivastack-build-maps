@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 
@@ -9,6 +9,13 @@ import { copyFixtures, deleteIn, FIXTURE_DIR, lineOf, removeDir, setIn } from '.
 const HOKKAIDO = '01-hokkaido.yaml';
 const TOKYO = '13-tokyo.yaml';
 const OKINAWA = '47-okinawa.yaml';
+
+// フィクスチャは47県（T2-09）。北海道・東京都・沖縄県は中身を作り込み、残りの44県は content/prefectures/ の基本情報の写し（名物・名所は空）
+const FIXTURE_CODES = Array.from({ length: 47 }, (_, i) => String(i + 1).padStart(2, '0'));
+const KANAGAWA = '14-kanagawa.yaml';
+
+/** 県の id の一覧から、作り込んだ3県のうち読み込めたものだけを取り出す */
+const craftedIds = (prefectures: readonly { readonly id: string }[]): string[] => prefectures.map(pref => pref.id).filter(id => ['hokkaido', 'tokyo', 'okinawa'].includes(id));
 
 const messagesOf = (issues: readonly ContentIssue[]): string => issues.map(formatIssue).join('\n');
 
@@ -28,7 +35,7 @@ describe('validateContent：形', () => {
 
     // Assert
     expect(messagesOf(result.errors)).toBe('');
-    expect(result.prefectures.map(pref => pref.code)).toEqual(['01', '13', '47']);
+    expect(result.prefectures.map(pref => pref.code)).toEqual(FIXTURE_CODES);
   });
 
   test('7.1：名物・名所が空で、行き方がない県は通る', () => {
@@ -197,10 +204,13 @@ describe('validateContent：形', () => {
     expect(errors).toHaveLength(1);
     expect(errors[0]).toMatchObject({ file: HOKKAIDO });
     expect(errors[0]?.message).toContain('エイリアス');
-    expect(prefectures.map(pref => pref.id)).toEqual(['tokyo', 'okinawa']);
+    expect(prefectures).toHaveLength(46);
+    expect(craftedIds(prefectures)).toEqual(['tokyo', 'okinawa']);
   });
 
   test('7.1：読めないファイル（NN-id.yaml という名前のディレクトリ）は誤りにする', () => {
+    // 02-aomori.yaml のファイルをディレクトリに置き換える
+    rmSync(join(dir, '02-aomori.yaml'));
     mkdirSync(join(dir, '02-aomori.yaml'));
 
     const { errors, prefectures } = validateContent(dir);
@@ -208,7 +218,7 @@ describe('validateContent：形', () => {
     expect(errors).toHaveLength(1);
     expect(errors[0]).toMatchObject({ file: '02-aomori.yaml' });
     expect(errors[0]?.message).toContain('ファイルを読めません');
-    expect(prefectures).toHaveLength(3);
+    expect(prefectures).toHaveLength(46);
   });
 
   test('7.1：YAML の構文の誤りとキーの重複は、行を含む誤りにする', () => {
@@ -220,7 +230,8 @@ describe('validateContent：形', () => {
     const hokkaido = errors.find(issue => issue.file === HOKKAIDO);
     expect(hokkaido?.line).toBe(2);
     expect(errors.some(issue => issue.file === TOKYO)).toBe(true);
-    expect(prefectures.map(pref => pref.id)).toEqual(['okinawa']);
+    expect(prefectures).toHaveLength(45);
+    expect(craftedIds(prefectures)).toEqual(['okinawa']);
   });
 });
 
@@ -228,6 +239,8 @@ describe('validateContent：形', () => {
 describe('validateContent：ファイルと id', () => {
   test('7.1：ファイル名（NN-id.yaml）と code・id が合わなければ誤りにする', () => {
     setIn(dir, HOKKAIDO, ['id'], 'hokaido');
+    // 14 は神奈川県と重ならないように、神奈川県のファイルを除く
+    rmSync(join(dir, KANAGAWA));
     setIn(dir, TOKYO, ['code'], '14');
 
     const { errors } = validateContent(dir);
@@ -415,8 +428,8 @@ describe('contentDir と loadContent', () => {
     const before = process.env.CONTENT_DIR;
     process.env.CONTENT_DIR = dir;
     try {
-      expect(validateContent().prefectures).toHaveLength(3);
-      expect(loadContent()).toHaveLength(3);
+      expect(validateContent().prefectures).toHaveLength(47);
+      expect(loadContent()).toHaveLength(47);
     } finally {
       if (before === undefined) delete process.env.CONTENT_DIR;
       else process.env.CONTENT_DIR = before;
@@ -424,7 +437,7 @@ describe('contentDir と loadContent', () => {
   });
 
   test('7.1：loadContent は県を code の順に返す', () => {
-    expect(loadContent(dir).map(pref => pref.code)).toEqual(['01', '13', '47']);
+    expect(loadContent(dir).map(pref => pref.code)).toEqual(FIXTURE_CODES);
   });
 
   test('7.1：loadContent は誤りがあれば、すべての誤りを含むエラーを投げる', () => {

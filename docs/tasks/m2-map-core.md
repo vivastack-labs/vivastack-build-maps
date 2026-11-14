@@ -296,7 +296,7 @@ T2-01・T2-02 は M1 と並行して進められる。
 - `src/components/Tooltip.tsx`（クライアントコンポーネント）：マウスの位置の近くに表示する。`pointerType` がマウスのときだけ表示する。
 - 県：県名と名物3つの名前。名物がない県は県名だけ（4.11.4）。クライアントに渡すのは、県名と名物の名前だけにする（解説文は渡さない。6.6 (2)）。
 - 市区町村：名前と読みがな（日本語のページ）。政令指定都市の区は「市名＋区名」。
-- T2-08 で分かったこと：市区町村の形は `<path data-muni="NNNNN">`（`MuniLayer`。`aria-hidden`）で、`pointerover`・`pointerout` は `MapInteraction` まで届く（`prefFromTarget` は `[data-muni-pref]` からも県コードを引く）。ツールチップが市区町村の名前・読みを引くには、`event.target` の `data-muni`（5桁の `code`）を `useMuniShapes(maximized)` の `status.shapes.shapes[].properties`（`name.ja`・`kana`・`cityName`）で引く（読み込みと変換は既定の `muniLoader` のキャッシュと `muniShapes` の `WeakMap` で共有されるので、何度呼んでも1回）。政令指定都市の区は、`name.ja` がもう「札幌市中央区」なので、ツールチップはそのまま出せる（地図のラベルは区名だけ）。マウスの位置は `page.mouse` で動かす（要素の外接矩形の中心は、凹んだ形では形の外になるので、E2E は `isPointInFill` で内側の点を探す。`tests/e2e/muni-render.spec.ts` の `pointInside`）。
+- T2-08 で分かったこと：市区町村の形は `<path data-muni="NNNNN">`（`MuniLayer`。`aria-hidden`）で、`pointerover`・`pointerout` は `MapInteraction` まで届く（`prefFromTarget` は `[data-muni-pref]` からも県コードを引く）。ツールチップが市区町村の名前・読みを引くには、`event.target` の `data-muni`（5桁の `code`）を `useMuniShapes(maximized)` の `status.shapes.shapes[].properties`（`name.ja`・`kana`・`cityName`）で引く（読み込みと変換は既定の `muniLoader` のキャッシュと `muniShapes` の `WeakMap` で共有されるので、何度呼んでも1回）。政令指定都市の区は、`name.ja` がもう「札幌市中央区」なので、ツールチップはそのまま出せる（地図のラベルは区名だけ）。マウスの位置は `page.mouse` で動かす（要素の外接矩形の中心は、凹んだ形では形の外になるので、E2E は `isPointInFill` で内側の点を探す。`tests/e2e/helpers.ts` の `settledPoint`。T2-09 で muni-render.spec.ts から移した）。
 
 ### 完了条件
 
@@ -353,6 +353,7 @@ T2-01・T2-02 は M1 と並行して進められる。
 - フォーカス＝ホバー、Enter・Space＝クリック、Shift + Enter＝ダブルクリックとして `mapReducer` に渡す。
   - T2-05 の `useMapState()` の `dispatch` に `MapEvent`（`hover`・`click`・`doubleClick`）を渡す。キーボードの操作は DOM の `click` を経由せず、`dispatch` に直接渡す（`MapInteraction` の `click` は直前の `pointerdown` の種類を前提にしているため）。E2E は `[data-map-ready]` を待ってからキーを押す。
 - 地図にフォーカスがあるとき、`+` `-` `0` で拡大・縮小・全体表示、Esc で解除。
+  - Esc でツールチップも隠す（WCAG 1.4.13。ツールチップは地図の一部を覆うため）。T2-09 の `Tooltip` は `hit` を捨てると隠れる（次にマウスが動くまで）ので、Esc でも同じように捨てる。
   - 拡大・縮小・全体表示は T2-06 の `MapZoom`（`src/components/MapZoom.tsx`）の動かす関数（`stepBy`・`showPref`。今はファイルの中だけで使っている）を使う。キーボードから呼べるように、`MapZoom` の Context か ref で外に渡す形にする（動きを減らす設定の扱いと、動きの途中の「＋」の目標の倍率を、ボタンと同じにするため）。
 - フォーカス中の県に、見える枠を付ける（`focus-visible`）。
 - 市区町村の再試行に成功したら、フォーカスを最大化した県に戻す（T2-07 の「再試行」ボタンは、成功すると消えるため。再試行の読み込み中は、ボタンが `aria-disabled="true"` で残るので、フォーカスは外れない）。

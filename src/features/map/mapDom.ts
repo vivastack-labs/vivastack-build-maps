@@ -50,6 +50,15 @@ export function applyCardState(root: ParentNode, pref: PrefCode | null): void {
 }
 
 /**
+ * ツールチップの県の中身（`[data-tip-pref]`）を切り替える（F-TIP-01）。表示する県のものだけ `hidden` を外す（`null` ならすべて隠す）。
+ */
+export function applyTipState(root: ParentNode, pref: PrefCode | null): void {
+  for (const element of root.querySelectorAll<HTMLElement>('[data-tip-pref]')) {
+    element.hidden = element.getAttribute('data-tip-pref') !== pref;
+  }
+}
+
+/**
  * 市区町村のラベル（`[data-muni-label]`）を、地図の倍率 `k` に合わせて出し入れする（F-MUNI-02）。
  * 出はじめる倍率（`data-min-scale`）に届かないラベルだけ `visibility="hidden"` にする（属性だけを書き、要素は描き直さない）。
  */

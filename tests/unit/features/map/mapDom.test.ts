@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, test } from 'vitest';
-import { applyCardState, applyLabelVisibility, applyPrefState } from '@/features/map/mapDom';
+import { applyCardState, applyLabelVisibility, applyPrefState, applyTipState } from '@/features/map/mapDom';
 import { INITIAL_MAP_STATE, type MapState } from '@/features/map/state';
 
 const MAP_HTML = `
@@ -167,5 +167,33 @@ describe('applyLabelVisibility', () => {
     applyLabelVisibility(document.body, 100);
 
     expect(label('c').getAttribute('visibility')).toBe('hidden');
+  });
+});
+
+describe('applyTipState', () => {
+  beforeEach(() => {
+    document.body.innerHTML = `
+      <div>
+        <div data-tip-pref="01" hidden>北海道</div>
+        <div data-tip-pref="13" hidden>東京都</div>
+      </div>`;
+  });
+
+  const tip = (code: string): HTMLElement => document.querySelector(`[data-tip-pref="${code}"]`) as HTMLElement;
+
+  test('F-TIP-01：表示する県の中身だけ hidden が外れる', () => {
+    applyTipState(document.body, '13');
+
+    expect(tip('13').hidden).toBe(false);
+    expect(tip('01').hidden).toBe(true);
+  });
+
+  test('F-TIP-01：県がない（null）ときは、すべて隠れる', () => {
+    applyTipState(document.body, '13');
+
+    applyTipState(document.body, null);
+
+    expect(tip('13').hidden).toBe(true);
+    expect(tip('01').hidden).toBe(true);
   });
 });

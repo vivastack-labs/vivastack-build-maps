@@ -1,0 +1,21 @@
+# 県庁の位置（D32。2026-11-12 に確認）
+# - 庁舎の住所：徳島県徳島市万代町1丁目1番地（https://www.pref.tokushima.lg.jp/）
+# - 地理院地図の住所検索の点（34.065781, 134.559601）は庁舎の外にあったので、
+#   地理院地図（標準地図）で「徳島県庁舎」と書かれた建物の中の点を読み取った
+---
+id: tokushima
+code: "36"
+region: shikoku
+name:
+  ja: "{徳島県|とくしまけん}"
+  en: "Tokushima"
+  zh: "德岛县"
+capital:
+  name:
+    ja: "{徳島市|とくしまし}"
+    en: "Tokushima"
+    zh: "德岛市"
+  lat: 34.065625
+  lon: 134.559386
+specialties: []
+spots: []

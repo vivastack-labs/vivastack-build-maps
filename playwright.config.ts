@@ -32,7 +32,8 @@ export default defineConfig({
     { name: 'ipad-landscape', use: { ...devices['iPad Pro 11 landscape'] } }
   ],
   webServer: {
-    command: `pnpm build && pnpm exec wrangler dev --port ${PORT}`,
+    // コンテンツはフィクスチャ（開発計画 1.1）。本物の制作の進み具合でテストの結果が変わらないようにする
+    command: `CONTENT_DIR=tests/fixtures/content pnpm build && pnpm exec wrangler dev --port ${PORT}`,
     url: `${BASE_URL}/ja/`,
     reuseExistingServer: false,
     // wrangler の利用状況を送らない

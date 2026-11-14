@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { dblclickAtCenter } from './helpers';
+import { dblclickAtCenter, settledPoint } from './helpers';
 
 // F-MUNI-01〜04、4.11.6、F-I18N-05：市区町村の描画（T2-08）。
 // 最大化はダブルクリック（マウスの操作。タッチの端末のプロジェクトではスキップ）。読み込みが終わるのは [data-muni-status="loaded"] で待つ。
@@ -15,7 +15,6 @@ const PREF = (code: string) => `path[data-pref="${code}"]`;
 const LAYER = '[data-map-layer]';
 /** 地図のラベルを出す幅（`--breakpoint-map-label`） */
 const MAP_LABEL_MIN_WIDTH = 821;
-const POINT_GRID = 24;
 
 type Muni = { readonly code: string; readonly ja: string; readonly en: string };
 
@@ -47,39 +46,6 @@ async function maximize(page: Page, pref: string): Promise<void> {
 
 const scaleOf = async (page: Page): Promise<number> => Number(await page.locator(LAYER).getAttribute('data-zoom-scale'));
 
-/** 形の内側の点（表示の座標）。外接矩形の中心にいちばん近い、形の中の点（凹んだ形でも形の中に取る） */
-async function pointInside(locator: Locator): Promise<{ readonly x: number; readonly y: number }> {
-  return locator.evaluate((element, grid) => {
-    const path = element as unknown as SVGGeometryElement;
-    const box = path.getBBox();
-    const ctm = path.getScreenCTM();
-    if (!ctm) throw new Error('座標の変換がありません');
-    const center = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
-    const candidates = Array.from({ length: grid * grid }, (_, i) => ({ x: box.x + (box.width * ((i % grid) + 0.5)) / grid, y: box.y + (box.height * (Math.floor(i / grid) + 0.5)) / grid }))
-      .filter(point => path.isPointInFill(new DOMPoint(point.x, point.y)))
-      .sort((a, b) => Math.hypot(a.x - center.x, a.y - center.y) - Math.hypot(b.x - center.x, b.y - center.y));
-    const best = candidates[0];
-    if (!best) throw new Error('形の内側の点が見つかりません');
-    const screen = new DOMPoint(best.x, best.y).matrixTransform(ctm);
-    return { x: screen.x, y: screen.y };
-  }, POINT_GRID);
-}
-
-/** 動きが止まって、点の位置が変わらなくなるのを待ってから、その点を返す */
-async function settledPoint(page: Page, locator: Locator): Promise<{ readonly x: number; readonly y: number }> {
-  let previous = JSON.stringify(await pointInside(locator));
-  await expect
-    .poll(async () => {
-      const current = JSON.stringify(await pointInside(locator));
-      const isSame = current === previous;
-      previous = current;
-      return isSame;
-    })
-    .toBe(true);
-  await page.waitForTimeout(50);
-  return pointInside(locator);
-}
-
 const fillOf = (locator: Locator): Promise<string> => locator.evaluate(element => getComputedStyle(element).fill);
 const opacityOf = (locator: Locator): Promise<string> => locator.evaluate(element => getComputedStyle(element).opacity);
 
@@ -109,7 +75,7 @@ test('F-MUNI-03：市区町村にマウスをのせると強調される', async
   await open(page);
   await maximize(page, NAGANO);
   const city = page.locator('[data-muni="20201"]');
-  const { x, y } = await settledPoint(page, city);
+  const { x, y } = await settledPoint(city);
   await page.mouse.move(0, 0);
   const before = await fillOf(city);
 
@@ -140,7 +106,7 @@ test('F-MUNI-04：ほかの県が薄く表示され、別の県をダブルク�
 test('F-MUNI-04：市区町村の上でダブルクリックすると元に戻る（4.11.2）', async ({ page }) => {
   await open(page);
   await maximize(page, NAGANO);
-  const { x, y } = await settledPoint(page, page.locator('[data-muni="20201"]'));
+  const { x, y } = await settledPoint(page.locator('[data-muni="20201"]'));
 
   await page.mouse.dblclick(x, y);
 
