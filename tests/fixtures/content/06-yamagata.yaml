@@ -1,0 +1,21 @@
+# 県庁の位置（D32。2026-11-12 に確認）
+# - 庁舎の住所：山形県山形市松波二丁目8-1（https://www.pref.yamagata.jp/）
+# - 地理院地図の住所検索の点（38.240299, 140.36293）は庁舎の外にあったので、
+#   地理院地図（標準地図）で「山形県庁舎」と書かれた建物の中の点を読み取った
+---
+id: yamagata
+code: "06"
+region: tohoku
+name:
+  ja: "{山形県|やまがたけん}"
+  en: "Yamagata"
+  zh: "山形县"
+capital:
+  name:
+    ja: "{山形市|やまがたし}"
+    en: "Yamagata"
+    zh: "山形市"
+  lat: 38.2404
+  lon: 140.363477
+specialties: []
+spots: []

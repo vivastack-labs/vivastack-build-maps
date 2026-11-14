@@ -1,0 +1,20 @@
+# 県庁の位置（D32。2026-11-12 に確認）
+# - 庁舎の住所：秋田県秋田市山王四丁目1番1号（https://www.pref.akita.lg.jp/）
+# - 地理院地図の住所検索の点が、地理院地図で「秋田県庁舎」と書かれた建物の上にあることを確かめた
+---
+id: akita
+code: "05"
+region: tohoku
+name:
+  ja: "{秋田県|あきたけん}"
+  en: "Akita"
+  zh: "秋田县"
+capital:
+  name:
+    ja: "{秋田市|あきたし}"
+    en: "Akita"
+    zh: "秋田市"
+  lat: 39.718128
+  lon: 140.1026
+specialties: []
+spots: []

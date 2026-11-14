@@ -1,0 +1,21 @@
+# 県庁の位置（D32。2026-11-12 に確認）
+# - 庁舎の住所：長崎県長崎市尾上町3-1（https://www.pref.nagasaki.jp/）
+# - 地理院地図の住所検索の点（32.750561, 129.868118）は庁舎の外にあったので、
+#   地理院地図（標準地図）で「長崎県庁舎」と書かれた建物の中の点を読み取った
+---
+id: nagasaki
+code: "42"
+region: kyushu
+name:
+  ja: "{長崎県|ながさきけん}"
+  en: "Nagasaki"
+  zh: "长崎县"
+capital:
+  name:
+    ja: "{長崎市|ながさきし}"
+    en: "Nagasaki"
+    zh: "长崎市"
+  lat: 32.750205
+  lon: 129.867416
+specialties: []
+spots: []

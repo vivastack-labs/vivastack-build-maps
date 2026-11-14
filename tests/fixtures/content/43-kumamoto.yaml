@@ -1,0 +1,21 @@
+# 県庁の位置（D32。2026-11-12 に確認）
+# - 庁舎の住所：熊本県熊本市中央区水前寺6丁目18番1号（https://www.pref.kumamoto.jp/soshiki/1/56085.html）
+# - 地理院地図の住所検索の点（32.789379, 130.742004）は庁舎の外にあったので、
+#   地理院地図（標準地図）で「熊本県庁舎」と書かれた建物の中の点を読み取った
+---
+id: kumamoto
+code: "43"
+region: kyushu
+name:
+  ja: "{熊本県|くまもとけん}"
+  en: "Kumamoto"
+  zh: "熊本县"
+capital:
+  name:
+    ja: "{熊本市|くまもとし}"
+    en: "Kumamoto"
+    zh: "熊本市"
+  lat: 32.789782
+  lon: 130.741097
+specialties: []
+spots: []
