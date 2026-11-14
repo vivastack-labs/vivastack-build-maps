@@ -71,7 +71,9 @@ test.describe('7.1：プレビューのカードの「下書き」の印', () =>
     const card = page.locator(`[data-card-pref="${TOKYO}"]`);
     await expect(card.locator('[data-card-coming-soon]')).toHaveCount(0);
     await expect(card.locator('[data-card-item]')).toHaveCount(items.length);
-    const marked = await card.locator('[data-card-item]').evaluateAll(elements => elements.filter(element => element.querySelector('[data-card-draft]') !== null).map(element => element.getAttribute('data-card-item')));
+    const marked = await card
+      .locator('[data-card-item]')
+      .evaluateAll(elements => elements.filter(element => element.querySelector('[data-card-draft]') !== null).map(element => element.getAttribute('data-card-item')));
     expect(marked).toEqual(expected);
     await expect(card.locator('[data-card-draft]').first()).toHaveText('Draft');
   });

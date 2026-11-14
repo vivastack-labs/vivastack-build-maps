@@ -7,11 +7,7 @@ import { MapStateProvider, useMapState } from '@/components/MapStateProvider';
 /** 状態（固定・最大化）を文字にして出す */
 function StateProbe() {
   const { state } = useMapState();
-  return (
-    <output data-testid="state">
-      {`pinned=${state.pinned ?? ''} maximized=${state.maximized ?? ''}`}
-    </output>
-  );
+  return <output data-testid="state">{`pinned=${state.pinned ?? ''} maximized=${state.maximized ?? ''}`}</output>;
 }
 
 /** サーバーの出力と同じく、最大化ボタンは hidden で始める */

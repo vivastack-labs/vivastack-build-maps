@@ -161,4 +161,9 @@ props に渡さない意味は、「HTML の本体に1回＋RSC のデータに1
 
 ## 承認後に変えたこと
 
-（実装の後に書く）
+- `:target` の規則：`app/globals.css` の通常の規則 → 先頭で宣言したレイヤー `@layer card-target` の中（理由：preflight の `[hidden] { display: none !important }` は `@layer base` の中にあり、!important はレイヤーでは先に並べたものが勝つので、レイヤーなしの規則では勝てなかった。E2E で確かめた）。
+- `PrefCard` の props：`labels` を渡す → `lang` から `getMessages` で引く（サーバーコンポーネントで、props はRSCのデータに入らないため）。
+- 辞書の文言：行き方の見出しは「東京からの行き方／Getting there from Tokyo／从东京出发的交通方式」、`card.draft` の日本語は「下書き」（ふりがな付き）。
+- `durationText`：日本語の「分」の読みを数に合わせて「ふん」「ぷん」にする（辞書は `{分|ふん}` で書き、`cardText.ts` が差し替える）。
+- `applyCardState` の引数に `maximized` を足した（必須。`CardSwitch` が `cardPref` と一緒に渡す）。
+- E2E の JavaScript なしのテストは、東京都（`#pref-13`）に加えて北海道（`#pref-01`）でも確かめた。

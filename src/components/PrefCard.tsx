@@ -76,7 +76,17 @@ function ItemList({ lang, items, labels }: { readonly lang: Lang; readonly items
 }
 
 /** 名物・名所の節（見出しと一覧） */
-function ItemSection({ lang, kind, items, labels }: { readonly lang: Lang; readonly kind: 'specialties' | 'spots'; readonly items: readonly Drafted<Specialty | Spot>[]; readonly labels: Messages['card'] }) {
+function ItemSection({
+  lang,
+  kind,
+  items,
+  labels
+}: {
+  readonly lang: Lang;
+  readonly kind: 'specialties' | 'spots';
+  readonly items: readonly Drafted<Specialty | Spot>[];
+  readonly labels: Messages['card'];
+}) {
   return (
     <section {...(kind === 'specialties' ? { 'data-card-specialties': '' } : { 'data-card-spots': '' })} className="mt-3">
       <h3 className="font-bold">
