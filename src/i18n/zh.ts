@@ -32,6 +32,7 @@ export const zh: Messages = {
       kids: '把鼠标移到都道府县上，或点一下吧',
       adult: '请将鼠标移到都道府县上，或点击选择'
     },
+    distance: '距东京约 %n 公里',
     maximize: '放大查看市区町村',
     restore: '恢复原来大小'
   },

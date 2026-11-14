@@ -9,6 +9,7 @@ import { feature } from 'topojson-client';
 import type { GeometryCollection, Topology } from 'topojson-specification';
 import { describe, expect, test } from 'vitest';
 import { loadContent, type Prefecture } from '../../src/lib/content';
+import { distancesFromTokyo } from '../../src/lib/distance';
 import { parseRuby, plainText } from '../../src/lib/ruby';
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
@@ -152,5 +153,24 @@ describe('D32: 県庁の位置を地図データと照合する', () => {
     const suffix = capitalName.endsWith('区') ? 'ku' : 'shi';
     const cityEn = muni.name.en.split(', ').at(-1);
     expect(cityEn).toBe(`${pref.capital.name.en}-${suffix}`);
+  });
+});
+
+describe('7.5: 東京からの距離', () => {
+  test('7.5: 47県すべての距離が計算でき、東京都が 0、ほかは 0 より大きい', () => {
+    // Arrange・Act（県庁の位置の書き間違いで、値が 0 や NaN にならないことを確かめる）
+    const distances = distancesFromTokyo(prefectures);
+
+    // Assert
+    expect(distances.size).toBe(47);
+    for (const { code } of prefectures) {
+      const km = distances.get(code);
+      if (code === '13') {
+        expect(km).toBe(0);
+      } else {
+        expect(Number.isFinite(km), `${code} の距離が数ではない`).toBe(true);
+        expect(km, `${code} の距離が 0 以下`).toBeGreaterThan(0);
+      }
+    }
   });
 });

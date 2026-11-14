@@ -48,6 +48,7 @@ const jaSource = {
       kids: '{県|けん}にマウスをのせるか、タップしてね',
       adult: '{県|けん}にマウスをのせるか、タップしてください'
     } satisfies ModeTextValue,
+    distance: '{東京|とうきょう}から{約|やく} %n km',
     maximize: '{大|おお}きくして{市区町村|しくちょうそん}を{見|み}る',
     restore: '{元|もと}の{大|おお}きさにもどす'
   },

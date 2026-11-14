@@ -32,6 +32,7 @@ export const en: Messages = {
       kids: 'Hover over or tap a prefecture!',
       adult: 'Hover over or tap a prefecture.'
     },
+    distance: 'About %n km from Tokyo',
     maximize: 'Enlarge to see municipalities',
     restore: 'Back to original size'
   },
