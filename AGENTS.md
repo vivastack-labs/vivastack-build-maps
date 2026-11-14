@@ -7,7 +7,7 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 - 「ご当地めいぶつ日本地図」：47都道府県の名物・名所を日本地図から探せる Web アプリ（ja / en / zh、こども／おとなモード、ふりがな ON/OFF）。
 - 設計・要件・決定事項は [docs/development-overview.md](docs/development-overview.md) にある。作業の前に関係する章を読み、要件ID（例：`F-MAP-01`）で対応を確認する。
 - タスクの一覧・順番・進み具合は [docs/development-plan.md](docs/development-plan.md)、タスクごとの定義（目的・参照仕様・実装内容・完了条件・テスト条件・依存関係）は `docs/tasks/` にある。タスクに着手するときは、その定義を読み、タスクのID（例：`T0-01`）をPRの本文に書く。終わったら「状態」を更新する。
-- M1（地図データとコンテンツ基盤）まで終わり、次は M2（地図コア）。地図データ（T1-01〜T1-05：投影法、変換スクリプト、データの検査）と、ふりがなの記法のパーサー（T1-06）、コンテンツのスキーマと検証（T1-07。`pnpm content:validate`）、47県の基本情報（T1-08。`content/prefectures/`。名物・名所は未作成で、T5 で書く）ができている。M0 は手作業の T0-05 と、それに続く T0-06・T0-07（デプロイ）が残っている。アプリの雛形（Next.js・TypeScript・Tailwind CSS・ESLint・Vitest）はある（T0-01）。コンポーネントテストと E2E（Testing Library・Playwright）もある（T0-02）。`dist/` の組み立てと、`wrangler dev` での確認もできる（T0-03）。PRごとに GitHub Actions の CI（`.github/workflows/ci.yml`：lint・typecheck・test・build・gitleaks）が動く（T0-04）。E2E は開発中は PR ごとに動かさず、`.github/workflows/e2e.yml` を手動で実行する（D30）。デプロイはまだない。
+- M2（地図コア。T2-01〜T2-11：地図の描画・操作・拡大・市区町村・ツールチップ・さくいん・キーボード）まで終わり、次は M3（カード・多言語・モード）。地図データ（T1-01〜T1-05：投影法、変換スクリプト、データの検査）と、ふりがなの記法のパーサー（T1-06）、コンテンツのスキーマと検証（T1-07。`pnpm content:validate`）、47県の基本情報（T1-08。`content/prefectures/`。名物・名所は未作成で、T5 で書く）ができている。M0 は手作業の T0-05 と、それに続く T0-06・T0-07（デプロイ）が残っている。アプリの雛形（Next.js・TypeScript・Tailwind CSS・ESLint・Vitest）はある（T0-01）。コンポーネントテストと E2E（Testing Library・Playwright）もある（T0-02）。`dist/` の組み立てと、`wrangler dev` での確認もできる（T0-03）。PRごとに GitHub Actions の CI（`.github/workflows/ci.yml`：lint・typecheck・test・build・gitleaks）が動く（T0-04）。E2E は開発中は PR ごとに動かさず、`.github/workflows/e2e.yml` を手動で実行する（D30）。デプロイはまだない。
 
 ## 技術スタック
 
