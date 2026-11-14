@@ -6,7 +6,8 @@ import { MapStateProvider } from '@/components/MapStateProvider';
 import { LANGS } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
 import { publishedPrefectures } from '../lib/published-helpers';
-import { distancesFromTokyo, distanceText, TOKYO_CODE } from '@/lib/distance';
+import { distanceText } from '@/i18n/cardText';
+import { distancesFromTokyo, TOKYO_CODE } from '@/lib/distance';
 import { plainText } from '@/lib/ruby';
 import { textWithoutRuby } from './base-text';
 

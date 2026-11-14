@@ -1,7 +1,8 @@
 import type { Lang } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
 import type { PublishedPrefecture } from '@/lib/publish';
-import { distanceText, TOKYO_CODE } from '@/lib/distance';
+import { distanceText } from '@/i18n/cardText';
+import { TOKYO_CODE } from '@/lib/distance';
 import { CardSwitch } from './CardSwitch';
 import { MuniList } from './MuniList';
 import { RubyText } from './RubyText';

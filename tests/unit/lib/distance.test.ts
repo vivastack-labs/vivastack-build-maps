@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { distancesFromTokyo, distanceText, EARTH_RADIUS_KM, haversineKm, roundTo10Km } from '@/lib/distance';
+import { distancesFromTokyo, EARTH_RADIUS_KM, haversineKm, roundTo10Km } from '@/lib/distance';
 import type { Prefecture } from '@/lib/content';
 
 // 県庁の緯度経度は content/prefectures/ の値（コンテンツを直したら、ここも直す）
@@ -58,19 +58,5 @@ describe('distancesFromTokyo', () => {
 
   test('東京都がなければ例外', () => {
     expect(() => distancesFromTokyo([pref('27', OSAKA)])).toThrow('東京都');
-  });
-});
-
-describe('distanceText', () => {
-  test('F-CARD-03: 3言語の表示（ja・en・zh）', () => {
-    expect(distanceText('ja', 820)).toBe('{東京|とうきょう}から{約|やく} 820 km');
-    expect(distanceText('en', 820)).toBe('About 820 km from Tokyo');
-    expect(distanceText('zh', 820)).toBe('距东京约 820 公里');
-  });
-
-  test('F-CARD-03: 1,000km 以上では桁区切りが入る（3言語）', () => {
-    expect(distanceText('ja', 1550)).toBe('{東京|とうきょう}から{約|やく} 1,550 km');
-    expect(distanceText('en', 1550)).toBe('About 1,550 km from Tokyo');
-    expect(distanceText('zh', 1550)).toBe('距东京约 1,550 公里');
   });
 });
