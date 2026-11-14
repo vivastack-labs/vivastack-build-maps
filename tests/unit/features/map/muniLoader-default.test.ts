@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { MuniLoader } from '@/features/map/muniLoader';
 
-// L-3：アプリで1つの既定の読み込み部品 `muniLoader` を、ブラウザの `fetch`・`navigator.onLine` の置き換えで動かす。
+// F-MUNI-05：アプリで1つの既定の読み込み部品 `muniLoader` を、ブラウザの `fetch`・`navigator.onLine` の置き換えで動かす。
 // キャッシュがテストの間で残らないよう、毎回モジュールを読み込み直す。
 
 const validBody = {

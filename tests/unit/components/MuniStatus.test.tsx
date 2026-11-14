@@ -113,7 +113,7 @@ describe('MuniStatus', () => {
     expect(live().textContent).toBe('');
   });
 
-  test('M-2: 再試行の読み込み中は、ボタンを消さずに aria-disabled にし、クリックを無視する（フォーカスを保つ）', () => {
+  test('4.11.5: 再試行の読み込み中は、ボタンを消さずに aria-disabled にし、クリックを無視する（フォーカスを保つ）', () => {
     const { calls, load, loader } = fakeLoader();
     const { root } = renderStatus(loader);
     press('maximize-20');
@@ -149,7 +149,7 @@ describe('MuniStatus', () => {
     expect(root().getAttribute('data-muni-status')).toBe('loaded');
   });
 
-  test('M-2: 再試行でないふつうの読み込み中は、ボタンを出さない', () => {
+  test('4.11.5: 再試行でないふつうの読み込み中は、ボタンを出さない', () => {
     const { calls, loader } = fakeLoader();
     const { root } = renderStatus(loader);
 
@@ -159,7 +159,7 @@ describe('MuniStatus', () => {
     expect(root().querySelector('[data-muni-retry]')).toBeNull();
   });
 
-  test('M-1: 失敗した県を解除して再び最大化したとき、最初の描画で前回の失敗を出さない', () => {
+  test('4.11.5: 失敗した県を解除して再び最大化したとき、最初の描画で前回の失敗を出さない', () => {
     const { behavior, calls, loader } = fakeLoader();
     const { root } = renderStatus(loader);
     press('maximize-20');
@@ -177,7 +177,7 @@ describe('MuniStatus', () => {
     expect(root().querySelector('[data-muni-retry]')).toBeNull();
   });
 
-  test('M-1: slow のまま解除して再び最大化したとき、前回の「読み込み中」を出さない', () => {
+  test('4.11.5: slow のまま解除して再び最大化したとき、前回の「読み込み中」を出さない', () => {
     const { behavior, calls, loader } = fakeLoader();
     const { root } = renderStatus(loader);
     press('maximize-20');

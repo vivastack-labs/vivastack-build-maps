@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { validateMuniTopology } from '@/features/map/muniLoader';
 
-// L-1：コミットされた47県の市区町村データが、クライアントの検証（validateMuniTopology）を通る。
+// F-MUNI-05・4.11.5：コミットされた47県の市区町村データが、クライアントの検証（validateMuniTopology）を通る。
 // 検証が厳しすぎて、本物のデータを失敗にしてしまわないことを確かめる
 
 const MUNI_DIR = join(process.cwd(), 'public', 'geo', 'muni');

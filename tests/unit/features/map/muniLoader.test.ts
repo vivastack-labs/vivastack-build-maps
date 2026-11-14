@@ -233,7 +233,7 @@ describe('createMuniLoader', () => {
       signal.addEventListener('abort', () => reject(new DOMException('The operation was aborted.', 'AbortError')));
     });
 
-  test('M-3: 応答が15秒を超えたら打ち切り、失敗（network）になる', async () => {
+  test('4.11.5: 応答が15秒を超えたら打ち切り、失敗（network）になる', async () => {
     const { loader } = setup(hangUntilAborted, true);
     const { kinds, onStatus } = recorder();
 
@@ -247,7 +247,7 @@ describe('createMuniLoader', () => {
     expect(FETCH_TIMEOUT_MS).toBe(15_000);
   });
 
-  test('M-3: 打ち切りのとき、オフラインならオフラインの状態になる（4.11.5）', async () => {
+  test('4.11.5: 打ち切りのとき、オフラインならオフラインの状態になる（4.11.5）', async () => {
     const { loader } = setup(hangUntilAborted, false);
 
     const done = loader.load(CODE, recorder().onStatus);
@@ -256,7 +256,7 @@ describe('createMuniLoader', () => {
     expect(await done).toEqual({ kind: 'offline' });
   });
 
-  test('M-3: 本文の読み込み中に15秒を超えても打ち切り、失敗（invalid ではなく network）になる', async () => {
+  test('4.11.5: 本文の読み込み中に15秒を超えても打ち切り、失敗（invalid ではなく network）になる', async () => {
     const stalledBody = (_url: string, { signal }: FetchInit): Promise<MuniResponse> =>
       Promise.resolve({
         ok: true,
@@ -274,7 +274,7 @@ describe('createMuniLoader', () => {
     expect(await done).toEqual({ kind: 'failed', reason: 'network' });
   });
 
-  test('M-3: 上限は deps で変えられる', async () => {
+  test('4.11.5: 上限は deps で変えられる', async () => {
     const { loader } = setup(hangUntilAborted, true, 1000);
 
     const done = loader.load(CODE, recorder().onStatus);
@@ -283,7 +283,7 @@ describe('createMuniLoader', () => {
     expect(await done).toEqual({ kind: 'failed', reason: 'network' });
   });
 
-  test('M-3: 時間内に終わったら中断しない（タイマーは止まる）', async () => {
+  test('4.11.5: 時間内に終わったら中断しない（タイマーは止まる）', async () => {
     let signal: AbortSignal | undefined;
     const { loader } = setup((_url, init) => {
       signal = init.signal;
@@ -296,7 +296,7 @@ describe('createMuniLoader', () => {
     expect(signal?.aborted).toBe(false);
   });
 
-  test('L-2: 読み込み中の Promise が reject しても残らず、次の load は fetch し直す', async () => {
+  test('F-MUNI-05: 読み込み中の Promise が reject しても残らず、次の load は fetch し直す', async () => {
     let isOnlineCalls = 0;
     const isOnline = () => {
       isOnlineCalls += 1;
@@ -313,7 +313,7 @@ describe('createMuniLoader', () => {
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 
-  test('L-5: 読み込み中の Promise を共有した2つ目の呼び出しにも、300ms後に slow が届く', async () => {
+  test('F-MUNI-05: 読み込み中の Promise を共有した2つ目の呼び出しにも、300ms後に slow が届く', async () => {
     const response = deferred<MuniResponse>();
     const { loader } = setup(() => response.promise);
     const a = recorder();
@@ -352,18 +352,18 @@ describe('validateMuniTopology', () => {
   };
   const muni = { code: '20201', name: { ja: '長野市', en: 'Nagano-shi' }, kana: 'ながのし' };
 
-  test('L-1: geometries が空なら不正', () => {
+  test('F-MUNI-05: geometries が空なら不正', () => {
     const topology = validTopology();
     topology.objects.municipalities.geometries = [];
 
     expect(validateMuniTopology(topology, CODE)).toBeNull();
   });
 
-  test.each(['2020a', '２０２０１', '20 01', '20.01'])('L-1: code が数字5桁でなければ不正：%s', code => {
+  test.each(['2020a', '２０２０１', '20 01', '20.01'])('F-MUNI-05: code が数字5桁でなければ不正：%s', code => {
     expect(validateMuniTopology(withProperties({ ...muni, code }), CODE)).toBeNull();
   });
 
-  test('L-1: cityName は文字列か、なくてもよい。文字列でなければ不正', () => {
+  test('F-MUNI-05: cityName は文字列か、なくてもよい。文字列でなければ不正', () => {
     expect(validateMuniTopology(withProperties({ ...muni, cityName: '長野市' }), CODE)).not.toBeNull();
     expect(validateMuniTopology(withProperties({ ...muni, cityName: undefined }), CODE)).not.toBeNull();
     expect(validateMuniTopology(withProperties({ ...muni, cityName: 1 }), CODE)).toBeNull();
