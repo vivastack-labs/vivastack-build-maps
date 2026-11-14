@@ -12,14 +12,20 @@ import prefsTopology from '../../../geo/data/prefs.topo.json' with { type: 'json
 import { LANGS, type Lang } from '@/i18n/lang';
 import { createRelativePathContext } from './pathContext.ts';
 import { createProjection, PREF_CODE_PATTERN, projectPoint, VIEWBOX, type LonLat } from './projection.ts';
+import type { Bounds } from './viewport.ts';
 
 /** 県名ラベルの位置（viewBox の座標。文字の中心） */
 export type LabelPosition = { readonly x: number; readonly y: number };
 
-/** 県のパス（`d`）と、言語ごとの県名ラベルの位置 */
+/**
+ * 県のパス（`d`）と、言語ごとの県名ラベルの位置。
+ * `fitBounds` は最大化したときに寄る範囲、`panBounds` は最大化中に動ける範囲（どちらも viewBox の座標。T2-06、D36）。
+ */
 export type PrefPath = {
   readonly code: string;
   readonly d: string;
+  readonly fitBounds: Bounds;
+  readonly panBounds: Bounds;
   readonly labels: Readonly<Record<Lang, LabelPosition>>;
 };
 
@@ -28,6 +34,12 @@ export type PrefPath = {
  * 英語の県名は横に長く（Kagoshima など）、同じ大きさでは隣の県のラベルとの重なりを避けきれないので、小さくする。
  */
 export const LABEL_FONT_SIZE: Readonly<Record<Lang, number>> = { ja: 16, en: 13, zh: 16 };
+
+/**
+ * 最大化で寄る範囲から除く南の島。県コード → 北緯（度）。この緯度より南のポリゴンを除く。
+ * 東京都（13）は小笠原村（父島・母島など）まで入れると本土が小さくなるので、本土と伊豆諸島に寄る（U16、D36）。
+ */
+export const FIT_EXCLUDE_SOUTH_OF: Readonly<Record<string, number>> = { '13': 28 };
 
 type LabelOffsets = Readonly<Record<string, readonly [dx: number, dy: number]>>;
 
@@ -122,12 +134,20 @@ export function buildPrefPaths(topology: unknown): readonly PrefPath[] {
     .sort((a, b) => a.code.localeCompare(b.code));
 }
 
+type PolygonRings = Polygon['coordinates'];
+
 function toPrefPath({ code, label, geometry }: PrefFeature): PrefPath {
   const projection = createProjection(code);
   const measure = geoPath(projection);
-  const polygons = (geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates).filter(rings => overlapsViewBox(measure.bounds({ type: 'Polygon', coordinates: rings })));
+  const allPolygons = geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates;
+  const boundsOf = (rings: PolygonRings): Bounds => toBounds(measure.bounds({ type: 'Polygon', coordinates: rings }));
+  const polygons = allPolygons.filter(rings => overlapsViewBox(boundsOf(rings)));
   if (polygons.length === 0) {
     throw new Error(`県 ${code} の形が viewBox の中にありません`);
+  }
+  const fitPolygons = polygons.filter(rings => !isSouthOf(rings, FIT_EXCLUDE_SOUTH_OF[code]));
+  if (fitPolygons.length === 0) {
+    throw new Error(`県 ${code} の寄る範囲に入る形がありません（北緯${FIT_EXCLUDE_SOUTH_OF[code]}度より南だけです）`);
   }
   const context = createRelativePathContext();
   geoPath(projection, context)({ type: 'MultiPolygon', coordinates: polygons });
@@ -136,7 +156,32 @@ function toPrefPath({ code, label, geometry }: PrefFeature): PrefPath {
     throw new Error(`県 ${code} の形をパスにできません`);
   }
   const [x, y] = projectPoint(label, code);
-  return { code, d, labels: Object.fromEntries(LANGS.map(lang => [lang, offsetLabel(lang, code, [x, y])])) as Record<Lang, LabelPosition> };
+  return {
+    code,
+    d,
+    fitBounds: unionBounds(fitPolygons.map(boundsOf)),
+    panBounds: unionBounds(allPolygons.map(boundsOf)),
+    labels: Object.fromEntries(LANGS.map(lang => [lang, offsetLabel(lang, code, [x, y])])) as Record<Lang, LabelPosition>
+  };
+}
+
+/** ポリゴンのすべての点が、北緯 `latitude` 度より南にあるか。`latitude` がなければ（除かない県）`false` */
+function isSouthOf(rings: PolygonRings, latitude: number | undefined): boolean {
+  return latitude !== undefined && rings.every(ring => ring.every(([, lat]) => (lat as number) < latitude));
+}
+
+function toBounds([[x0, y0], [x1, y1]]: [[number, number], [number, number]]): Bounds {
+  return { x0, y0, x1, y1 };
+}
+
+/** 外接矩形を合わせ、小数1桁に丸める。空の一覧は呼ばない */
+function unionBounds(list: readonly Bounds[]): Bounds {
+  return {
+    x0: round(Math.min(...list.map(b => b.x0))),
+    y0: round(Math.min(...list.map(b => b.y0))),
+    x1: round(Math.max(...list.map(b => b.x1))),
+    y1: round(Math.max(...list.map(b => b.y1)))
+  };
 }
 
 function offsetLabel(lang: Lang, code: string, [x, y]: readonly [number, number]): LabelPosition {
@@ -145,7 +190,7 @@ function offsetLabel(lang: Lang, code: string, [x, y]: readonly [number, number]
 }
 
 /** 外接矩形 [[x0, y0], [x1, y1]] が viewBox と重なるか。一部だけ入る島は残す */
-function overlapsViewBox([[x0, y0], [x1, y1]]: [[number, number], [number, number]]): boolean {
+function overlapsViewBox({ x0, y0, x1, y1 }: Bounds): boolean {
   return x1 >= 0 && x0 <= VIEWBOX.width && y1 >= 0 && y0 <= VIEWBOX.height;
 }
 
