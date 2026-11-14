@@ -75,6 +75,36 @@ describe('Tooltip：県', () => {
     expect(root().hidden).toBe(true);
   });
 
+  test('WCAG 1.4.13: Esc でツールチップを隠し、マウスが動くとまた出る（フォーカスが地図の外でも）', () => {
+    renderTooltip();
+    move(screen.getByTestId('hokkaido'));
+    expect(root().hidden).toBe(false);
+
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+    expect(root().hidden).toBe(true);
+    expect(visibleTips()).toEqual([]);
+
+    move(screen.getByTestId('hokkaido'), { clientX: 31 });
+    expect(root().hidden).toBe(false);
+  });
+
+  test('アンマウントした後に Esc を押しても、例外にならない（document の listener を外している）', () => {
+    const { unmount } = renderTooltip();
+    move(screen.getByTestId('hokkaido'));
+    unmount();
+
+    expect(() => fireEvent.keyDown(document.body, { key: 'Escape' })).not.toThrow();
+  });
+
+  test('Esc 以外のキーでは隠れない', () => {
+    renderTooltip();
+    move(screen.getByTestId('hokkaido'));
+
+    fireEvent.keyDown(document.body, { key: 'a' });
+
+    expect(root().hidden).toBe(false);
+  });
+
   test('4.11.3: pointerType が touch のときは出ない', () => {
     renderTooltip();
 

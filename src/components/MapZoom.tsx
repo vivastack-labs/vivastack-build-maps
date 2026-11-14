@@ -3,7 +3,7 @@
 import { select } from 'd3-selection';
 import 'd3-transition';
 import { zoom as createZoom, zoomIdentity, zoomTransform, type D3ZoomEvent, type ZoomBehavior } from 'd3-zoom';
-import { useEffect, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
 import { VIEWBOX } from '@/features/map/projection';
 import type { PrefCode } from '@/features/map/state';
 import {
@@ -24,6 +24,25 @@ import type { Messages } from '@/i18n/messages';
 import { plainText } from '@/lib/ruby';
 import { useMapState } from './MapStateProvider';
 import { RubyText } from './RubyText';
+
+/**
+ * キーボードの `+` `-` `0` から呼ぶ、拡大・縮小・全体表示（F-KB-04）。ボタンと同じ関数なので、動きを減らす設定と、
+ * 動きの途中の「＋」の目標の倍率の扱いもボタンと同じになる。
+ */
+export type MapZoomControls = {
+  /** 「＋」（1）・「−」（-1）1回分 */
+  readonly step: (direction: 1 | -1) => void;
+  /** 「全体」。最大化を解除して全体表示に戻す */
+  readonly reset: () => void;
+};
+
+/** `MapZoom` が子に渡す操作。`MapZoom` の外では `null`（`useMapZoom`） */
+export const MapZoomContext = createContext<MapZoomControls | null>(null);
+
+/** `MapZoom` の拡大・縮小・全体表示の操作。`MapZoom` の外（地図を使わないテストなど）では `null` */
+export function useMapZoom(): MapZoomControls | null {
+  return useContext(MapZoomContext);
+}
 
 /** 県の「寄る範囲」と「移動できる範囲」（`PrefPath` の `fitBounds`・`panBounds`） */
 export type PrefBounds = { readonly fit: Bounds; readonly pan: Bounds };
@@ -202,19 +221,21 @@ export function MapZoom({ bounds, labels, children }: Props) {
   };
 
   return (
-    <div ref={containerRef} className="relative size-full">
-      {children}
-      <div data-zoom-controls className="absolute right-2 bottom-2 flex gap-1">
-        <button type="button" data-zoom="in" aria-label={plainText(labels.inLabel)} className={BUTTON_CLASS} onClick={() => step(1)}>
-          <RubyText text={labels.in} />
-        </button>
-        <button type="button" data-zoom="out" aria-label={plainText(labels.outLabel)} className={BUTTON_CLASS} onClick={() => step(-1)}>
-          <RubyText text={labels.out} />
-        </button>
-        <button type="button" data-zoom="reset" aria-label={plainText(labels.reset)} className={BUTTON_CLASS} onClick={reset}>
-          <RubyText text={labels.reset} />
-        </button>
+    <MapZoomContext value={{ step, reset }}>
+      <div ref={containerRef} className="relative size-full">
+        {children}
+        <div data-zoom-controls className="absolute right-2 bottom-2 flex gap-1">
+          <button type="button" data-zoom="in" aria-label={plainText(labels.inLabel)} className={BUTTON_CLASS} onClick={() => step(1)}>
+            <RubyText text={labels.in} />
+          </button>
+          <button type="button" data-zoom="out" aria-label={plainText(labels.outLabel)} className={BUTTON_CLASS} onClick={() => step(-1)}>
+            <RubyText text={labels.out} />
+          </button>
+          <button type="button" data-zoom="reset" aria-label={plainText(labels.reset)} className={BUTTON_CLASS} onClick={reset}>
+            <RubyText text={labels.reset} />
+          </button>
+        </div>
       </div>
-    </div>
+    </MapZoomContext>
   );
 }

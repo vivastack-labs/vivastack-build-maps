@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, test } from 'vitest';
-import { applyCardState, applyLabelVisibility, applyPrefState, applyTipState } from '@/features/map/mapDom';
+import { applyCardState, applyLabelVisibility, applyPrefState, applyRovingTabIndex, applyTipState } from '@/features/map/mapDom';
 import { INITIAL_MAP_STATE, type MapState } from '@/features/map/state';
 
 const MAP_HTML = `
@@ -195,5 +195,28 @@ describe('applyTipState', () => {
 
     expect(tip('13').hidden).toBe(true);
     expect(tip('01').hidden).toBe(true);
+  });
+});
+
+describe('applyRovingTabIndex', () => {
+  beforeEach(() => {
+    document.body.innerHTML = MAP_HTML;
+  });
+
+  test('F-KB-01: 指定の県だけ tabindex=0、ほかは -1', () => {
+    applyRovingTabIndex(document.body, '13');
+
+    expect(pref('13').getAttribute('tabindex')).toBe('0');
+    expect(pref('01').getAttribute('tabindex')).toBe('-1');
+    expect(pref('47').getAttribute('tabindex')).toBe('-1');
+  });
+
+  test('F-KB-01: 続けて呼ぶと、停止位置が移る（常に1つ）', () => {
+    applyRovingTabIndex(document.body, '13');
+    applyRovingTabIndex(document.body, '47');
+
+    expect(document.querySelectorAll('[data-pref][tabindex="0"]')).toHaveLength(1);
+    expect(pref('47').getAttribute('tabindex')).toBe('0');
+    expect(pref('13').getAttribute('tabindex')).toBe('-1');
   });
 });

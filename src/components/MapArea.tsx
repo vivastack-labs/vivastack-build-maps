@@ -23,12 +23,12 @@ function prefBounds(): Readonly<Record<string, PrefBounds>> {
 
 /**
  * 地図の領域（4.11.7）。都道府県の地図（T2-04）と、その下の凡例。地図の操作は `MapInteraction`（T2-05）、拡大・縮小・移動は `MapZoom`（T2-06）、市区町村データの読み込みの状態の表示は `MuniStatus`（T2-07）、市区町村の描画は `MuniLayer`（T2-08。`JapanMap` の層の最後に入れる）、ツールチップは `MapTooltip`（T2-09。`MuniStatus` と同じく `MapInteraction` の外）。どれも `MapStateProvider` の中に置く。
- * 地図の箱の縦横比は地図の viewBox と同じにして、地図が入っても大きさが変わらない（レイアウトのずれを防ぐ）。
+ * 地図の箱の縦横比は地図の viewBox と同じにして、地図が入っても大きさが変わらない（レイアウトのずれを防ぐ）。はみ出しは `overflow-clip` で切る（`overflow: hidden` の箱はスクロールできるので、拡大中に画面の外の県へフォーカスすると、ブラウザが箱の中をスクロールして地図がずれる。T2-11）。
  */
 export function MapArea({ lang, prefectures }: Props) {
   return (
     <section data-area="map" className="w-full min-w-0">
-      <div data-map-box className="relative w-full overflow-hidden rounded" style={{ aspectRatio: `${VIEWBOX.width} / ${VIEWBOX.height}` }}>
+      <div data-map-box className="relative w-full overflow-clip rounded" style={{ aspectRatio: `${VIEWBOX.width} / ${VIEWBOX.height}` }}>
         <MapZoom bounds={prefBounds()} labels={getMessages(lang).zoom}>
           <MapInteraction>
             <JapanMap lang={lang} prefectures={prefectures}>

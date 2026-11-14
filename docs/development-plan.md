@@ -126,8 +126,8 @@ flowchart LR
 | T2-07 | feat | 市区町村データの読み込み | 完了 |
 | T2-08 | feat | 市区町村の描画 | 完了 |
 | T2-09 | feat | ツールチップ | 完了 |
-| T2-10 | feat | 県名さくいん | 作業中 |
-| T2-11 | feat | キーボード操作 | 未着手 |
+| T2-10 | feat | 県名さくいん | 完了 |
+| T2-11 | feat | キーボード操作 | 作業中 |
 
 ### 3.4 M3 カード・多言語・モード（[tasks/m3-card-i18n-mode.md](tasks/m3-card-i18n-mode.md)）
 

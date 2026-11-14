@@ -93,6 +93,27 @@ test.describe('F-IDX-03：キーボード', () => {
   });
 });
 
+test.describe('F-KB-05：さくいんの Esc', () => {
+  test.beforeEach(({ hasTouch }) => {
+    test.skip(hasTouch, 'キーボードを使う PC のプロジェクトだけで確かめる');
+  });
+
+  test('さくいんで Esc を押すと、最大化を解除し、もう1回で固定を解除する', async ({ page }) => {
+    await open(page);
+    const item = page.locator('a[data-pref="20"]');
+    await item.focus();
+    await page.keyboard.press('Shift+Enter');
+    await expect(item).toHaveAttribute('data-state', 'maximized');
+
+    await page.keyboard.press('Escape');
+    await expect(item).toHaveAttribute('data-state', 'pinned');
+
+    await page.keyboard.press('Escape');
+    await expect(item).toHaveAttribute('aria-pressed', 'false');
+    await expect(item).not.toHaveAttribute('data-state');
+  });
+});
+
 test.describe('6.6 (2)：JavaScript を無効にしたとき', () => {
   test.use({ javaScriptEnabled: false });
 

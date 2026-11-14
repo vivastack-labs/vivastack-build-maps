@@ -85,6 +85,20 @@ async function hoverSapporoWard(page: Page): Promise<void> {
   await hoverShape(page, '[data-muni="01101"]');
 }
 
+/** Tab の回数の上限（地図の前にある操作できる要素より十分に多く） */
+const MAX_TABS_TO_MAP = 20;
+
+/** キーボードだけで、Tab で地図の北海道に入り、→ で青森県へ移る（T2-11、F-KB-01。県のフォーカスの枠と、カードの連動） */
+async function focusPrefByKeyboard(page: Page): Promise<void> {
+  await page.locator('[data-map-ready]').waitFor({ state: 'attached' });
+  for (let i = 0; i < MAX_TABS_TO_MAP; i += 1) {
+    await page.keyboard.press('Tab');
+    if (await page.evaluate(() => document.activeElement?.matches('svg path[data-pref]') ?? false)) break;
+  }
+  await page.keyboard.press('ArrowRight');
+  await page.locator('path[data-pref="02"]:focus-visible').waitFor();
+}
+
 const SCENES: readonly Scene[] = [
   ...LANGS.map(lang => ({ name: `${lang}-top`, path: `/${lang}/` })),
   // F-MAP-04：端末の設定がダークのときの色
@@ -105,6 +119,8 @@ const SCENES: readonly Scene[] = [
   { name: 'ja-tooltip-muni', path: '/ja/', prepare: hoverSapporoWard, pcOnly: true },
   // T2-07：市区町村データの読み込みに失敗した状態。県の形で最大化したまま、地図の左上に文言と「再試行」が出る
   { name: 'ja-maximized-muni-failed', path: '/ja/', prepare: maximizeWithMuniFailure },
+  // T2-11：キーボードで地図の県（青森県）にフォーカスした状態。フォーカスの枠が見え、カードが青森県になる
+  { name: 'ja-keyboard-focus', path: '/ja/', prepare: focusPrefByKeyboard, pcOnly: true },
   // 存在しないパスの404（app/global-not-found.tsx）。404のステータスでも、page.goto は例外にならずに撮れる
   { name: 'ja-not-found', path: '/ja/no-such-page/' }
 ];

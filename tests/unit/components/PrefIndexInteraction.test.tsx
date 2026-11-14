@@ -29,6 +29,10 @@ function Fixture() {
           </li>
         </ul>
       </PrefIndexInteraction>
+      {/* さくいんの外にある県の要素（地図のパスなど） */}
+      <button type="button" data-testid="outside-pref" data-pref="01">
+        北海道
+      </button>
       <CardSwitch>
         <p data-card-guide>案内文</p>
         <p data-card-pref="13" hidden>
@@ -209,6 +213,18 @@ describe('PrefIndexInteraction', () => {
     expect(screen.getByTestId('hovered')).toHaveTextContent('12');
   });
 
+  test('4.11.3: さくいんから、さくいんの外の県の要素（地図）へフォーカスが移ると、さくいんのホバーは解除する', () => {
+    render(<Fixture />);
+    act(() => screen.getByTestId('tokyo').focus());
+    expect(screen.getByTestId('hovered')).toHaveTextContent('13');
+    const outside = screen.getByTestId('outside-pref');
+    vi.spyOn(outside, 'matches').mockImplementation(selector => selector !== ':focus-visible');
+
+    act(() => outside.focus());
+
+    expect(screen.getByTestId('hovered')).toBeEmptyDOMElement();
+  });
+
   test('マウスで押して移ったフォーカスの blur では、マウスのホバーを解除しない', () => {
     render(<Fixture />);
     act(() => screen.getByTestId('tokyo').focus());
@@ -217,6 +233,21 @@ describe('PrefIndexInteraction', () => {
     fireEvent.blur(screen.getByTestId('tokyo'), { relatedTarget: screen.getByTestId('chiba') });
 
     expect(screen.getByTestId('hovered')).toHaveTextContent('12');
+  });
+
+  test('F-KB-05: さくいんでも Esc で最大化を解除し、もう1回で固定を解除する', () => {
+    render(<Fixture />);
+    const tokyo = screen.getByTestId('tokyo');
+    act(() => tokyo.focus());
+    pressKey(tokyo, { key: 'Enter', shiftKey: true });
+    expect(tokyo).toHaveAttribute('data-state', 'maximized');
+
+    expect(pressKey(tokyo, { key: 'Escape' })).toBe(true);
+    expect(tokyo).toHaveAttribute('data-state', 'pinned');
+
+    pressKey(tokyo, { key: 'Escape' });
+    expect(tokyo).toHaveAttribute('aria-pressed', 'false');
+    expect(tokyo).not.toHaveAttribute('data-state');
   });
 
   test('マウントすると data-index-ready が付く', () => {

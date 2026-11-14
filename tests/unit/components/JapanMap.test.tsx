@@ -51,6 +51,26 @@ describe('JapanMap', () => {
     expect(className).toContain('aria-pressed:fill-map-selected');
   });
 
+  test('F-KB-01：県のパスは北海道だけ tabindex=0、ほかは -1（サーバーの出力。Tab の停止位置が1つ）', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
+
+    const paths = [...container.querySelectorAll('path[data-pref]')];
+    expect(paths).toHaveLength(47);
+    for (const path of paths) {
+      expect(path.getAttribute('tabindex')).toBe(path.getAttribute('data-pref') === '01' ? '0' : '-1');
+    }
+  });
+
+  test('2.4.7：県のパスに focus-visible の outline のクラスがある（太さは倍率で割る）', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
+
+    const className = container.querySelector('path[data-pref="13"]')?.getAttribute('class') ?? '';
+    expect(className).toContain('focus-visible:outline-solid');
+    expect(className).toContain('focus-visible:outline-slate-900');
+    expect(className).toContain('dark:focus-visible:outline-slate-50');
+    expect(className).toContain('var(--zoom-k');
+  });
+
   test('F-MAP-01：県のパスの data-region がコンテンツの地方と同じである', () => {
     const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
 

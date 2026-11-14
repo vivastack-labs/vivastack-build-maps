@@ -353,8 +353,8 @@ T2-01・T2-02 は M1 と並行して進められる。
 - ←↑ で前の県、→↓ で次の県（県コード順）、Home で北海道、End で沖縄県。
 - フォーカス＝ホバー、Enter・Space＝クリック、Shift + Enter＝ダブルクリックとして `mapReducer` に渡す。
   - Enter・Space＝クリック、Shift + Enter＝ダブルクリックの規則は、T2-10 の `src/features/map/keyboard.ts` の `keyToMapEvent({ key, shiftKey, pref })`（純粋関数）にある。これを使い、キーの規則を作り直さない。県名さくいんの結線は `PrefIndexInteraction`（`src/components/`）が参考になる（`keydown` で `preventDefault` してから `dispatch` に渡す。Ctrl・Meta・Alt つきとキーの繰り返しは無視する）。
-  - Esc（4.11.2 の表はさくいんにも当てる）をさくいんでも扱うかは、T2-11 で決める（T2-10 では入れていない）。
-  - `MapInteraction` と `PrefIndexInteraction` は結線（`send`・`lastPointerType`・`data-*-ready`・`applyPrefState` の effect）がほぼ同じ。T2-11 で3つ目を作る前に、共通のフックにまとめるかを決める。
+  - Esc（4.11.2 の表はさくいんにも当てる）は、さくいんでも扱う（`keyToMapEvent` が Esc を、県がなくても `escape` にする）。
+  - `MapInteraction` と `PrefIndexInteraction` は結線（`send`・`lastPointerType`・`data-*-ready`・`applyPrefState` の effect）がほぼ同じなので、共通のフック `usePrefInteraction`（`src/components/`）にまとめる。
   - T2-05 の `useMapState()` の `dispatch` に `MapEvent`（`hover`・`click`・`doubleClick`）を渡す。キーボードの操作は DOM の `click` を経由せず、`dispatch` に直接渡す（`MapInteraction` の `click` は直前の `pointerdown` の種類を前提にしているため）。E2E は `[data-map-ready]` を待ってからキーを押す。
 - 地図にフォーカスがあるとき、`+` `-` `0` で拡大・縮小・全体表示、Esc で解除。
   - Esc でツールチップも隠す（WCAG 1.4.13。ツールチップは地図の一部を覆うため）。T2-09 の `Tooltip` は `hit` を捨てると隠れる（次にマウスが動くまで）ので、Esc でも同じように捨てる。
@@ -376,3 +376,17 @@ T2-01・T2-02 は M1 と並行して進められる。
   - `+` `-` `0` で拡大・縮小・全体表示になる（F-KB-04）。
   - Esc：最大化中は最大化を解除し、もう1回で固定を解除する（F-KB-05）。
   - フォーカス中の県に枠が見える（`outline` が `none` でない）。
+- 単体・コンポーネント：`keyboard.ts` の `navigateKey`・`zoomKey`・`rovingPref`、`mapDom.ts` の `applyRovingTabIndex`、`MapInteraction` のキー操作、`Tooltip` の Esc、`MuniStatus` の再試行の後のフォーカス。
+- E2E の実行は PC のプロジェクトだけ（タッチの端末には Tab のキーがない）。`tests/e2e/keyboard.spec.ts`、さくいんの Esc は `index.spec.ts`。
+
+### T2-11 で決めたこと
+
+- 結線は共通のフック `usePrefInteraction`（`src/components/`）。`MapInteraction`（地図）と `PrefIndexInteraction`（さくいん）が、ポインター・フォーカス＝ホバー・キー（Ctrl・Meta・Alt つきとキーの繰り返しは無視）・`data-*-ready`・`applyPrefState` の effect を共有する。違いはキーの処理（地図は矢印・Home・End・`+` `-` `0` を足す）と、さくいんの項目の外のクリックの扱いだけ。
+- キーの規則は `keyboard.ts` の純粋関数。矢印は端（北海道・沖縄県）で止まる（回り込まない。Home・End で端へ飛べる）。最大化中も矢印で県を移れ、Shift + Enter で別の県に切り替えられる（マウスのダブルクリックと同じ）。`+` `-` `0` は `Shift` を見ない（`+` を Shift で打つ配列があるため）。
+- Tab の停止位置は、サーバーの出力で北海道だけ `tabindex="0"`（ほかは `-1`）にし、クライアントが `rovingPref`（フォーカス中 → 固定中 → 北海道）の県に書き換える。地図の外にいる間は「固定中の県、なければ北海道」に戻る（矢印で青森県に移ってから Tab で出ると、次に Shift + Tab で入るのは北海道）。
+- `+` `-` `0` は `MapZoom` の `MapZoomContext`（`useMapZoom()` が `{ step, reset }`。`MapZoom` の外では `null`）を通して、ボタンと同じ関数を呼ぶ。動きを減らす設定と、動きの途中の「＋」の目標の倍率がボタンと同じになる。
+- Esc は地図・さくいんとも `escape`（最大化中は最大化の解除、なければ固定の解除）。ツールチップは、`Tooltip` が `document` の `keydown` で Esc を受けて隠す（フォーカスが地図の外でも、マウスが地図の上なら出ているため。WCAG 1.4.13）。
+- フォーカスの枠は県のパスの `focus-visible:outline-solid`（太さは `calc(4px / var(--zoom-k, 1))`）。Chromium・Firefox・WebKit とも、県の外接矩形に枠が出る（後に描く隣の県に一部隠れるが、どの県かは分かる）。
+- 「再試行」が成功してボタンが消えたら、押したときにフォーカスがボタンにあった場合だけ、最大化した県のパスにフォーカスを戻す（`MuniStatus`）。
+- `[data-map-box]` を `overflow-hidden` から `overflow-clip` にした（スクロールできる箱にしない）。ただし、地図の `<svg>` は箱と同じ大きさで、層が外にはみ出しても `<svg>` で切られるため、`overflow-hidden` のままでも拡大中に画面の外の県へフォーカスして箱がスクロールすることは Chromium では起きなかった（E2E は両方で通る）。防御としての変更。
+- フォーカスした県へ地図を自動で動かすことはしない（仕様にない。カードで県が分かり、`0` で全体に戻れる）。

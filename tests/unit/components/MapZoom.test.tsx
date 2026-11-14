@@ -3,7 +3,7 @@ import { StrictMode } from 'react';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { MapStateProvider, useMapState } from '@/components/MapStateProvider';
-import { MapZoom, type PrefBounds } from '@/components/MapZoom';
+import { MapZoom, useMapZoom, type PrefBounds } from '@/components/MapZoom';
 import { VIEWBOX } from '@/features/map/projection';
 import { FIT_PADDING, fitTransform, ZOOM_STEP } from '@/features/map/viewport';
 import { getMessages } from '@/i18n/messages';
@@ -50,6 +50,28 @@ const stubReducedMotion = (matches: boolean) => {
     vi.fn((query: string) => ({ matches: matches && query.includes('reduce'), media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }))
   );
 };
+
+/** `useMapZoom()` の値を、ボタンから呼べるようにする（キーボードから呼ぶのと同じ関数） */
+function ZoomProbe() {
+  const zoom = useMapZoom();
+  return (
+    <div>
+      <button type="button" onClick={() => zoom?.step(1)}>
+        probe-in
+      </button>
+      <button type="button" onClick={() => zoom?.step(-1)}>
+        probe-out
+      </button>
+      <button type="button" onClick={() => zoom?.reset()}>
+        probe-reset
+      </button>
+    </div>
+  );
+}
+
+function NullProbe() {
+  return <output data-testid="zoom-null">{String(useMapZoom() === null)}</output>;
+}
 
 const scaleOf = (container: HTMLElement): number => Number(container.querySelector('[data-map-layer]')?.getAttribute('data-zoom-scale'));
 const button = (name: string | RegExp) => screen.getByRole('button', { name });
@@ -238,5 +260,45 @@ describe('MapZoom', () => {
     fireEvent.click(button('拡大'));
 
     expect(scaleOf(container)).toBeCloseTo(ZOOM_STEP);
+  });
+});
+
+describe('useMapZoom', () => {
+  beforeEach(() => stubReducedMotion(true));
+  afterEach(() => vi.unstubAllGlobals());
+
+  test('F-KB-04: step・reset はボタンと同じ動きをする', () => {
+    const { container } = render(
+      <MapStateProvider>
+        <MapZoom bounds={bounds} labels={messages.zoom}>
+          <svg viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`}>
+            <g data-map-layer>
+              <path data-pref="20" />
+            </g>
+          </svg>
+          <ZoomProbe />
+        </MapZoom>
+        <Probe />
+      </MapStateProvider>
+    );
+
+    fireEvent.click(screen.getByText('probe-in'));
+    expect(scaleOf(container)).toBeCloseTo(ZOOM_STEP);
+    fireEvent.click(screen.getByText('probe-in'));
+    expect(scaleOf(container)).toBeCloseTo(ZOOM_STEP ** 2);
+    fireEvent.click(screen.getByText('probe-out'));
+    expect(scaleOf(container)).toBeCloseTo(ZOOM_STEP);
+
+    fireEvent.click(screen.getByText('maximize'));
+    expect(screen.getByTestId('maximized').textContent).toBe('20');
+    fireEvent.click(screen.getByText('probe-reset'));
+    expect(screen.getByTestId('maximized').textContent).toBe('');
+    expect(scaleOf(container)).toBe(1);
+  });
+
+  test('useMapZoom は MapZoom の外では null', () => {
+    render(<NullProbe />);
+
+    expect(screen.getByTestId('zoom-null').textContent).toBe('true');
   });
 });

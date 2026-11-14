@@ -42,7 +42,13 @@ function Probe() {
 function renderStatus(loader: MuniLoader) {
   const view = render(
     <MapStateProvider>
-      <MuniStatus labels={labels} loader={loader} />
+      <div data-map-box>
+        <svg>
+          <path data-testid="pref-20" data-pref="20" tabIndex={-1} />
+          <path data-testid="pref-21" data-pref="21" tabIndex={-1} />
+        </svg>
+        <MuniStatus labels={labels} loader={loader} />
+      </div>
       <Probe />
     </MapStateProvider>
   );
@@ -176,6 +182,88 @@ describe('MuniStatus', () => {
     await flushConversion();
     expect(root().querySelector('[data-muni-retry]')).toBeNull();
     expect(root().getAttribute('data-muni-status')).toBe('loaded');
+  });
+
+  test('T2-11: 再試行のボタンにフォーカスがあり、再試行が成功したら、最大化した県にフォーカスを戻す', async () => {
+    const { calls, loader } = fakeLoader();
+    const { root } = renderStatus(loader);
+    press('maximize-20');
+    act(() => calls[0]?.notify(failed));
+    const retry = root().querySelector('[data-muni-retry]') as HTMLButtonElement;
+    retry.focus();
+    fireEvent.click(retry);
+
+    act(() => calls[1]?.notify({ kind: 'loaded', data: gridTopology('20') }));
+    await flushConversion();
+
+    expect(root().querySelector('[data-muni-retry]')).toBeNull();
+    expect(document.activeElement).toBe(screen.getByTestId('pref-20'));
+  });
+
+  test('T2-11: ボタンにフォーカスがなかったら（マウスで押した Safari など）、フォーカスを動かさない', async () => {
+    const { calls, loader } = fakeLoader();
+    const { root } = renderStatus(loader);
+    press('maximize-20');
+    act(() => calls[0]?.notify(failed));
+    fireEvent.click(root().querySelector('[data-muni-retry]') as HTMLButtonElement);
+
+    act(() => calls[1]?.notify({ kind: 'loaded', data: gridTopology('20') }));
+    await flushConversion();
+
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  test('T2-11: 読み込みの間にフォーカスがほかへ移っていたら、動かさない', async () => {
+    const { calls, loader } = fakeLoader();
+    const { root } = renderStatus(loader);
+    press('maximize-20');
+    act(() => calls[0]?.notify(failed));
+    const retry = root().querySelector('[data-muni-retry]') as HTMLButtonElement;
+    retry.focus();
+    fireEvent.click(retry);
+    const other = screen.getByRole('button', { name: 'maximize-21' });
+    act(() => other.focus());
+
+    act(() => calls[1]?.notify({ kind: 'loaded', data: gridTopology('20') }));
+    await flushConversion();
+
+    expect(document.activeElement).toBe(other);
+  });
+
+  test('T2-11: 再試行の間に別の県に切り替えたら、その県が読み込めても、フォーカスを動かさない', async () => {
+    const { calls, loader } = fakeLoader();
+    const { root } = renderStatus(loader);
+    press('maximize-20');
+    act(() => calls[0]?.notify(failed));
+    const retry = root().querySelector('[data-muni-retry]') as HTMLButtonElement;
+    retry.focus();
+    fireEvent.click(retry);
+
+    press('maximize-21');
+    act(() => calls[2]?.notify({ kind: 'loaded', data: gridTopology('21') }));
+    await flushConversion();
+
+    expect(document.activeElement).not.toBe(screen.getByTestId('pref-21'));
+  });
+
+  test('T2-11: 再試行がまた失敗したら、後で同じ県を最大化し直して読み込めても、フォーカスを動かさない', async () => {
+    const { calls, loader } = fakeLoader();
+    const { root } = renderStatus(loader);
+    press('maximize-20');
+    act(() => calls[0]?.notify(failed));
+    const retry = root().querySelector('[data-muni-retry]') as HTMLButtonElement;
+    retry.focus();
+    fireEvent.click(retry);
+    act(() => calls[1]?.notify(failed));
+
+    // 最大化を解除（Esc など）して、また最大化する
+    press('maximize-20');
+    press('maximize-20');
+    act(() => calls[2]?.notify({ kind: 'loaded', data: gridTopology('20') }));
+    await flushConversion();
+
+    expect(root().getAttribute('data-muni-status')).toBe('loaded');
+    expect(document.activeElement).toBe(document.body);
   });
 
   test('4.11.5: 再試行でないふつうの読み込み中は、ボタンを出さない', () => {

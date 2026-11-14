@@ -38,6 +38,16 @@ export function applyPrefState(root: Element, state: MapState): void {
 }
 
 /**
+ * 地図の県のパス（`[data-pref]`）の Tab の停止位置を `code` の県だけにする（roving tabindex。F-KB-01）。
+ * `code` の県は `tabindex="0"`、ほかは `"-1"`。属性だけを書く（要素は描き直さない）。
+ */
+export function applyRovingTabIndex(root: ParentNode, code: PrefCode): void {
+  for (const element of root.querySelectorAll('[data-pref]')) {
+    setAttribute(element, 'tabindex', element.getAttribute('data-pref') === code ? '0' : '-1');
+  }
+}
+
+/**
  * カードの領域の表示を切り替える。`[data-card-pref]` は表示する県だけ `hidden` を外し、
  * `[data-card-guide]`（案内文）は表示する県がないときだけ見せる。
  */
