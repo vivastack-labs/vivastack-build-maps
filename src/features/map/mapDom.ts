@@ -21,8 +21,9 @@ function setAttribute(element: Element, name: string, value: string | null): voi
 /**
  * 地図の県のパス（`[data-pref]`）に、固定・最大化の状態を書く。
  * `aria-pressed` は固定中の県だけ `"true"`、`data-state` は `maximized`／`pinned`（なければ属性を消す）。
+ * 県名さくいんの項目（`<a data-pref>`。T2-10）にも同じように書く（さくいんの根に渡す）。
  * 県名ラベル（`[data-pref-label]`）にも `data-state` を書く（最大化した県のラベルは、市区町村のラベルと重なるので隠す。T2-08）。
- * 根の要素には、最大化中だけ `data-map-maximized`（最大化した県のコード）を書く（ほかの県を薄くする CSS が使う。F-MUNI-04）。
+ * 根の要素には、最大化中だけ `data-map-maximized`（最大化した県のコード）を書く（ほかの県を薄くする CSS が使う。F-MUNI-04）。さくいんの根にも付くが、使う CSS がないので害はない。
  */
 export function applyPrefState(root: Element, state: MapState): void {
   setAttribute(root, 'data-map-maximized', state.maximized);

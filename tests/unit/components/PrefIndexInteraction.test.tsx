@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import { CardSwitch } from '@/components/CardSwitch';
 import { MapStateProvider, useMapState } from '@/components/MapStateProvider';
@@ -154,8 +154,19 @@ describe('PrefIndexInteraction', () => {
     expect(pressKey(screen.getByTestId('tokyo'), { key: 'Tab' })).toBe(false);
     expect(pressKey(screen.getByTestId('tokyo'), { key: 'Enter', ctrlKey: true })).toBe(false);
     expect(pressKey(screen.getByTestId('tokyo'), { key: 'Enter', metaKey: true })).toBe(false);
+    expect(pressKey(screen.getByTestId('tokyo'), { key: 'Enter', altKey: true })).toBe(false);
     expect(pressKey(screen.getByTestId('tokyo'), { key: 'Enter', repeat: true })).toBe(false);
 
+    expect(screen.getByTestId('tokyo')).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  test.each([['ctrlKey'], ['metaKey'], ['shiftKey'], ['altKey']])('修飾キー（%s）つきのクリックは、既定の動き（新しいタブなど）に任せ、状態を変えない', modifier => {
+    render(<Fixture />);
+    fireEvent.pointerDown(screen.getByTestId('tokyo'), { pointerType: 'mouse' });
+
+    const isNotPrevented = fireEvent.click(screen.getByTestId('tokyo'), { [modifier]: true });
+
+    expect(isNotPrevented).toBe(true);
     expect(screen.getByTestId('tokyo')).toHaveAttribute('aria-pressed', 'false');
   });
 
@@ -174,6 +185,18 @@ describe('PrefIndexInteraction', () => {
 
     act(() => screen.getByTestId('tokyo').blur());
     expect(screen.getByTestId('hovered')).toBeEmptyDOMElement();
+  });
+
+  test('4.11.3: :focus-visible に一致しないフォーカス（タップなど）ではホバーしない', () => {
+    render(<Fixture />);
+    const tokyo = screen.getByTestId('tokyo');
+    const matches = vi.spyOn(tokyo, 'matches').mockImplementation(selector => selector !== ':focus-visible');
+
+    act(() => tokyo.focus());
+
+    expect(matches).toHaveBeenCalledWith(':focus-visible');
+    expect(screen.getByTestId('hovered')).toBeEmptyDOMElement();
+    expect(visibleCard()).toEqual([]);
   });
 
   test('4.11.2: 別の項目へフォーカスが移ると、カードの県が変わる', () => {

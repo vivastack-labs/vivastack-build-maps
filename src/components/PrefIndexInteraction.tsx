@@ -11,9 +11,14 @@ const DEFAULT_POINTER_TYPE = 'mouse';
 
 type Dispatch = ReturnType<typeof useMapState>['dispatch'];
 
+/** Ctrl・Meta・Alt（Shift は Shift + Enter に使うので含めない）が押されているか */
+function hasModifier(event: { readonly ctrlKey: boolean; readonly metaKey: boolean; readonly altKey: boolean }): boolean {
+  return event.ctrlKey || event.metaKey || event.altKey;
+}
+
 /** キーボードの操作を `mapReducer` に渡す。Ctrl・Meta・Alt つきとキーの繰り返しは無視する */
 function handleKeyDown(event: KeyboardEvent, dispatch: Dispatch): void {
-  if (event.ctrlKey || event.metaKey || event.altKey || event.repeat) return;
+  if (hasModifier(event) || event.repeat) return;
   const mapEvent = keyToMapEvent({ key: event.key, shiftKey: event.shiftKey, pref: prefFromTarget(event.target) });
   if (!mapEvent) return;
   // Enter のリンクの移動・Shift + Enter の新しいウィンドウ・Space のスクロールを止め、click を経由せず直接渡す
@@ -62,6 +67,8 @@ export function PrefIndexInteraction({ children }: { readonly children: ReactNod
   };
 
   const onClick = (event: MouseEvent) => {
+    // 修飾キーつきのクリック（新しいタブ・ウィンドウで開くなど）は、ブラウザの既定の動きに任せる（Shift もウィンドウで開く）
+    if (hasModifier(event) || event.shiftKey) return;
     // 項目の外のクリックは、地図の「海のクリック」（固定の解除）にしない
     if (prefFromTarget(event.target) === null) return;
     // リンクの移動を止める（ページが飛ばない。ダブルクリックで2回移動もしない）
