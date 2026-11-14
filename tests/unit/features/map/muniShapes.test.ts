@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import type { MuniTopology } from '@/features/map/muniLoader';
+import { selectLabels, visibleLabels } from '@/features/map/labels';
 import { muniShapes } from '@/features/map/muniShapes';
 import { gridTopology, props } from './muni-fixtures';
 import { OKINAWA_FRAME, projectPoint } from '@/features/map/projection';
@@ -19,6 +20,25 @@ function islandTopology(lon: number, lat: number): MuniTopology {
     type: 'Topology',
     arcs: [ring(lon + 0.3, lat + 0.3, lon + 0.31, lat + 0.31), ring(lon, lat, lon + 0.2, lat + 0.2)],
     objects: { municipalities: { type: 'GeometryCollection', geometries: [{ type: 'MultiPolygon', arcs: [[[0]], [[1]]], properties: props(`${lon > 120 && lon < 130 ? '47' : '13'}101`) }] } }
+  } as unknown as MuniTopology;
+}
+
+/** L字（腕の太さ 0.1°、長さ 1°）の市区町村 1つ。外接矩形は大きいが、ラベルを置ける広さは腕の太さしかない */
+function lShapeTopology(): MuniTopology {
+  const [lon, lat] = [139, 35];
+  const l = [
+    [lon, lat],
+    [lon, lat + 1],
+    [lon + 0.1, lat + 1],
+    [lon + 0.1, lat + 0.1],
+    [lon + 1, lat + 0.1],
+    [lon + 1, lat],
+    [lon, lat]
+  ];
+  return {
+    type: 'Topology',
+    arcs: [l],
+    objects: { municipalities: { type: 'GeometryCollection', geometries: [{ type: 'Polygon', arcs: [[0]], properties: props('13101') }] } }
   } as unknown as MuniTopology;
 }
 
@@ -63,19 +83,54 @@ describe('muniShapes', () => {
     expect(label?.y).toBeLessThan(OKINAWA_FRAME.y + OKINAWA_FRAME.height);
   });
 
-  test('ラベルの位置と外接矩形は、いちばん大きなポリゴンのもの', () => {
+  test('ラベルの位置と大きさは、いちばん大きなポリゴンのもの（小さな島ではない）', () => {
     const label = muniShapes(islandTopology(139, 35), '13')?.shapes[0]?.label;
     const corners = [projectPoint([139, 35], '13'), projectPoint([139.2, 35], '13'), projectPoint([139, 35.2], '13'), projectPoint([139.2, 35.2], '13')];
     const xs = corners.map(([x]) => x);
     const ys = corners.map(([, y]) => y);
+    const [boxWidth, boxHeight] = [Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)];
 
-    expect(label?.width).toBeCloseTo(Math.max(...xs) - Math.min(...xs), 5);
-    expect(label?.height).toBeCloseTo(Math.max(...ys) - Math.min(...ys), 5);
     expect(label?.x).toBeGreaterThan(Math.min(...xs));
     expect(label?.x).toBeLessThan(Math.max(...xs));
     expect(label?.y).toBeGreaterThan(Math.min(...ys));
     expect(label?.y).toBeLessThan(Math.max(...ys));
+    // 点を通る水平・垂直の線が形の内側にある長さは、ほぼ四角の幅・高さ（投影で少し傾く）
+    expect((label?.width ?? 0) / boxWidth).toBeGreaterThan(0.9);
+    expect((label?.width ?? 0) / boxWidth).toBeLessThan(1.01);
+    expect((label?.height ?? 0) / boxHeight).toBeGreaterThan(0.9);
+    expect((label?.height ?? 0) / boxHeight).toBeLessThan(1.01);
     expect(label?.area).toBeGreaterThan(0);
+  });
+
+  test('F-MUNI-02: 凹んだ形（L字）は、外接矩形ではなく、点を通る線が内側にある長さをラベルの大きさにする', () => {
+    const label = muniShapes(lShapeTopology(), '13')?.shapes[0]?.label;
+    const [lowerLeft, upperRight] = [projectPoint([139, 35], '13'), projectPoint([140, 36], '13')];
+    const boxWidth = Math.abs(upperRight[0] - lowerLeft[0]);
+
+    expect(label).toBeDefined();
+    // 腕の太さ（0.1° ≒ 外接矩形の 1/10）ほど。外接矩形の幅・高さよりずっと小さい
+    expect(label?.width).toBeLessThan(boxWidth * 0.3);
+    expect(label?.height).toBeLessThan(boxWidth * 0.3);
+  });
+
+  test('F-MUNI-02: L字の市区町村は、外接矩形に入る長さのラベルでも、倍率1では選ばれない（同じ外接矩形の四角は選ばれる）', () => {
+    const label = muniShapes(lShapeTopology(), '13')?.shapes[0]?.label as NonNullable<ReturnType<typeof muniShapes>>['shapes'][number]['label'];
+    const [lowerLeft, upperRight] = [projectPoint([139, 35], '13'), projectPoint([140, 36], '13')];
+    const boxWidth = Math.abs(upperRight[0] - lowerLeft[0]);
+    const candidate = { code: 'a', text: '市区町村', ...label };
+
+    const lShaped = visibleLabels(selectLabels([candidate], 'ja'), 1);
+    const rectangle = visibleLabels(selectLabels([{ ...candidate, width: boxWidth, height: boxWidth }], 'ja'), 1);
+
+    expect(lShaped).toHaveLength(0);
+    expect(rectangle).toHaveLength(1);
+  });
+
+  test('座標が有限の数でなければ、例外にせず null を返す（invalid）', () => {
+    const topology = lShapeTopology();
+    const broken = { ...topology, arcs: [[[Number.NaN, 35], ...(topology.arcs[0] as number[][]).slice(1)]] } as unknown as MuniTopology;
+
+    expect(muniShapes(broken, '13')).toBeNull();
   });
 
   test('T2-07：geometry が壊れていたら例外にせず null を返す', () => {

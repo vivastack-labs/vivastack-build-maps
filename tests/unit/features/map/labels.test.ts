@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
-import { estimateLabelWidth, LABEL_FONT_SIZE, muniLabelText, selectLabels, visibleLabels, type LabelCandidate } from '@/features/map/labels';
+import { estimateLabelWidth, MUNI_LABEL_FONT_SIZE, muniLabelText, selectLabels, visibleLabels, type LabelCandidate } from '@/features/map/labels';
 
-const FONT = LABEL_FONT_SIZE;
+const FONT = MUNI_LABEL_FONT_SIZE;
 
 /** 中心 (x, y)・外接矩形 width×height の候補。面積は外接矩形の面積とする */
 function candidate(code: string, x: number, y: number, width: number, height: number, text = '市区町村'): LabelCandidate {
@@ -125,6 +125,17 @@ describe('selectLabels', () => {
         }
       });
     }
+  });
+
+  test('F-MUNI-02: 拡大の上限（佐賀県で約95倍）でも出るように、倍率の段は 95 を超える', () => {
+    // 4字のラベルの幅は 44÷k。幅 0.5 の外接矩形に入るのは k が 88 以上
+    const verySmall = candidate('a', 100, 100, 0.5, 0.5);
+
+    const labels = selectLabels([verySmall], 'ja');
+
+    expect(labels).toHaveLength(1);
+    expect(labels[0]?.minScale).toBeGreaterThan(64);
+    expect(visibleLabels(labels, 95)).toHaveLength(1);
   });
 
   test('F-MUNI-02: 上限の倍率でも入らないラベルは出ない', () => {

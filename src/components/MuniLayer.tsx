@@ -1,11 +1,12 @@
 'use client';
 
 import { useLayoutEffect, useMemo, useRef } from 'react';
-import { LABEL_FONT_SIZE, muniLabelText, selectLabels, type LabelCandidate, type PlacedLabel } from '@/features/map/labels';
+import { MUNI_LABEL_FONT_SIZE, muniLabelText, selectLabels, type LabelCandidate, type PlacedLabel } from '@/features/map/labels';
 import { applyLabelVisibility } from '@/features/map/mapDom';
 import type { MuniLoader } from '@/features/map/muniLoader';
 import type { MuniShape } from '@/features/map/muniShapes';
 import { MUNI_SHADE_CLASS } from '@/features/map/regions';
+import { zoomInvariant } from '@/features/map/zoomInvariant';
 import type { Lang } from '@/i18n/lang';
 import { useMapState } from './MapStateProvider';
 import { useMuniShapes } from './useMuniShapes';
@@ -21,9 +22,6 @@ const MUNI_BORDER_WIDTH = 0.5;
 const OUTLINE_WIDTH = 1.4;
 /** 地図の層（`MapZoom` が倍率を書く）の、倍率の属性 */
 const ZOOM_SCALE_ATTRIBUTE = 'data-zoom-scale';
-
-/** 拡大しても画面の上の大きさが変わらない長さ（viewBox の単位 ÷ 倍率）。`JapanMap` の `zoomInvariant` と同じ */
-const zoomInvariant = (size: number): string => `calc(${size}px / var(--zoom-k, 1))`;
 
 /** ラベルの候補（いちばん大きなポリゴンの外接矩形に入るかで選ぶ） */
 function toCandidate({ code, properties, label }: MuniShape, lang: Lang): LabelCandidate {
@@ -89,7 +87,7 @@ export function MuniLayer({ lang, loader }: Props) {
       <g
         data-muni-labels
         className="pointer-events-none fill-map-label select-none max-map-label:hidden"
-        style={{ fontSize: zoomInvariant(LABEL_FONT_SIZE) }}
+        style={{ fontSize: zoomInvariant(MUNI_LABEL_FONT_SIZE) }}
         textAnchor="middle"
         dominantBaseline="central"
       >

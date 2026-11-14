@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { LABEL_FONT_SIZE, loadPrefPaths, type PrefPath } from '@/features/map/prefPaths';
 import { OKINAWA_FRAME, VIEWBOX } from '@/features/map/projection';
 import { REGION_FILL_CLASS } from '@/features/map/regions';
+import { zoomInvariant } from '@/features/map/zoomInvariant';
 import type { Lang } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
 import type { Prefecture } from '@/lib/content-schema.generated';
@@ -14,14 +15,6 @@ type Props = {
   /** 地図の層（`<g data-map-layer>`）の最後（県名ラベルの上）に置くもの。最大化した県の市区町村の層（T2-08） */
   readonly children?: ReactNode;
 };
-
-/**
- * 拡大しても画面の上の大きさが変わらない長さ（viewBox の単位 ÷ 倍率）。倍率は `MapZoom` が地図の層に書く CSS 変数 `--zoom-k`。
- * 変数がないとき（JavaScript なし）・倍率が1のときは、基準の大きさのまま。
- */
-function zoomInvariant(size: number): string {
-  return `calc(${size}px / var(--zoom-k, 1))`;
-}
 
 /** 海域名の文字の大きさ（viewBox の単位） */
 const SEA_LABEL_FONT_SIZE = 24;

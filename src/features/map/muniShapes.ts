@@ -15,7 +15,11 @@ import { createProjection } from './projection';
 /** 濃淡の段階（0〜4）。隣り合う市区町村が同じにならないように付ける */
 export type Shade = 0 | 1 | 2 | 3 | 4;
 
-/** ラベルの置き場所。`x`・`y` はいちばん大きなポリゴンの内側の点、`width`・`height` はその外接矩形（viewBox の座標） */
+/**
+ * ラベルの置き場所（viewBox の座標）。`x`・`y` はいちばん大きなポリゴンの内側の点（`polylabel`）。
+ * `width`・`height` は、その点を通る水平・垂直の線が形の内側にある長さ（点から両側の近いほうの2倍）で、点を中心にした箱がおよそ収まる大きさ。
+ * 凹んだ形（L字）では、外接矩形よりずっと小さくなる。
+ */
 export type LabelAnchor = {
   readonly x: number;
   readonly y: number;
@@ -43,56 +47,73 @@ export type MuniShapes = {
 };
 
 /** 濃淡の数 */
-export const SHADE_COUNT = 5;
+const SHADE_COUNT = 5;
 /** ラベルの位置を求める精度（viewBox の単位） */
 const LABEL_PRECISION = 0.1;
-/** パスの座標の小数の桁数。0.01 は約 19m で、最大の倍率（約 40 倍）でも角が目立たない */
+/** パスの座標の小数の桁数。0.01 は約 19m で、最大の倍率（約95倍。佐賀県）でも 1px に満たない */
 const PATH_DIGITS = 2;
 
-type ProjectedPolygon = { readonly rings: readonly (readonly [number, number][])[]; readonly area: number };
+type Point = readonly [number, number];
+type Rings = readonly (readonly Point[])[];
 
 type Cache = { readonly pref: string; readonly result: MuniShapes | null };
 const cache = new WeakMap<MuniTopology, Cache>();
 
-function projectPosition(projection: GeoProjection, position: Position): [number, number] {
+/** 経緯度を投影する。投影できない（座標が有限の数でない）ときは例外（呼ぶ側が `null` にする） */
+function projectPosition(projection: GeoProjection, position: Position): Point {
   const point = projection([position[0] as number, position[1] as number]);
-  if (point === null) throw new Error('経緯度を投影できません');
-  return point;
+  if (point === null || !Number.isFinite(point[0]) || !Number.isFinite(point[1])) throw new Error('経緯度を投影できません');
+  return [point[0], point[1]];
 }
 
 /** リングの面積（絶対値。shoelace） */
-function ringArea(ring: readonly (readonly [number, number])[]): number {
-  const sum = ring.reduce((total, [x, y], i) => {
-    const [nextX, nextY] = ring[(i + 1) % ring.length] as readonly [number, number];
+function ringArea(ring: readonly (readonly number[])[]): number {
+  const sum = ring.reduce((total, [x = 0, y = 0], i) => {
+    const [nextX = 0, nextY = 0] = ring[(i + 1) % ring.length] ?? [];
     return total + (x * nextY - nextX * y);
   }, 0);
   return Math.abs(sum) / 2;
 }
 
-function projectPolygon(projection: GeoProjection, coordinates: readonly (readonly Position[])[]): ProjectedPolygon {
-  const rings = coordinates.map(ring => ring.map(position => projectPosition(projection, position)));
-  const [outer] = rings;
-  if (outer === undefined) throw new Error('ポリゴンにリングがありません');
-  return { rings, area: ringArea(outer) };
-}
-
-/** 市区町村のポリゴン（MultiPolygon は複数）を、投影した座標にする */
-function projectedPolygons(projection: GeoProjection, geometry: Polygon | MultiPolygon): readonly ProjectedPolygon[] {
+/**
+ * MultiPolygon のうち、いちばん大きなポリゴン（投影する前の経緯度の面積で比べる。点を投影するのは、選んだ1つだけにするため）。
+ * ポリゴンがなければ例外。
+ */
+function largestPolygon(geometry: Polygon | MultiPolygon): readonly (readonly Position[])[] {
   const polygons = geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates;
-  return polygons.map(coordinates => projectPolygon(projection, coordinates));
+  const area = (polygon: readonly (readonly Position[])[]): number => ringArea(polygon[0] ?? []);
+  const largest = polygons.reduce<readonly (readonly Position[])[] | null>((best, polygon) => (best === null || area(polygon) > area(best) ? polygon : best), null);
+  if (largest === null || largest[0] === undefined) throw new Error('ポリゴンがありません');
+  return largest;
 }
 
-/** いちばん大きなポリゴンの、内側の点と外接矩形 */
-function labelAnchor(polygons: readonly ProjectedPolygon[]): LabelAnchor {
-  const largest = polygons.reduce((best, polygon) => (polygon.area > best.area ? polygon : best));
-  const [outer] = largest.rings as [readonly [number, number][]];
-  const xs = outer.map(([x]) => x);
-  const ys = outer.map(([, y]) => y);
+/**
+ * 点 (px, py) を通る水平（`isHorizontal`）・垂直の線が、形（すべてのリング。穴は外）の内側にある長さのうち、
+ * 点から両側の近いほうの2倍。点を中心にした箱の幅・高さの上限になる。線が形を横切らなければ 0。
+ */
+function insideSpan(rings: Rings, [px, py]: Point, isHorizontal: boolean): number {
+  const [along, across] = isHorizontal ? [px, py] : [py, px];
+  const axes = (point: Point): Point => (isHorizontal ? point : [point[1], point[0]]);
+  const crossings = rings.flatMap(ring =>
+    ring.flatMap((start, i) => {
+      const [a, b] = [axes(start), axes(ring[(i + 1) % ring.length] ?? start)];
+      const isCrossing = a[1] <= across !== b[1] <= across;
+      return isCrossing ? [a[0] + ((across - a[1]) * (b[0] - a[0])) / (b[1] - a[1])] : [];
+    })
+  );
+  const before = Math.max(...crossings.filter(value => value <= along));
+  const after = Math.min(...crossings.filter(value => value >= along));
+  return Number.isFinite(before) && Number.isFinite(after) ? 2 * Math.min(along - before, after - along) : 0;
+}
+
+/** いちばん大きなポリゴンの、ラベルの置き場所（内側の点と、その点を中心に置ける箱の大きさ） */
+function labelAnchor(projection: GeoProjection, geometry: Polygon | MultiPolygon): LabelAnchor {
+  const rings: Rings = largestPolygon(geometry).map(ring => ring.map(position => projectPosition(projection, position)));
   const [x, y] = polylabel(
-    largest.rings.map(ring => ring.map(point => [...point])),
+    rings.map(ring => ring.map(point => [...point])),
     LABEL_PRECISION
   );
-  return { x, y, width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys), area: largest.area };
+  return { x, y, width: insideSpan(rings, [x, y], true), height: insideSpan(rings, [x, y], false), area: ringArea(rings[0] ?? []) };
 }
 
 /**
@@ -122,8 +143,7 @@ function computeShapes(data: MuniTopology, projection: GeoProjection): MuniShape
   const features = feature(data, collection).features as Feature<Polygon | MultiPolygon, MuniProperties>[];
   const shades = assignShades(neighbors(collection.geometries));
   const shapes = features.map((item, i): MuniShape => {
-    const polygons = projectedPolygons(projection, item.geometry);
-    return { code: item.properties.code, properties: item.properties, d: pathOf(projection, item), shade: shades[i] ?? 0, label: labelAnchor(polygons) };
+    return { code: item.properties.code, properties: item.properties, d: pathOf(projection, item), shade: shades[i] ?? 0, label: labelAnchor(projection, item.geometry) };
   });
   const sorted = [...shapes].sort((a, b) => (a.code < b.code ? -1 : a.code > b.code ? 1 : 0));
   return {

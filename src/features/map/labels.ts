@@ -9,7 +9,7 @@ import type { Lang } from '@/i18n/lang';
 import type { MuniProperties } from './muniLoader';
 
 /** ラベルの文字の大きさ（viewBox の単位。倍率1のとき）。県名ラベル（16）より小さくする */
-export const LABEL_FONT_SIZE = 11;
+export const MUNI_LABEL_FONT_SIZE = 11;
 /** ラベルの箱の高さ（文字の大きさに対する倍率）。行間を含む */
 const LINE_HEIGHT = 1.2;
 /** 英語の1字の幅（文字の大きさに対する倍率）。日本語・中国語は1字＝1倍 */
@@ -18,8 +18,8 @@ const LATIN_CHAR_WIDTH = 0.6;
 const BOX_MARGIN = 0.3;
 /** 倍率の段（1 から上限まで、この比で上げていく）。小さい段から順に選び、前の段で選んだラベルを残す */
 const SCALE_STEP_RATIO = 1.19;
-/** 倍率の上限。拡大の上限（最大化中は県が収まる倍率の4倍）より大きくする */
-export const MAX_LABEL_SCALE = 64;
+/** 倍率の上限。拡大の上限（最大化中は県が収まる倍率の4倍。佐賀県で約95）より大きくする */
+const MAX_LABEL_SCALE = 128;
 
 /** ラベルの候補。座標は viewBox の座標。`width`・`height` は、いちばん大きなポリゴンの外接矩形 */
 export type LabelCandidate = {
@@ -63,7 +63,7 @@ type Box = { readonly halfWidth: number; readonly halfHeight: number };
 
 /** 倍率 `k` でのラベルの箱の半分の大きさ */
 function boxAt(text: string, lang: Lang, k: number): Box {
-  return { halfWidth: estimateLabelWidth(text, lang, LABEL_FONT_SIZE) / k / 2, halfHeight: (LABEL_FONT_SIZE * LINE_HEIGHT) / k / 2 };
+  return { halfWidth: estimateLabelWidth(text, lang, MUNI_LABEL_FONT_SIZE) / k / 2, halfHeight: (MUNI_LABEL_FONT_SIZE * LINE_HEIGHT) / k / 2 };
 }
 
 function fits(candidate: LabelCandidate, lang: Lang, k: number): boolean {
@@ -74,7 +74,7 @@ function fits(candidate: LabelCandidate, lang: Lang, k: number): boolean {
 function overlaps(a: LabelCandidate, b: LabelCandidate, lang: Lang, k: number): boolean {
   const boxA = boxAt(a.text, lang, k);
   const boxB = boxAt(b.text, lang, k);
-  const margin = (LABEL_FONT_SIZE * BOX_MARGIN) / k;
+  const margin = (MUNI_LABEL_FONT_SIZE * BOX_MARGIN) / k;
   return Math.abs(a.x - b.x) < boxA.halfWidth + boxB.halfWidth + margin && Math.abs(a.y - b.y) < boxA.halfHeight + boxB.halfHeight + margin;
 }
 
