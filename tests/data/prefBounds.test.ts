@@ -30,7 +30,10 @@ describe('県の範囲（fitBounds・panBounds）', () => {
 
   test('D36：東京都以外の fitBounds・panBounds は viewBox の中にある', () => {
     for (const { code, fitBounds, panBounds } of paths.filter(p => p.code !== '13')) {
-      for (const [name, bounds] of [['fitBounds', fitBounds], ['panBounds', panBounds]] as const) {
+      for (const [name, bounds] of [
+        ['fitBounds', fitBounds],
+        ['panBounds', panBounds]
+      ] as const) {
         expect(bounds.x0, `県 ${code} の ${name}.x0`).toBeGreaterThanOrEqual(0);
         expect(bounds.y0, `県 ${code} の ${name}.y0`).toBeGreaterThanOrEqual(0);
         expect(bounds.x1, `県 ${code} の ${name}.x1`).toBeLessThanOrEqual(VIEWBOX.width);

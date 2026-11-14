@@ -125,6 +125,14 @@ describe('JapanMap', () => {
   });
 });
 
+describe('JapanMap のタッチ操作', () => {
+  test('4.11.3：<svg> は touch-action: none（touch-none）で、指のドラッグ・ピンチをブラウザのスクロール・拡大に取られない', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
+
+    expect(container.querySelector('svg')?.getAttribute('class')).toContain('touch-none');
+  });
+});
+
 describe('JapanMap の入力の確かめ', () => {
   test('F-MAP-01：コンテンツの県コードからパスを引けないときは、パスのない県を描かずに例外にする', () => {
     // Arrange：県コードの形は正しいが、地図のデータにない県（99）

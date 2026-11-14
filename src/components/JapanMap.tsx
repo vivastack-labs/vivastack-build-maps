@@ -51,7 +51,7 @@ function PrefShape({ lang, prefecture, d }: { readonly lang: Lang; readonly pref
 
 /**
  * 都道府県の地図（SVG。F-MAP-01〜04・06、D24）。ビルド時に HTML へ出力するので、JavaScript がなくても見える。
- * 色は `app/globals.css` の @theme の変数（ライト・ダーク。D26）。操作は `MapInteraction`（T2-05）、拡大・縮小は T2-06。
+ * 色は `app/globals.css` の @theme の変数（ライト・ダーク。D26）。操作は `MapInteraction`（T2-05）、拡大・縮小・移動は `MapZoom`（T2-06。`<g data-map-layer>` を動かす。`<svg>` は touch-action: none で、指の操作をブラウザに取られない。4.11.3）。
  * `<svg>` は親の箱いっぱいに広がる。箱の縦横比は `VIEWBOX` と同じにする（`MapArea`）。
  */
 export function JapanMap({ lang, prefectures }: Props) {
@@ -59,7 +59,7 @@ export function JapanMap({ lang, prefectures }: Props) {
   const pathByCode = new Map(loadPrefPaths().map(path => [path.code, path]));
 
   return (
-    <svg viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`} role="group" aria-label={plainText(messages.map.label)} className="block size-full">
+    <svg viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`} role="group" aria-label={plainText(messages.map.label)} className="block size-full touch-none">
       <rect data-map-sea x={0} y={0} width={VIEWBOX.width} height={VIEWBOX.height} className="fill-map-sea" />
       <g data-map-layer>
         <g className="stroke-map-border" strokeWidth={0.8} strokeLinejoin="round">
