@@ -37,7 +37,7 @@ const textWithoutRt = (locator: Locator): Promise<string> =>
 /** 形を画面に入れてから、形の内側の点を返す（動きが止まるのを待つ） */
 async function pointOn(page: Page, locator: Locator): Promise<{ readonly x: number; readonly y: number }> {
   await locator.scrollIntoViewIfNeeded();
-  return settledPoint(page, locator);
+  return settledPoint(locator);
 }
 
 /** 県の形の内側にマウスを動かす。マウスの位置を返す */

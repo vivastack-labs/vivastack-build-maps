@@ -60,7 +60,7 @@ async function maximizeWithMuniFailure(page: Page): Promise<void> {
 async function hoverShape(page: Page, selector: string): Promise<void> {
   const shape = page.locator(selector);
   await shape.scrollIntoViewIfNeeded();
-  const { x, y } = await settledPoint(page, shape);
+  const { x, y } = await settledPoint(shape);
   await page.mouse.move(x, y);
   await page.locator('[data-tooltip]:not([hidden])').waitFor();
 }

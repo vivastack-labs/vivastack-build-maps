@@ -76,17 +76,24 @@ async function pointInside(locator: Locator): Promise<{ readonly x: number; read
   }, POINT_GRID);
 }
 
-/** 動きが止まって、点の位置が変わらなくなるのを待ってから、その点を返す */
-export async function settledPoint(page: Page, locator: Locator): Promise<{ readonly x: number; readonly y: number }> {
-  let previous = JSON.stringify(await pointInside(locator));
+/** 点を比べる間隔（ms）。続けて呼ぶと、寄る動きの1フレームの間に2回測って「止まった」と誤る（WebKit で起きた） */
+const SETTLE_INTERVAL_MS = 250;
+
+/** 動きが止まって、点の位置が `SETTLE_INTERVAL_MS` の間変わらなくなるのを待ってから、その点を返す */
+export async function settledPoint(locator: Locator): Promise<{ readonly x: number; readonly y: number }> {
+  let previous = '';
+  let settled = { x: 0, y: 0 };
   await expect
-    .poll(async () => {
-      const current = JSON.stringify(await pointInside(locator));
-      const isSame = current === previous;
-      previous = current;
-      return isSame;
-    })
+    .poll(
+      async () => {
+        settled = await pointInside(locator);
+        const current = JSON.stringify(settled);
+        const isSame = current === previous;
+        previous = current;
+        return isSame;
+      },
+      { intervals: [SETTLE_INTERVAL_MS] }
+    )
     .toBe(true);
-  await page.waitForTimeout(50);
-  return pointInside(locator);
+  return settled;
 }

@@ -75,7 +75,7 @@ test('F-MUNI-03：市区町村にマウスをのせると強調される', async
   await open(page);
   await maximize(page, NAGANO);
   const city = page.locator('[data-muni="20201"]');
-  const { x, y } = await settledPoint(page, city);
+  const { x, y } = await settledPoint(city);
   await page.mouse.move(0, 0);
   const before = await fillOf(city);
 
@@ -106,7 +106,7 @@ test('F-MUNI-04：ほかの県が薄く表示され、別の県をダブルク�
 test('F-MUNI-04：市区町村の上でダブルクリックすると元に戻る（4.11.2）', async ({ page }) => {
   await open(page);
   await maximize(page, NAGANO);
-  const { x, y } = await settledPoint(page, page.locator('[data-muni="20201"]'));
+  const { x, y } = await settledPoint(page.locator('[data-muni="20201"]'));
 
   await page.mouse.dblclick(x, y);
 
