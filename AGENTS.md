@@ -54,7 +54,7 @@ pnpm screenshots > <ファイル>   # PRに載せる after（今の作業ツリ�
 
 E2E の準備：はじめに `pnpm exec playwright install chromium firefox webkit` でブラウザを入れる。Linux（WSL を含む）では、WebKit・Firefox が使うシステムのライブラリも要る。`sudo env "PATH=$(dirname "$(which node)"):$PATH" pnpm exec playwright install-deps` で入れる（sudo の下でも nvm の Node.js を見つけるため）。
 
-E2E のサーバーは、毎回 `pnpm build` をしてから `wrangler dev` を 8788 番で起動する（`dist/` を確かめるため）。`pnpm dev`（3000番）や手で起動した `wrangler dev`（8787番）とはぶつからない。8788 番が使用中だと起動に失敗するので、止めてから実行する。
+E2E のサーバーは、毎回 `CONTENT_DIR=tests/fixtures/content pnpm build`（本物の制作の進み具合で結果が変わらないように、コンテンツはフィクスチャ。開発計画 1.1）をしてから `wrangler dev` を 8788 番で起動する（`dist/` を確かめるため）。`pnpm dev`（3000番）や手で起動した `wrangler dev`（8787番）とはぶつからない。8788 番が使用中だと起動に失敗するので、止めてから実行する。
 
 pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd のインストールスクリプトを実行しない設定にしている（本体はプラットフォーム別のパッケージから入るので、なくても動く）。新しい依存にインストールスクリプトがあると `pnpm install` が失敗するので、許すか止めるかを決めて `allowBuilds` に書く。
 
@@ -66,7 +66,7 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
 | `app/` | ルーティングとページ（Next.js App Router） |
 | `src/` | アプリのロジック。`src/lib/` は `.gitignore` の例外で管理している |
 | `tests/unit/` | 単体テスト（`.test.ts`、node）とコンポーネントテスト（`.test.tsx`、jsdom）。`src/` と同じ構成で置く |
-| `tests/fixtures/content/` | E2E・単体テスト用のコンテンツ（北海道：全部 `reviewed`、東京都：混在、沖縄県：未作成）。`CONTENT_DIR=tests/fixtures/content` で読む |
+| `tests/fixtures/content/` | E2E・単体テスト用のコンテンツ（北海道：全部 `reviewed`、東京都：混在、沖縄県：未作成。残りの44県は `content/prefectures/` の基本情報の写しで、名物・名所は空。写したあとは本物に追従しない）。`CONTENT_DIR=tests/fixtures/content` で読む。E2E・スクリーンショットのビルドはこれを使う（`playwright.config.ts`・`playwright.screenshots.config.ts` の `webServer`） |
 | `tests/data/` | データの検査（`.test.ts`、node）。コミットされた地図データ（T1-05）と47県の基本情報（T1-08）の全体を確かめる |
 | `tests/e2e/` | E2E（Playwright。`*.spec.ts`） |
 | `tests/screenshots/` | PRに載せるスクリーンショットの画面（`playwright.screenshots.config.ts`。`pnpm screenshots` から使う） |
@@ -108,6 +108,11 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
   - 中国語のページの日本語の字形：`app/globals.css` の `--font-ja` を `:root:lang(ja)` の `--font-sans` と、`:root:not(:lang(ja)) [lang='ja']` の `font-family` で使う。
   - E2E：`tests/e2e/muni-render.spec.ts`。最大化した県の上には市区町村の形が重なるので、最大化中の県を `locator.dblclick()` で戻すと「ほかの要素がクリックを受ける」で止まる。`tests/e2e/helpers.ts` の `dblclickAtCenter`・`clickAtCenter`（寄る動きが止まるのを待ってから、外接矩形の中心の座標を押す）を使う。
   - 仕様の制限：県境の数px（市区町村の簡略化は 100m、県の形は 1km で、最大約1kmずれる）では、最大化中に隣の県をダブルクリックしたつもりでも、最大化した県の市区町村の形が受けて、元に戻る（隣の県への切り替えにならない）。最大化した県の外周の線の外側（隣の県の形のある側）をダブルクリックすれば、切り替わる。凹んだ形の内側の点は、`isPointInFill` で探す。
+- ツールチップ（T2-09。F-TIP-01・02、4.11.2・4.11.3・4.11.4）：`MapArea` が `[data-map-box]` の中、`MapInteraction` の外（`MuniStatus` と同じ場所）に `MapTooltip`（サーバー）を置く。`MapTooltip` が47県ぶんの `<div data-tip-pref="NN" hidden>`（県名と名物の名前の `<ul>`。名物がない県は県名だけ。解説文・絵文字は出さない。`RubyText`）を出力し、`Tooltip`（クライアント。`children` で受ける）が `hidden`（`mapDom.ts` の `applyTipState`）と位置（`transform`）だけを書く（6.6 (2)）。`Tooltip` は effect で親の `[data-map-box]` に `pointerover`・`pointermove`・`pointerdown`・`pointerleave` を付け（`MapInteraction` は変えない）、マウスの下の要素の `data-pref`・`data-muni`・`pointerType`・`buttons` を状態に持つ（同じ値なら変えない。位置は動きのたびに `transform` だけを書く）。ルートは `aria-hidden`・`pointer-events-none`（同じ情報はカードと「市区町村の一覧」で読める）。色は `app/globals.css` の `--color-tooltip-*`（仮）。
+  - 規則は `src/features/map/tooltip.ts`（純粋関数）。`tooltipTarget`：タッチ・ボタンを押している間は出さない（マウスとペンで出す。カードのホバーと同じ）。最大化していなければ県の上でその県（固定中も同じ）、最大化中は最大化した県の市区町村の上だけ（ほかの県・市区町村のない所は出さない）。属性の値は県コード・5桁の市区町村コードの形を確かめる。`muniTooltipText`：ja は `name.ja`（区は「札幌市中央区」）と、その下の行に `kana`（`data-tip-reading`。ふりがなの ON/OFF に関係なく常に出す）、en は `name.en`、zh は `name.ja`（`lang="ja"`）で読みなし。`tooltipPosition`：マウスの右下 12px、はみ出すなら左・上に反転、それでもはみ出すなら箱の内側に寄せる。
+  - 市区町村の名前は `useMuniShapes(maximized)` の `shapes.shapes[].properties` を `data-muni` の `code` で引く（`MuniStatus`・`MuniLayer`・`MuniList` と同じキャッシュ）。
+  - 本番の `reviewed` の絞り込みは T3-02：`MapTooltip` に `publish.ts` の結果の県を渡せば、準備中の県は名物がなくなり、県名だけになる。
+  - E2E は `tests/e2e/tooltip.spec.ts`（フィクスチャのコンテンツ。北海道＝名物3つ、沖縄県＝名物なし、札幌市中央区）。マウスの位置は `page.mouse` で、形の内側の点（`helpers.ts` の `settledPoint`。`isPointInFill`）に動かす。
 - コンテンツ（7.1）：ビルドでは `src/lib/content.ts` の `loadContent()`（誤りがあれば例外。県を `code` の順に返す）を使い、検証は `validateContent()`（誤り・警告をすべて返す）。どちらも `CONTENT_DIR`（既定は `content/prefectures/`）を読む。`scripts/` から Node.js で直接読み込むので、`src/lib/` の相対の import には `.ts` を付ける。本番の `reviewed` だけの絞り込みは T3-02。
 - `next.config.ts` の `agentRules: false` は消さない。消すと `next dev` が `AGENTS.md` に英語の指示を書き込む。
 
