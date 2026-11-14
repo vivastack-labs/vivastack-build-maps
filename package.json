@@ -13,7 +13,7 @@
     "lint": "pnpm lint:eslint && pnpm lint:prettier && pnpm lint:md && pnpm lint:yaml",
     "lint:eslint": "eslint .",
     "lint:prettier": "prettier --check --no-error-on-unmatched-pattern \"{app,src,tests,scripts,geo}/**/*.{ts,tsx,js,mjs,cjs,css,json}\" \"*.{ts,mjs}\" package.json tsconfig.json wrangler.jsonc",
-    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#test-results\" \"#playwright-report\" \"#coverage\" \"#out\" \"#dist\" \"#.wrangler\"",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#test-results\" \"#playwright-report\" \"#test-results-preview\" \"#playwright-report-preview\" \"#coverage\" \"#out\" \"#dist\" \"#.wrangler\"",
     "lint:yaml": "yamllint . && yamllint -c content/.yamllint content/",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --coverage",

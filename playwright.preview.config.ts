@@ -14,7 +14,9 @@ export default defineConfig({
   forbidOnly: IS_CI,
   retries: IS_CI ? 2 : 0,
   workers: IS_CI ? 1 : undefined,
-  reporter: IS_CI ? [['github'], ['html', { open: 'never' }]] : 'list',
+  // 本番用のビルドの E2E（playwright.config.ts）の失敗のレポート・trace を上書きしないように、出力先を分ける（e2e.yml が両方をアップロードする）
+  outputDir: 'test-results-preview',
+  reporter: IS_CI ? [['github'], ['html', { open: 'never', outputFolder: 'playwright-report-preview' }]] : 'list',
   use: {
     baseURL: BASE_URL,
     trace: 'on-first-retry'

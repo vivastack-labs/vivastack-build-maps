@@ -84,5 +84,7 @@ jobs:
           path: |
             playwright-report/
             test-results/
+            playwright-report-preview/
+            test-results-preview/
           if-no-files-found: warn
           retention-days: 14
