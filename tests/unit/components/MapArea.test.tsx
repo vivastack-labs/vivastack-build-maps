@@ -49,6 +49,18 @@ describe('MapArea', () => {
     expect(layer.contains(container.querySelector('[data-map-sea]'))).toBe(false);
   });
 
+  test('T2-07：地図の箱の中に、市区町村データの読み込みの状態の領域があり、MapInteraction の外にある（F-MUNI-05）', () => {
+    const { container } = renderMapArea();
+
+    const box = container.querySelector('[data-map-box]') as HTMLElement;
+    expect(box.className).toContain('relative');
+    expect(box.querySelector('[data-muni-root] [role="status"][aria-live="polite"]')).not.toBeNull();
+    // 再試行ボタンのクリックが海のクリック（固定の解除）にならないよう、MapInteraction の外に置く
+    expect(box.querySelector('[data-map-ready] [data-muni-root]')).toBeNull();
+    // 最大化していないので、読み込みの状態は出ない
+    expect(box.querySelector('[data-muni-status]')).toBeNull();
+  });
+
   test('F-MAP-03：地図の箱の下に凡例がある', () => {
     const { container } = renderMapArea();
 
