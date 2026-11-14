@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
 import { distanceText, durationText } from '../../src/i18n/cardText';
 import { getMessages } from '../../src/i18n/messages';
 import { loadContent } from '../../src/lib/content';
@@ -27,10 +27,19 @@ async function open(page: Page, lang = 'en'): Promise<void> {
   await page.locator('[data-card-ready]').waitFor({ state: 'attached' });
 }
 
-/** さくいんの項目をクリックして県を固定する（地図の小さな県を座標で押さずに済む） */
+/**
+ * さくいんの項目をクリックして県を固定する（地図の小さな県を座標で押さずに済む）。
+ * 先に `hover()` して、その県のカードが表示されるのを待ってから `click()` する。
+ * 1列の配置（1024px 未満）ではカードがさくいんの上にあり、マウスを項目にのせるとカードが案内文から県のカードに変わって高さが変わる。
+ * `click()` のマウスの移動の途中でそれが起きると、`pointerdown` と `pointerup` が別の項目になり、`click` が共通の祖先に出て固定にならない。
+ * 先にカードを変えておけば、`click()` が位置を取り直してから押すので、同じ項目で `pointerdown`・`pointerup` になる（タッチのプロジェクトもマウスのイベントで動く）。
+ */
 async function pinFromIndex(page: Page, code: string): Promise<void> {
-  await page.locator(`a[data-pref="${code}"]`).click();
-  await expect(page.locator(`a[data-pref="${code}"]`)).toHaveAttribute('aria-pressed', 'true');
+  const item = page.locator(`a[data-pref="${code}"]`);
+  await item.hover();
+  await expect(page.locator(`[data-card-pref="${code}"]`)).toBeVisible();
+  await item.click();
+  await expect(item).toHaveAttribute('aria-pressed', 'true');
 }
 
 test.describe('F-CARD-02〜06：県のカード', () => {
@@ -156,19 +165,72 @@ test.describe('6.6 (2)：JavaScript がないとき', () => {
   });
 });
 
+test.describe('6.6 (2)：JavaScript があるとき、:target の規則は止まる', () => {
+  test('/en/#pref-13 を開いても、ハイドレーションの後は案内文だけが見え、固定するとその県のカードだけが見える', async ({ page }) => {
+    // Arrange・Act：ハッシュで開き、`CardSwitch` のマウント（data-card-ready）を待つ
+    await page.goto(`/en/#pref-${TOKYO}`);
+    await page.locator('[data-card-ready]').waitFor({ state: 'attached' });
+
+    // Assert：状態が空なので、ハッシュのカードは見えず（:target の規則が止まる）、案内文が見える
+    await expect(page.locator('[data-card-guide]')).toBeVisible();
+    await expect(page.locator('[data-card-pref]:visible')).toHaveCount(0);
+
+    // Act：さくいんから北海道を固定する
+    await page.locator('[data-index-ready]').waitFor({ state: 'attached' });
+    await pinFromIndex(page, HOKKAIDO);
+
+    // Assert：状態で選んだカード1枚だけが見える（ハッシュの東京都と2枚同時には見えない）
+    await expect(page.locator('[data-card-pref]:visible')).toHaveCount(1);
+    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"]`)).toBeVisible();
+    await expect(page.locator('[data-card-guide]')).toBeHidden();
+  });
+});
+
 test.describe('D24：HTML の大きさ', () => {
+  const firstSpecialty = prefOf(HOKKAIDO).specialties[0];
+  const descriptions = firstSpecialty?.description;
+
+  /** ページの HTML を、`<script>` の外（本体）と中（RSC のデータ）に分けて返す */
+  async function htmlOf(request: APIRequestContext, lang: string): Promise<{ readonly all: string; readonly body: string; readonly scripts: string }> {
+    const all = await (await request.get(`/${lang}/`)).text();
+    return { all, body: all.replace(/<script[\s\S]*?<\/script>/gu, ''), scripts: [...all.matchAll(/<script[\s\S]*?<\/script>/gu)].map(match => match[0]).join('\n') };
+  }
+
   test('解説文は HTML の本体に1回、RSC のデータ（<script>）に1回だけ出る', async ({ request }) => {
     // Arrange：ふりがながなく、HTML の記号を含まない、北海道の最初の名物の英語の解説文（おとな向け）
-    const sentence = prefOf(HOKKAIDO).specialties[0]?.description.en.adult ?? '';
+    const sentence = descriptions?.en.adult ?? '';
     expect(sentence).toMatch(/^[\w ,.]+$/u);
 
     // Act
-    const html = await (await request.get('/en/')).text();
-    const withoutScripts = html.replace(/<script[\s\S]*?<\/script>/gu, '');
-    const scripts = [...html.matchAll(/<script[\s\S]*?<\/script>/gu)].map(match => match[0]).join('\n');
+    const { body, scripts } = await htmlOf(request, 'en');
 
     // Assert：サーバーコンポーネントの結果は、本体と RSC のデータに1回ずつ（props などで3回目を作らない）
-    expect(withoutScripts.split(sentence)).toHaveLength(2);
+    expect(body.split(sentence)).toHaveLength(2);
     expect(scripts.split(sentence)).toHaveLength(2);
+  });
+
+  test('英語のページの HTML に、ほかの言語（日本語・中国語）の解説文は出てこない', async ({ request }) => {
+    // Arrange：カードを 'use client' にして全言語の元データを props で渡すと、ここで見つかる
+    const others = [descriptions?.ja.adult, descriptions?.ja.kids, descriptions?.zh.adult, descriptions?.zh.kids];
+    expect(others.every(text => typeof text === 'string' && text !== '')).toBe(true);
+
+    // Act
+    const { all } = await htmlOf(request, 'en');
+
+    // Assert
+    for (const text of others) expect(all).not.toContain(text);
+  });
+
+  test('日本語のページの HTML に、ふりがなの記法つきの元の文字列（{漢字|よみ}）は出てこない', async ({ request }) => {
+    // Arrange：ふりがなの変換（<ruby>）はビルド時にサーバーで済ませる。記法のままの文字列が出るなら、クライアントに元データが渡っている
+    const sources = [descriptions?.ja.adult, descriptions?.ja.kids];
+    for (const text of sources) expect(text).toMatch(/\{[^}|]+\|[^}]+\}/u);
+
+    // Act
+    const { all } = await htmlOf(request, 'ja');
+
+    // Assert
+    // 辞書の文言（クライアントコンポーネントの props。小さい）には記法が残るので、記法の有無ではなく、コンテンツの文で確かめる
+    for (const text of sources) expect(all).not.toContain(text);
   });
 });

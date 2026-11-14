@@ -155,6 +155,25 @@ describe('PrefCard', () => {
     expect(container.querySelector('[data-card-item]')).toBeNull();
   });
 
+  test('4.11.4：プレビューで名物・名所が空の県（フィクスチャの沖縄県）には、空の見出しと一覧を出さない', () => {
+    // Arrange：プレビューは準備中にしないので、名物・名所が空の県は pending ではなく、空の配列のまま渡る
+    const okinawaPreview = prefOf(preview, '47');
+    expect(okinawaPreview.pending).toBe(false);
+    expect(okinawaPreview.specialties).toHaveLength(0);
+
+    // Act
+    const container = renderCard('ja', okinawaPreview, 1550);
+
+    // Assert
+    expect(container.querySelector('[data-card-specialties]')).toBeNull();
+    expect(container.querySelector('[data-card-spots]')).toBeNull();
+    expect(container.querySelector('[data-card-access]')).toBeNull();
+    expect(container.querySelector('h3')).toBeNull();
+    expect(container.querySelector('ul')).toBeNull();
+    expect(container.querySelector('[data-card-name]')).not.toBeNull();
+    expect(container.querySelector('[data-card-maximize]')).not.toBeNull();
+  });
+
   test('4.11.4：内容を出す県には「準備中」の文を出さない', () => {
     // Arrange・Act
     const container = renderCard('ja', hokkaido);

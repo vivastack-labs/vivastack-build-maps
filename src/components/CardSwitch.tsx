@@ -2,19 +2,9 @@
 
 import { useEffect, useLayoutEffect, useRef, type MouseEvent, type ReactNode } from 'react';
 import { applyCardState } from '@/features/map/mapDom';
-import { PREF_CODE_PATTERN } from '@/features/map/projection';
+import { prefFromAttribute } from '@/features/map/pointer';
 import { cardPref } from '@/features/map/state';
 import { useMapState } from './MapStateProvider';
-
-/**
- * クリックされた要素が最大化ボタン（`[data-card-maximize]`）の中なら、その県コードを返す。
- * 属性は外部から書き換えられうるので、県コードの形でなければ `null`（境界で確かめる）。
- */
-function maximizeTarget(target: EventTarget): string | null {
-  if (!(target instanceof Element)) return null;
-  const code = target.closest('[data-card-maximize]')?.getAttribute('data-card-maximize') ?? null;
-  return code !== null && PREF_CODE_PATTERN.test(code) ? code : null;
-}
 
 /**
  * カードの中身を包み、表示する県のカード（`[data-card-pref]`）だけ `hidden` を外す（F-CARD-01・07、4.11.1）。
@@ -41,7 +31,7 @@ export function CardSwitch({ children }: { readonly children: ReactNode }) {
   }, [pref, maximized]);
 
   const onClick = (event: MouseEvent<HTMLDivElement>): void => {
-    const code = maximizeTarget(event.target);
+    const code = prefFromAttribute(event.target, 'data-card-maximize');
     if (code !== null) dispatch({ type: 'doubleClick', pref: code });
   };
 

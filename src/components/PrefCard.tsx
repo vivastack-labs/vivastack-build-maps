@@ -132,8 +132,9 @@ export function PrefCard({ lang, prefecture, distanceKm }: Props) {
       ) : (
         <>
           {access !== undefined && <AccessSection lang={lang} access={access} labels={labels} />}
-          <ItemSection lang={lang} kind="specialties" items={specialties} labels={labels} />
-          <ItemSection lang={lang} kind="spots" items={spots} labels={labels} />
+          {/* プレビューでは、未作成の県（名物・名所が空）も「準備中」にならない。空の見出しと一覧は出さない */}
+          {specialties.length > 0 && <ItemSection lang={lang} kind="specialties" items={specialties} labels={labels} />}
+          {spots.length > 0 && <ItemSection lang={lang} kind="spots" items={spots} labels={labels} />}
         </>
       )}
       <button type="button" data-card-maximize={code} hidden className="mt-3 rounded border border-slate-400 px-3 py-1">

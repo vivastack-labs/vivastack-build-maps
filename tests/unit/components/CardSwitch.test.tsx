@@ -11,7 +11,7 @@ function StateProbe() {
 }
 
 /** サーバーの出力と同じく、最大化ボタンは hidden で始める */
-function Fixture({ bareCode }: { readonly bareCode?: string }) {
+function Fixture({ badCode = 'xx' }: { readonly badCode?: string }) {
   return (
     <MapStateProvider>
       <CardSwitch>
@@ -33,7 +33,7 @@ function Fixture({ bareCode }: { readonly bareCode?: string }) {
             </span>
           </button>
         </article>
-        <button type="button" data-testid="maximize-bad" data-card-maximize={bareCode ?? 'xx'}>
+        <button type="button" data-testid="maximize-bad" data-card-maximize={badCode}>
           <span data-testid="bad-inner">不正</span>
         </button>
         <button type="button" data-testid="plain">
@@ -86,9 +86,9 @@ describe('CardSwitch', () => {
     expect(state()).toBe('pinned=01 maximized=01');
   });
 
-  test('F-CARD-08：県コードの形でない data-card-maximize は無視する', () => {
+  test.each(['xx', '99', '1', '00', ''])('F-CARD-08：県コードの形でない data-card-maximize（"%s"）は無視する', badCode => {
     // Arrange
-    render(<Fixture />);
+    render(<Fixture badCode={badCode} />);
 
     // Act
     fireEvent.click(screen.getByTestId('maximize-bad'));
