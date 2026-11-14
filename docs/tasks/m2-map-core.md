@@ -323,7 +323,8 @@ T2-01・T2-02 は M1 と並行して進められる。
 
 - `src/components/PrefIndex.tsx`：8地方ごとに県名を並べる。サーバーで出力する。T2-03 の `IndexArea`（見出し `index.heading` だけ）の中に入れる。
 - 各県名は `<a href="#pref-NN">` として出力する（JavaScriptがないときはリンクとして動く。6.6 (2)）。JavaScriptがあるときは、地図と同じ操作（ホバー・クリック・ダブルクリック）を `mapReducer` に渡す。固定中の県は `aria-pressed` などで分かるようにする。
-- T2-05 の部品を使う：状態は `useMapState()` の `dispatch` に渡す。DOM のイベントから `MapEvent` への変換は `src/features/map/pointer.ts` の `toMapEvent`・`prefFromTarget`（項目に `data-pref` を付ける）、属性の書き換えは `src/features/map/mapDom.ts` の `applyPrefState`（`aria-pressed`・`data-state`）を使う。さくいんの項目はサーバーで `aria-pressed="false"` を付けて出力する。E2E は `tests/e2e/interaction.spec.ts` の `PrefLocator`（県の要素を引く関数）にさくいんの項目を引く関数を足し、末尾の呼び出しの配列に1行足す。
+- T2-05 の部品を使う：状態は `useMapState()` の `dispatch` に渡す。DOM のイベントから `MapEvent` への変換は `src/features/map/pointer.ts` の `toMapEvent`・`prefFromTarget`（項目に `data-pref` を付ける）、属性の書き換えは `src/features/map/mapDom.ts` の `applyPrefState`（`aria-pressed`・`data-state`）を使う。さくいんの項目はサーバーで `aria-pressed="false"` を付けて出力する。E2E は `tests/e2e/interaction.spec.ts` の `PrefLocator` を `PrefTarget`（`locate`：県の要素を引く関数、`clickMaximized`・`dblclickMaximized`：最大化中の県の押し方。地図は座標で押し、さくいんは `locator` で押す）に変え、末尾の配列に「さくいん」を足す。
+- さくいんのキーボード操作も入れる（4.11.2 の表はさくいんにも当てる）：Enter・Space＝クリック、Shift + Enter＝ダブルクリック、キーボードのフォーカス（`:focus-visible`）＝ホバー。規則は純粋関数 `src/features/map/keyboard.ts` の `keyToMapEvent`（T2-11 の地図でも使う）。Esc は T2-11 で扱う。
 
 ### 完了条件
 
@@ -351,6 +352,9 @@ T2-01・T2-02 は M1 と並行して進められる。
 - 地図全体をTabの停止位置1つにする（roving tabindex）。地図に入ったときは、固定中の県に、なければ北海道にフォーカスする。
 - ←↑ で前の県、→↓ で次の県（県コード順）、Home で北海道、End で沖縄県。
 - フォーカス＝ホバー、Enter・Space＝クリック、Shift + Enter＝ダブルクリックとして `mapReducer` に渡す。
+  - Enter・Space＝クリック、Shift + Enter＝ダブルクリックの規則は、T2-10 の `src/features/map/keyboard.ts` の `keyToMapEvent({ key, shiftKey, pref })`（純粋関数）にある。これを使い、キーの規則を作り直さない。県名さくいんの結線は `PrefIndexInteraction`（`src/components/`）が参考になる（`keydown` で `preventDefault` してから `dispatch` に渡す。Ctrl・Meta・Alt つきとキーの繰り返しは無視する）。
+  - Esc（4.11.2 の表はさくいんにも当てる）をさくいんでも扱うかは、T2-11 で決める（T2-10 では入れていない）。
+  - `MapInteraction` と `PrefIndexInteraction` は結線（`send`・`lastPointerType`・`data-*-ready`・`applyPrefState` の effect）がほぼ同じ。T2-11 で3つ目を作る前に、共通のフックにまとめるかを決める。
   - T2-05 の `useMapState()` の `dispatch` に `MapEvent`（`hover`・`click`・`doubleClick`）を渡す。キーボードの操作は DOM の `click` を経由せず、`dispatch` に直接渡す（`MapInteraction` の `click` は直前の `pointerdown` の種類を前提にしているため）。E2E は `[data-map-ready]` を待ってからキーを押す。
 - 地図にフォーカスがあるとき、`+` `-` `0` で拡大・縮小・全体表示、Esc で解除。
   - Esc でツールチップも隠す（WCAG 1.4.13。ツールチップは地図の一部を覆うため）。T2-09 の `Tooltip` は `hit` を捨てると隠れる（次にマウスが動くまで）ので、Esc でも同じように捨てる。
