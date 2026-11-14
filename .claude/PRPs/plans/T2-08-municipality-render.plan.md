@@ -126,4 +126,9 @@
 
 ## 承認後に変えたこと
 
-（実装の後に書く）
+- `@types/polylabel`（devDependency）を足した（polylabel 2.1.0 は型を同梱しないため）。
+- 地図の文言の `muni.listTitle` は足さず、辞書にすでにある `muni.listSummary` を使った。
+- パスの座標は、`pathContext.ts` の相対の 0.1 単位（約190m）ではなく、`geoPath` の小数2桁（約19m）にした。最大の倍率（約40倍）で、100m の簡略化の形が角ばって見えないため。
+- ラベルの文字の大きさ `LABEL_FONT_SIZE` は 11（県名ラベルは 16）。
+- 既存の E2E：`zoom.spec.ts` の「県名ラベルの画面の上の高さ」は、最大化した県のラベルを隠すようにしたので、隣の山梨県のラベルで確かめる。
+- テストの共通の部品：`tests/unit/features/map/muni-fixtures.ts`（格子の TopoJSON）、`tests/unit/components/muni-test-helpers.tsx`。`MuniStatus.test.tsx` は、変換できない `{}` ではなく格子の TopoJSON を渡す。
