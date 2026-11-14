@@ -32,3 +32,15 @@ export const REGION_SWATCH_CLASS: Readonly<Record<Region, string>> = {
   shikoku: 'bg-region-shikoku',
   kyushu: 'bg-region-kyushu'
 };
+
+/**
+ * 市区町村の塗りのクラス（濃淡の段階 0〜4。T2-08、F-MUNI-01）。マウスをのせたときの塗りも含む。
+ * 色は app/globals.css の `--color-muni-*`
+ */
+export const MUNI_SHADE_CLASS: readonly string[] = [
+  'fill-muni-0 hover:fill-muni-hover',
+  'fill-muni-1 hover:fill-muni-hover',
+  'fill-muni-2 hover:fill-muni-hover',
+  'fill-muni-3 hover:fill-muni-hover',
+  'fill-muni-4 hover:fill-muni-hover'
+];

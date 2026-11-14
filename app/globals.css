@@ -9,8 +9,18 @@
 }
 
 /* <html lang> は ja・en・zh-Hans。:lang(zh) は zh-Hans にも一致する */
+/* 日本語のフォントの並び。ja のページの --font-sans と、ja 以外のページの中の lang="ja" の要素（T2-08、F-I18N-05）で使う */
+:root {
+  --font-ja: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', Meiryo, 'Noto Sans JP', sans-serif;
+}
+
 :root:lang(ja) {
-  --font-sans: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', Meiryo, 'Noto Sans JP', sans-serif;
+  --font-sans: var(--font-ja);
+}
+
+/* --font-sans は <html> でしか切り替わらないので、中国語のページの市区町村名（lang="ja"）は、要素ごとに日本語の字形のフォントを宣言する */
+:root:not(:lang(ja)) [lang='ja'] {
+  font-family: var(--font-ja);
 }
 
 :root:lang(zh) {
@@ -36,6 +46,15 @@
   --color-map-frame: #64748b;
   /* T2-05：固定中・最大化中の県の塗り。8地方の寒色〜中間色と見分けがつく暖色（色の値は仮。T4 で見直す） */
   --color-map-selected: #fbbf24;
+  /* T2-08：最大化した県の市区町村。隣り合う市区町村が見分けられる暖色の5段階（色の値は仮。T4 で見直す）。
+     ラベルの色（--color-map-label）と 4.5:1 以上になる淡い色 */
+  --color-muni-0: #fef3c7;
+  --color-muni-1: #fed7aa;
+  --color-muni-2: #fde68a;
+  --color-muni-3: #fecaca;
+  --color-muni-4: #ffedd5;
+  --color-muni-hover: #fb923c;
+  --color-muni-border: #a8a29e;
   --color-page-bg: #ffffff;
   --color-page-text: #0f172a;
 
@@ -60,6 +79,13 @@
     --color-map-border: #94a3b8;
     --color-map-frame: #94a3b8;
     --color-map-selected: #d97706;
+    --color-muni-0: #78350f;
+    --color-muni-1: #9a3412;
+    --color-muni-2: #92400e;
+    --color-muni-3: #7f1d1d;
+    --color-muni-4: #7c2d12;
+    --color-muni-hover: #c2410c;
+    --color-muni-border: #d6d3d1;
     --color-page-bg: #0f172a;
     --color-page-text: #f8fafc;
   }

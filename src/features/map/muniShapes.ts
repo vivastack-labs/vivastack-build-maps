@@ -88,7 +88,10 @@ function labelAnchor(polygons: readonly ProjectedPolygon[]): LabelAnchor {
   const [outer] = largest.rings as [readonly [number, number][]];
   const xs = outer.map(([x]) => x);
   const ys = outer.map(([, y]) => y);
-  const [x, y] = polylabel(largest.rings.map(ring => ring.map(point => [...point])), LABEL_PRECISION);
+  const [x, y] = polylabel(
+    largest.rings.map(ring => ring.map(point => [...point])),
+    LABEL_PRECISION
+  );
   return { x, y, width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys), area: largest.area };
 }
 
@@ -123,7 +126,13 @@ function computeShapes(data: MuniTopology, projection: GeoProjection): MuniShape
     return { code: item.properties.code, properties: item.properties, d: pathOf(projection, item), shade: shades[i] ?? 0, label: labelAnchor(polygons) };
   });
   const sorted = [...shapes].sort((a, b) => (a.code < b.code ? -1 : a.code > b.code ? 1 : 0));
-  return { shapes: sorted, outline: pathOf(projection, mesh(data, collection, (a, b) => a === b)) };
+  return {
+    shapes: sorted,
+    outline: pathOf(
+      projection,
+      mesh(data, collection, (a, b) => a === b)
+    )
+  };
 }
 
 /**

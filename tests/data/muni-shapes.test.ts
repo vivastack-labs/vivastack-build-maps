@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, test } from 'vitest';
-import { feature, neighbors } from 'topojson-client';
-import { validateMuniTopology, type MuniTopology } from '@/features/map/muniLoader';
+import { neighbors } from 'topojson-client';
+import { validateMuniTopology, type MuniProperties, type MuniTopology } from '@/features/map/muniLoader';
 import { muniShapes } from '@/features/map/muniShapes';
 import { OKINAWA_FRAME } from '@/features/map/projection';
 
@@ -29,10 +29,10 @@ describe('muniShapes（コミットされたデータ）', () => {
     expect(shapes.every(shape => shape.d.startsWith('M') && Number.isFinite(shape.label.x) && Number.isFinite(shape.label.y) && shape.label.area > 0)).toBe(true);
     expect(result?.outline.startsWith('M')).toBe(true);
     const shadeByCode = new Map(shapes.map(shape => [shape.code, shape.shade]));
-    const geometries = data.objects.municipalities.geometries;
-    neighbors(geometries).forEach((adjacent, i) => {
+    const codes = data.objects.municipalities.geometries.map(geometry => (geometry.properties as MuniProperties).code);
+    neighbors(data.objects.municipalities.geometries).forEach((adjacent, i) => {
       for (const j of adjacent) {
-        expect(shadeByCode.get(geometries[i]?.properties?.code ?? ''), `${geometries[i]?.properties?.code} と ${geometries[j]?.properties?.code}`).not.toBe(shadeByCode.get(geometries[j]?.properties?.code ?? ''));
+        expect(shadeByCode.get(codes[i] as string), `${codes[i]} と ${codes[j]}`).not.toBe(shadeByCode.get(codes[j] as string));
       }
     });
   });
@@ -60,15 +60,38 @@ describe('muniShapes（コミットされたデータ）', () => {
 
 describe('政令指定都市', () => {
   // 20市：北海道（札幌）〜 熊本県。市のコード（xx100・xx130 など）は区に分かれていて、データにない
-  const DESIGNATED_CITIES = ['01100', '04100', '11100', '12100', '14100', '14130', '14150', '15100', '22100', '22130', '23100', '26100', '27100', '27140', '28100', '33100', '34100', '40100', '40130', '43100'];
+  const DESIGNATED_CITIES = [
+    '01100',
+    '04100',
+    '11100',
+    '12100',
+    '14100',
+    '14130',
+    '14150',
+    '15100',
+    '22100',
+    '22130',
+    '23100',
+    '26100',
+    '27100',
+    '27140',
+    '28100',
+    '33100',
+    '34100',
+    '40100',
+    '40130',
+    '43100'
+  ];
 
   test('F-MUNI-01、D16：政令指定都市は区に分かれている', () => {
-    const codesByPref = new Map(CODES.map(code => [code, feature(load(code), load(code).objects.municipalities).features.map(item => String(item.properties?.code))]));
-
     for (const city of DESIGNATED_CITIES) {
-      const codes = codesByPref.get(city.slice(0, 2)) ?? [];
+      const data = load(city.slice(0, 2));
+      const codes = data.objects.municipalities.geometries.map(geometry => (geometry.properties as MuniProperties).code);
       expect(codes, `${city} は区に分かれている`).not.toContain(city);
-      expect(codes.some(code => code.startsWith(city.slice(0, 4))), `${city} の区がある`).toBe(true);
+      expect(
+        codes.some(code => code.startsWith(city.slice(0, 4))),
+        `${city} の区がある`
+      ).toBe(true);
     }
     expect(DESIGNATED_CITIES).toHaveLength(20);
   });

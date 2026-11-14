@@ -82,6 +82,18 @@ describe('prefFromTarget', () => {
     expect(prefFromTarget(document.querySelector('[data-pref]'))).toBe('13');
   });
 
+  test('F-MUNI-04: 市区町村の形（[data-muni-pref] の中）からも県コードを引く', () => {
+    document.body.innerHTML = '<svg><g data-muni-pref="20"><path id="muni" data-muni="20201"></path></g></svg>';
+
+    expect(prefFromTarget(document.getElementById('muni'))).toBe('20');
+  });
+
+  test('F-MUNI-04: 県コードの形でない data-muni-pref は null', () => {
+    document.body.innerHTML = '<svg><g data-muni-pref="99"><path id="muni"></path></g></svg>';
+
+    expect(prefFromTarget(document.getElementById('muni'))).toBeNull();
+  });
+
   test('県コードの形でない値は null', () => {
     document.body.innerHTML = '<svg><path id="a" data-pref="48"></path><path id="b" data-pref="1"></path><path id="c" data-pref="x"></path></svg>';
 

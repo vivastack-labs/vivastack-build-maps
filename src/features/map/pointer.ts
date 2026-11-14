@@ -19,12 +19,13 @@ export type PointerInput = {
 const TOUCH_POINTER_TYPE = 'touch';
 
 /**
- * イベントの対象から、県コードを引く。`data-pref` を持つ祖先（自分を含む）の値が県コードの形のときだけ返す。
- * 属性は外部から書き換えられうるので、境界で確かめる。
+ * イベントの対象から、県コードを引く。`data-pref`（県の形）か `data-muni-pref`（最大化した県の市区町村の層。T2-08）を持つ
+ * 祖先（自分を含む）の値が県コードの形のときだけ返す。属性は外部から書き換えられうるので、境界で確かめる。
  */
 export function prefFromTarget(target: EventTarget | null): PrefCode | null {
   if (typeof Element === 'undefined' || !(target instanceof Element)) return null;
-  const code = target.closest('[data-pref]')?.getAttribute('data-pref') ?? null;
+  const owner = target.closest('[data-pref], [data-muni-pref]');
+  const code = owner?.getAttribute('data-pref') ?? owner?.getAttribute('data-muni-pref') ?? null;
   return code !== null && PREF_CODE_PATTERN.test(code) ? code : null;
 }
 

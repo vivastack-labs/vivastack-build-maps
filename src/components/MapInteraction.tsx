@@ -38,7 +38,7 @@ export function MapInteraction({ children }: { readonly children: ReactNode }) {
   return (
     <div
       ref={ref}
-      className="size-full"
+      className="group/map size-full"
       onPointerDown={event => {
         lastPointerType.current = event.pointerType;
       }}

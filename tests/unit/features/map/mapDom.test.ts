@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, test } from 'vitest';
-import { applyCardState, applyPrefState } from '@/features/map/mapDom';
+import { applyCardState, applyLabelVisibility, applyPrefState } from '@/features/map/mapDom';
 import { INITIAL_MAP_STATE, type MapState } from '@/features/map/state';
 
 const MAP_HTML = `
@@ -8,6 +8,8 @@ const MAP_HTML = `
     <path data-pref="01" aria-pressed="false"></path>
     <path data-pref="13" aria-pressed="false"></path>
     <path data-pref="47" aria-pressed="false"></path>
+    <text data-pref-label="01">北海道</text>
+    <text data-pref-label="13">東京</text>
   </svg>`;
 
 const CARD_HTML = `
@@ -46,6 +48,26 @@ describe('applyPrefState', () => {
 
     expect(pref('13').getAttribute('data-state')).toBe('maximized');
     expect(pref('13').getAttribute('aria-pressed')).toBe('true');
+  });
+
+  test('F-MUNI-04: 最大化中は根の要素に data-map-maximized を書き、解除で消す', () => {
+    applyPrefState(document.body, { ...INITIAL_MAP_STATE, pinned: '13', maximized: '13' });
+    expect(document.body.getAttribute('data-map-maximized')).toBe('13');
+
+    applyPrefState(document.body, { ...INITIAL_MAP_STATE, pinned: '13' });
+
+    expect(document.body.hasAttribute('data-map-maximized')).toBe(false);
+  });
+
+  test('最大化した県の県名ラベルに data-state を書く', () => {
+    applyPrefState(document.body, { ...INITIAL_MAP_STATE, pinned: '13', maximized: '13' });
+
+    expect(document.querySelector('[data-pref-label="13"]')?.getAttribute('data-state')).toBe('maximized');
+    expect(document.querySelector('[data-pref-label="01"]')?.hasAttribute('data-state')).toBe(false);
+
+    applyPrefState(document.body, INITIAL_MAP_STATE);
+
+    expect(document.querySelector('[data-pref-label="13"]')?.hasAttribute('data-state')).toBe(false);
   });
 
   test('固定を解除すると aria-pressed が false に戻り、data-state がなくなる', () => {
@@ -111,5 +133,39 @@ describe('applyCardState', () => {
 
     expect(card('13').hidden).toBe(true);
     expect(card('01').hidden).toBe(false);
+  });
+});
+
+describe('applyLabelVisibility', () => {
+  const label = (code: string): Element => document.querySelector(`[data-muni-label="${code}"]`) as Element;
+
+  beforeEach(() => {
+    document.body.innerHTML = `
+      <svg>
+        <text data-muni-label="a" data-min-scale="1"></text>
+        <text data-muni-label="b" data-min-scale="4.5"></text>
+        <text data-muni-label="c" data-min-scale="x"></text>
+      </svg>`;
+  });
+
+  test('F-MUNI-02: 倍率が出はじめる倍率に届かないラベルは visibility="hidden" にする', () => {
+    applyLabelVisibility(document.body, 2);
+
+    expect(label('a').hasAttribute('visibility')).toBe(false);
+    expect(label('b').getAttribute('visibility')).toBe('hidden');
+  });
+
+  test('F-MUNI-02: 倍率を上げると、隠れていたラベルが出る（出はじめる倍率ちょうどで出る）', () => {
+    applyLabelVisibility(document.body, 2);
+
+    applyLabelVisibility(document.body, 4.5);
+
+    expect(label('b').hasAttribute('visibility')).toBe(false);
+  });
+
+  test('出はじめる倍率が数でないラベルは隠す', () => {
+    applyLabelVisibility(document.body, 100);
+
+    expect(label('c').getAttribute('visibility')).toBe('hidden');
   });
 });

@@ -5,6 +5,7 @@ import { MapStateProvider, useMapState } from '@/components/MapStateProvider';
 import { MuniStatus } from '@/components/MuniStatus';
 import type { MuniLoader, MuniLoadStatus as LoadStatus } from '@/features/map/muniLoader';
 import { getMessages } from '@/i18n/messages';
+import { gridTopology } from '../features/map/muni-fixtures';
 
 const labels = getMessages('ja').muni;
 
@@ -54,6 +55,18 @@ const live = () => screen.getByRole('status');
 const failed: LoadStatus = { kind: 'failed', reason: 'http' };
 
 describe('MuniStatus', () => {
+  test('T2-07：変換に失敗したら failed（invalid）になり、失敗の文言と「再試行」を出す', () => {
+    const { calls, loader } = fakeLoader();
+    const { root } = renderStatus(loader);
+    press('maximize-20');
+
+    act(() => calls[0]?.notify({ kind: 'loaded', data: { ...gridTopology('20'), arcs: [] } }));
+
+    expect(root().getAttribute('data-muni-status')).toBe('failed');
+    expect(live().textContent).not.toBe('');
+    expect(root().querySelector('[data-muni-retry]')).not.toBeNull();
+  });
+
   test('F-MUNI-05: 最大化していなければ読み込まない。live 領域は最初から DOM にあり、空である', () => {
     const { load, loader } = fakeLoader();
 
@@ -144,7 +157,7 @@ describe('MuniStatus', () => {
     expect(load).toHaveBeenCalledTimes(3);
 
     // 成功したらボタンは消える
-    act(() => calls[2]?.notify({ kind: 'loaded', data: {} as never }));
+    act(() => calls[2]?.notify({ kind: 'loaded', data: gridTopology('20') }));
     expect(root().querySelector('[data-muni-retry]')).toBeNull();
     expect(root().getAttribute('data-muni-status')).toBe('loaded');
   });
@@ -209,7 +222,7 @@ describe('MuniStatus', () => {
     press('maximize-20');
     act(() => calls[0]?.notify({ kind: 'slow' }));
 
-    act(() => calls[0]?.notify({ kind: 'loaded', data: {} as never }));
+    act(() => calls[0]?.notify({ kind: 'loaded', data: gridTopology('20') }));
 
     expect(root().getAttribute('data-muni-status')).toBe('loaded');
     expect(live().textContent).toBe('');

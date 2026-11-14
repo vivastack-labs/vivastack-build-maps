@@ -1,41 +1,17 @@
 import { describe, expect, test } from 'vitest';
 import type { MuniTopology } from '@/features/map/muniLoader';
 import { muniShapes } from '@/features/map/muniShapes';
+import { gridTopology, props } from './muni-fixtures';
 import { OKINAWA_FRAME, projectPoint } from '@/features/map/projection';
 
-type Props = MuniTopology['objects']['municipalities']['geometries'][number]['properties'];
-
-const props = (code: string): Props => ({ code, name: { ja: `市${code}`, en: `City ${code}` }, kana: 'し' });
-
-/**
- * 経緯度 (139, 35) を左下にした 2×2 の格子（北西・北東・南西・南東）。隣り合う市区町村は弧を共有する。
- * 外周は時計回り（d3-geo の向き）。コードは配列の順とは逆（13104 から始める）にして、並べ替えを確かめる。
- */
-function gridTopology(): MuniTopology {
-  const [A, B, C, D, E, F, G, H, I] = [
-    [139, 35], [139.02, 35], [139.04, 35],
-    [139, 35.02], [139.02, 35.02], [139.04, 35.02],
-    [139, 35.04], [139.02, 35.04], [139.04, 35.04]
-  ] as const;
-  return {
-    type: 'Topology',
-    arcs: [[B, E], [D, E], [E, F], [E, H], [A, B], [D, A], [B, C], [C, F], [F, I], [I, H], [H, G], [G, D]].map(arc => arc.map(point => [...point])),
-    objects: {
-      municipalities: {
-        type: 'GeometryCollection',
-        geometries: [
-          { type: 'Polygon', arcs: [[3, -10, -9, -3]], properties: props('13104') },
-          { type: 'Polygon', arcs: [[-12, -11, -4, -2]], properties: props('13103') },
-          { type: 'Polygon', arcs: [[0, 2, -8, -7]], properties: props('13102') },
-          { type: 'Polygon', arcs: [[-6, 1, -1, -5]], properties: props('13101') }
-        ]
-      }
-    }
-  } as unknown as MuniTopology;
-}
-
 /** 長方形1つ（時計回り）を1つのポリゴンにする。座標は経緯度 */
-const ring = (x0: number, y0: number, x1: number, y1: number): number[][] => [[x0, y0], [x0, y1], [x1, y1], [x1, y0], [x0, y0]];
+const ring = (x0: number, y0: number, x1: number, y1: number): number[][] => [
+  [x0, y0],
+  [x0, y1],
+  [x1, y1],
+  [x1, y0],
+  [x0, y0]
+];
 
 /** 大きな本島（0.2°角）と、離れた小さな島（0.01°角）を持つ MultiPolygon 1つ */
 function islandTopology(lon: number, lat: number): MuniTopology {
@@ -59,7 +35,12 @@ describe('muniShapes', () => {
     const shade = new Map(muniShapes(gridTopology(), '13')?.shapes.map(shape => [shape.code, shape.shade]));
 
     // 弧を共有する組（対角は接しない）
-    for (const [a, b] of [['13101', '13102'], ['13101', '13103'], ['13102', '13104'], ['13103', '13104']] as const) {
+    for (const [a, b] of [
+      ['13101', '13102'],
+      ['13101', '13103'],
+      ['13102', '13104'],
+      ['13103', '13104']
+    ] as const) {
       expect(shade.get(a)).not.toBe(shade.get(b));
     }
     expect([...shade.values()].every(value => value >= 0 && value <= 4)).toBe(true);

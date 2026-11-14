@@ -71,7 +71,11 @@ describe('selectLabels', () => {
     const labels = selectLabels([left, right], 'ja');
 
     expect(visibleLabels(labels, 1).map(label => label.code)).toEqual(['left']);
-    expect(visibleLabels(labels, 8).map(label => label.code).sort()).toEqual(['left', 'right']);
+    expect(
+      visibleLabels(labels, 8)
+        .map(label => label.code)
+        .sort()
+    ).toEqual(['left', 'right']);
   });
 
   test('F-MUNI-02: 倍率を上げると、小さい市区町村のラベルが出る', () => {
