@@ -99,7 +99,9 @@ test.describe('PC のマウス操作', () => {
     await zoomButton(page, 'in').click();
     const before = await transformOf(page);
 
-    // 県（長野県）の上から左上へドラッグする。県の上でも、ドラッグの後の click は県に届かない
+    // 県（長野県）の上から左上へドラッグする。県の上でも、ドラッグの後の click は県に届かない。
+    // 「＋」を押すと Playwright がボタンの位置までページをスクロールし、県が画面の外に出ることがある（さくいんでページが長くなった。T2-10）
+    await page.locator(`path[data-pref="${NAGANO}"]`).scrollIntoViewIfNeeded();
     const { x, y } = await centerOf(page, `path[data-pref="${NAGANO}"]`);
     await page.mouse.move(x, y);
     await page.mouse.down();
