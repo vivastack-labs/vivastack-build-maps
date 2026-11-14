@@ -83,6 +83,7 @@
 - カードの中身（4.11.7 の順）：見出し（地方名・県名・県庁所在地）、東京からの距離、行き方（交通手段・経路・所要時間。「目安」と書く）、名物3つ（絵文字・名前・解説）、名所3つ、最大化ボタン（「大きくして市区町村を見る」／「元の大きさにもどす」）、市区町村の一覧（T2-08）。解説文は `ModeText` でこども向け・おとな向けの両方を出す。
 - 「準備中」の県のカード：県名、県庁所在地、距離と「名物・名所は準備中です」（4.11.4）。
 - プレビューでは、「下書き」の項目に印を表示する。
+- T3-01 で、仮のカード（`CardArea` の `<div data-card-pref hidden>`）に距離の行（`<p data-card-distance>`。`distanceText(lang, distances.get(code))`。`distances` は `page.tsx` が `distancesFromTokyo()` で1回だけ求める）を足してある。`PrefCard` の「東京からの距離」には、この行をそのまま移す（`data-card-distance` と、`CardArea` の `distances` の props、`CardArea.test.tsx` の距離のテストも合わせる）。
 - T2-05 の仮の表示を置き換え、表示する県のカードの `hidden` を外す。
   - 切り替えの仕組みは T2-05 の `CardSwitch`（`'use client'`）と `applyCardState`（`src/features/map/mapDom.ts`）をそのまま使う。`CardArea` の仮の `<p data-card-pref="NN" hidden>`（県名だけ）を、`PrefCard`（`data-card-pref="NN"` と `hidden` を付ける）に置き換える。案内文（`data-card-guide`）は残し、県がないときだけ見せる。`CardSwitch` の中に置けば、クライアントの変更は要らない。
   - Tailwind v4 の preflight は `[hidden]` を `display: none !important` にする（`node_modules/tailwindcss/preflight.css`）。JavaScript なしで `:target` のカードを見せるには、`[data-card-pref]:target { display: block !important }` のような `!important` 付きの規則が要る。

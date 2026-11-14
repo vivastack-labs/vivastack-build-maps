@@ -13,8 +13,7 @@ const GSI_TOKYO_OSAKA_KM = 395.91;
 const GSI_TOKYO_OKINAWA_KM = 1553.636;
 
 /** 距離テスト用の最小の県（distancesFromTokyo が読む項目だけ。形は Prefecture に合わせる） */
-const pref = (code: string, point: { lat: number; lon: number }): Prefecture =>
-  ({ code, capital: { lat: point.lat, lon: point.lon } }) as unknown as Prefecture;
+const pref = (code: string, point: { lat: number; lon: number }): Prefecture => ({ code, capital: { lat: point.lat, lon: point.lon } }) as unknown as Prefecture;
 
 describe('haversineKm', () => {
   test('F-CARD-03: 同じ点どうしは 0km', () => {
