@@ -65,7 +65,7 @@ function PendingPattern() {
     <defs>
       <pattern id={PENDING_PATTERN_ID} width={PENDING_HATCH_PITCH} height={PENDING_HATCH_PITCH} patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
         <rect width={PENDING_HATCH_PITCH} height={PENDING_HATCH_PITCH} className="fill-map-pending" />
-        <line x1={0} y1={0} x2={0} y2={PENDING_HATCH_PITCH} strokeWidth={PENDING_HATCH_STROKE} className="stroke-map-pending-stripe" />
+        <line x1={PENDING_HATCH_PITCH / 2} y1={0} x2={PENDING_HATCH_PITCH / 2} y2={PENDING_HATCH_PITCH} strokeWidth={PENDING_HATCH_STROKE} className="stroke-map-pending-stripe" />
       </pattern>
     </defs>
   );

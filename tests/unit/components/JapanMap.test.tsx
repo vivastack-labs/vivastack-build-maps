@@ -258,6 +258,10 @@ describe('JapanMap の「準備中」の県（T3-02、4.11.4）', () => {
     expect(patterns[0]?.getAttribute('patternUnits')).toBe('userSpaceOnUse');
     expect(patterns[0]?.querySelector('rect')?.getAttribute('class')).toContain('fill-map-pending');
     expect(patterns[0]?.querySelector('line')?.getAttribute('class')).toContain('stroke-map-pending-stripe');
+    // 斜線はタイルの中央（端だと太さの半分が切れる）
+    const width = Number(patterns[0]?.getAttribute('width'));
+    expect(Number(patterns[0]?.querySelector('line')?.getAttribute('x1'))).toBe(width / 2);
+    expect(Number(patterns[0]?.querySelector('line')?.getAttribute('x2'))).toBe(width / 2);
   });
 
   test('4.11.4: プレビュー（準備中の県がない）でも pattern は1つ、どの県も data-pending を持たない', () => {
