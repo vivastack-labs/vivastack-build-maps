@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { createMuniLoader, MUNI_BASE_PATH, SLOW_THRESHOLD_MS, validateMuniTopology, type MuniResponse, type MuniStatus } from '@/features/map/muniLoader';
+import { createMuniLoader, FETCH_TIMEOUT_MS, MUNI_BASE_PATH, SLOW_THRESHOLD_MS, validateMuniTopology, type MuniResponse, type MuniLoadStatus } from '@/features/map/muniLoader';
 
 const CODE = '20';
 
@@ -34,15 +34,18 @@ function deferred<T>() {
 
 /** 通知された状態の種類の並びを記録する onStatus */
 function recorder() {
-  const statuses: MuniStatus[] = [];
-  return { statuses, kinds: () => statuses.map(status => status.kind), onStatus: (status: MuniStatus) => void statuses.push(status) };
+  const statuses: MuniLoadStatus[] = [];
+  return { statuses, kinds: () => statuses.map(status => status.kind), onStatus: (status: MuniLoadStatus) => void statuses.push(status) };
 }
 
-function setup(fetchImpl: (url: string) => Promise<MuniResponse>, isOnline = true) {
+type FetchInit = { readonly signal: AbortSignal };
+
+function setup(fetchImpl: (url: string, init: FetchInit) => Promise<MuniResponse>, isOnline: boolean | (() => boolean) = true, fetchTimeoutMs?: number) {
   const fetch = vi.fn(fetchImpl);
   const loader = createMuniLoader({
     fetch,
-    isOnline: () => isOnline,
+    isOnline: typeof isOnline === 'function' ? isOnline : () => isOnline,
+    ...(fetchTimeoutMs === undefined ? {} : { fetchTimeoutMs }),
     setTimeout: (callback, ms) => globalThis.setTimeout(callback, ms),
     clearTimeout: handle => globalThis.clearTimeout(handle as ReturnType<typeof setTimeout>)
   });
@@ -224,17 +227,149 @@ describe('createMuniLoader', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  /** signal が中断されたら、AbortError で reject する（応答が来ないままの fetch） */
+  const hangUntilAborted = (_url: string, { signal }: FetchInit) =>
+    new Promise<MuniResponse>((_resolve, reject) => {
+      signal.addEventListener('abort', () => reject(new DOMException('The operation was aborted.', 'AbortError')));
+    });
+
+  test('M-3: 応答が15秒を超えたら打ち切り、失敗（network）になる', async () => {
+    const { loader } = setup(hangUntilAborted, true);
+    const { kinds, onStatus } = recorder();
+
+    const done = loader.load(CODE, onStatus);
+    await vi.advanceTimersByTimeAsync(FETCH_TIMEOUT_MS - 1);
+    expect(kinds()).toEqual(['loading', 'slow']);
+    await vi.advanceTimersByTimeAsync(1);
+
+    expect(await done).toEqual({ kind: 'failed', reason: 'network' });
+    expect(kinds()).toEqual(['loading', 'slow', 'failed']);
+    expect(FETCH_TIMEOUT_MS).toBe(15_000);
+  });
+
+  test('M-3: 打ち切りのとき、オフラインならオフラインの状態になる（4.11.5）', async () => {
+    const { loader } = setup(hangUntilAborted, false);
+
+    const done = loader.load(CODE, recorder().onStatus);
+    await vi.advanceTimersByTimeAsync(FETCH_TIMEOUT_MS);
+
+    expect(await done).toEqual({ kind: 'offline' });
+  });
+
+  test('M-3: 本文の読み込み中に15秒を超えても打ち切り、失敗（invalid ではなく network）になる', async () => {
+    const stalledBody = (_url: string, { signal }: FetchInit): Promise<MuniResponse> =>
+      Promise.resolve({
+        ok: true,
+        status: 200,
+        json: () =>
+          new Promise<unknown>((_resolve, reject) => {
+            signal.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')));
+          })
+      });
+    const { loader } = setup(stalledBody, true);
+
+    const done = loader.load(CODE, recorder().onStatus);
+    await vi.advanceTimersByTimeAsync(FETCH_TIMEOUT_MS);
+
+    expect(await done).toEqual({ kind: 'failed', reason: 'network' });
+  });
+
+  test('M-3: 上限は deps で変えられる', async () => {
+    const { loader } = setup(hangUntilAborted, true, 1000);
+
+    const done = loader.load(CODE, recorder().onStatus);
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(await done).toEqual({ kind: 'failed', reason: 'network' });
+  });
+
+  test('M-3: 時間内に終わったら中断しない（タイマーは止まる）', async () => {
+    let signal: AbortSignal | undefined;
+    const { loader } = setup((_url, init) => {
+      signal = init.signal;
+      return Promise.resolve(okResponse());
+    });
+
+    await loader.load(CODE, recorder().onStatus);
+    await vi.advanceTimersByTimeAsync(FETCH_TIMEOUT_MS * 2);
+
+    expect(signal?.aborted).toBe(false);
+  });
+
+  test('L-2: 読み込み中の Promise が reject しても残らず、次の load は fetch し直す', async () => {
+    let isOnlineCalls = 0;
+    const isOnline = () => {
+      isOnlineCalls += 1;
+      if (isOnlineCalls === 1) throw new Error('isOnline が例外');
+      return true;
+    };
+    const responses = [() => Promise.reject(new TypeError('Failed to fetch')), () => Promise.resolve(okResponse())];
+    const { fetch, loader } = setup(() => (responses.shift() as () => Promise<MuniResponse>)(), isOnline);
+
+    await expect(loader.load(CODE, recorder().onStatus)).rejects.toThrow('isOnline が例外');
+    const second = await loader.load(CODE, recorder().onStatus);
+
+    expect(second.kind).toBe('loaded');
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  test('L-5: 読み込み中の Promise を共有した2つ目の呼び出しにも、300ms後に slow が届く', async () => {
+    const response = deferred<MuniResponse>();
+    const { loader } = setup(() => response.promise);
+    const a = recorder();
+    const b = recorder();
+
+    const first = loader.load(CODE, a.onStatus);
+    await vi.advanceTimersByTimeAsync(100);
+    const second = loader.load(CODE, b.onStatus);
+    await vi.advanceTimersByTimeAsync(SLOW_THRESHOLD_MS - 100);
+    expect(a.kinds()).toEqual(['loading', 'slow']);
+    expect(b.kinds()).toEqual(['loading']);
+    await vi.advanceTimersByTimeAsync(100);
+    expect(b.kinds()).toEqual(['loading', 'slow']);
+    response.resolve(okResponse());
+    await Promise.all([first, second]);
+
+    expect(a.kinds()).toEqual(['loading', 'slow', 'loaded']);
+    expect(b.kinds()).toEqual(['loading', 'slow', 'loaded']);
+  });
+
   test('URL は /geo/muni/NN.topo.json', async () => {
     const { fetch, loader } = setup(() => Promise.resolve(okResponse()));
 
     await loader.load('01', recorder().onStatus);
 
     expect(MUNI_BASE_PATH).toBe('/geo/muni/');
-    expect(fetch).toHaveBeenCalledWith('/geo/muni/01.topo.json');
+    expect(fetch).toHaveBeenCalledWith('/geo/muni/01.topo.json', { signal: expect.any(AbortSignal) });
   });
 });
 
 describe('validateMuniTopology', () => {
+  const withProperties = (properties: unknown) => {
+    const topology = validTopology();
+    topology.objects.municipalities.geometries = [{ type: 'Polygon', arcs: [], properties } as never];
+    return topology;
+  };
+  const muni = { code: '20201', name: { ja: '長野市', en: 'Nagano-shi' }, kana: 'ながのし' };
+
+  test('L-1: geometries が空なら不正', () => {
+    const topology = validTopology();
+    topology.objects.municipalities.geometries = [];
+
+    expect(validateMuniTopology(topology, CODE)).toBeNull();
+  });
+
+  test.each(['2020a', '２０２０１', '20 01', '20.01'])('L-1: code が数字5桁でなければ不正：%s', code => {
+    expect(validateMuniTopology(withProperties({ ...muni, code }), CODE)).toBeNull();
+  });
+
+  test('L-1: cityName は文字列か、なくてもよい。文字列でなければ不正', () => {
+    expect(validateMuniTopology(withProperties({ ...muni, cityName: '長野市' }), CODE)).not.toBeNull();
+    expect(validateMuniTopology(withProperties({ ...muni, cityName: undefined }), CODE)).not.toBeNull();
+    expect(validateMuniTopology(withProperties({ ...muni, cityName: 1 }), CODE)).toBeNull();
+    expect(validateMuniTopology(withProperties({ ...muni, cityName: null }), CODE)).toBeNull();
+  });
+
   test('県コードで始まる5桁の code を持つ TopoJSON をそのまま返す', () => {
     const topology = validTopology();
 

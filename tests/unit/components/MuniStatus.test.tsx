@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from 'vitest';
 
 import { MapStateProvider, useMapState } from '@/components/MapStateProvider';
 import { MuniStatus } from '@/components/MuniStatus';
-import type { MuniLoader, MuniStatus as LoadStatus } from '@/features/map/muniLoader';
+import type { MuniLoader, MuniLoadStatus as LoadStatus } from '@/features/map/muniLoader';
 import { getMessages } from '@/i18n/messages';
 
 const labels = getMessages('ja').muni;
@@ -13,12 +13,14 @@ type Call = { readonly code: string; readonly notify: (status: LoadStatus) => vo
 /** 読み込みが終わらない読み込み部品。呼ばれた記録と、状態を通知する関数を残す */
 function fakeLoader() {
   const calls: Call[] = [];
+  // false にすると、load は何も通知しない（読み込みを始めた最初の描画の状態を見るため）
+  const behavior = { notifiesLoading: true };
   const load = vi.fn((code: string, onStatus: (status: LoadStatus) => void) => {
     calls.push({ code, notify: onStatus });
-    onStatus({ kind: 'loading' });
+    if (behavior.notifiesLoading) onStatus({ kind: 'loading' });
     return new Promise<never>(() => undefined);
   });
-  return { calls, load, loader: { load } as unknown as MuniLoader };
+  return { behavior, calls, load, loader: { load } as unknown as MuniLoader };
 }
 
 /** 最大化の状態を変える小さな部品 */
@@ -98,6 +100,7 @@ describe('MuniStatus', () => {
     expect(live().textContent).toContain('市区町村');
     const retry = root().querySelector('[data-muni-retry]') as HTMLButtonElement;
     expect(retry.getAttribute('type')).toBe('button');
+    expect(retry.hasAttribute('aria-disabled')).toBe(false);
     // ボタンは live 領域の外
     expect(live().contains(retry)).toBe(false);
 
@@ -105,10 +108,87 @@ describe('MuniStatus', () => {
 
     expect(load).toHaveBeenCalledTimes(2);
     expect(load.mock.calls[1]?.[0]).toBe('20');
-    // 読み込み直すと、失敗の表示は消える
+    // 読み込み直すと、失敗の文言は消える
     expect(root().getAttribute('data-muni-status')).toBe('loading');
     expect(live().textContent).toBe('');
+  });
+
+  test('M-2: 再試行の読み込み中は、ボタンを消さずに aria-disabled にし、クリックを無視する（フォーカスを保つ）', () => {
+    const { calls, load, loader } = fakeLoader();
+    const { root } = renderStatus(loader);
+    press('maximize-20');
+    act(() => calls[0]?.notify(failed));
+    const retry = root().querySelector('[data-muni-retry]') as HTMLButtonElement;
+    retry.focus();
+
+    fireEvent.click(retry);
+
+    // 同じボタンが残り、フォーカスも外れない。disabled は使わない
+    const kept = root().querySelector('[data-muni-retry]') as HTMLButtonElement;
+    expect(kept).toBe(retry);
+    expect(kept.getAttribute('aria-disabled')).toBe('true');
+    expect(kept.disabled).toBe(false);
+    expect(document.activeElement).toBe(retry);
+    fireEvent.click(kept);
+    expect(load).toHaveBeenCalledTimes(2);
+
+    // 300ms を超えても、ボタンは残る
+    act(() => calls[1]?.notify({ kind: 'slow' }));
+    expect(root().querySelector('[data-muni-retry]')?.getAttribute('aria-disabled')).toBe('true');
+    expect(live().textContent).toContain('読');
+
+    // もう一度失敗したら、ボタンはまた押せる
+    act(() => calls[1]?.notify(failed));
+    expect(root().querySelector('[data-muni-retry]')?.hasAttribute('aria-disabled')).toBe(false);
+    fireEvent.click(retry);
+    expect(load).toHaveBeenCalledTimes(3);
+
+    // 成功したらボタンは消える
+    act(() => calls[2]?.notify({ kind: 'loaded', data: {} as never }));
     expect(root().querySelector('[data-muni-retry]')).toBeNull();
+    expect(root().getAttribute('data-muni-status')).toBe('loaded');
+  });
+
+  test('M-2: 再試行でないふつうの読み込み中は、ボタンを出さない', () => {
+    const { calls, loader } = fakeLoader();
+    const { root } = renderStatus(loader);
+
+    press('maximize-20');
+    act(() => calls[0]?.notify({ kind: 'slow' }));
+
+    expect(root().querySelector('[data-muni-retry]')).toBeNull();
+  });
+
+  test('M-1: 失敗した県を解除して再び最大化したとき、最初の描画で前回の失敗を出さない', () => {
+    const { behavior, calls, loader } = fakeLoader();
+    const { root } = renderStatus(loader);
+    press('maximize-20');
+    act(() => calls[0]?.notify(failed));
+    press('maximize-20');
+    expect(root().hasAttribute('data-muni-status')).toBe(false);
+
+    // load が何も通知しなくても（最初の描画の状態を見る）、前回の失敗は残っていない
+    behavior.notifiesLoading = false;
+    press('maximize-20');
+
+    expect(calls).toHaveLength(2);
+    expect(root().hasAttribute('data-muni-status')).toBe(false);
+    expect(live().textContent).toBe('');
+    expect(root().querySelector('[data-muni-retry]')).toBeNull();
+  });
+
+  test('M-1: slow のまま解除して再び最大化したとき、前回の「読み込み中」を出さない', () => {
+    const { behavior, calls, loader } = fakeLoader();
+    const { root } = renderStatus(loader);
+    press('maximize-20');
+    act(() => calls[0]?.notify({ kind: 'slow' }));
+    press('maximize-20');
+
+    behavior.notifiesLoading = false;
+    press('maximize-20');
+
+    expect(root().hasAttribute('data-muni-status')).toBe(false);
+    expect(live().textContent).toBe('');
   });
 
   test('4.11.5: オフラインなら「オフラインのため表示できません」と「再試行」', () => {

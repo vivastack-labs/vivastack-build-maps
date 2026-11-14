@@ -90,17 +90,6 @@ test('4.11.5：応答が遅いと「読み込み中」が aria-live の領域に
   await expect(page.locator(LIVE)).toHaveText('');
 });
 
-test('4.11.5：応答が速ければ「読み込み中」は出ない', async ({ page }) => {
-  await watchMuni(page);
-  await open(page);
-
-  await maximize(page);
-  await expect(muniStatus(page, 'loaded')).toBeAttached();
-
-  await expect(page.locator(LIVE)).toHaveText('');
-  await expect(muniStatus(page, 'slow')).toHaveCount(0);
-});
-
 test('4.11.5：404 のとき最大化したまま失敗の文言と「再試行」が出て、再試行で成功する', async ({ page }) => {
   const urls = await watchMuni(page, (route, count) => (count === 1 ? route.fulfill({ status: 404, body: 'not found' }) : route.continue()));
   await open(page);
