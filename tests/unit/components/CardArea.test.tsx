@@ -5,6 +5,7 @@ import { CardArea } from '@/components/CardArea';
 import { MapStateProvider } from '@/components/MapStateProvider';
 import { LANGS } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
+import { FIXTURE_DIR } from '../lib/content-helpers';
 import { publishedPrefectures } from '../lib/published-helpers';
 import { distanceText } from '@/i18n/cardText';
 import { distancesFromTokyo, TOKYO_CODE } from '@/lib/distance';
@@ -31,6 +32,34 @@ describe('CardArea', () => {
         </MapStateProvider>
       )
     ).toThrow('東京からの距離がありません');
+  });
+
+  test('6.6 (2)：47県のカードは CardSwitch の中の article#pref-NN で、最大化ボタンが1枚に1つある（T3-03）', () => {
+    // Arrange・Act
+    const { container } = renderCard('ja');
+
+    // Assert
+    const root = container.querySelector('[data-card-switch]') as HTMLElement;
+    const cards = [...root.querySelectorAll<HTMLElement>('article[data-card-pref]')];
+    expect(cards).toHaveLength(47);
+    expect(cards.map(card => card.id)).toEqual(prefectures.map(({ code }) => `pref-${code}`));
+    expect(cards.every(card => card.querySelectorAll('[data-card-maximize]').length === 1)).toBe(true);
+    expect(root.querySelector('[data-card-guide]')).not.toBeNull();
+  });
+
+  test('T3-03：「準備中」の県（本番）は内容の代わりに準備中の文を出し、内容のある県は名物3つを出す', () => {
+    // Arrange・Act：本番の絞り込み。フィクスチャの北海道だけが内容を持つ
+    const production = publishedPrefectures(FIXTURE_DIR, 'production');
+    const { container } = render(
+      <MapStateProvider>
+        <CardArea lang="ja" prefectures={production} distances={distancesFromTokyo(production)} />
+      </MapStateProvider>
+    );
+
+    // Assert
+    expect(container.querySelectorAll('[data-card-coming-soon]')).toHaveLength(46);
+    expect(container.querySelectorAll('[data-card-pref="01"] [data-card-specialties] [data-card-item]')).toHaveLength(3);
+    expect(container.querySelector('[data-card-pref="01"] [data-card-coming-soon]')).toBeNull();
   });
 
   for (const lang of LANGS) {
