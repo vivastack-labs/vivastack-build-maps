@@ -56,7 +56,7 @@ export const zh: Messages = {
       kids: '再试一次',
       adult: '重试'
     },
-    listSummary: '市区町村列表'
+    listSummary: '市区町村列表（%n）'
   },
   index: {
     heading: '都道府县索引'

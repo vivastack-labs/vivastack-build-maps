@@ -29,25 +29,28 @@ describe('MuniList', () => {
     toggleMaximize();
 
     const details = container.querySelector('details[data-muni-list]');
-    expect(details?.querySelector('summary')?.textContent).toContain('4');
+    // 見出しの件数は、言語の括弧の中（ふりがなの <rt> の読みを含む本文の末尾）
+    expect(details?.querySelector('summary')?.textContent).toMatch(/（4）$/u);
     expect([...container.querySelectorAll('[data-muni-item]')].map(item => item.getAttribute('data-muni-item'))).toEqual(['20101', '20102', '20103', '20104']);
     expect(screen.getByText('市20101')).toBeInTheDocument();
   });
 
   test('F-I18N-05: 英語のページの一覧はローマ字', () => {
-    renderList('en');
+    const { container } = renderList('en');
 
     toggleMaximize();
 
+    expect(container.querySelector('summary')?.textContent).toBe('List of municipalities (4)');
     expect(screen.getByText('City 20101')).toBeInTheDocument();
     expect(screen.queryByText('市20101')).toBeNull();
   });
 
   test('F-I18N-05: 中国語のページの一覧は日本語の漢字表記で、lang="ja" が付く', () => {
-    renderList('zh');
+    const { container } = renderList('zh');
 
     toggleMaximize();
 
+    expect(container.querySelector('summary')?.textContent).toBe('市区町村列表（4）');
     expect(screen.getByText('市20101').getAttribute('lang')).toBe('ja');
   });
 

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, test } from 'vitest';
 
-import { formatNumber } from '@/i18n/format';
+import { fillCount, formatNumber } from '@/i18n/format';
 import { LANGS } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
 import { checkRuby, parseRuby } from '@/lib/ruby';
@@ -107,6 +107,16 @@ describe('UI文言の辞書', () => {
     // Act・Assert
     expect(regions).toHaveLength(8);
     expect(Object.keys(getMessages(lang).regions).sort()).toEqual([...regions].sort());
+  });
+
+  test.each(LANGS)('D28：市区町村の一覧の見出しは、件数を入れる位置（%n）を持つ（%s）', lang => {
+    expect(getMessages(lang).muni.listSummary).toContain('%n');
+  });
+
+  test('D28：fillCount は %n に、言語の書式の件数を入れる', () => {
+    expect(fillCount('en', 'List (%n)', 1234)).toBe('List (1,234)');
+    expect(fillCount('ja', '一覧（%n）', 77)).toBe('一覧（77）');
+    expect(fillCount('zh', '列表', 5)).toBe('列表');
   });
 
   test('D28：formatNumber は言語の書式で数を区切る', () => {

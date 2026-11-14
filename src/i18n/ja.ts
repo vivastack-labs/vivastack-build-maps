@@ -72,7 +72,7 @@ const jaSource = {
       kids: 'もう{一度|いちど}',
       adult: '{再試行|さいしこう}'
     } satisfies ModeTextValue,
-    listSummary: '{市区町村|しくちょうそん}の{一覧|いちらん}'
+    listSummary: '{市区町村|しくちょうそん}の{一覧|いちらん}（%n）'
   },
   index: {
     heading: '{県名|けんめい}さくいん'
