@@ -21,6 +21,14 @@ async function pinPref(page: Page): Promise<void> {
   await page.mouse.move(0, 0);
 }
 
+/** ハイドレーションが終わってから、さくいんの長野県の項目をクリックして固定し、マウスを外す（固定した項目と、地図の県の塗りが同じになる） */
+async function pinFromIndex(page: Page): Promise<void> {
+  await page.locator('[data-index-ready]').waitFor({ state: 'attached' });
+  await page.locator('a[data-pref="20"]').click();
+  await page.locator('a[data-pref="20"][aria-pressed="true"]').waitFor();
+  await page.mouse.move(0, 0);
+}
+
 /** 動きを止めてから（最終の位置で撮るため）、県（コード）をダブルクリックして最大化し、マウスを地図から外す */
 async function maximizeOnly(page: Page, code: string): Promise<void> {
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -83,6 +91,8 @@ const SCENES: readonly Scene[] = [
   { name: 'ja-top-dark', path: '/ja/', prepare: page => page.emulateMedia({ colorScheme: 'dark' }) },
   // T2-05：県（長野県）をクリックして固定した状態。固定した県の塗りと、カードの県名が変わる。最大化は ja-maximized で撮る
   { name: 'ja-pinned', path: '/ja/', prepare: pinPref },
+  // T2-10：県名さくいん。さくいんの長野県を固定した状態（8地方の県名の一覧は、各言語の top の全体の画像に入る）（項目の固定中の色と、地図・カードが連動する）
+  { name: 'ja-index-pinned', path: '/ja/', prepare: pinFromIndex },
   // T2-06：県を最大化して寄った状態。長野県（県全体が収まる）と東京都（父島を除いて、本土と伊豆諸島に寄る。U16・D36）
   { name: 'ja-maximized', path: '/ja/', prepare: maximizePref('20') },
   { name: 'ja-maximized-tokyo', path: '/ja/', prepare: maximizePref('13') },

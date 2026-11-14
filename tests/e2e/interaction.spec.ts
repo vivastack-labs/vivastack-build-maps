@@ -4,7 +4,7 @@ import { plainText } from '../../src/lib/ruby';
 import { clickAtCenter, dblclickAtCenter, settle } from './helpers';
 
 // F-CARD-01・07、F-ZOOM-04、4.11.1〜4.11.3：ホバー・固定・最大化の結線（T2-05）。
-// 県の要素を引く関数を引数に取る形にしてあり、T2-10 でさくいん（F-IDX-02）の要素でも同じテストを回す。
+// 県の要素の扱い（PrefTarget）を引数に取る形にしてあり、地図の県のパスと、さくいん（F-IDX-02。T2-10）の項目の両方で同じテストを回す。
 // ホバー・クリックの対象は、外接矩形の中心が自分の形の中にある県にする（Playwright は中心を操作する）。
 // 東京都は島を含むので、中心が海になる。長野県（20）・岐阜県（21）は中心が県の中にある。
 
@@ -17,15 +17,41 @@ const YAMANASHI = '19';
 /** 県の要素を引く関数（地図の `path[data-pref]`、さくいんの項目など） */
 type PrefLocator = (page: Page, code: string) => Locator;
 
+/**
+ * 操作する県の要素の扱い。最大化中の県を押す2か所だけ、地図とさくいんで操作が違う
+ * （地図は市区町村の形が上に重なるので座標で押す。さくいんは地図の下にあり、座標で押す関数は自動でスクロールしないので `locator` で押す）。
+ */
+type PrefTarget = {
+  readonly locate: PrefLocator;
+  readonly clickMaximized: (page: Page, code: string) => Promise<void>;
+  readonly dblclickMaximized: (page: Page, code: string) => Promise<void>;
+};
+
 const nameOf = (code: string): string => plainText(prefectures.find(prefecture => prefecture.code === code)?.name.ja ?? '');
 
 /** 地図の県のパス */
 const mapPref: PrefLocator = (page, code) => page.locator(`path[data-pref="${code}"]`);
 
-/** 操作の前に、ハイドレーションが終わるのを待つ（終わる前の操作は失われる） */
+/** さくいんの県名の項目 */
+const indexPref: PrefLocator = (page, code) => page.locator(`a[data-pref="${code}"]`);
+
+const MAP_TARGET: PrefTarget = {
+  locate: mapPref,
+  clickMaximized: (page, code) => clickAtCenter(page, mapPref(page, code)),
+  dblclickMaximized: (page, code) => dblclickAtCenter(page, mapPref(page, code))
+};
+
+const INDEX_TARGET: PrefTarget = {
+  locate: indexPref,
+  clickMaximized: (page, code) => indexPref(page, code).click(),
+  dblclickMaximized: (page, code) => indexPref(page, code).dblclick()
+};
+
+/** 操作の前に、ハイドレーションが終わるのを待つ（終わる前の操作は失われる。地図もさくいんも） */
 async function open(page: Page): Promise<void> {
   await page.goto('/ja/');
   await page.locator('[data-map-ready]').waitFor({ state: 'attached' });
+  await page.locator('[data-index-ready]').waitFor({ state: 'attached' });
 }
 
 /** 海（日本海）の1点。viewBox の (370, 470)＝海域名の位置で、陸がなく、文字は pointer-events を受けない */
@@ -70,15 +96,21 @@ async function expectCard(page: Page, code: string | null): Promise<void> {
   await expect(page.locator('[data-card-guide]')).toBeHidden();
 }
 
-/** 固定・最大化の状態を確かめる（属性は 4.11.2 の表のとおり） */
-async function expectState(pref: Locator, state: 'pinned' | 'maximized' | null): Promise<void> {
+/** 1つの要素の固定・最大化の状態を確かめる（属性は 4.11.2 の表のとおり） */
+async function expectElementState(pref: Locator, state: 'pinned' | 'maximized' | null): Promise<void> {
   await expect(pref).toHaveAttribute('aria-pressed', state === null ? 'false' : 'true');
   if (state === null) await expect(pref).not.toHaveAttribute('data-state', /.*/u);
   else await expect(pref).toHaveAttribute('data-state', state);
 }
 
+/** 県の固定・最大化の状態を確かめる。地図の県のパスとさくいんの項目の、どちらも同じ状態になる（F-IDX-02） */
+async function expectState(page: Page, code: string, state: 'pinned' | 'maximized' | null): Promise<void> {
+  await expectElementState(mapPref(page, code), state);
+  await expectElementState(indexPref(page, code), state);
+}
+
 /** PC（マウス）の操作。`hasTouch` のプロジェクトでは動かさない */
-function definePointerTests(prefOf: PrefLocator): void {
+function definePointerTests({ locate: prefOf, clickMaximized, dblclickMaximized }: PrefTarget): void {
   test.describe('PC のマウス操作', () => {
     test.beforeEach(({ hasTouch }) => {
       test.skip(hasTouch, 'タッチの端末にはマウスのホバーがない（4.11.3）');
@@ -110,33 +142,33 @@ function definePointerTests(prefOf: PrefLocator): void {
       await open(page);
 
       await prefOf(page, NAGANO).click();
-      await expectState(mapPref(page, NAGANO), 'pinned');
+      await expectState(page, NAGANO, 'pinned');
       await prefOf(page, GIFU).hover();
       await settle(page);
 
       await expectCard(page, NAGANO);
-      await expectState(mapPref(page, GIFU), null);
+      await expectState(page, GIFU, null);
     });
 
     test('4.11.2：同じ県のクリックで固定を解除する', async ({ page }) => {
       await open(page);
       await prefOf(page, NAGANO).click();
-      await expectState(mapPref(page, NAGANO), 'pinned');
+      await expectState(page, NAGANO, 'pinned');
 
       await prefOf(page, NAGANO).click();
 
-      await expectState(mapPref(page, NAGANO), null);
+      await expectState(page, NAGANO, null);
     });
 
     test('4.11.2：海のクリックで固定を解除する', async ({ page }) => {
       await open(page);
       await prefOf(page, NAGANO).click();
-      await expectState(mapPref(page, NAGANO), 'pinned');
+      await expectState(page, NAGANO, 'pinned');
 
       await clickSea(page);
 
       // 海のクリックなら、別の県が固定されることもない
-      await expectState(mapPref(page, NAGANO), null);
+      await expectState(page, NAGANO, null);
       await expect(page.locator('[data-pref][aria-pressed="true"]')).toHaveCount(0);
     });
 
@@ -145,68 +177,68 @@ function definePointerTests(prefOf: PrefLocator): void {
 
       await prefOf(page, NAGANO).dblclick();
 
-      await expectState(mapPref(page, NAGANO), 'maximized');
+      await expectState(page, NAGANO, 'maximized');
       await expectCard(page, NAGANO);
     });
 
     test('4.11.2：最大化中のクリックでは何も変わらない', async ({ page }) => {
       await open(page);
       await prefOf(page, NAGANO).dblclick();
-      await expectState(mapPref(page, NAGANO), 'maximized');
+      await expectState(page, NAGANO, 'maximized');
 
-      // 最大化した県の上には市区町村の形が重なるので、座標で押す（helpers.ts）
-      await clickAtCenter(page, prefOf(page, NAGANO));
+      // 最大化した県の上には市区町村の形が重なるので、地図は座標で押す（helpers.ts）
+      await clickMaximized(page, NAGANO);
       await prefOf(page, YAMANASHI).click();
       // 最大化すると県が動いて海の矩形の上を覆う（T2-06）ので、海の矩形へ直接 click を送る（海の1点を押すのではなく）
       await page.locator('[data-map-sea]').dispatchEvent('click');
       await settle(page);
 
-      await expectState(mapPref(page, NAGANO), 'maximized');
-      await expectState(mapPref(page, YAMANASHI), null);
+      await expectState(page, NAGANO, 'maximized');
+      await expectState(page, YAMANASHI, null);
       await expectCard(page, NAGANO);
     });
 
     test('4.11.2：固定中に別の県をクリックすると、固定がその県に移る', async ({ page }) => {
       await open(page);
       await prefOf(page, NAGANO).click();
-      await expectState(mapPref(page, NAGANO), 'pinned');
+      await expectState(page, NAGANO, 'pinned');
 
       await prefOf(page, GIFU).click();
 
-      await expectState(mapPref(page, GIFU), 'pinned');
-      await expectState(mapPref(page, NAGANO), null);
+      await expectState(page, GIFU, 'pinned');
+      await expectState(page, NAGANO, null);
       await expectCard(page, GIFU);
     });
 
     test('4.11.2：最大化中に同じ県をダブルクリックすると最大化だけが解け、固定は残る', async ({ page }) => {
       await open(page);
       await prefOf(page, NAGANO).dblclick();
-      await expectState(mapPref(page, NAGANO), 'maximized');
+      await expectState(page, NAGANO, 'maximized');
 
-      // 最大化した県の上には市区町村の形が重なるので、座標でダブルクリックする（helpers.ts）
-      await dblclickAtCenter(page, prefOf(page, NAGANO));
+      // 最大化した県の上には市区町村の形が重なるので、地図は座標でダブルクリックする（helpers.ts）
+      await dblclickMaximized(page, NAGANO);
 
       // 最大化が解けるので data-state は maximized でなくなり、固定中（pinned・aria-pressed="true"）が残る
-      await expectState(mapPref(page, NAGANO), 'pinned');
+      await expectState(page, NAGANO, 'pinned');
       await expectCard(page, NAGANO);
     });
 
     test('4.11.2：最大化中に別の県をダブルクリックすると、その県に切り替わる', async ({ page }) => {
       await open(page);
       await prefOf(page, NAGANO).dblclick();
-      await expectState(mapPref(page, NAGANO), 'maximized');
+      await expectState(page, NAGANO, 'maximized');
 
       await prefOf(page, YAMANASHI).dblclick();
 
-      await expectState(mapPref(page, YAMANASHI), 'maximized');
-      await expectState(mapPref(page, NAGANO), null);
+      await expectState(page, YAMANASHI, 'maximized');
+      await expectState(page, NAGANO, null);
       await expectCard(page, YAMANASHI);
     });
   });
 }
 
 /** スマホ・タブレット（タッチ）の操作。`hasTouch` のプロジェクトだけで動かす */
-function defineTouchTests(prefOf: PrefLocator): void {
+function defineTouchTests({ locate: prefOf }: PrefTarget): void {
   test.describe('タッチ操作', () => {
     test.beforeEach(({ hasTouch }) => {
       test.skip(!hasTouch, 'タッチの端末のプロジェクトだけで確かめる');
@@ -218,7 +250,7 @@ function defineTouchTests(prefOf: PrefLocator): void {
 
       await prefOf(page, NAGANO).tap();
 
-      await expectState(mapPref(page, NAGANO), 'pinned');
+      await expectState(page, NAGANO, 'pinned');
       await expectCard(page, NAGANO);
     });
 
@@ -231,16 +263,19 @@ function defineTouchTests(prefOf: PrefLocator): void {
       // 1回目で固定、2回目のタップ（クリック）で固定を解除する。最大化にはならない。
       // tap() を2回続けても dblclick が出るとは限らない（端末による）ので、このテストはクリックの結果だけを確かめる。
       // タッチの dblclick を無視すること（4.11.3）は、MapInteraction.test.tsx で dblclick を直接起こして確かめている
-      await expectState(mapPref(page, NAGANO), null);
+      await expectState(page, NAGANO, null);
       await expect(page.locator('[data-state="maximized"]')).toHaveCount(0);
     });
   });
 }
 
-// 今は地図の県のパスで回す。T2-10 でさくいんの項目を引く関数を足して、同じテストを回す
-for (const [name, prefOf] of [['地図', mapPref]] as const satisfies readonly (readonly [string, PrefLocator])[]) {
+// 地図の県のパスと、さくいんの項目（F-IDX-02）の両方で、同じテストを回す
+for (const [name, target] of [
+  ['地図', MAP_TARGET],
+  ['さくいん', INDEX_TARGET]
+] as const satisfies readonly (readonly [string, PrefTarget])[]) {
   test.describe(`${name}の県`, () => {
-    definePointerTests(prefOf);
-    defineTouchTests(prefOf);
+    definePointerTests(target);
+    defineTouchTests(target);
   });
 }
