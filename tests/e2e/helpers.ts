@@ -48,3 +48,39 @@ export async function clickAtCenter(page: Page, locator: Locator): Promise<void>
   const { x, y } = await settledCenter(locator);
   await page.mouse.click(x, y);
 }
+
+/** `pointInside` が形を調べる格子の分割数 */
+const POINT_GRID = 24;
+
+/** 形の内側の点（表示の座標）。外接矩形の中心にいちばん近い、形の中の点（凹んだ形でも形の中に取る） */
+async function pointInside(locator: Locator): Promise<{ readonly x: number; readonly y: number }> {
+  return locator.evaluate((element, grid) => {
+    const path = element as unknown as SVGGeometryElement;
+    const box = path.getBBox();
+    const ctm = path.getScreenCTM();
+    if (!ctm) throw new Error('座標の変換がありません');
+    const center = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    const candidates = Array.from({ length: grid * grid }, (_, i) => ({ x: box.x + (box.width * ((i % grid) + 0.5)) / grid, y: box.y + (box.height * (Math.floor(i / grid) + 0.5)) / grid }))
+      .filter(point => path.isPointInFill(new DOMPoint(point.x, point.y)))
+      .sort((a, b) => Math.hypot(a.x - center.x, a.y - center.y) - Math.hypot(b.x - center.x, b.y - center.y));
+    const best = candidates[0];
+    if (!best) throw new Error('形の内側の点が見つかりません');
+    const screen = new DOMPoint(best.x, best.y).matrixTransform(ctm);
+    return { x: screen.x, y: screen.y };
+  }, POINT_GRID);
+}
+
+/** 動きが止まって、点の位置が変わらなくなるのを待ってから、その点を返す */
+export async function settledPoint(page: Page, locator: Locator): Promise<{ readonly x: number; readonly y: number }> {
+  let previous = JSON.stringify(await pointInside(locator));
+  await expect
+    .poll(async () => {
+      const current = JSON.stringify(await pointInside(locator));
+      const isSame = current === previous;
+      previous = current;
+      return isSame;
+    })
+    .toBe(true);
+  await page.waitForTimeout(50);
+  return pointInside(locator);
+}

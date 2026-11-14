@@ -1,6 +1,7 @@
 import { join } from 'node:path';
 import { test, type Page } from '@playwright/test';
 import { LANGS } from '../../src/i18n/lang';
+import { settledPoint } from '../e2e/helpers';
 
 // PRに載せるスクリーンショットの画面（playwright.screenshots.config.ts）。今の作業ツリーだけを撮る（before は撮らない）。
 // 画面が変わるタスクでは、変わった状態（例：県を選んでパネルを開いた状態）を SCENES に足す
@@ -53,6 +54,27 @@ async function maximizeWithMuniFailure(page: Page): Promise<void> {
   await page.locator('[data-muni-status="failed"] [data-muni-retry]').waitFor();
 }
 
+/** 要素（県・市区町村の形）の内側にマウスをのせ、ツールチップが出るのを待つ（T2-09。外接矩形の中心は、北海道などでは形の外になる） */
+async function hoverShape(page: Page, selector: string): Promise<void> {
+  const shape = page.locator(selector);
+  await shape.scrollIntoViewIfNeeded();
+  const { x, y } = await settledPoint(page, shape);
+  await page.mouse.move(x, y);
+  await page.locator('[data-tooltip]:not([hidden])').waitFor();
+}
+
+/** 北海道（名物3つ）にマウスをのせる（T2-09、F-TIP-01） */
+async function hoverHokkaido(page: Page): Promise<void> {
+  await page.locator('[data-map-ready]').waitFor({ state: 'attached' });
+  await hoverShape(page, 'path[data-pref="01"]');
+}
+
+/** 北海道を最大化して、札幌市中央区にマウスをのせる（T2-09、F-TIP-02） */
+async function hoverSapporoWard(page: Page): Promise<void> {
+  await maximizePref('01')(page);
+  await hoverShape(page, '[data-muni="01101"]');
+}
+
 const SCENES: readonly Scene[] = [
   ...LANGS.map(lang => ({ name: `${lang}-top`, path: `/${lang}/` })),
   // F-MAP-04：端末の設定がダークのときの色
@@ -66,6 +88,9 @@ const SCENES: readonly Scene[] = [
   { name: 'ja-maximized-hokkaido', path: '/ja/', prepare: maximizePref('01') },
   { name: 'en-maximized-list', path: '/en/', prepare: maximizeWithList },
   { name: 'zh-maximized', path: '/zh/', prepare: maximizePref('20') },
+  // T2-09：ツールチップ。名物のある県（北海道。県名と名物3つの名前）と、最大化中の市区町村（札幌市中央区。名前と読み）
+  { name: 'ja-tooltip-pref', path: '/ja/', prepare: hoverHokkaido },
+  { name: 'ja-tooltip-muni', path: '/ja/', prepare: hoverSapporoWard },
   // T2-07：市区町村データの読み込みに失敗した状態。県の形で最大化したまま、地図の左上に文言と「再試行」が出る
   { name: 'ja-maximized-muni-failed', path: '/ja/', prepare: maximizeWithMuniFailure },
   // 存在しないパスの404（app/global-not-found.tsx）。404のステータスでも、page.goto は例外にならずに撮れる
