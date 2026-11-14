@@ -158,4 +158,14 @@ describe('MapZoom', () => {
 
     await vi.waitFor(() => expect(scaleOf(container)).toBeCloseTo(ZOOM_STEP), { timeout: 2000 });
   });
+
+  test('動きの途中でもう一度「＋」を押すと、目標の倍率から1回分進む（F-ZOOM-01）', async () => {
+    stubReducedMotion(false);
+    const { container } = render(<Fixture />);
+
+    fireEvent.click(button('拡大'));
+    fireEvent.click(button('拡大'));
+
+    await vi.waitFor(() => expect(scaleOf(container)).toBeCloseTo(ZOOM_STEP ** 2), { timeout: 2000 });
+  });
 });

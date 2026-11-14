@@ -25,7 +25,12 @@ type Props = {
 };
 
 type Zoom = ZoomBehavior<SVGSVGElement, unknown>;
-type Handle = { readonly svg: SVGSVGElement; readonly zoom: Zoom };
+/**
+ * d3-zoom の付いた `<svg>`。`pending.k` は、動いている途中のボタン・最大化の目標の倍率（なければ `null`）。
+ * 動きの途中でもう一度「＋」を押したとき、途中の倍率ではなく目標の倍率から1回分を進めるために持つ。
+ * ホイール・ピンチ・ドラッグ（`sourceEvent` がある zoom）が入ったら消す。
+ */
+type Handle = { readonly svg: SVGSVGElement; readonly zoom: Zoom; readonly pending: { k: number | null } };
 
 /** 3px までの動きはクリックとして通す。それを超えるドラッグの後の click は d3-zoom が止める（県の固定が変わらない） */
 const CLICK_DISTANCE = 3;
@@ -44,19 +49,28 @@ const round = (value: number): number => Math.round(value * 1000) / 1000;
  * 動かす。動きを減らす設定（F-ZOOM-05）のときは d3-transition を使わず、同期で最終の位置にする
  * （長さ0の transition でも反映は次のフレームになるため）。
  */
-function moveTo({ svg, zoom }: Handle, target: ZoomTransform): void {
+function moveTo({ svg, zoom, pending }: Handle, target: ZoomTransform): void {
   const selection = select(svg);
-  if (isReducedMotion()) selection.call(zoom.transform, toD3(target));
-  else selection.transition().duration(ZOOM_DURATION_MS).call(zoom.transform, toD3(target));
+  if (isReducedMotion()) {
+    pending.k = null;
+    selection.call(zoom.transform, toD3(target));
+  } else {
+    pending.k = target.k;
+    selection.transition().duration(ZOOM_DURATION_MS).call(zoom.transform, toD3(target));
+  }
 }
 
 /** 「＋」「−」1回分の倍率にする。範囲は今の `scaleExtent` */
-function stepBy(handle: Handle, direction: 1 | -1): void {
-  const { svg, zoom } = handle;
-  const k = stepScale(zoomTransform(svg).k, direction, zoom.scaleExtent());
+function stepBy({ svg, zoom, pending }: Handle, direction: 1 | -1): void {
+  const k = stepScale(pending.k ?? zoomTransform(svg).k, direction, zoom.scaleExtent());
   const selection = select(svg);
-  if (isReducedMotion()) selection.call(zoom.scaleTo, k);
-  else selection.transition().duration(ZOOM_DURATION_MS).call(zoom.scaleTo, k);
+  if (isReducedMotion()) {
+    pending.k = null;
+    selection.call(zoom.scaleTo, k);
+  } else {
+    pending.k = k;
+    selection.transition().duration(ZOOM_DURATION_MS).call(zoom.scaleTo, k);
+  }
 }
 
 /**
@@ -80,6 +94,7 @@ function attachZoom(svg: SVGSVGElement): Handle | null {
     layer.setAttribute('transform', `translate(${round(transform.x)},${round(transform.y)}) scale(${round(transform.k)})`);
     layer.setAttribute('data-zoom-scale', String(round(transform.k)));
   };
+  const pending: Handle['pending'] = { k: null };
   const zoom: Zoom = createZoom<SVGSVGElement, unknown>()
     .extent([
       [0, 0],
@@ -88,11 +103,15 @@ function attachZoom(svg: SVGSVGElement): Handle | null {
     .scaleExtent([...BASE_SCALE_EXTENT])
     .translateExtent(toExtent(panExtent(null)))
     .clickDistance(CLICK_DISTANCE)
-    .on('zoom', (event: D3ZoomEvent<SVGSVGElement, unknown>) => write(event.transform));
+    .on('zoom', (event: D3ZoomEvent<SVGSVGElement, unknown>) => {
+      // 操作（ホイール・ピンチ・ドラッグ）が入ったら、動いている途中のボタンの目標は無効にする
+      if (event.sourceEvent) pending.k = null;
+      write(event.transform);
+    });
   // ダブルクリックでの拡大は使わない（最大化に使う。4.11.2）
   select(svg).call(zoom).on('dblclick.zoom', null);
   write({ k: 1, x: 0, y: 0 });
-  return { svg, zoom };
+  return { svg, zoom, pending };
 }
 
 /**

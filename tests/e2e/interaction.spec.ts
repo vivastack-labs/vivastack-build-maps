@@ -161,7 +161,8 @@ function definePointerTests(prefOf: PrefLocator): void {
 
       await prefOf(page, NAGANO).click();
       await prefOf(page, GIFU).click();
-      await clickSea(page);
+      // 最大化すると県が動いて海の矩形の上を覆う（T2-06）ので、海の矩形へ直接 click を送る（海の1点を押すのではなく）
+      await page.locator('[data-map-sea]').dispatchEvent('click');
       await settle(page);
 
       await expectState(mapPref(page, NAGANO), 'maximized');
