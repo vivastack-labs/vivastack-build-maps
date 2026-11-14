@@ -351,6 +351,7 @@ T2-01・T2-02 は M1 と並行して進められる。
 - 地図全体をTabの停止位置1つにする（roving tabindex）。地図に入ったときは、固定中の県に、なければ北海道にフォーカスする。
 - ←↑ で前の県、→↓ で次の県（県コード順）、Home で北海道、End で沖縄県。
 - フォーカス＝ホバー、Enter・Space＝クリック、Shift + Enter＝ダブルクリックとして `mapReducer` に渡す。
+  - Enter・Space＝クリック、Shift + Enter＝ダブルクリックの規則は、T2-10 の `src/features/map/keyboard.ts` の `keyToMapEvent({ key, shiftKey, pref })`（純粋関数）にある。これを使い、キーの規則を作り直さない。県名さくいんの結線は `PrefIndexInteraction`（`src/components/`）が参考になる（`keydown` で `preventDefault` してから `dispatch` に渡す。Ctrl・Meta・Alt つきとキーの繰り返しは無視する）。
   - T2-05 の `useMapState()` の `dispatch` に `MapEvent`（`hover`・`click`・`doubleClick`）を渡す。キーボードの操作は DOM の `click` を経由せず、`dispatch` に直接渡す（`MapInteraction` の `click` は直前の `pointerdown` の種類を前提にしているため）。E2E は `[data-map-ready]` を待ってからキーを押す。
 - 地図にフォーカスがあるとき、`+` `-` `0` で拡大・縮小・全体表示、Esc で解除。
   - Esc でツールチップも隠す（WCAG 1.4.13。ツールチップは地図の一部を覆うため）。T2-09 の `Tooltip` は `hit` を捨てると隠れる（次にマウスが動くまで）ので、Esc でも同じように捨てる。
