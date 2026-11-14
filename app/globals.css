@@ -46,6 +46,11 @@
   --color-map-frame: #64748b;
   /* T2-05：固定中・最大化中の県の塗り。8地方の寒色〜中間色と見分けがつく暖色（色の値は仮。T4 で見直す） */
   --color-map-selected: #fbbf24;
+  /* T3-02：「準備中」の県（4.11.4）。灰色の地に斜線（色の値は仮。T4 で見直す）。
+     地と線は 3:1 以上（斜線が見える。WCAG 1.4.11）、県名ラベルの色（--color-map-label #0f172a）と、地・線の両方で 4.5:1 以上。
+     ライト：地 #f1f5f9 と線 #7a8aa3 が 3.20:1、ラベルと線が 5.09:1（ラベルと地は 16.3:1） */
+  --color-map-pending: #f1f5f9;
+  --color-map-pending-stripe: #7a8aa3;
   /* T2-08：最大化した県の市区町村。隣り合う市区町村が見分けられる暖色の5段階（色の値は仮。T4 で見直す）。
      ラベルの色（--color-map-label）と 4.5:1 以上になる淡い色 */
   --color-muni-0: #fef3c7;
@@ -83,6 +88,9 @@
     --color-map-border: #94a3b8;
     --color-map-frame: #94a3b8;
     --color-map-selected: #d97706;
+    /* ダーク：地 #1e293b と線 #64748b が 3.07:1、ラベル #f8fafc と線が 4.55:1（ラベルと地は 13.98:1） */
+    --color-map-pending: #1e293b;
+    --color-map-pending-stripe: #64748b;
     --color-muni-0: #78350f;
     --color-muni-1: #9a3412;
     --color-muni-2: #92400e;
@@ -96,4 +104,10 @@
     --color-tooltip-text: #0f172a;
     --color-tooltip-border: #0f172a;
   }
+}
+
+/* T3-02：凡例の「準備中」の色見本。地図の斜線（JapanMap の pattern）と同じ地・線の色を、CSS の斜線で描く */
+@utility bg-pending-hatch {
+  background-color: var(--color-map-pending);
+  background-image: repeating-linear-gradient(45deg, var(--color-map-pending-stripe) 0 2px, transparent 2px 5px);
 }

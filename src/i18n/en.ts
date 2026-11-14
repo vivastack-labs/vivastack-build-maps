@@ -38,6 +38,7 @@ export const en: Messages = {
   },
   comingSoon: {
     label: 'Coming soon',
+    indexSuffix: ' (coming soon)',
     card: {
       kids: 'Specialties and sights are coming soon!',
       adult: 'Specialties and sights are coming soon.'

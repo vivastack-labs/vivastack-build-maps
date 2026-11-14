@@ -6,6 +6,7 @@ import { MapStateProvider } from '@/components/MapStateProvider';
 import { isLang } from '@/i18n/lang';
 import { loadContent } from '@/lib/content';
 import { distancesFromTokyo } from '@/lib/distance';
+import { buildTarget, publish } from '@/lib/publish';
 
 type Props = {
   params: Promise<{ lang: string }>;
@@ -15,8 +16,10 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
-  // D24：ビルド時に県の基本情報（県名・地方）を読み、地図に埋め込む。読み込みはここで1回だけ行う
-  const prefectures = loadContent();
+  // D24：ビルド時に県の基本情報（県名・地方）を読み、地図に埋め込む。読み込みと絞り込みはここで1回だけ行う。
+  // 7.1・R1：本番は reviewed の項目だけを出し、そうでない県は「準備中」にする（プレビューは下書きの印つきですべてを出す）。
+  // 地図・カード・さくいん・ツールチップは、絞り込みの後の県（PublishedPrefecture）しか受け取れない
+  const prefectures = publish(loadContent(), buildTarget());
   // 7.5：東京からの距離もビルド時に1回だけ計算する（サーバーコンポーネントなので、計算のコードはクライアントに入らない）
   const distances = distancesFromTokyo(prefectures);
 

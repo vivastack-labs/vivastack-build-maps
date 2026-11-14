@@ -22,6 +22,15 @@ export const REGION_FILL_CLASS: Readonly<Record<Region, string>> = {
   kyushu: 'fill-region-kyushu'
 };
 
+/**
+ * 「準備中」の県の塗りのクラス（T3-02、4.11.4）。`JapanMap` の `<defs>` にある斜線の `<pattern>` で塗る。
+ * `PENDING_PATTERN_ID` と合わせる。色は app/globals.css の `--color-map-pending`・`--color-map-pending-stripe`
+ */
+export const PENDING_FILL_CLASS = 'fill-[url(#pref-pending-hatch)]';
+
+/** 「準備中」の斜線の `<pattern>` の id（`PENDING_FILL_CLASS` の url と同じ） */
+export const PENDING_PATTERN_ID = 'pref-pending-hatch';
+
 /** 凡例の色見本の背景のクラス */
 export const REGION_SWATCH_CLASS: Readonly<Record<Region, string>> = {
   hokkaido: 'bg-region-hokkaido',

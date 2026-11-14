@@ -38,6 +38,7 @@ export const zh: Messages = {
   },
   comingSoon: {
     label: '准备中',
+    indexSuffix: '（准备中）',
     card: {
       kids: '名产和名胜正在准备中哦',
       adult: '名产和名胜正在准备中'

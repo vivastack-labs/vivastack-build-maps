@@ -4,12 +4,12 @@ import { describe, expect, test } from 'vitest';
 import { MapArea } from '@/components/MapArea';
 import { MapStateProvider } from '@/components/MapStateProvider';
 import { VIEWBOX } from '@/features/map/projection';
-import { loadContent } from '@/lib/content';
+import { publishedPrefectures } from '../lib/published-helpers';
 
 const renderMapArea = () =>
   render(
     <MapStateProvider>
-      <MapArea lang="ja" prefectures={loadContent()} />
+      <MapArea lang="ja" prefectures={publishedPrefectures()} />
     </MapStateProvider>
   );
 

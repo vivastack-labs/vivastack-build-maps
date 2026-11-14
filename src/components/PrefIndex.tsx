@@ -1,13 +1,13 @@
 import { REGIONS, REGION_SWATCH_CLASS } from '@/features/map/regions';
 import type { Lang } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
-import type { Prefecture } from '@/lib/content-schema.generated';
+import type { PublishedPrefecture } from '@/lib/publish';
 import { RubyText } from './RubyText';
 
 type Props = {
   readonly lang: Lang;
-  /** 県の一覧（県コードの順）。県名と地方を使う */
-  readonly prefectures: readonly Prefecture[];
+  /** 県の一覧（県コードの順）。県名・地方・「準備中」かどうかを使う */
+  readonly prefectures: readonly PublishedPrefecture[];
 };
 
 /**
@@ -32,7 +32,7 @@ const ITEM_CLASS = [
  * Safari は既定ではリンクに Tab で止まらないので、`tabIndex={0}` を明示する（F-IDX-03）。
  */
 export function PrefIndex({ lang, prefectures }: Props) {
-  const { regions } = getMessages(lang);
+  const { regions, comingSoon } = getMessages(lang);
   return (
     <div className="mt-3 grid gap-3">
       {REGIONS.map(region => (
@@ -44,10 +44,19 @@ export function PrefIndex({ lang, prefectures }: Props) {
           <ul className="flex flex-wrap gap-2">
             {prefectures
               .filter(prefecture => prefecture.region === region)
-              .map(({ code, name }) => (
+              .map(({ code, name, pending }) => (
                 <li key={code}>
                   <a href={`#pref-${code}`} role="button" tabIndex={0} aria-pressed="false" data-pref={code} className={ITEM_CLASS}>
-                    <RubyText text={name[lang]} />
+                    {/* flex の子を1つにする（`<a>` は inline-flex。子が2つだと、英語の（準備中）の先頭の空白が消えて「Tokyo(coming soon)」になる） */}
+                    <span>
+                      <RubyText text={name[lang]} />
+                      {/* 4.11.4：準備中の県は県名の後ろに（準備中）。ボタンの名前に含まれるので、スクリーンリーダーにも伝わる */}
+                      {pending && (
+                        <span data-index-pending>
+                          <RubyText text={comingSoon.indexSuffix} />
+                        </span>
+                      )}
+                    </span>
                   </a>
                 </li>
               ))}

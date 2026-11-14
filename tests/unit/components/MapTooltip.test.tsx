@@ -3,13 +3,13 @@ import { describe, expect, test } from 'vitest';
 
 import { MapStateProvider } from '@/components/MapStateProvider';
 import { MapTooltip } from '@/components/MapTooltip';
-import { loadContent } from '@/lib/content';
+import { publishedPrefectures } from '../lib/published-helpers';
 import { plainText } from '@/lib/ruby';
 import { FIXTURE_DIR } from '../lib/content-helpers';
 import { textWithoutRuby } from './base-text';
 
 // フィクスチャ（北海道：名物3つ、沖縄県：名物なし）で確かめる
-const prefectures = loadContent(FIXTURE_DIR);
+const prefectures = publishedPrefectures(FIXTURE_DIR);
 
 const renderTips = (lang: 'ja' | 'en' | 'zh' = 'ja') =>
   render(
@@ -64,5 +64,20 @@ describe('MapTooltip', () => {
     const { container } = renderTips();
 
     expect(tipOf(container, '47').querySelector('ruby rt')?.textContent).toBe('おきなわけん');
+  });
+
+  test('4.11.4: 準備中の県（publish の本番の結果）は県名だけ。名物の名前は1つも出ない（北海道は出る）', () => {
+    const { container } = render(
+      <MapStateProvider>
+        <MapTooltip lang="ja" prefectures={publishedPrefectures(FIXTURE_DIR, 'production')} />
+      </MapStateProvider>
+    );
+
+    const tokyo = tipOf(container, '13');
+    expect(textWithoutRuby(tokyo.querySelector('[data-tip-name]') as Element)).toBe('東京都');
+    expect(tokyo.querySelectorAll('li')).toHaveLength(0);
+    expect(tokyo.textContent).not.toContain('つくだ煮');
+    expect(tipOf(container, '47').querySelectorAll('li')).toHaveLength(0);
+    expect(tipOf(container, '01').querySelectorAll('li')).toHaveLength(3);
   });
 });

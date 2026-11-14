@@ -3,11 +3,13 @@ import { REGIONS } from '../../src/features/map/regions';
 import { LANGS, type Lang } from '../../src/i18n/lang';
 import { getMessages } from '../../src/i18n/messages';
 import { loadContent } from '../../src/lib/content';
+import { publish } from '../../src/lib/publish';
 import { plainText } from '../../src/lib/ruby';
 
-// F-MAP-01〜04・06・D24：都道府県の地図（T2-04）。県の基本情報は、E2E のサーバーがビルドで読むのと同じ content/prefectures/
+// F-MAP-01〜04・06・D24：都道府県の地図（T2-04）。県の基本情報は、E2E のサーバーがビルドで読むのと同じ tests/fixtures/content/（`CONTENT_DIR`）
 
-const prefectures = loadContent();
+// E2E のビルドは本番用でフィクスチャのコンテンツ。北海道だけが内容を出し、残りの46県は「準備中」（4.11.4）
+const published = publish(loadContent('tests/fixtures/content'), 'production');
 
 /** 要素の外接矩形（viewBox の単位）。getBBox は SVG の座標なので、画面の幅に左右されない */
 type Rect = { readonly x: number; readonly y: number; readonly width: number; readonly height: number };
@@ -25,7 +27,7 @@ const overlaps = (a: Rect, b: Rect): boolean => a.x < b.x + b.width && b.x < a.x
 
 test.describe('県の形', () => {
   for (const lang of LANGS) {
-    test(`F-MAP-01・5.2：県の形が47個あり、aria-label が県名である（${lang}）`, async ({ page }) => {
+    test(`F-MAP-01・5.2：県の形が47個あり、aria-label が県名である（準備中の県は「（準備中）」が付く。${lang}）`, async ({ page }) => {
       // Arrange・Act
       await page.goto(`/${lang}/`);
 
@@ -33,7 +35,9 @@ test.describe('県の形', () => {
       const paths = page.locator('path[data-pref]');
       await expect(paths).toHaveCount(47);
       const labels = await paths.evaluateAll(elements => elements.map(element => element.getAttribute('aria-label')));
-      expect(labels).toEqual(prefectures.map(prefecture => plainText(prefecture.name[lang])));
+      const suffix = plainText(getMessages(lang).comingSoon.indexSuffix);
+      expect(labels).toEqual(published.map(prefecture => `${plainText(prefecture.name[lang])}${prefecture.pending ? suffix : ''}`));
+      expect(published.filter(prefecture => !prefecture.pending).map(prefecture => prefecture.code)).toEqual(['01']);
       await expect(paths.first()).toHaveAttribute('role', 'button');
     });
   }
@@ -55,11 +59,12 @@ test.describe('県の形', () => {
     const fillOf = (selector: string) => page.locator(selector).evaluate(element => getComputedStyle(element).fill);
 
     await page.emulateMedia({ colorScheme: 'light' });
-    const light = { kanto: await fillOf('path[data-pref="13"]'), sea: await fillOf('[data-map-sea]') };
+    // 東京都は準備中（斜線）なので、地方の色で塗られる北海道で比べる（4.11.4）
+    const light = { hokkaido: await fillOf('path[data-pref="01"]'), sea: await fillOf('[data-map-sea]') };
     await page.emulateMedia({ colorScheme: 'dark' });
-    const dark = { kanto: await fillOf('path[data-pref="13"]'), sea: await fillOf('[data-map-sea]') };
+    const dark = { hokkaido: await fillOf('path[data-pref="01"]'), sea: await fillOf('[data-map-sea]') };
 
-    expect(dark.kanto).not.toBe(light.kanto);
+    expect(dark.hokkaido).not.toBe(light.hokkaido);
     expect(dark.sea).not.toBe(light.sea);
   });
 });

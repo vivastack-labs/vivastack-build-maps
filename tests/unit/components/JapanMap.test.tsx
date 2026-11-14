@@ -6,11 +6,12 @@ import { LABEL_FONT_SIZE } from '@/features/map/prefPaths';
 import { VIEWBOX } from '@/features/map/projection';
 import { LANGS } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
-import { loadContent } from '@/lib/content';
+import { FIXTURE_DIR } from '../lib/content-helpers';
+import { publishedPrefectures } from '../lib/published-helpers';
 import { plainText } from '@/lib/ruby';
 import { textWithoutRuby } from './base-text';
 
-const prefectures = loadContent();
+const prefectures = publishedPrefectures();
 
 describe('JapanMap', () => {
   for (const lang of LANGS) {
@@ -209,5 +210,67 @@ describe('JapanMap の入力の確かめ', () => {
     const path = container.querySelector('path[data-pref]') as SVGPathElement;
     expect(path.getAttribute('class')).toContain('opacity-40');
     expect(container.querySelector('[data-pref-label]')?.getAttribute('class')).toContain('data-[state=maximized]:hidden');
+  });
+});
+
+describe('JapanMap の「準備中」の県（T3-02、4.11.4）', () => {
+  // フィクスチャを本番の絞り込みにかける：北海道は内容を出す。東京都（混在）・沖縄県（未作成）などの46県は準備中
+  const production = publishedPrefectures(FIXTURE_DIR, 'production');
+  const pathOf = (container: HTMLElement, code: string) => container.querySelector(`path[data-pref="${code}"]`) as SVGPathElement;
+
+  test('4.11.4: 準備中の県は斜線（pattern）で塗り、data-pending と aria-label の（準備中）が付く', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={production} />);
+
+    for (const code of ['13', '47']) {
+      const path = pathOf(container, code);
+      expect(path.getAttribute('class')).toContain('fill-[url(#pref-pending-hatch)]');
+      expect(path.getAttribute('class')).not.toContain('fill-region-');
+      expect(path.hasAttribute('data-pending')).toBe(true);
+    }
+    expect(pathOf(container, '13').getAttribute('aria-label')).toBe('東京都（準備中）');
+  });
+
+  for (const lang of LANGS) {
+    test(`4.11.4: 準備中の県の aria-label は「県名＋準備中の言い方」（${lang}）`, () => {
+      const { container } = render(<JapanMap lang={lang} prefectures={production} />);
+
+      const tokyo = production.find(prefecture => prefecture.code === '13');
+      const suffix = plainText(getMessages(lang).comingSoon.indexSuffix);
+      expect(pathOf(container, '13').getAttribute('aria-label')).toBe(`${plainText(tokyo?.name[lang] ?? '')}${suffix}`);
+    });
+  }
+
+  test('4.11.4: 準備中でない県は地方の色で、data-pending も（準備中）もない', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={production} />);
+
+    const hokkaido = pathOf(container, '01');
+    expect(hokkaido.getAttribute('class')).toContain('fill-region-hokkaido');
+    expect(hokkaido.getAttribute('class')).not.toContain('pending');
+    expect(hokkaido.hasAttribute('data-pending')).toBe(false);
+    expect(hokkaido.getAttribute('aria-label')).toBe('北海道');
+  });
+
+  test('4.11.4: 斜線の pattern が1つあり、地と線の色は @theme の変数のクラス', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={production} />);
+
+    const patterns = container.querySelectorAll('defs pattern#pref-pending-hatch');
+    expect(patterns).toHaveLength(1);
+    expect(patterns[0]?.getAttribute('patternUnits')).toBe('userSpaceOnUse');
+    expect(patterns[0]?.querySelector('rect')?.getAttribute('class')).toContain('fill-map-pending');
+    expect(patterns[0]?.querySelector('line')?.getAttribute('class')).toContain('stroke-map-pending-stripe');
+    // 斜線はタイルの中央（端だと太さの半分が切れる）
+    const width = Number(patterns[0]?.getAttribute('width'));
+    expect(Number(patterns[0]?.querySelector('line')?.getAttribute('x1'))).toBe(width / 2);
+    expect(Number(patterns[0]?.querySelector('line')?.getAttribute('x2'))).toBe(width / 2);
+  });
+
+  test('4.11.4: プレビュー（準備中の県がない）でも pattern は1つ、どの県も data-pending を持たない', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={publishedPrefectures(FIXTURE_DIR, 'preview')} />);
+
+    expect(container.querySelectorAll('path[data-pending]')).toHaveLength(0);
+    expect(container.querySelectorAll('pattern#pref-pending-hatch')).toHaveLength(1);
+    for (const path of container.querySelectorAll('path[data-pref]')) {
+      expect(path.getAttribute('class')).not.toContain('fill-[url(');
+    }
   });
 });

@@ -641,8 +641,9 @@ spots:                     # ちょうど3件。項目の構成は specialties �
 | 項目 | ルール |
 |---|---|
 | `status` | `draft`（AIが下書き）→ `verified`（検証エージェントが確認済み）→ `reviewed`（人がレビュー済み） |
-| 本番ビルド | `reviewed` の項目だけを含める。そうでない項目が1つでもある県は、名物・名所・行き方を本番に出さず「準備中」と表示する（4.11.4） |
-| プレビュービルド | すべての状態の項目を含め、`reviewed` でない項目には「下書き」と表示する（レビュー作業用） |
+| 本番ビルド | `reviewed` の項目だけを含める。そうでない項目が1つでもある県は、名物・名所・行き方を本番に出さず「準備中」と表示する（4.11.4）。行き方がない県・名物か名所が空の県も「準備中」（T3-02） |
+| プレビュービルド | すべての状態の項目を含め、`reviewed` でない項目には「下書き」と表示する（レビュー作業用）。`noindex` を付ける（11.4 (5)） |
+| ビルドの種類の切り替え | 環境変数 `BUILD_TARGET`（`production` / `preview`）。`pnpm build` は `production`、`pnpm build:preview` は `preview`（`pnpm dev` は未設定＝`production` と同じ。下書きを見るなら `BUILD_TARGET=preview pnpm dev`）。未設定・空は `production`、それ以外の値はビルドを止める（間違えたときに下書きが外に出ないため）。絞り込みは `src/lib/publish.ts`（T3-02） |
 | `sources` | 空の配列を許す。空なら画面に「出典なし」と表示する。CIでは警告にとどめる |
 | 検証 | `pnpm content:validate`（`scripts/validate-content.ts`）。形は JSON Schema（`content/schema/prefecture.schema.json`、draft-07）、内容のルールは `src/lib/content-rules.ts` で見る。型はスキーマから `pnpm content:types` で `src/lib/content-schema.generated.ts` に作り、コミットする（作り直し忘れはテストで止まる）。読み込むディレクトリは環境変数 `CONTENT_DIR` で変えられる（E2E は `tests/fixtures/content/`）。誤りは `ファイル名:行 場所 メッセージ` の形で出す。YAML のエイリアス（`&`・`*`）は使えない。空や空白だけの文は書けない（T1-07） |
 | 未作成 | 名物・名所は `[]` と書く（キーは省かない）。行き方は `access` ごと省く（T1-07） |
@@ -1096,7 +1097,7 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm content:validate            # 誤りで失敗し、警告はログに出すだけ
-      - run: pnpm build                       # （後で）build:preview にする。draft を含め「下書き」と表示、noindex を付ける
+      - run: pnpm build                       # （後で）build:preview にする。draft を含め「下書き」と表示、noindex を付ける（build:preview は T3-02 で作った。ここで使うのは T0-06）
       # E2E は開発中はここで実行しない（D30）。e2e.yml で手動で実行する
       - run: pnpm lhci                        # （後で）
 
@@ -1128,7 +1129,7 @@ jobs:
 ```
 
 - gitleaks は `gitleaks/gitleaks-action` を使わない。組織のリポジトリではライセンスキー（`GITLEAKS_LICENSE`）の登録が要るため。公式のリリースのバイナリを、SHA-256 を確かめてから実行する。
-- `e2e.yml`（手動）は、選んだプロジェクトが使うブラウザだけを `playwright install --with-deps` で入れ、`pnpm test:e2e` を実行する。サーバーは `webServer` の `pnpm build` → `wrangler dev`。E2E は CI では `workers: 1`・`retries: 2` で動く（`playwright.config.ts`）。失敗したときのレポートは Actions の Artifact（`playwright-report`、14日）に残る。
+- `e2e.yml`（手動）は、選んだプロジェクトが使うブラウザだけを `playwright install --with-deps` で入れ、`pnpm test:e2e` を実行する。サーバーは `webServer` の `pnpm build` → `wrangler dev`。E2E は CI では `workers: 1`・`retries: 2` で動く（`playwright.config.ts`）。`all`・`chromium` のときは続けてプレビュー用のビルドの E2E（`pnpm test:e2e:preview`。T3-02）も動かす。失敗したときのレポートは Actions の Artifact（`playwright-report`、14日。プレビューの分は `playwright-report-preview/`・`test-results-preview/` に分けて、同じ Artifact に入る）に残る。
 - 本番用のworkflow（`deploy.yml`）も同じ構成にする。違いは、`on: push`（`main`）、`environment: production`、`pnpm build`（reviewedのみ）、`command: deploy` の4点。
 - フォークからのPRにはSecretsが渡らないため、プレビューへのデプロイは行われない（このリポジトリではフォークからのPRを想定しない）。
 - プレビューURLの形式（`<alias>-<worker名>.<サブドメイン>.workers.dev`。このアプリでは `pr-N-maps.vivastack-dev.workers.dev` の見込み）と、出力から取り出す方法は実装時に確認する。

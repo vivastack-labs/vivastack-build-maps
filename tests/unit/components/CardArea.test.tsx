@@ -5,12 +5,12 @@ import { CardArea } from '@/components/CardArea';
 import { MapStateProvider } from '@/components/MapStateProvider';
 import { LANGS } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
-import { loadContent } from '@/lib/content';
+import { publishedPrefectures } from '../lib/published-helpers';
 import { distancesFromTokyo, distanceText, TOKYO_CODE } from '@/lib/distance';
 import { plainText } from '@/lib/ruby';
 import { textWithoutRuby } from './base-text';
 
-const prefectures = loadContent();
+const prefectures = publishedPrefectures();
 const distances = distancesFromTokyo(prefectures);
 
 const renderCard = (lang: (typeof LANGS)[number]) =>

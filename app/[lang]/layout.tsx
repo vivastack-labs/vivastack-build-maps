@@ -5,6 +5,7 @@ import { htmlLang, isLang, langStaticParams } from '@/i18n/lang';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
 import { getMessages } from '@/i18n/messages';
+import { buildTarget } from '@/lib/publish';
 import { plainText } from '@/lib/ruby';
 import '../globals.css';
 
@@ -20,12 +21,13 @@ type Props = {
   params: Promise<{ lang: string }>;
 };
 
-// 5.2：<title> は言語ごとのサイト名（ふりがなの記法を除く）
+// 5.2：<title> は言語ごとのサイト名（ふりがなの記法を除く）。
+// 11.4 (5)・R4：プレビュー用のビルドは <meta name="robots" content="noindex"> を付ける（下書きを検索に出さない）。本番には付けない
 export async function generateMetadata({ params }: Pick<Props, 'params'>): Promise<Metadata> {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
 
-  return { title: plainText(getMessages(lang).siteName) };
+  return { title: plainText(getMessages(lang).siteName), ...(buildTarget() === 'preview' ? { robots: { index: false } } : {}) };
 }
 
 // D28：app/[lang]/layout.tsx をルートレイアウトにして <html lang> を出力する（6.2 D27）
