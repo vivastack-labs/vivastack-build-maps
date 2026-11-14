@@ -127,8 +127,12 @@
 ## 承認後に変えたこと
 
 - `@types/polylabel`（devDependency）を足した（polylabel 2.1.0 は型を同梱しないため）。
-- 地図の文言の `muni.listTitle` は足さず、辞書にすでにある `muni.listSummary` を使った。
-- パスの座標は、`pathContext.ts` の相対の 0.1 単位（約190m）ではなく、`geoPath` の小数2桁（約19m）にした。最大の倍率（約40倍）で、100m の簡略化の形が角ばって見えないため。
+- 地図の文言の `muni.listTitle` は足さず、辞書にすでにある `muni.listSummary` を使った。レビュー後に、件数を入れる位置 `%n` を持たせ、括弧を言語ごとに辞書に書く形にした（`fillCount`）。
+- パスの座標は、`pathContext.ts` の相対の 0.1 単位（約190m）ではなく、`geoPath` の小数2桁（約19m）にした。最大の倍率（約95倍。佐賀県）で、100m の簡略化の形が角ばって見えないため。
 - ラベルの文字の大きさ `LABEL_FONT_SIZE` は 11（県名ラベルは 16）。
 - 既存の E2E：`zoom.spec.ts` の「県名ラベルの画面の上の高さ」は、最大化した県のラベルを隠すようにしたので、隣の山梨県のラベルで確かめる。
 - テストの共通の部品：`tests/unit/features/map/muni-fixtures.ts`（格子の TopoJSON）、`tests/unit/components/muni-test-helpers.tsx`。`MuniStatus.test.tsx` は、変換できない `{}` ではなく格子の TopoJSON を渡す。
+- レビューの指摘（MEDIUM・LOW）の反映：
+  - ラベルの大きさ：`LabelCandidate` の `width`・`height` を、外接矩形ではなく「polylabel の点を通る水平・垂直の線が形の内側にある長さ（点から両側の近いほうの2倍）」にした（点を中心にした箱で判定する）。北海道で、箱の3割以上が形の外に出るラベルは 84/194 から 0/194（平均のはみ出し 28% から 5%）。ほかの県も同様（沖縄 24/41→0、福岡 33/72→0、長野 31/77→1）。測り方は、ラベルが出はじめる倍率の箱を 9×5 の点で標本にして、形の外の割合を数えた。
+  - 変換の位置：描画の中ではなく、`useMuniShapes` の effect から `setTimeout(0)` で行う。終わるまでは `loading`。計算済みのデータは `cachedMuniShapes` で待たずに使う。北海道の `muniShapes` は、直す前が初回 92ms・2回目以降約 50ms、直した後も同じ（変換そのものは軽くしていない。支配的なのは、パスの文字列の生成（約20〜35ms）と polylabel（約15〜27ms）。点の投影を二重にしていたのは直したが、全体への効きは小さい。polylabel の精度を 0.3 にしても変わらなかった）。
+  - 倍率の上限を 128 に、`MUNI_SHADE_CLASS` を `Record<Shade, string>` に、`LABEL_FONT_SIZE` を `MUNI_LABEL_FONT_SIZE` に、`zoomInvariant` を `src/features/map/zoomInvariant.ts` にまとめた。座標が有限でなければ `invalid`。E2E の座標でのクリックは、寄る動きが止まるのを待ってから測る。
