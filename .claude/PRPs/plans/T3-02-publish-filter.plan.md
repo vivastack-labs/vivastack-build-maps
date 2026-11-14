@@ -42,27 +42,27 @@
   ```
 
 - 地図・カード・さくいん・ツールチップの props（`prefectures`）の型を `readonly PublishedPrefecture[]` に変える。`loadContent()` の結果をそのまま渡すと typecheck で落ちるので、絞り込みを通し忘れない（R1）。
-- `app/[lang]/page.tsx`：`const prefectures = publish(loadContent(), buildTarget())`。距離（`distancesFromTokyo`）は県庁の位置だけを使うので、同じ配列から求める。
+- `app/[lang]/page.tsx`：`const prefectures = publish(loadContent(), buildTarget())`。距離（`distancesFromTokyo`）は県庁の位置だけを使うので、同じ配列から求める（引数の型を `readonly Pick<Prefecture, 'code' | 'capital'>[]` にする）。
 
 ### 「準備中」の表示（4.11.4）
 
-- **地図**（`JapanMap`）：`<defs>` に斜線の `<pattern id="pref-pending-hatch">`（`patternUnits="userSpaceOnUse"`、45度。地の色 `fill-map-pending`・線の色 `stroke-map-pending-stripe`）。`pending` の県のパスは `REGION_FILL_CLASS` の代わりに `PENDING_FILL_CLASS`（`fill-[url(#pref-pending-hatch)]`。`regions.ts` に全体を書く）と `data-pending`。固定中の `aria-pressed:fill-map-selected`・ホバー・薄くする規則はほかの県と同じ（操作もほかの県と同じ。4.11.4）。
-  - 色は `app/globals.css` の `@theme` に `--color-map-pending`・`--color-map-pending-stripe` を足し、ダークで上書きする（県名ラベルの色と見分けられる淡い灰色）。
+- **地図**（`JapanMap`）：`<defs>` に斜線の `<pattern id="pref-pending-hatch">`（`patternUnits="userSpaceOnUse"`、45度。線はタイルの中央に置き、太さが半分に切れないようにする。地の色 `fill-map-pending`・線の色 `stroke-map-pending-stripe`）。`pending` の県のパスは `REGION_FILL_CLASS` の代わりに `PENDING_FILL_CLASS`（`fill-[url(#pref-pending-hatch)]`。`regions.ts` に全体を書く）と `data-pending`。固定中の `aria-pressed:fill-map-selected`・ホバー・薄くする規則はほかの県と同じ（操作もほかの県と同じ。4.11.4）。
+  - 色は `app/globals.css` の `@theme` に `--color-map-pending`・`--color-map-pending-stripe` を足し、ダークで上書きする。地と線は 3:1 以上（WCAG 1.4.11）、県名ラベルとは地・線とも 4.5:1 以上（ライト：地 `#f1f5f9`・線 `#7a8aa3`、ダーク：地 `#1e293b`・線 `#64748b`。値は仮で T4 で見直す）。
   - 県のパスの `aria-label` に「（準備中）」を足す（判断 6）。
 - **凡例**（`MapLegend`）：`pending` の県が1つ以上あるときだけ、最後に `<li data-legend-pending>`（斜線の色見本＋「準備中」）。色見本の斜線は CSS の `repeating-linear-gradient`（`globals.css` の `@utility bg-pending-hatch`）。`MapLegend` は `prefectures` を受け取る（今は `lang` だけ）。
-- **さくいん**（`PrefIndex`）：`pending` の県のボタンの県名の後に `<span data-index-pending>`「（準備中）」。
+- **さくいん**（`PrefIndex`）：`pending` の県のボタンの県名の後に `<span data-index-pending>`「（準備中）」。項目の `<a>` は `inline-flex` なので、県名と（準備中）を1つの `<span>` で包む（flex の子が2つだと、英語の先頭の空白が消えて「Tokyo(coming soon)」になる）。
 - **ツールチップ**（`MapTooltip`）：変更なし。準備中の県は `specialties` が空なので県名だけになる（T2-09 で分かったこと）。プレビューの「下書き」の印は付けない（判断 9）。
 - **カード**：このタスクでは変えない（「名物・名所は準備中です」と「下書き」の印は T3-03。`pending`・`draft` を使う）。
-- 辞書（判断 8）：`pending: { legend, indexSuffix }`。
+- 辞書（判断 8）：凡例は既存の `comingSoon.label`、さくいんは新しく足した `comingSoon.indexSuffix`。
 
   | キー | ja | en | zh |
   |---|---|---|---|
-  | `pending.legend` | `{準備中\|じゅんびちゅう}` | `Coming soon` | `准备中` |
-  | `pending.indexSuffix` | `（{準備中\|じゅんびちゅう}）` | `(coming soon)`（前に半角の空白） | `（准备中）` |
+  | `comingSoon.label`（既存） | `{準備中\|じゅんびちゅう}` | `Coming soon` | `准备中` |
+  | `comingSoon.indexSuffix` | `（{準備中\|じゅんびちゅう}）` | `(coming soon)`（前に半角の空白） | `（准备中）` |
 
 ### プレビューの `noindex`（判断 5）
 
-- `app/[lang]/layout.tsx` の `generateMetadata` で、`buildTarget() === 'preview'` のとき `robots: { index: false }`（`<meta name="robots" content="noindex">`）。`app/global-not-found.tsx` にも同じ条件で付ける。
+- `app/[lang]/layout.tsx` の `generateMetadata` で、`buildTarget() === 'preview'` のとき `robots: { index: false }`（`<meta name="robots" content="noindex">`）。`app/global-not-found.tsx` は変えない（Next.js が 404 のページに常に `noindex` を付ける）。
 - T0-06 の定義の「`pnpm build:preview`：…`noindex` を加えたもの。コンテンツの絞り込みは T3-02 で加える」を、「T3-02 で作った」に直す。
 
 ## 先に書くテスト
@@ -93,12 +93,15 @@
 
 `tests/e2e/pending.spec.ts`（新規）：
 
-- `4.11.4: 準備中の県（東京都・沖縄県）は斜線で塗られ、北海道は地方の色`（計算した `fill` が `url(` を含むか）
-- `4.11.4: 凡例に「準備中」が出る（ja・en・zh）`
-- `4.11.4: さくいんの準備中の県に（準備中）が付き、北海道には付かない`
-- `4.11.4: 準備中の県のツールチップは県名だけ`（PC のプロジェクトだけ。`tooltip.spec.ts` の沖縄県の確認と同じ方法）
-- `R1: 本番用のビルドのHTML（ja・en・zh）に、reviewed でない項目の文が含まれない`（`request.get` で取ったHTMLに、東京都の `verified`・`draft` の名物・名所の名前・解説文が1つも出てこない。比較のために `reviewed` の北海道の名物の名前は出てくることも確かめる）
-- `R4: 本番用のビルドには noindex が付かない`
+- `4.11.4：本番で reviewed になっていない県` › `準備中の県（東京都・沖縄県）は斜線で塗られ、北海道は地方の色`（計算した `fill` が `url(` を含むか）
+- 同 › `凡例に「準備中」が出る（ja・en・zh）`
+- 同 › `さくいんの準備中の県に（準備中）が付き、北海道には付かない`
+- 同 › `英語のさくいんは、県名と（準備中）の間に空白が見える（「Tokyo (coming soon)」）`（`innerText`）
+- 同 › `準備中の県の形の aria-label に（準備中）が付く`
+- 同 › `準備中の県のツールチップは、名物があるフィクスチャ（東京都）でも県名だけ`（PC のプロジェクトだけ）
+- R1 › `画面の文字（ふりがなを除く）に、東京都の名物・名所の名前・解説文が1つも出てこない。北海道の名物は出る（ja・en・zh）`（`rt`・`script` を除いた `textContent`。`<ruby>` で文字が分かれるので、HTML の文字列の比較では日本語の漏れを見つけられない）
+- R1 › `HTML と RSC のデータに、東京都の名物・名所の id と、ふりがなのない文（en・zh）・記法のままの文が出てこない（ja・en・zh）`（`/<lang>/`・`index.txt`・`__next._full.txt`・`__next.$d$lang.__PAGE__.txt` を `request.get`。chromium だけ）
+- R4 › `/<lang>/ に robots の meta がない`、`/<lang>/ の HTML に noindex がない`（後者は chromium だけ）
 
 既存の直し：`map.spec.ts` のライト・ダークの塗りの比較を、東京都（準備中になる）から北海道に変える。
 
@@ -108,12 +111,14 @@
 
 `tests/e2e-preview/preview.spec.ts`：
 
-- `4.11.4: プレビュー用のビルドでは、すべての県が地方の色で塗られる`（`[data-pending]` が0個、47県の `fill` が `url(` を含まない）
-- `4.11.4: 凡例に「準備中」がなく、さくいんに（準備中）が付かない`
-- `7.1: プレビュー用のビルドには、verified・draft の名物の名前も出る`（ツールチップの HTML に東京都の `verified` の名物の名前がある）
-- `R4・11.4 (5): プレビュー用のビルドには noindex が付く（ja・en・zh）`
+- `すべての県が地方の色で塗られる（斜線の県がない）`
+- `凡例に「準備中」がなく、さくいんに（準備中）が付かない`
+- `東京都のツールチップに、verified・draft の名物の名前も出る`
+- `/<lang>/ に <meta name="robots" content="noindex"> がある`（ja・en・zh）
 
-`.github/workflows/e2e.yml`：`project` が `all` か `chromium` のとき、`pnpm test:e2e` の後に `pnpm test:e2e:preview` も動かす。
+レポート・trace の出力先は `playwright-report-preview/`・`test-results-preview/`（本番用の E2E の失敗のレポートを上書きしない）。
+
+`.github/workflows/e2e.yml`：`project` が `all` か `chromium` のとき、`pnpm test:e2e` の後に `pnpm test:e2e:preview` も動かし、失敗したら両方の出力先をアップロードする。
 
 ## 作る・変えるファイルと順番
 
@@ -121,7 +126,7 @@
 2. 辞書 `src/i18n/ja.ts`・`en.ts`・`zh.ts`（`pending`）
 3. `app/globals.css`（色の変数・`bg-pending-hatch`）、`src/features/map/regions.ts`（`PENDING_FILL_CLASS`）
 4. コンポーネントのテスト（Red）→ `JapanMap`・`MapLegend`・`PrefIndex`・`MapTooltip`・`MapArea`・`IndexArea`・`CardArea` の props の型（Green）
-5. `app/[lang]/page.tsx`（`publish`）、`app/[lang]/layout.tsx`・`app/global-not-found.tsx`（`noindex`）
+5. `app/[lang]/page.tsx`（`publish`）、`app/[lang]/layout.tsx`（`noindex`）
 6. `package.json`（`build`・`build:preview`・`test:e2e:preview`）、`playwright.preview.config.ts`、`tests/e2e-preview/preview.spec.ts`、`tests/e2e/pending.spec.ts`、`map.spec.ts` の直し、`.github/workflows/e2e.yml`
 7. スクリーンショット：`tests/screenshots/pages.spec.ts` に、準備中の県を固定した状態（`ja-pending-pinned`：沖縄県）を足す（トップの画面にも斜線が出る）
 8. 文書：`AGENTS.md`（コマンド・アーキテクチャ・ディレクトリの `tests/e2e-preview/`）、`docs/tasks/m0-setup.md`（T0-06 の `build:preview`）、`docs/tasks/m3-card-i18n-mode.md`（T3-03 に `pending`・`draft` の使い方）、開発概要書 7.1 の表（`BUILD_TARGET`）
@@ -139,7 +144,7 @@
 | 2 | `BUILD_TARGET` が未設定・不正のとき | 未設定は `production`、不正な値はビルドを止める。`pnpm build` には `BUILD_TARGET=production` を明示する | 間違えたときに下書きが外に出ない側に倒す（R1）。シェルに `preview` が残っていても本番用のビルドは本番用になる |
 | 3 | 絞り込みの結果の形 | `PublishedPrefecture`（県に `pending`、各項目に `draft`）を返し、コンポーネントの props をこの型にする | 「下書き」の印を `publish.ts` が付ける（仕様のとおり）。`loadContent()` の結果を直接渡すと typecheck で落ちるので、絞り込みを通し忘れない |
 | 4 | プレビュー用のビルドの E2E の動かし方 | 別の設定 `playwright.preview.config.ts`（chromium だけ、8789番、`tests/e2e-preview/`）と `pnpm test:e2e:preview`。`e2e.yml` は `all`・`chromium` のときに続けて動かす | 1つの設定に2つの `webServer` を置くと、`next build` の出力（`out/`・`dist/`）がぶつかり、毎回2回ビルドする。プレビューの違いはブラウザによらないので chromium だけで足りる。スクリーンショットも別の設定にしている前例がある |
-| 5 | プレビューの `noindex` | このタスクで入れる（`layout` と `global-not-found` の `robots`）。T0-06 の定義から外す | `build:preview` をこのタスクで作るので、`noindex` のないプレビュー用のビルドが一時でも存在しないようにする（R4）。同じ `buildTarget()` で数行 |
+| 5 | プレビューの `noindex` | このタスクで入れる（`layout` の `robots`。404 は Next.js が常に付ける）。T0-06 の定義から外す | `build:preview` をこのタスクで作るので、`noindex` のないプレビュー用のビルドが一時でも存在しないようにする（R4）。同じ `buildTarget()` で数行 |
 | 6 | 地図の県のパスの読み上げ | `aria-label` に「（準備中）」を足す（「東京都（準備中）」） | 斜線は見た目だけの情報。さくいんと同じ情報をスクリーンリーダーにも伝える（WCAG 1.3.1）。仕様（4.11.4）には地図の読み上げの記述がないので、足すかどうかの判断になる |
 | 7 | 斜線の描き方と凡例 | SVG の `<pattern>`（拡大すると斜線も太くなるのは許す）。凡例の「準備中」は、準備中の県があるときだけ出す | 4.11.4 の表示は公開前の途中経過でだけ使う。倍率に合わせて斜線の間隔を保つには、属性に CSS 変数を使えないのでクライアントの処理が要る。全県 `reviewed`（M6）の後に凡例に「準備中」が残らない |
 | 8 | 文言 | 上の表（ja「準備中」、en「Coming soon」、zh「准备中」）。こども向け・おとな向けで変えない | 短い表示名で、言い方を変える必要がない。英語は利用者（訪日客）に分かりやすい表現 |
@@ -148,4 +153,12 @@
 
 ## 承認後に変えたこと
 
-（実装後に書く）
+| 項目 | 承認したとき | 実際 | 理由 |
+|---|---|---|---|
+| 辞書のキー | `pending.legend`・`pending.indexSuffix` を足す | 凡例は既存の `comingSoon.label`、足したのは `comingSoon.indexSuffix` だけ | 同じ文言（準備中・Coming soon・准备中）がすでにあり、重複したキーを作らないため |
+| 404 の `noindex` | `app/global-not-found.tsx` にも付ける | 付けない | Next.js が 404 のページに常に `<meta name="robots" content="noindex">` を付ける（本番用のビルドで確かめた） |
+| `distancesFromTokyo` の引数 | 記載なし | `readonly Pick<Prefecture, 'code' \| 'capital'>[]` | `PublishedPrefecture` は `Prefecture` に代入できない（`readonly` の配列）。距離は県コードと県庁の位置しか使わない |
+| さくいんの（準備中）の置き方 | 県名の後に `<span>` | 県名と（準備中）を1つの `<span>` で包む | `<a>` が `inline-flex` で、子が2つだと英語の先頭の空白が消えた（レビューで分かった） |
+| 斜線の色 | 地 `#e2e8f0`・線 `#94a3b8`（ダーク：`#334155`・`#475569`） | ライト：地 `#f1f5f9`・線 `#7a8aa3`、ダーク：地 `#1e293b`・線 `#64748b` | ダークの地と線が 1.37:1 で斜線が見えなかった。地と線 3:1 以上、ラベルと 4.5:1 以上にした |
+| R1 の E2E | `request.get` の HTML の文字列 | 画面の文字（`rt` を除く）と、HTML・RSC の `.txt` の id・en・zh の文 | `<ruby>` で文字が分かれ、HTML の文字列では日本語の漏れを見つけられなかった。`publish.ts` を壊すと失敗することを確かめた |
+| E2E の出力先 | 本番用と同じ | `playwright-report-preview/`・`test-results-preview/` | プレビューの E2E が本番用の E2E の失敗のレポートを上書きしていた（レビューの HIGH） |
