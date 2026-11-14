@@ -69,8 +69,14 @@ jobs:
           else
             pnpm test:e2e --project="${PROJECT}"
           fi
+      # プレビュー用のビルド（BUILD_TARGET=preview）の E2E は chromium だけ（playwright.preview.config.ts。T3-02）。
+      # chromium のブラウザは all・chromium のときに入っている（pixel も chromium だが、プレビューの違いはブラウザによらないので動かさない）
+      - name: E2E test (preview build)
+        id: e2e-preview
+        if: ${{ !cancelled() && (inputs.project == 'all' || inputs.project == 'chromium') }}
+        run: pnpm test:e2e:preview
       - name: Upload Playwright report
-        if: failure() && steps.e2e.outcome == 'failure'
+        if: failure() && (steps.e2e.outcome == 'failure' || steps.e2e-preview.outcome == 'failure')
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: playwright-report
