@@ -1,0 +1,225 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { expect, test, type Locator, type Page } from '@playwright/test';
+import { dblclickAtCenter } from './helpers';
+
+// F-MUNI-01〜04、4.11.6、F-I18N-05：市区町村の描画（T2-08）。
+// 最大化はダブルクリック（マウスの操作。タッチの端末のプロジェクトではスキップ）。読み込みが終わるのは [data-muni-status="loaded"] で待つ。
+// 最大化の対象は、外接矩形の中心が自分の形の中にある長野県（20）。北海道（01）は中心が県の外になることがあるので、dblclick イベントを直接送る。
+// 市区町村の件数・名前の期待値は、コミットされた public/geo/muni/NN.topo.json から読む。
+
+const NAGANO = '20';
+const YAMANASHI = '19';
+const HOKKAIDO = '01';
+const PREF = (code: string) => `path[data-pref="${code}"]`;
+const LAYER = '[data-map-layer]';
+/** 地図のラベルを出す幅（`--breakpoint-map-label`） */
+const MAP_LABEL_MIN_WIDTH = 821;
+const POINT_GRID = 24;
+
+type Muni = { readonly code: string; readonly ja: string; readonly en: string };
+
+/** コミットされたデータから、県の市区町村（code の順）を読む */
+function muniOf(pref: string): readonly Muni[] {
+  const json = JSON.parse(readFileSync(join(process.cwd(), 'public', 'geo', 'muni', `${pref}.topo.json`), 'utf8')) as {
+    objects: { municipalities: { geometries: { properties: { code: string; name: { ja: string; en: string } } }[] } };
+  };
+  return json.objects.municipalities.geometries.map(({ properties }) => ({ code: properties.code, ja: properties.name.ja, en: properties.name.en })).sort((a, b) => a.code.localeCompare(b.code));
+}
+
+test.beforeEach(({ hasTouch }) => {
+  test.skip(hasTouch, '最大化のダブルクリックはマウスの操作（4.11.3）');
+});
+
+/** 操作の前に、ハイドレーションが終わるのを待つ（終わる前の操作は失われる） */
+async function open(page: Page, lang = 'ja'): Promise<void> {
+  await page.goto(`/${lang}/`);
+  await page.locator('[data-map-ready]').waitFor({ state: 'attached' });
+}
+
+/** 県を最大化して、市区町村の読み込みが終わるのを待つ */
+async function maximize(page: Page, pref: string): Promise<void> {
+  await page.locator(PREF(pref)).dispatchEvent('dblclick');
+  await expect(page.locator(PREF(pref))).toHaveAttribute('data-state', 'maximized');
+  await expect(page.locator('[data-muni-status="loaded"]')).toBeAttached();
+  await expect(page.locator(`[data-muni-layer][data-muni-pref="${pref}"]`)).toBeAttached();
+}
+
+const scaleOf = async (page: Page): Promise<number> => Number(await page.locator(LAYER).getAttribute('data-zoom-scale'));
+
+/** 形の内側の点（表示の座標）。外接矩形の中心にいちばん近い、形の中の点（凹んだ形でも形の中に取る） */
+async function pointInside(locator: Locator): Promise<{ readonly x: number; readonly y: number }> {
+  return locator.evaluate((element, grid) => {
+    const path = element as unknown as SVGGeometryElement;
+    const box = path.getBBox();
+    const ctm = path.getScreenCTM();
+    if (!ctm) throw new Error('座標の変換がありません');
+    const center = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    const candidates = Array.from({ length: grid * grid }, (_, i) => ({ x: box.x + (box.width * ((i % grid) + 0.5)) / grid, y: box.y + (box.height * (Math.floor(i / grid) + 0.5)) / grid }))
+      .filter(point => path.isPointInFill(new DOMPoint(point.x, point.y)))
+      .sort((a, b) => Math.hypot(a.x - center.x, a.y - center.y) - Math.hypot(b.x - center.x, b.y - center.y));
+    const best = candidates[0];
+    if (!best) throw new Error('形の内側の点が見つかりません');
+    const screen = new DOMPoint(best.x, best.y).matrixTransform(ctm);
+    return { x: screen.x, y: screen.y };
+  }, POINT_GRID);
+}
+
+/** 動きが止まって、点の位置が変わらなくなるのを待ってから、その点を返す */
+async function settledPoint(page: Page, locator: Locator): Promise<{ readonly x: number; readonly y: number }> {
+  let previous = JSON.stringify(await pointInside(locator));
+  await expect
+    .poll(async () => {
+      const current = JSON.stringify(await pointInside(locator));
+      const isSame = current === previous;
+      previous = current;
+      return isSame;
+    })
+    .toBe(true);
+  await page.waitForTimeout(50);
+  return pointInside(locator);
+}
+
+const fillOf = (locator: Locator): Promise<string> => locator.evaluate(element => getComputedStyle(element).fill);
+const opacityOf = (locator: Locator): Promise<string> => locator.evaluate(element => getComputedStyle(element).opacity);
+
+test('F-MUNI-01：最大化すると、市区町村の形の数がデータの件数と同じになる', async ({ page }) => {
+  await open(page);
+
+  await maximize(page, NAGANO);
+
+  await expect(page.locator('[data-muni]')).toHaveCount(muniOf(NAGANO).length);
+  await expect(page.locator('[data-muni-outline]')).toHaveCount(1);
+  // 隣り合う市区町村が見分けられるように、濃淡が2種類以上ある
+  const shades = await page.locator('[data-muni]').evaluateAll(elements => new Set(elements.map(element => element.getAttribute('data-shade'))).size);
+  expect(shades).toBeGreaterThanOrEqual(2);
+});
+
+test('F-MUNI-01、D16：北海道を最大化すると、札幌市が区に分かれている', async ({ page }) => {
+  await open(page);
+
+  await maximize(page, HOKKAIDO);
+
+  await expect(page.locator('[data-muni]')).toHaveCount(muniOf(HOKKAIDO).length);
+  await expect(page.locator('[data-muni="01101"]')).toBeAttached();
+  await expect(page.locator('[data-muni="01100"]')).toHaveCount(0);
+});
+
+test('F-MUNI-03：市区町村にマウスをのせると強調される', async ({ page }) => {
+  await open(page);
+  await maximize(page, NAGANO);
+  const city = page.locator('[data-muni="20201"]');
+  const { x, y } = await settledPoint(page, city);
+  await page.mouse.move(0, 0);
+  const before = await fillOf(city);
+
+  await page.mouse.move(x, y);
+
+  await expect.poll(() => fillOf(city)).not.toBe(before);
+});
+
+test('F-MUNI-04：ほかの県が薄く表示され、別の県をダブルクリックするとその県の表示に切り替わる', async ({ page }) => {
+  await open(page);
+  expect(await opacityOf(page.locator(PREF(YAMANASHI)))).toBe('1');
+
+  await maximize(page, NAGANO);
+
+  await expect.poll(() => opacityOf(page.locator(PREF(YAMANASHI)))).toBe('0.4');
+  await expect.poll(() => opacityOf(page.locator(PREF(NAGANO)))).toBe('1');
+  // 最大化した県の県名ラベルは、市区町村のラベルと重なるので隠す。ほかの県名ラベルは残す
+  await expect(page.locator(`[data-pref-label="${NAGANO}"]`)).toBeHidden();
+  await expect(page.locator(`[data-pref-label="${YAMANASHI}"]`)).toBeVisible();
+
+  await page.locator(PREF(YAMANASHI)).dblclick();
+
+  await expect(page.locator(PREF(YAMANASHI))).toHaveAttribute('data-state', 'maximized');
+  await expect(page.locator(`[data-muni-layer][data-muni-pref="${YAMANASHI}"]`)).toBeAttached();
+  await expect(page.locator(`[data-muni-layer][data-muni-pref="${NAGANO}"]`)).toHaveCount(0);
+});
+
+test('F-MUNI-04：市区町村の上でダブルクリックすると元に戻る（4.11.2）', async ({ page }) => {
+  await open(page);
+  await maximize(page, NAGANO);
+  const { x, y } = await settledPoint(page, page.locator('[data-muni="20201"]'));
+
+  await page.mouse.dblclick(x, y);
+
+  await expect(page.locator(PREF(NAGANO))).not.toHaveAttribute('data-state', 'maximized');
+  await expect(page.locator('[data-muni-layer]')).toHaveCount(0);
+  await expect.poll(() => scaleOf(page)).toBe(1);
+});
+
+test('F-MUNI-04：最大化した県をダブルクリックすると元に戻り、市区町村の形は消える', async ({ page }) => {
+  await open(page);
+  await maximize(page, NAGANO);
+
+  await dblclickAtCenter(page, page.locator(PREF(NAGANO)));
+
+  await expect(page.locator('[data-muni-layer]')).toHaveCount(0);
+});
+
+test('F-MUNI-02：拡大するとラベルが増える', async ({ page }) => {
+  test.skip((page.viewportSize()?.width ?? 0) < MAP_LABEL_MIN_WIDTH, '幅820px以下では市区町村のラベルを隠す');
+  await open(page);
+  await maximize(page, NAGANO);
+  await expect.poll(() => scaleOf(page)).toBeGreaterThan(2);
+  const visibleCount = (): Promise<number> => page.locator('[data-muni-label]').evaluateAll(elements => elements.filter(element => getComputedStyle(element).visibility !== 'hidden').length);
+  // 最大化の動きが終わって、倍率が止まるのを待つ
+  await expect
+    .poll(async () => {
+      const first = await scaleOf(page);
+      await page.waitForTimeout(100);
+      return first === (await scaleOf(page));
+    })
+    .toBe(true);
+  const scaleBefore = await scaleOf(page);
+  const before = await visibleCount();
+  expect(before).toBeGreaterThan(0);
+
+  await page.locator('[data-zoom="in"]').click();
+  await page.locator('[data-zoom="in"]').click();
+
+  await expect.poll(() => scaleOf(page)).toBeGreaterThan(scaleBefore * 1.5);
+  await expect.poll(visibleCount).toBeGreaterThan(before);
+});
+
+test.describe('市区町村の一覧（4.11.6、F-I18N-05）', () => {
+  test('4.11.6：最大化するまで「市区町村の一覧」はなく、最大化すると、すべての市区町村が code の順にある', async ({ page }) => {
+    await open(page);
+    await expect(page.locator('[data-muni-list]')).toHaveCount(0);
+
+    await maximize(page, NAGANO);
+
+    const list = page.locator('details[data-muni-list]');
+    await expect(list).toBeVisible();
+    await expect(list.locator('summary')).toContainText(String(muniOf(NAGANO).length));
+    await list.locator('summary').click();
+    await expect(list.locator('[data-muni-item]')).toHaveText(muniOf(NAGANO).map(muni => muni.ja));
+  });
+
+  test('F-I18N-05：英語のページの一覧はローマ字', async ({ page }) => {
+    await open(page, 'en');
+
+    await maximize(page, NAGANO);
+
+    const list = page.locator('details[data-muni-list]');
+    await list.locator('summary').click();
+    await expect(list.locator('[data-muni-item]')).toHaveText(muniOf(NAGANO).map(muni => muni.en));
+  });
+
+  test('F-I18N-05：中国語のページの一覧は日本語の漢字表記で、lang="ja" と日本語のフォントが付く', async ({ page }) => {
+    await open(page, 'zh');
+
+    await maximize(page, NAGANO);
+
+    const list = page.locator('details[data-muni-list]');
+    await list.locator('summary').click();
+    await expect(list.locator('[data-muni-item]')).toHaveText(muniOf(NAGANO).map(muni => muni.ja));
+    await expect(list.locator('[data-muni-item]').first()).toHaveAttribute('lang', 'ja');
+    const isJapaneseFont = await list
+      .locator('[data-muni-item]')
+      .first()
+      .evaluate(element => getComputedStyle(element).fontFamily.includes('Noto Sans JP'));
+    expect(isJapaneseFont).toBe(true);
+  });
+});
