@@ -138,13 +138,12 @@
 
 ## 承認後に変えたこと
 
-- `useMapZoom`・`MapZoomContext` は計画どおり `MapZoom.tsx` に置いた（別ファイルにしていない）。
-- `usePrefInteraction` は `ref`・`state`・`dispatch`・`handlers`（`onClick` 以外）・`sendClick` を返し、キーの処理は `onKey` で受ける形にした（地図が `handleMapKey`、さくいんは省略して `dispatchKey`）。
-- `MuniStatus` の再試行の後のフォーカスは、押したときの県を覚え、読み込みが終わったとき `activeElement` が `body` に落ちているときだけ戻す（読み込みの間に利用者がフォーカスを移したときと、別の県に切り替えたときは動かさない）。
-- 「拡大中に画面の外の県へフォーカスしても箱がスクロールしない」E2E は、`overflow-hidden` のままでも通る（`<svg>` が箱と同じ大きさで、層のはみ出しは `<svg>` で切られ、箱にスクロールできる範囲が生まれないため）。`overflow-clip` は防御として残した。
-- Chromium で、フォーカスの枠は県の外接矩形に出ることをスクリーンショットで確かめた（`ja-keyboard-focus`）。Firefox・WebKit での見え方は、全プロジェクトの E2E・スクリーンショットで確かめる。
-- レビューを受けた修正：
-  - 地図の外へ出たかの判定を、`relatedTarget` が根の中の県かどうか（`isPrefInside`）にした。地図からさくいんへ（逆も）フォーカスが移ると、地図の停止位置は固定中の県（なければ北海道）に戻り、ホバーも解除する。
-  - `MuniStatus` は、別の県への切り替え・解除と、再試行がまた失敗したときに、フォーカスを戻す予定を捨てる。
-  - 最初の停止位置は `keyboard.ts` の `FIRST_PREF` に寄せ（`JapanMap` が使う）、`ESCAPE_KEY` も `keyboard.ts` から使う。`usePrefInteraction` の戻り値から使っていない `dispatch` を除いた。
-  - E2E の「スクロールしない」は、動きを同期にして、ページと箱のスクロール量で見る形にした（WebKit で transform の比較が動きの途中を拾って落ちたため）。`overflow-hidden` でも通る防御の検査であることを名前に書いた。「固定中の県」の E2E は、固定（20）とフォーカス（21）を分けた。
+| 項目 | 承認したとき | 実際 | 理由 |
+|---|---|---|---|
+| `usePrefInteraction` の形 | 共通部分を移し、キーの処理は呼ぶ側が `onKey` で渡す | `ref`・`state`・`handlers`（`onClick` 以外）・`sendClick` を返し、`onKey` を受ける（地図は `handleMapKey`、さくいんは省略して `dispatchKey`）。地図の外へ出たかは `isPrefInside(root, relatedTarget)` で判定する | さくいんの項目も `data-pref` を持つので、`prefFromTarget(relatedTarget)` では地図からさくいんへ移ったことが分からず、停止位置が古い県に残った（レビューの MEDIUM） |
+| 再試行の後のフォーカス | 押したときにフォーカスがボタンにあれば、成功したら最大化した県へ戻す | 上に加え、読み込みが終わったとき `activeElement` が `body` のときだけ戻す。別の県への切り替え・解除と、再試行がまた失敗したときは、戻す予定を捨てる | 利用者が読み込みの間にフォーカスを移した場合や、後で同じ県を最大化し直した場合に、意図せずフォーカスが飛ばないように（レビューの LOW） |
+| 定数の置き場所 | なし | 最初の停止位置 `FIRST_PREF` と `ESCAPE_KEY` を `keyboard.ts` から export し、`JapanMap`・`Tooltip` が使う | サーバーの出力とクライアントの最初の停止位置がずれないように（レビューの LOW） |
+| 「拡大中にフォーカスしても箱がスクロールしない」E2E | 箱の `scrollTop`・`scrollLeft` と層の `transform` で確かめる | 動きを減らす設定で動きを同期にし、`window.scrollY` と箱のスクロール量で確かめる。`overflow-hidden` でも通る防御の検査であることを名前に書いた | WebKit で、動きの途中の `transform` を拾って落ちた。`<svg>` が箱と同じ大きさで、はみ出しは `<svg>` で切られるので、`overflow-hidden` でも箱はスクロールしない。`overflow-clip` は防御として残した |
+| 「固定中の県があれば、Tab で入るとその県」E2E | 固定してから Tab で入る | 20 を固定し、→ で 21 へ移って Tab で出てから、Shift + Tab で 20 に戻ることを確かめる | 固定とフォーカスが同じ県だと、「最後にフォーカスした県に戻る」誤った実装でも通るため（レビューの LOW） |
+| E2E の追加 | 計画の10件 | 地図の外から戻る場合、`0` での最大化の解除、矢印の後の停止位置の3件を足した | 停止位置と 4.11.2 の `0` の行を、E2E でも確かめるため |
+| フォーカスの枠（判断 #8） | スクリーンショットで見え方を確かめる | Chromium・Firefox・WebKit とも、県の外接矩形に描かれることを確かめた。隣の県に一部隠れるが、どの県かは分かる | — |
