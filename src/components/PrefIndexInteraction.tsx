@@ -9,6 +9,29 @@ import { useMapState } from './MapStateProvider';
 /** 直前の pointerdown がないとき（キーボードなど）の入力の種類 */
 const DEFAULT_POINTER_TYPE = 'mouse';
 
+type Dispatch = ReturnType<typeof useMapState>['dispatch'];
+
+/** キーボードの操作を `mapReducer` に渡す。Ctrl・Meta・Alt つきとキーの繰り返しは無視する */
+function handleKeyDown(event: KeyboardEvent, dispatch: Dispatch): void {
+  if (event.ctrlKey || event.metaKey || event.altKey || event.repeat) return;
+  const mapEvent = keyToMapEvent({ key: event.key, shiftKey: event.shiftKey, pref: prefFromTarget(event.target) });
+  if (!mapEvent) return;
+  // Enter のリンクの移動・Shift + Enter の新しいウィンドウ・Space のスクロールを止め、click を経由せず直接渡す
+  event.preventDefault();
+  dispatch(mapEvent);
+}
+
+/** キーボードでのフォーカス（`:focus-visible`）をホバーにする。タップなど、キーボードでないフォーカスではホバーを出さない（4.11.3） */
+function handleFocus(event: FocusEvent, dispatch: Dispatch): void {
+  const pref = prefFromTarget(event.target);
+  if (pref !== null && event.target.matches(':focus-visible')) dispatch({ type: 'hover', pref });
+}
+
+/** 項目からフォーカスが外れたらホバーを解除する。別の項目へ移るだけなら解除しない（移った先のホバーは focus で書く。マウスで移ったときは、マウスのホバーを残す） */
+function handleBlur(event: FocusEvent, dispatch: Dispatch): void {
+  if (prefFromTarget(event.target) !== null && prefFromTarget(event.relatedTarget) === null) dispatch({ type: 'hoverEnd' });
+}
+
 /**
  * 県名さくいん（`PrefIndex`）を包み、操作を `mapReducer` につなぐ（F-IDX-02・03、4.11.2、6.6 (2)）。
  * `MapInteraction` と同じく、イベントはここでまとめて受け（委譲）、県は `data-pref` で引く。
@@ -46,26 +69,6 @@ export function PrefIndexInteraction({ children }: { readonly children: ReactNod
     send('click', event.target, lastPointerType.current);
   };
 
-  const onKeyDown = (event: KeyboardEvent) => {
-    if (event.ctrlKey || event.metaKey || event.altKey || event.repeat) return;
-    const mapEvent = keyToMapEvent({ key: event.key, shiftKey: event.shiftKey, pref: prefFromTarget(event.target) });
-    if (!mapEvent) return;
-    // Enter のリンクの移動・Shift + Enter の新しいウィンドウ・Space のスクロールを止め、click を経由せず直接渡す
-    event.preventDefault();
-    dispatch(mapEvent);
-  };
-
-  // タップなど、キーボードでないフォーカスではホバーを出さない（4.11.3）
-  const onFocus = (event: FocusEvent) => {
-    const pref = prefFromTarget(event.target);
-    if (pref !== null && event.target.matches(':focus-visible')) dispatch({ type: 'hover', pref });
-  };
-
-  const onBlur = (event: FocusEvent) => {
-    // 別の項目へ移るだけなら解除しない（移った先のホバーは focus で書く。マウスで移ったときは、マウスのホバーを残す）
-    if (prefFromTarget(event.target) !== null && prefFromTarget(event.relatedTarget) === null) dispatch({ type: 'hoverEnd' });
-  };
-
   return (
     <div
       ref={ref}
@@ -76,9 +79,9 @@ export function PrefIndexInteraction({ children }: { readonly children: ReactNod
       onPointerOut={(event: PointerEvent) => send('out', event.target, event.pointerType, event.relatedTarget)}
       onClick={onClick}
       onDoubleClick={event => send('dblclick', event.target, lastPointerType.current)}
-      onKeyDown={onKeyDown}
-      onFocus={onFocus}
-      onBlur={onBlur}
+      onKeyDown={event => handleKeyDown(event, dispatch)}
+      onFocus={event => handleFocus(event, dispatch)}
+      onBlur={event => handleBlur(event, dispatch)}
     >
       {children}
     </div>
