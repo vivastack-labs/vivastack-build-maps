@@ -118,6 +118,14 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
   - 項目の外（項目の間・見出し）のクリックは無視する（`backgroundClick` にしない。固定が外れない）。項目のクリックは `preventDefault`（リンクの移動を止める）。マウントすると `data-index-ready` が付くので、E2E は操作の前にこれを待つ。
   - キーボード：規則は `src/features/map/keyboard.ts` の `keyToMapEvent({ key, shiftKey, pref })`（Enter・Space＝`click`、Shift + Enter＝`doubleClick`。純粋関数で、T2-11 の地図でも使う）。キー操作は DOM の `click` を経由せず、`keydown` で `preventDefault`（Enter のリンクの移動・Shift + Enter の新しいウィンドウ・Space のスクロールを止める）して `dispatch` に直接渡す。Ctrl・Meta・Alt つきとキーの繰り返しは無視する。キーボードのフォーカス（`:focus-visible`）＝ホバー（タップのフォーカスではホバーしない）。フォーカスが外れたら `hoverEnd`（別の項目へ移るときは、移った先のホバーに任せる）。
   - E2E は `tests/e2e/index.spec.ts`（8地方の見出し・Tab で47県を順にたどる・キーボード・JavaScript なしのハッシュ）と、`interaction.spec.ts`（地図とさくいんで同じテスト）。状態は地図のパスとさくいんの項目の両方で確かめる（`expectState`）。さくいんは地図の下にあるので、座標で押す `clickAtCenter` は使わず `locator.click()` を使う。
+- キーボード操作（T2-11。F-KB-01〜05、4.11.2・4.11.6、WCAG 2.1.1・1.4.13・2.4.7）：`MapInteraction`（地図）と `PrefIndexInteraction`（さくいん）の結線は、共通のフック `src/components/usePrefInteraction.ts`（ポインター・フォーカス＝ホバー・キー・`data-*-ready`・`applyPrefState` の effect。Ctrl・Meta・Alt つきとキーの繰り返しは無視）。`dispatchKey` が `keyToMapEvent` の結果を `preventDefault` してから `dispatch` に渡す。
+  - 規則は `src/features/map/keyboard.ts` の純粋関数。`keyToMapEvent`（Esc は県がなくても `escape`。地図・さくいんとも）、`navigateKey({ key, pref })`（←↑ 前・→↓ 次・Home 北海道・End 沖縄県。端で止まる）、`zoomKey(key)`（`+` `-` `0`。Shift は見ない）、`rovingPref({ focused, pinned })`（Tab の停止位置：フォーカス中 → 固定中 → 北海道）。
+  - roving tabindex：サーバーの出力（`JapanMap` の `PrefShape`）で北海道だけ `tabIndex={0}`、ほかは `-1`。`MapInteraction` が `focused`（地図の県にフォーカスがある間）を持ち、`applyRovingTabIndex`（`mapDom.ts`）で `tabindex` の属性だけを書く。地図の外では「固定中の県、なければ北海道」。矢印・Home・End は `keydown` で `preventDefault` し、移った先の県のパスへ `focus()` する（ホバー＝カードは、`:focus-visible` のときの focus の処理に任せる）。最大化中も移れる。
+  - `+` `-` `0` は `MapZoom` の `MapZoomContext`（`useMapZoom()` が `{ step(direction), reset() }`。`MapZoom` の外では `null`）で、ボタンと同じ関数を呼ぶ（動きを減らす設定と、動きの途中の「＋」の目標が同じになる）。県のパスにフォーカスがあるときだけ。
+  - Esc でツールチップを隠す：`Tooltip` が `document` の `keydown` で `hit` を捨てる（次にマウスが動くまで）。状態の解除は、地図・さくいんにフォーカスがあるときだけ。
+  - フォーカスの枠：県のパスの `focus-visible:outline-solid`（太さは `calc(4px / var(--zoom-k, 1))`。`JapanMap` の `PREF_FOCUS_CLASS`）。地図の箱 `[data-map-box]` は `overflow-clip`。
+  - 「再試行」が成功してボタンが消えたら、押したときにフォーカスがボタンにあった場合だけ、最大化した県のパスへフォーカスを戻す（`MuniStatus`。`useRestoreFocusAfterRetry`）。
+  - E2E は `tests/e2e/keyboard.spec.ts`（PC のプロジェクトだけ。`tabIntoMap` で Tab を押して地図に入る）と、`index.spec.ts`（さくいんの Esc）。倍率は層の `data-zoom-scale` で読む。
 - コンテンツ（7.1）：ビルドでは `src/lib/content.ts` の `loadContent()`（誤りがあれば例外。県を `code` の順に返す）を使い、検証は `validateContent()`（誤り・警告をすべて返す）。どちらも `CONTENT_DIR`（既定は `content/prefectures/`）を読む。`scripts/` から Node.js で直接読み込むので、`src/lib/` の相対の import には `.ts` を付ける。本番の `reviewed` だけの絞り込みは T3-02。
 - `next.config.ts` の `agentRules: false` は消さない。消すと `next dev` が `AGENTS.md` に英語の指示を書き込む。
 

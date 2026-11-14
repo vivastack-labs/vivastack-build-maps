@@ -138,4 +138,8 @@
 
 ## 承認後に変えたこと
 
-（実装後に書く）
+- `useMapZoom`・`MapZoomContext` は計画どおり `MapZoom.tsx` に置いた（別ファイルにしていない）。
+- `usePrefInteraction` は `ref`・`state`・`dispatch`・`handlers`（`onClick` 以外）・`sendClick` を返し、キーの処理は `onKey` で受ける形にした（地図が `handleMapKey`、さくいんは省略して `dispatchKey`）。
+- `MuniStatus` の再試行の後のフォーカスは、押したときの県を覚え、読み込みが終わったとき `activeElement` が `body` に落ちているときだけ戻す（読み込みの間に利用者がフォーカスを移したときと、別の県に切り替えたときは動かさない）。
+- 「拡大中に画面の外の県へフォーカスしても箱がスクロールしない」E2E は、`overflow-hidden` のままでも通る（`<svg>` が箱と同じ大きさで、層のはみ出しは `<svg>` で切られ、箱にスクロールできる範囲が生まれないため）。`overflow-clip` は防御として残した。
+- Chromium で、フォーカスの枠は県の外接矩形に出ることをスクリーンショットで確かめた（`ja-keyboard-focus`）。Firefox・WebKit での見え方は、全プロジェクトの E2E・スクリーンショットで確かめる。
