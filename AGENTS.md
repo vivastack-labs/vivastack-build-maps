@@ -112,7 +112,7 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
   - 規則は `src/features/map/tooltip.ts`（純粋関数）。`tooltipTarget`：タッチ・ボタンを押している間は出さない（マウスとペンで出す。カードのホバーと同じ）。最大化していなければ県の上でその県（固定中も同じ）、最大化中は最大化した県の市区町村の上だけ（ほかの県・市区町村のない所は出さない）。属性の値は県コード・5桁の市区町村コードの形を確かめる。`muniTooltipText`：ja は `name.ja`（区は「札幌市中央区」）と、その下の行に `kana`（`data-tip-reading`。ふりがなの ON/OFF に関係なく常に出す）、en は `name.en`、zh は `name.ja`（`lang="ja"`）で読みなし。`tooltipPosition`：マウスの右下 12px、はみ出すなら左・上に反転、それでもはみ出すなら箱の内側に寄せる。
   - 市区町村の名前は `useMuniShapes(maximized)` の `shapes.shapes[].properties` を `data-muni` の `code` で引く（`MuniStatus`・`MuniLayer`・`MuniList` と同じキャッシュ）。
   - 本番の `reviewed` の絞り込みは T3-02：`MapTooltip` に `publish.ts` の結果の県を渡せば、準備中の県は名物がなくなり、県名だけになる。
-  - E2E は `tests/e2e/tooltip.spec.ts`（フィクスチャのコンテンツ。北海道＝名物3つ、沖縄県＝名物なし、札幌市中央区）。マウスの位置は `page.mouse` で、形の内側の点（`helpers.ts` の `settledPoint`。`isPointInFill`）に動かす。
+  - E2E は `tests/e2e/tooltip.spec.ts`（フィクスチャのコンテンツ。北海道＝名物3つ、沖縄県＝名物なし、札幌市中央区）。マウスの位置は `page.mouse` で、形の内側の点（`helpers.ts` の `settledPoint(locator)`。`isPointInFill`）に動かす。Firefox・WebKit は `page.mouse` の座標を整数に切り捨てるので、`settledPoint` は整数にしても形の中にある点を返す。動きが止まったかは 250ms の間隔で2回測って判断する（続けて測ると、WebKit で動きの途中の点を返す）。
 - コンテンツ（7.1）：ビルドでは `src/lib/content.ts` の `loadContent()`（誤りがあれば例外。県を `code` の順に返す）を使い、検証は `validateContent()`（誤り・警告をすべて返す）。どちらも `CONTENT_DIR`（既定は `content/prefectures/`）を読む。`scripts/` から Node.js で直接読み込むので、`src/lib/` の相対の import には `.ts` を付ける。本番の `reviewed` だけの絞り込みは T3-02。
 - `next.config.ts` の `agentRules: false` は消さない。消すと `next dev` が `AGENTS.md` に英語の指示を書き込む。
 
