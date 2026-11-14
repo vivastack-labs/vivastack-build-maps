@@ -6,7 +6,7 @@ import { loadContent } from '../../src/lib/content';
 import { publish } from '../../src/lib/publish';
 import { plainText } from '../../src/lib/ruby';
 
-// F-MAP-01〜04・06・D24：都道府県の地図（T2-04）。県の基本情報は、E2E のサーバーがビルドで読むのと同じ content/prefectures/
+// F-MAP-01〜04・06・D24：都道府県の地図（T2-04）。県の基本情報は、E2E のサーバーがビルドで読むのと同じ tests/fixtures/content/（`CONTENT_DIR`）
 
 // E2E のビルドは本番用でフィクスチャのコンテンツ。北海道だけが内容を出し、残りの46県は「準備中」（4.11.4）
 const published = publish(loadContent('tests/fixtures/content'), 'production');

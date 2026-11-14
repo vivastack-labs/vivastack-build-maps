@@ -54,17 +54,17 @@ describe('buildTarget', () => {
 });
 
 describe('isComplete', () => {
-  test('行き方・名物・名所がそろい、すべて reviewed なら true', () => {
+  test('7.1: 行き方・名物・名所がそろい、すべて reviewed なら true', () => {
     expect(isComplete(pref('01'))).toBe(true);
   });
 
-  test('1項目でも reviewed でなければ false', () => {
+  test('7.1: 1項目でも reviewed でなければ false', () => {
     expect(isComplete(pref('01', { access: 'verified' }))).toBe(false);
     expect(isComplete(pref('01', { specialties: ['reviewed', 'draft', 'reviewed'] }))).toBe(false);
     expect(isComplete(pref('01', { spots: ['reviewed', 'reviewed', 'verified'] }))).toBe(false);
   });
 
-  test('行き方がない・名物が空・名所が空なら false', () => {
+  test('7.1: 行き方がない・名物が空・名所が空なら false', () => {
     expect(isComplete(pref('01', { access: null }))).toBe(false);
     expect(isComplete(pref('01', { specialties: [] }))).toBe(false);
     expect(isComplete(pref('01', { spots: [] }))).toBe(false);

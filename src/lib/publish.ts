@@ -45,7 +45,7 @@ function withDraft<T extends { readonly status: string }>(item: T): Drafted<T> {
 
 /** 基本情報（県名・県庁など）だけを残し、行き方・名物・名所を持たない「準備中」の県にする */
 function toPending({ id, code, region, name, capital }: Prefecture): PublishedPrefecture {
-  // 項目を1つずつ書く（スキーマに項目が増えたら、ここも型で落ちて気付く。準備中の県に未確認の内容が混ざらないようにする。R1）
+  // 項目を1つずつ書く（スキーマに必須の項目が増えれば型で落ちて気付く。省ける項目が増えても、ここに書かないので除かれる＝準備中の県に未確認の内容が漏れない側。R1）
   return { id, code, region, name, capital, specialties: [], spots: [], pending: true };
 }
 
