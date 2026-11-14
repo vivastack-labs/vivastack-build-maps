@@ -145,6 +145,7 @@
 - 既定値を決める（開発計画 5章 U1 の推奨案）。結果を開発概要書の第16章と付録Aに書く。
 - `<head>` の初期化スクリプト（500バイト未満）：localStorage の値を `<html data-mode data-ruby>` に反映する。localStorage の読み書きは try/catch で囲む。スクリプトの文字列は定数として1か所に置く（T4-01 でハッシュを計算するため）。
 - ビルド時に、言語ごとの既定値を `<html>` に書いておく。
+- こども向け・おとな向けの片方は `display: none` で隠す（読み上げ・`aria-live`・ボタンの名前からも除くため。`visibility` や `opacity` は使わない）。T2-07 の `MuniStatus` の失敗の文言・「再試行」ボタンも `ModeText` なので、切り替わると片方だけが読み上げられる。
 - `app/globals.css`：`html[data-mode="kids"] .adult { display: none }` などの切替のルール、`html[data-ruby="off"] rt { display: none }`。`@custom-variant kids` / `adult` を定義する（D26）。
 - Header（T2-03）に、モードの切替とふりがなの切替（日本語のページだけ）のボタン（`aria-pressed`）。
 - T2-03 の `CardArea` の案内文は、T3-05 までおとな向け（`card.guide.adult`）だけを出している。`ModeText` に戻す。

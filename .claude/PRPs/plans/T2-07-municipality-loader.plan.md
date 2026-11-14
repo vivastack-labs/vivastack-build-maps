@@ -14,6 +14,7 @@
 - **読み込みは純粋な部品に分ける**：`src/features/map/muniLoader.ts` は DOM・React を使わず、`fetch`・`navigator.onLine`・タイマーを外から受け取る（単体テストで置き換えるため）。ドメインロジックなので 90% 以上を確かめる。
 - **最大化は待たない**：最大化は今までどおり `mapReducer` と `MapZoom` がすぐに行う。読み込みは `state.maximized` を見て別に始め、結果は表示（文言・ボタン）にだけ使う。
 - **成功だけを覚える**：成功した県はメモリに残し、2回目は fetch しない。失敗は覚えないので、「再試行」で fetch し直せる。自動の再試行はしない（4.11.5）。
+- **応答の上限は15秒**（レビューで追加）：`AbortController` で1回の読み込み（本文まで）を15秒（`FETCH_TIMEOUT_MS`）で打ち切り、fetch の失敗と同じく `isOnline()` で `network`・`offline` に分ける。`MuniLoaderDeps.fetchTimeoutMs` で変えられる。開発概要書 4.11.5 の「読み込みに失敗した」の行にも書いた。
 - **古い結果は捨てる**：読み込み中に別の県へ切り替えた・最大化を解除したときは、前の県の結果を表示に使わない（読み込み自体は続け、成功すれば覚える。次に開くときに速い）。
 
 ## 先に書くテスト
@@ -65,7 +66,7 @@
 
 1. テストを先に書く（Red）。上の3つ。
 2. `src/features/map/muniLoader.ts`：
-   - 型：`MuniStatus = { kind: 'loading' } | { kind: 'slow' } | { kind: 'loaded'; data: MuniTopology } | { kind: 'failed'; reason: 'network' | 'http' | 'invalid' } | { kind: 'offline' }`。`MuniTopology` は検証を通った TopoJSON（`@types/topojson-specification` の `Topology` に、`municipalities` の属性の型を付けたもの）。
+   - 型（コンポーネント `MuniStatus` と区別するため、実装では `MuniLoadStatus`）：`MuniLoadStatus = { kind: 'loading' } | { kind: 'slow' } | { kind: 'loaded'; data: MuniTopology } | { kind: 'failed'; reason: 'network' | 'http' | 'invalid' } | { kind: 'offline' }`。`MuniTopology` は検証を通った TopoJSON（`@types/topojson-specification` の `Topology` に、`municipalities` の属性の型を付けたもの）。
    - 定数：`SLOW_THRESHOLD_MS = 300`（4.11.5）、`MUNI_BASE_PATH = '/geo/muni/'`。
    - `createMuniLoader({ fetch, isOnline, setTimeout, clearTimeout })` → `{ load(code, onStatus): Promise<MuniStatus> }`。成功のキャッシュ（`Map`）と読み込み中の Promise をこのクロージャーの中に持つ。`onStatus` は `loading`→（300ms を超えたら `slow`）→ 結果、の順に呼ぶ。キャッシュにあれば `loaded` だけ。
    - `validateMuniTopology(json, code)`：判断 3 の範囲だけを確かめる。合わなければ `null`。
@@ -110,3 +111,13 @@
 6. **表示の文言**：T2-02 で辞書に用意した `muni.loading`・`muni.loadFailed`・`muni.offline`・`muni.retry` をそのまま使う（こども向けは「もう一度」）。新しい文言は足さない。
 7. **5.1 の目安（1県分 圧縮後 100KB 以下）**：調べたところ、最大の北海道は gzip で約85KB、2番目の熊本県は約45KB で、基準内。この PR では何もしない（PR の「分かったこと」に書く）。
 8. **新しい依存は足さない**：検証は手で書く（数行で済み、ajv をクライアントに入れると重い）。`topojson-client` はすでに `dependencies` にあり、この PR では使わない（GeoJSON に変えるのは T2-08）。
+
+## レビュー後の変更
+
+- 同じ県を解除して再び最大化したとき、最初の描画に前回の状態（失敗・読み込み中）を出さない（`useMuniData` の effect の後始末で捨てる）。
+- 「再試行」の読み込み中は、ボタンを消さずに `aria-disabled="true"` にしてクリックを無視する（フォーカスを保つ）。成功して消えるときのフォーカスの戻し先は T2-11 に申し送った。`useMuniData` は `isRetrying` を返す。
+- fetch に15秒の上限（上の方針）。
+- 検証を厳しくした：`geometries` が空なら不正、`code` は数字5桁、`cityName` は文字列かなし。47県の本物のデータが通ることを `tests/data/muni-validate.test.ts` で確かめる。T2-08 への申し送りは T2-08 の定義に書いた。
+- `inFlight` の掃除を `.finally` にし、`load` の `slow` タイマーも例外のときに止める。既定の `muniLoader` の単体テスト（`muniLoader-default.test.ts`）を足した。
+- E2E の「応答が速ければ『読み込み中』は出ない」は、壊れていても通るので消した（300ms の境目は単体テストで確かめる）。
+- T3-05 の定義に「片方は `display: none` で隠す」を書き足した。
