@@ -26,7 +26,7 @@ export default async function Page({ params }: Props) {
         </div>
         <CardArea lang={lang} prefectures={prefectures} />
         <div className="min-w-0 lg:col-span-2">
-          <IndexArea lang={lang} />
+          <IndexArea lang={lang} prefectures={prefectures} />
         </div>
       </MapStateProvider>
     </main>
