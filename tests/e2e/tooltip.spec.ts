@@ -40,10 +40,11 @@ async function pointOn(page: Page, locator: Locator): Promise<{ readonly x: numb
   return settledPoint(page, locator);
 }
 
-/** 県の形の内側にマウスを動かす */
-async function hoverPref(page: Page, code: string): Promise<void> {
-  const { x, y } = await pointOn(page, page.locator(PREF(code)));
-  await page.mouse.move(x, y);
+/** 県の形の内側にマウスを動かす。マウスの位置を返す */
+async function hoverPref(page: Page, code: string): Promise<{ readonly x: number; readonly y: number }> {
+  const point = await pointOn(page, page.locator(PREF(code)));
+  await page.mouse.move(point.x, point.y);
+  return point;
 }
 
 /** マウスを海へ動かす */
@@ -110,14 +111,19 @@ test.describe('PC（マウス）', () => {
     await expect(page.locator(TOOLTIP)).toBeHidden();
   });
 
-  test('F-TIP-01：ツールチップはマウスの近くにあり、地図の箱の中に収まる', async ({ page }) => {
+  test('F-TIP-01：ツールチップはマウスの右下にずれて出て、地図の箱の中に収まる', async ({ page }) => {
     await open(page);
 
-    await hoverPref(page, HOKKAIDO);
+    const mouse = await hoverPref(page, HOKKAIDO);
 
     const tooltip = await page.locator(TOOLTIP).boundingBox();
     const box = await page.locator('[data-map-box]').boundingBox();
     if (!tooltip || !box) throw new Error('位置を取れません');
+    // 北海道の点は地図の箱の右上寄りで、右にも下にも収まるので、反転せずに右下に出る（ずらす距離は12px）
+    expect(tooltip.x - mouse.x).toBeGreaterThanOrEqual(0);
+    expect(tooltip.x - mouse.x).toBeLessThanOrEqual(24);
+    expect(tooltip.y - mouse.y).toBeGreaterThanOrEqual(0);
+    expect(tooltip.y - mouse.y).toBeLessThanOrEqual(24);
     expect(tooltip.x).toBeGreaterThanOrEqual(box.x - 1);
     expect(tooltip.y).toBeGreaterThanOrEqual(box.y - 1);
     expect(tooltip.x + tooltip.width).toBeLessThanOrEqual(box.x + box.width + 1);

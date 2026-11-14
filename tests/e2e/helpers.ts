@@ -65,7 +65,9 @@ async function pointInside(locator: Locator): Promise<{ readonly x: number; read
     if (!ctm) throw new Error('座標の変換がありません');
     const inverse = ctm.inverse();
     const center = new DOMPoint(box.x + box.width / 2, box.y + box.height / 2).matrixTransform(ctm);
-    const best = Array.from({ length: grid * grid }, (_, i) => new DOMPoint(box.x + (box.width * ((i % grid) + 0.5)) / grid, box.y + (box.height * (Math.floor(i / grid) + 0.5)) / grid).matrixTransform(ctm))
+    const best = Array.from({ length: grid * grid }, (_, i) =>
+      new DOMPoint(box.x + (box.width * ((i % grid) + 0.5)) / grid, box.y + (box.height * (Math.floor(i / grid) + 0.5)) / grid).matrixTransform(ctm)
+    )
       .map(screen => ({ x: Math.floor(screen.x), y: Math.floor(screen.y) }))
       .filter(screen => path.isPointInFill(new DOMPoint(screen.x, screen.y).matrixTransform(inverse)))
       .sort((a, b) => Math.hypot(a.x - center.x, a.y - center.y) - Math.hypot(b.x - center.x, b.y - center.y))[0];

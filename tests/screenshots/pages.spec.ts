@@ -9,6 +9,8 @@ type Scene = {
   readonly name: string;
   readonly path: string;
   readonly prepare?: (page: Page) => Promise<void>;
+  /** PC だけで撮る（マウスの操作で出る画面。スマホ（タッチ）では出ないので撮らない） */
+  readonly pcOnly?: boolean;
 };
 
 /** ハイドレーションが終わってから県をクリックして固定し、マウスを地図から外す（ホバーの見た目を写さない） */
@@ -89,8 +91,8 @@ const SCENES: readonly Scene[] = [
   { name: 'en-maximized-list', path: '/en/', prepare: maximizeWithList },
   { name: 'zh-maximized', path: '/zh/', prepare: maximizePref('20') },
   // T2-09：ツールチップ。名物のある県（北海道。県名と名物3つの名前）と、最大化中の市区町村（札幌市中央区。名前と読み）
-  { name: 'ja-tooltip-pref', path: '/ja/', prepare: hoverHokkaido },
-  { name: 'ja-tooltip-muni', path: '/ja/', prepare: hoverSapporoWard },
+  { name: 'ja-tooltip-pref', path: '/ja/', prepare: hoverHokkaido, pcOnly: true },
+  { name: 'ja-tooltip-muni', path: '/ja/', prepare: hoverSapporoWard, pcOnly: true },
   // T2-07：市区町村データの読み込みに失敗した状態。県の形で最大化したまま、地図の左上に文言と「再試行」が出る
   { name: 'ja-maximized-muni-failed', path: '/ja/', prepare: maximizeWithMuniFailure },
   // 存在しないパスの404（app/global-not-found.tsx）。404のステータスでも、page.goto は例外にならずに撮れる
@@ -101,6 +103,7 @@ const OUT_DIR = process.env.SCREENSHOT_OUT ?? '';
 
 for (const scene of SCENES) {
   test(scene.name, async ({ page }, testInfo) => {
+    test.skip(scene.pcOnly === true && testInfo.project.name !== 'pc', 'マウスの操作で出る画面は PC だけで撮る');
     await page.goto(scene.path);
     // フォントの読み込みが終わる前に撮ると、文字が別のフォントで写る
     await page.evaluate(() => document.fonts.ready);

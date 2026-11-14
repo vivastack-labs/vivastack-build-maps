@@ -92,6 +92,54 @@ describe('Tooltip：県', () => {
     expect(root().hidden).toBe(true);
   });
 
+  test('4.11.3: ボタンを押すと隠れ、離すと（マウスを動かさなくても）また出る', () => {
+    renderTooltip();
+    move(screen.getByTestId('hokkaido'));
+
+    fireEvent.pointerDown(screen.getByTestId('hokkaido'), { pointerType: 'mouse', buttons: 1 });
+    expect(root().hidden).toBe(true);
+    fireEvent.pointerUp(screen.getByTestId('hokkaido'), { pointerType: 'mouse', buttons: 0 });
+
+    expect(root().hidden).toBe(false);
+    expect(visibleTips()).toEqual(['北海道']);
+  });
+
+  test('ホイールで地図が動くと、次にマウスを動かすまで隠れる（古い県を出さない）', () => {
+    renderTooltip();
+    move(screen.getByTestId('hokkaido'));
+
+    fireEvent.wheel(screen.getByTestId('hokkaido'), { deltaY: -100 });
+
+    expect(root().hidden).toBe(true);
+    move(screen.getByTestId('nagano'));
+    expect(visibleTips()).toEqual(['長野県']);
+  });
+
+  test('d3-zoom が伝播を止めても、ホイールで隠れる（capture で受ける）', () => {
+    renderTooltip();
+    move(screen.getByTestId('hokkaido'));
+    screen
+      .getByTestId('hokkaido')
+      .closest('svg')
+      ?.addEventListener('wheel', event => event.stopImmediatePropagation());
+
+    fireEvent.wheel(screen.getByTestId('hokkaido'), { deltaY: -100 });
+
+    expect(root().hidden).toBe(true);
+  });
+
+  test('最大化が変わると、次にマウスを動かすまで隠れる（解除でマウスの下が変わっても、古い県を出さない）', async () => {
+    renderTooltip();
+    move(screen.getByTestId('nagano'));
+    expect(visibleTips()).toEqual(['長野県']);
+
+    await toggleMaximize();
+    await toggleMaximize();
+
+    expect(root().hidden).toBe(true);
+    expect(visibleTips()).toEqual([]);
+  });
+
   test('マウスの動きに合わせて位置（transform）だけを書く', () => {
     renderTooltip();
 
