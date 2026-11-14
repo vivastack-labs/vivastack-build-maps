@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import type { MuniTopology } from '@/features/map/muniLoader';
 import { selectLabels, visibleLabels } from '@/features/map/labels';
-import { muniShapes } from '@/features/map/muniShapes';
+import { cachedMuniShapes, muniShapes } from '@/features/map/muniShapes';
 import { gridTopology, props } from './muni-fixtures';
 import { OKINAWA_FRAME, projectPoint } from '@/features/map/projection';
 
@@ -150,6 +150,19 @@ describe('muniShapes', () => {
     const topology = gridTopology();
 
     expect(muniShapes(topology, '13')).toBe(muniShapes(topology, '13'));
+  });
+
+  test('cachedMuniShapes：計算の前は undefined、後は結果（壊れていれば null）。計算はしない', () => {
+    const topology = gridTopology();
+    const broken = { ...gridTopology(), arcs: [] } as unknown as MuniTopology;
+
+    expect(cachedMuniShapes(topology, '13')).toBeUndefined();
+    const result = muniShapes(topology, '13');
+    muniShapes(broken, '13');
+
+    expect(cachedMuniShapes(topology, '13')).toBe(result);
+    expect(cachedMuniShapes(broken, '13')).toBeNull();
+    expect(cachedMuniShapes(topology, '14')).toBeUndefined();
   });
 
   test('元のデータを変えない', () => {

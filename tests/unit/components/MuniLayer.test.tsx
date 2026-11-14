@@ -1,4 +1,4 @@
-import { act, render, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
 import { MapStateProvider } from '@/components/MapStateProvider';
 import { MuniLayer } from '@/components/MuniLayer';
@@ -30,10 +30,10 @@ describe('MuniLayer', () => {
     expect(container.querySelector('[data-muni-layer]')).toBeNull();
   });
 
-  test('F-MUNI-01: 読み込めたら、市区町村の形を件数ぶん描き、県の外周の線と県コードを持つ（スクリーンリーダーには読ませない）', () => {
+  test('F-MUNI-01: 読み込めたら、市区町村の形を件数ぶん描き、県の外周の線と県コードを持つ（スクリーンリーダーには読ませない）', async () => {
     const { container } = renderLayer();
 
-    toggleMaximize();
+    await toggleMaximize();
 
     const group = container.querySelector('[data-muni-layer]');
     expect(group?.getAttribute('data-muni-pref')).toBe('20');
@@ -44,18 +44,28 @@ describe('MuniLayer', () => {
     expect(container.querySelector('path[data-muni-outline]')?.getAttribute('d')).toMatch(/^M/u);
   });
 
-  test('最大化を解除すると、市区町村の形は消える', () => {
+  test('T2-08：変換が終わるまで、市区町村の形は描かない（地図は県の形のまま）', async () => {
     const { container } = renderLayer();
-    toggleMaximize();
 
-    toggleMaximize();
+    fireEvent.click(screen.getByRole('button', { name: 'toggle-20' }));
+    expect(container.querySelector('[data-muni-layer]')).toBeNull();
+    await act(() => new Promise<void>(resolve => setTimeout(resolve, 0)));
+
+    expect(container.querySelector('[data-muni-layer]')).not.toBeNull();
+  });
+
+  test('最大化を解除すると、市区町村の形は消える', async () => {
+    const { container } = renderLayer();
+    await toggleMaximize();
+
+    await toggleMaximize();
 
     expect(container.querySelector('[data-muni-layer]')).toBeNull();
   });
 
   test('F-MUNI-02: data-zoom-scale が変わると、表示するラベルが変わる', async () => {
     const { layer, labels, visibleLabels } = renderLayer();
-    toggleMaximize();
+    await toggleMaximize();
     expect(labels().length).toBeGreaterThan(0);
     expect(visibleLabels()).toHaveLength(0);
 
@@ -66,24 +76,41 @@ describe('MuniLayer', () => {
     await waitFor(() => expect(visibleLabels()).toHaveLength(0));
   });
 
-  test('F-I18N-05: 日本語のページのラベルは区名の文言で、lang は付けない', () => {
+  test('最大化を解除した後に data-zoom-scale が変わっても、例外にならない（倍率の監視は止まっている）', async () => {
+    const { layer, labels } = renderLayer();
+    await toggleMaximize();
+    const errors: unknown[] = [];
+    const onError = (event: ErrorEvent) => errors.push(event.error);
+    window.addEventListener('error', onError);
+    await toggleMaximize();
+    expect(labels()).toHaveLength(0);
+
+    act(() => layer.setAttribute('data-zoom-scale', '64'));
+    await act(() => new Promise<void>(resolve => setTimeout(resolve, 0)));
+
+    window.removeEventListener('error', onError);
+    expect(errors).toEqual([]);
+    expect(layer.querySelector('[data-muni-label]')).toBeNull();
+  });
+
+  test('F-I18N-05: 日本語のページのラベルは区名の文言で、lang は付けない', async () => {
     const { labels } = renderLayer('ja');
-    toggleMaximize();
+    await toggleMaximize();
 
     expect(labels()[0]?.textContent).toBe('市20101');
     expect(labels()[0]?.hasAttribute('lang')).toBe(false);
   });
 
-  test('F-I18N-05: 英語のページのラベルはローマ字', () => {
+  test('F-I18N-05: 英語のページのラベルはローマ字', async () => {
     const { labels } = renderLayer('en');
-    toggleMaximize();
+    await toggleMaximize();
 
     expect(labels()[0]?.textContent).toBe('City 20101');
   });
 
-  test('F-I18N-05: 中国語のページのラベルは日本語の漢字表記で、lang="ja" が付く', () => {
+  test('F-I18N-05: 中国語のページのラベルは日本語の漢字表記で、lang="ja" が付く', async () => {
     const { labels } = renderLayer('zh');
-    toggleMaximize();
+    await toggleMaximize();
 
     expect(labels()[0]?.textContent).toBe('市20101');
     expect(labels()[0]?.getAttribute('lang')).toBe('ja');

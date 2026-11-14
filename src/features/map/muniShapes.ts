@@ -156,6 +156,15 @@ function computeShapes(data: MuniTopology, projection: GeoProjection): MuniShape
 }
 
 /**
+ * すでに計算した結果を返す。まだ計算していなければ `undefined`（計算はしない）。壊れていて変換できなかったデータは `null`。
+ * 描画の中で重い計算をしないために、結果があるときだけ使う（`useMuniShapes`）。
+ */
+export function cachedMuniShapes(data: MuniTopology, prefCode: string): MuniShapes | null | undefined {
+  const cached = cache.get(data);
+  return cached?.pref === prefCode ? cached.result : undefined;
+}
+
+/**
  * 検証済みの市区町村の TopoJSON（`muniLoader` が返す `MuniTopology`）から、描くものを作る。
  * 同じ `data`（参照）は1回だけ計算する。形が壊れていて変換できなければ `null`。
  * 県コードが正しくなければ例外（呼ぶ側の誤り）。

@@ -23,10 +23,10 @@ describe('MuniList', () => {
     expect(container.querySelector('[data-muni-list]')).toBeNull();
   });
 
-  test('4.11.6: 最大化中で読み込めたときだけ <details> を出し、すべての市区町村がある（code の順）', () => {
+  test('4.11.6: 最大化中で読み込めたときだけ <details> を出し、すべての市区町村がある（code の順）', async () => {
     const { container } = renderList();
 
-    toggleMaximize();
+    await toggleMaximize();
 
     const details = container.querySelector('details[data-muni-list]');
     // 見出しの件数は、言語の括弧の中（ふりがなの <rt> の読みを含む本文の末尾）
@@ -35,30 +35,30 @@ describe('MuniList', () => {
     expect(screen.getByText('市20101')).toBeInTheDocument();
   });
 
-  test('F-I18N-05: 英語のページの一覧はローマ字', () => {
+  test('F-I18N-05: 英語のページの一覧はローマ字', async () => {
     const { container } = renderList('en');
 
-    toggleMaximize();
+    await toggleMaximize();
 
     expect(container.querySelector('summary')?.textContent).toBe('List of municipalities (4)');
     expect(screen.getByText('City 20101')).toBeInTheDocument();
     expect(screen.queryByText('市20101')).toBeNull();
   });
 
-  test('F-I18N-05: 中国語のページの一覧は日本語の漢字表記で、lang="ja" が付く', () => {
+  test('F-I18N-05: 中国語のページの一覧は日本語の漢字表記で、lang="ja" が付く', async () => {
     const { container } = renderList('zh');
 
-    toggleMaximize();
+    await toggleMaximize();
 
     expect(container.querySelector('summary')?.textContent).toBe('市区町村列表（4）');
     expect(screen.getByText('市20101').getAttribute('lang')).toBe('ja');
   });
 
-  test('最大化を解除すると一覧は消える', () => {
+  test('最大化を解除すると一覧は消える', async () => {
     const { container } = renderList();
-    toggleMaximize();
+    await toggleMaximize();
 
-    toggleMaximize();
+    await toggleMaximize();
 
     expect(container.querySelector('[data-muni-list]')).toBeNull();
   });

@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import { vi } from 'vitest';
 import { useMapState } from '@/components/MapStateProvider';
 import type { MuniLoader, MuniLoadStatus, MuniTopology } from '@/features/map/muniLoader';
@@ -24,5 +24,8 @@ export function Probe() {
   );
 }
 
-/** `Probe` のボタンを押す */
-export const toggleMaximize = (): boolean => fireEvent.click(screen.getByRole('button', { name: 'toggle-20' }));
+/** `Probe` のボタンを押し、変換（`useMuniShapes` が setTimeout(0) で行う）が終わるまで待つ */
+export async function toggleMaximize(): Promise<void> {
+  fireEvent.click(screen.getByRole('button', { name: 'toggle-20' }));
+  await act(() => new Promise<void>(resolve => setTimeout(resolve, 0)));
+}

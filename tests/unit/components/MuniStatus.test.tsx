@@ -52,15 +52,30 @@ function renderStatus(loader: MuniLoader) {
 
 const press = (name: string) => fireEvent.click(screen.getByRole('button', { name }));
 const live = () => screen.getByRole('status');
+/** 読み込めた後の変換（`useMuniShapes` が setTimeout(0) で行う）が終わるまで待つ */
+const flushConversion = () => act(() => new Promise<void>(resolve => setTimeout(resolve, 0)));
 const failed: LoadStatus = { kind: 'failed', reason: 'http' };
 
 describe('MuniStatus', () => {
-  test('T2-07：変換に失敗したら failed（invalid）になり、失敗の文言と「再試行」を出す', () => {
+  test('T2-08：読み込めても、変換が終わるまでは loaded にならない（描画の中で変換しない）', async () => {
+    const { calls, loader } = fakeLoader();
+    const { root } = renderStatus(loader);
+    press('maximize-20');
+
+    act(() => calls[0]?.notify({ kind: 'loaded', data: gridTopology('20') }));
+    expect(root().getAttribute('data-muni-status')).toBe('loading');
+    await flushConversion();
+
+    expect(root().getAttribute('data-muni-status')).toBe('loaded');
+  });
+
+  test('T2-07：変換に失敗したら failed（invalid）になり、失敗の文言と「再試行」を出す', async () => {
     const { calls, loader } = fakeLoader();
     const { root } = renderStatus(loader);
     press('maximize-20');
 
     act(() => calls[0]?.notify({ kind: 'loaded', data: { ...gridTopology('20'), arcs: [] } }));
+    await flushConversion();
 
     expect(root().getAttribute('data-muni-status')).toBe('failed');
     expect(live().textContent).not.toBe('');
@@ -126,7 +141,7 @@ describe('MuniStatus', () => {
     expect(live().textContent).toBe('');
   });
 
-  test('4.11.5: 再試行の読み込み中は、ボタンを消さずに aria-disabled にし、クリックを無視する（フォーカスを保つ）', () => {
+  test('4.11.5: 再試行の読み込み中は、ボタンを消さずに aria-disabled にし、クリックを無視する（フォーカスを保つ）', async () => {
     const { calls, load, loader } = fakeLoader();
     const { root } = renderStatus(loader);
     press('maximize-20');
@@ -158,6 +173,7 @@ describe('MuniStatus', () => {
 
     // 成功したらボタンは消える
     act(() => calls[2]?.notify({ kind: 'loaded', data: gridTopology('20') }));
+    await flushConversion();
     expect(root().querySelector('[data-muni-retry]')).toBeNull();
     expect(root().getAttribute('data-muni-status')).toBe('loaded');
   });
@@ -216,13 +232,14 @@ describe('MuniStatus', () => {
     expect(root().querySelector('[data-muni-retry]')).not.toBeNull();
   });
 
-  test('成功したら何も出さない（data-muni-status="loaded"）', () => {
+  test('成功したら何も出さない（data-muni-status="loaded"）', async () => {
     const { calls, loader } = fakeLoader();
     const { root } = renderStatus(loader);
     press('maximize-20');
     act(() => calls[0]?.notify({ kind: 'slow' }));
 
     act(() => calls[0]?.notify({ kind: 'loaded', data: gridTopology('20') }));
+    await flushConversion();
 
     expect(root().getAttribute('data-muni-status')).toBe('loaded');
     expect(live().textContent).toBe('');
