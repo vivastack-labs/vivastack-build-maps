@@ -102,7 +102,9 @@ const renderPngs = async (shape: Shape, outDir: string): Promise<void> => {
   try {
     for (const { file, size, kind } of ICON_SIZES) {
       const page = await browser.newPage({ viewport: { width: size, height: size } });
-      await page.setContent(`<!doctype html><meta charset="utf-8"><body style="margin:0;background:transparent">${iconSvg(shape, kind).replace(`width="${CANVAS}" height="${CANVAS}"`, `width="${size}" height="${size}"`)}`);
+      await page.setContent(
+        `<!doctype html><meta charset="utf-8"><body style="margin:0;background:transparent">${iconSvg(shape, kind).replace(`width="${CANVAS}" height="${CANVAS}"`, `width="${size}" height="${size}"`)}`
+      );
       writeFileSync(join(outDir, file), await page.screenshot({ omitBackground: true, type: 'png' }));
       await page.close();
     }

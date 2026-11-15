@@ -19,6 +19,8 @@ export default defineConfig({
   reporter: IS_CI ? [['github'], ['html', { open: 'never', outputFolder: 'playwright-report-preview' }]] : 'list',
   use: {
     baseURL: BASE_URL,
+    // T4-02：Service Worker（sw.js）が通信を横取りすると、page.route で失敗・遅延を作る既存のテストの結果が変わる。SW のなかった今までと同じ条件で動かす（tests/e2e/pwa.spec.ts だけ許可）
+    serviceWorkers: 'block',
     trace: 'on-first-retry'
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],

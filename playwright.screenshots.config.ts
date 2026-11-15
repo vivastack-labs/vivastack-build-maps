@@ -14,7 +14,8 @@ export default defineConfig({
   testDir: 'tests/screenshots',
   fullyParallel: true,
   reporter: 'list',
-  use: { baseURL: BASE_URL },
+  // T4-02：Service Worker が古い HTML を返して撮り直しがずれないように、使わない
+  use: { baseURL: BASE_URL, serviceWorkers: 'block' },
   // 端末は PC と、対応する画面幅の下限のスマホ（5.3）の2つに絞る
   projects: [
     { name: 'pc', use: { ...devices['Desktop Chrome'] } },

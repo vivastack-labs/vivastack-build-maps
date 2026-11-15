@@ -408,20 +408,61 @@ describe('assembleDistWithCsp', () => {
     writeFileSync(join(root, path), body);
   };
 
-  test('5.5：out/ を dist/ に組み立てて、全 HTML に CSP の meta を書く', () => {
+  /** 3言語の HTML（Service Worker のプリキャッシュに要る。U13）。`ja` の中身だけ変えられる */
+  const putPages = (ja = '<head><meta charSet="utf-8"/><script>self.__next_f.push([1,"a"])</script></head>'): void => {
+    put('out/ja/index.html', ja);
+    put('out/en/index.html', '<head><meta charSet="utf-8"/></head>');
+    put('out/zh/index.html', '<head><meta charSet="utf-8"/></head>');
+    for (const lang of ['ja', 'en', 'zh']) put(`out/${lang}/app.webmanifest`, '{}');
+    put('out/_next/static/chunks/a.js', 'js');
+    put('out/icons/icon-192.png', 'png');
+  };
+
+  const options = (): { outDir: string; distDir: string } => ({ outDir: join(root, 'out'), distDir: join(root, 'dist') });
+
+  test('5.5：out/ を dist/ に組み立てて、全 HTML に CSP の meta を書く', async () => {
     // Arrange
     put('out/_redirects', 'x');
     put('out/_headers', 'x');
-    put('out/ja/index.html', '<head><meta charSet="utf-8"/><script>self.__next_f.push([1,"a"])</script></head>');
+    putPages();
 
     // Act
-    assembleDistWithCsp({ outDir: join(root, 'out'), distDir: join(root, 'dist') });
+    await assembleDistWithCsp(options());
 
     // Assert
     expect(readFileSync(join(root, 'dist/ja/index.html'), 'utf8')).toContain('Content-Security-Policy');
   });
 
-  test('5.5（L2）：dist/ へのコピーが途中で失敗しても、中途半端な dist/ を残さずに、元の例外を投げ直す', () => {
+  test('U13：sw.js を作る。プリキャッシュの版は、CSP を書いた後の HTML の内容のハッシュ', async () => {
+    // Arrange
+    put('out/_redirects', 'x');
+    put('out/_headers', 'x');
+    putPages();
+
+    // Act
+    await assembleDistWithCsp(options());
+
+    // Assert：out/ の HTML（CSP なし）ではなく、dist/ の HTML（CSP あり）のハッシュ
+    const dist = readFileSync(join(root, 'dist/ja/index.html'));
+    const out = readFileSync(join(root, 'out/ja/index.html'));
+    const sw = readFileSync(join(root, 'dist/sw.js'), 'utf8');
+    expect(sw).toContain(`{url:"ja/index.html",revision:"${createHash('md5').update(dist).digest('hex')}"}`);
+    expect(sw).not.toContain(createHash('md5').update(out).digest('hex'));
+  });
+
+  test('U13：sw.js を作れなければ（3言語の HTML がない）、sw.js のない dist/ を残さずに、元の例外を投げ直す', async () => {
+    // Arrange
+    put('out/_redirects', 'x');
+    put('out/_headers', 'x');
+    put('out/ja/index.html', '<head><meta charSet="utf-8"/></head>');
+
+    // Act・Assert
+    await expect(assembleDistWithCsp(options())).rejects.toThrow('en/index.html');
+    expect(existsSync(join(root, 'dist'))).toBe(false);
+    expect(existsSync(join(root, 'out/ja/index.html'))).toBe(true);
+  });
+
+  test('5.5（L2）：dist/ へのコピーが途中で失敗しても、中途半端な dist/ を残さずに、元の例外を投げ直す', async () => {
     // Arrange：読めないファイルがあると、コピーが途中で失敗する（root は権限を無視するので、このテストは動かさない）
     if (process.getuid?.() === 0) return;
     put('out/_redirects', 'x');
@@ -430,16 +471,16 @@ describe('assembleDistWithCsp', () => {
     put('out/ja/secret.txt', 'x');
     chmodSync(join(root, 'out/ja/secret.txt'), 0o000);
 
-    // Act & Assert
-    expect(() => assembleDistWithCsp({ outDir: join(root, 'out'), distDir: join(root, 'dist') })).toThrow(/EACCES|permission/iu);
+    // Act・Assert
+    await expect(assembleDistWithCsp(options())).rejects.toThrow(/EACCES|permission/iu);
     expect(existsSync(join(root, 'dist'))).toBe(false);
   });
 
-  test('5.5（L2）：dist/ を消すのに失敗しても、元の例外を投げる（消す側の例外で元の原因を隠さない）', () => {
+  test('5.5（L2）：dist/ を消すのに失敗しても、元の例外を投げる（消す側の例外で元の原因を隠さない）', async () => {
     // Arrange：1回目（組み立ての前の掃除）は本物、2回目（失敗の後の後始末）は失敗にする
     put('out/_redirects', 'x');
     put('out/_headers', 'x');
-    put('out/ja/index.html', '<head><meta charSet="utf-8"/><script>alert(1)</script></head>');
+    putPages('<head><meta charSet="utf-8"/><script>alert(1)</script></head>');
     const actual = vi.mocked(rmSync).getMockImplementation();
     vi.mocked(rmSync)
       .mockImplementationOnce((...args) => actual?.(...args))
@@ -447,28 +488,28 @@ describe('assembleDistWithCsp', () => {
         throw new Error('EBUSY：消せません');
       });
 
-    // Act & Assert
-    expect(() => assembleDistWithCsp({ outDir: join(root, 'out'), distDir: join(root, 'dist') })).toThrow('知らない形');
+    // Act・Assert
+    await expect(assembleDistWithCsp(options())).rejects.toThrow('知らない形');
   });
 
-  test('R7：dist/ と out/ が重なるときは、assembleDist の例外を投げ、out/ を消さない', () => {
+  test('R7：dist/ と out/ が重なるときは、assembleDist の例外を投げ、out/ を消さない', async () => {
     // Arrange
     put('out/_redirects', 'x');
     put('out/_headers', 'x');
 
-    // Act & Assert
-    expect(() => assembleDistWithCsp({ outDir: join(root, 'out'), distDir: join(root, 'out') })).toThrow('重なっています');
+    // Act・Assert
+    await expect(assembleDistWithCsp({ outDir: join(root, 'out'), distDir: join(root, 'out') })).rejects.toThrow('重なっています');
     expect(existsSync(join(root, 'out/_redirects'))).toBe(true);
   });
 
-  test('5.5：CSP を書けなかったときは、CSP のない dist/ を残さずに、元の例外を投げ直す', () => {
+  test('5.5：CSP を書けなかったときは、CSP のない dist/ を残さずに、元の例外を投げ直す', async () => {
     // Arrange
     put('out/_redirects', 'x');
     put('out/_headers', 'x');
-    put('out/ja/index.html', '<head><meta charSet="utf-8"/><script>alert(1)</script></head>');
+    putPages('<head><meta charSet="utf-8"/><script>alert(1)</script></head>');
 
-    // Act & Assert
-    expect(() => assembleDistWithCsp({ outDir: join(root, 'out'), distDir: join(root, 'dist') })).toThrow('知らない形');
+    // Act・Assert
+    await expect(assembleDistWithCsp(options())).rejects.toThrow('知らない形');
     expect(existsSync(join(root, 'dist'))).toBe(false);
     expect(existsSync(join(root, 'out/ja/index.html'))).toBe(true);
   });
