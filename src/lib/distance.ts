@@ -1,9 +1,6 @@
 // 東京からの距離（F-CARD-03、開発概要書 7.5）。県庁の緯度経度から、ハバーサイン公式で直線距離を計算する。
 // DOM・React・node:fs を使わない純粋な関数。値はビルド時に1回だけ計算し、サーバーコンポーネントで HTML に埋め込む。
 // scripts/ から Node.js で直接読み込まれることがあるので、相対の import には .ts を付ける。
-import { fillCount } from '../i18n/format.ts';
-import type { Lang } from '../i18n/lang.ts';
-import { getMessages } from '../i18n/messages.ts';
 import type { Prefecture } from './content-schema.generated.ts';
 
 /** 緯度・経度（度）の点 */
@@ -42,9 +39,4 @@ export function distancesFromTokyo(prefectures: readonly Pick<Prefecture, 'code'
   const tokyo = prefectures.find(({ code }) => code === TOKYO_CODE);
   if (tokyo === undefined) throw new Error(`東京都（code: "${TOKYO_CODE}"）がないので、東京からの距離を計算できません`);
   return new Map(prefectures.map(({ code, capital }) => [code, roundTo10Km(haversineKm(tokyo.capital, capital))]));
-}
-
-/** 「東京から約 1,550 km」の文（ふりがなの記法つき。`RubyText` で描く）。`km` は 10km 単位に丸めた値 */
-export function distanceText(lang: Lang, km: number): string {
-  return fillCount(lang, getMessages(lang).card.distance, km);
 }

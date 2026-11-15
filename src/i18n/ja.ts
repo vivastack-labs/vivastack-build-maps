@@ -50,7 +50,19 @@ const jaSource = {
     } satisfies ModeTextValue,
     distance: '{東京|とうきょう}から{約|やく} %n km',
     maximize: '{大|おお}きくして{市区町村|しくちょうそん}を{見|み}る',
-    restore: '{元|もと}の{大|おお}きさにもどす'
+    restore: '{元|もと}の{大|おお}きさにもどす',
+    capital: '{県庁所在地|けんちょうしょざいち}',
+    access: '{東京|とうきょう}からの{行|い}き{方|かた}',
+    durationLabel: '{所要時間|しょようじかん}の{目安|めやす}',
+    // %h・%m に時間・分の数を入れる。「分」の読みは、数に合わせて cardText.ts が「ふん」「ぷん」にする
+    duration: {
+      hoursMinutes: '%h{時間|じかん}%m{分|ふん}',
+      hours: '%h{時間|じかん}',
+      minutes: '%m{分|ふん}'
+    },
+    specialties: '{名物|めいぶつ}',
+    spots: '{名所|めいしょ}',
+    draft: '{下書|したが}き'
   },
   comingSoon: {
     label: '{準備中|じゅんびちゅう}',

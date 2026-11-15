@@ -1,4 +1,6 @@
 /* 6.2 D26：Tailwind CSS v4。色・フォントは @theme の CSS 変数として定義する */
+/* T3-03：JavaScript がないときの :target の規則（末尾）用のレイヤー。!important の宣言は、先に並べたレイヤーが勝つので、Tailwind の層（theme・base…）より前に宣言する */
+@layer card-target;
 @import 'tailwindcss';
 
 /* 6.2 D27：Webフォントは使わず、言語ごとにシステムフォントを指定する。
@@ -110,4 +112,20 @@
 @utility bg-pending-hatch {
   background-color: var(--color-map-pending);
   background-image: repeating-linear-gradient(45deg, var(--color-map-pending-stripe) 0 2px, transparent 2px 5px);
+}
+
+/*
+ * T3-03：JavaScript がないとき、URL のハッシュ（#pref-NN）の県のカードを見せる（6.6 (2)）。
+ * カードは `hidden` で出力されるので、Tailwind の preflight（`@layer base`）の `[hidden] { display: none !important }` に勝つ必要がある。
+ * !important の宣言は、レイヤーでは先に並べたものが勝つ（詳細度より前に決まる）ので、先頭で宣言した `card-target` に入れて `!important` を付ける。
+ * `CardSwitch` がマウントすると `data-card-ready` が付き、この規則は止まる（JavaScript があるときは、状態で選んだカードだけが見える）。
+ * カードが見えるときは案内文を隠す。
+ */
+@layer card-target {
+  [data-card-switch]:not([data-card-ready]) [data-card-pref]:target {
+    display: block !important;
+  }
+}
+[data-card-switch]:not([data-card-ready]):has([data-card-pref]:target) [data-card-guide] {
+  display: none;
 }

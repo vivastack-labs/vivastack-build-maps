@@ -50,13 +50,20 @@ export function applyRovingTabIndex(root: ParentNode, code: PrefCode): void {
 /**
  * カードの領域の表示を切り替える。`[data-card-pref]` は表示する県だけ `hidden` を外し、
  * `[data-card-guide]`（案内文）は表示する県がないときだけ見せる。
+ * 最大化ボタン（`[data-card-maximize]`）は、`maximized` の県のものだけ「元の大きさにもどす」の文言（`[data-label-restore]`）を見せ、
+ * ほかは「大きくして…」の文言（`[data-label-maximize]`）を見せる（F-CARD-08）。
  */
-export function applyCardState(root: ParentNode, pref: PrefCode | null): void {
+export function applyCardState(root: ParentNode, pref: PrefCode | null, maximized: PrefCode | null): void {
   for (const element of root.querySelectorAll<HTMLElement>('[data-card-pref]')) {
     element.hidden = element.getAttribute('data-card-pref') !== pref;
   }
   for (const element of root.querySelectorAll<HTMLElement>('[data-card-guide]')) {
     element.hidden = pref !== null;
+  }
+  for (const button of root.querySelectorAll<HTMLElement>('[data-card-maximize]')) {
+    const isMaximized = maximized !== null && button.getAttribute('data-card-maximize') === maximized;
+    for (const label of button.querySelectorAll<HTMLElement>('[data-label-maximize]')) label.hidden = isMaximized;
+    for (const label of button.querySelectorAll<HTMLElement>('[data-label-restore]')) label.hidden = !isMaximized;
   }
 }
 

@@ -53,6 +53,32 @@ test.describe('7.1：プレビューには、reviewed でない項目も出る',
   });
 });
 
+test.describe('7.1：プレビューのカードの「下書き」の印', () => {
+  test('東京都のカードで、reviewed でない項目（3つ）にだけ「下書き」の印が出る', async ({ page }) => {
+    // Arrange：フィクスチャの東京都は、名物の2つ（verified・draft）と名所の1つ（verified）が reviewed でない
+    const tokyo = prefectures.find(prefecture => prefecture.code === TOKYO);
+    const items = [...(tokyo?.specialties ?? []), ...(tokyo?.spots ?? [])];
+    const expected = items.filter(item => item.status !== 'reviewed').map(item => item.id);
+    expect(expected).toHaveLength(3);
+    await page.goto('/en/');
+    await page.locator('[data-card-ready]').waitFor({ state: 'attached' });
+    await page.locator('[data-index-ready]').waitFor({ state: 'attached' });
+
+    // Act
+    await page.locator(`a[data-pref="${TOKYO}"]`).click();
+
+    // Assert：準備中の県ではなく、内容を出す。印は、reviewed でない項目にだけ付く
+    const card = page.locator(`[data-card-pref="${TOKYO}"]`);
+    await expect(card.locator('[data-card-coming-soon]')).toHaveCount(0);
+    await expect(card.locator('[data-card-item]')).toHaveCount(items.length);
+    const marked = await card
+      .locator('[data-card-item]')
+      .evaluateAll(elements => elements.filter(element => element.querySelector('[data-card-draft]') !== null).map(element => element.getAttribute('data-card-item')));
+    expect(marked).toEqual(expected);
+    await expect(card.locator('[data-card-draft]').first()).toHaveText('Draft');
+  });
+});
+
 test.describe('R4・11.4 (5)：プレビューには noindex が付く', () => {
   for (const lang of LANGS) {
     test(`/${lang}/ に <meta name="robots" content="noindex"> がある`, async ({ page }) => {

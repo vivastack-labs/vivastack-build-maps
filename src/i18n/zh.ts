@@ -34,7 +34,18 @@ export const zh: Messages = {
     },
     distance: '距东京约 %n 公里',
     maximize: '放大查看市区町村',
-    restore: '恢复原来大小'
+    restore: '恢复原来大小',
+    capital: '县厅所在地',
+    access: '从东京出发的交通方式',
+    durationLabel: '所需时间（参考）',
+    duration: {
+      hoursMinutes: '%h小时%m分钟',
+      hours: '%h小时',
+      minutes: '%m分钟'
+    },
+    specialties: '特产',
+    spots: '名胜',
+    draft: '草稿'
   },
   comingSoon: {
     label: '准备中',

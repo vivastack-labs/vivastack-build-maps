@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, test } from 'vitest';
-import { prefFromTarget, toMapEvent } from '@/features/map/pointer';
+import { prefFromAttribute, prefFromTarget, toMapEvent } from '@/features/map/pointer';
 
 describe('toMapEvent：over', () => {
   test('F-CARD-01：マウスで県にのると hover になる', () => {
@@ -71,6 +71,25 @@ describe('toMapEvent：dblclick', () => {
 
   test('県の外のダブルクリックは無視する', () => {
     expect(toMapEvent({ kind: 'dblclick', pref: null, pointerType: 'mouse' })).toBeNull();
+  });
+});
+
+describe('prefFromAttribute', () => {
+  test('F-CARD-08：指定した属性を持つ祖先（自分を含む）の県コードを返す', () => {
+    document.body.innerHTML = '<div data-card-maximize="13"><span id="inner"></span></div>';
+
+    expect(prefFromAttribute(document.getElementById('inner'), 'data-card-maximize')).toBe('13');
+    expect(prefFromAttribute(document.querySelector('[data-card-maximize]'), 'data-card-maximize')).toBe('13');
+  });
+
+  test('F-CARD-08：属性がない・県コードの形でない・要素でない対象は null', () => {
+    document.body.innerHTML = '<div data-card-maximize="99"><span id="bad"></span></div><p id="none"></p>';
+
+    expect(prefFromAttribute(document.getElementById('bad'), 'data-card-maximize')).toBeNull();
+    expect(prefFromAttribute(document.getElementById('none'), 'data-card-maximize')).toBeNull();
+    expect(prefFromAttribute(document.getElementById('none'), 'data-pref')).toBeNull();
+    expect(prefFromAttribute(null, 'data-card-maximize')).toBeNull();
+    expect(prefFromAttribute(document, 'data-card-maximize')).toBeNull();
   });
 });
 

@@ -37,6 +37,14 @@ async function pinPendingFromIndex(page: Page): Promise<void> {
   await page.mouse.move(0, 0);
 }
 
+/** ハイドレーションが終わってから、さくいんの北海道（フィクスチャで内容のある県）の項目をクリックして固定し、マウスを外す（T3-03。本物のカード） */
+async function pinHokkaidoFromIndex(page: Page): Promise<void> {
+  await page.locator('[data-index-ready]').waitFor({ state: 'attached' });
+  await page.locator('a[data-pref="01"]').click();
+  await page.locator('a[data-pref="01"][aria-pressed="true"]').waitFor();
+  await page.mouse.move(0, 0);
+}
+
 /** 動きを止めてから（最終の位置で撮るため）、県（コード）をダブルクリックして最大化し、マウスを地図から外す */
 async function maximizeOnly(page: Page, code: string): Promise<void> {
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -120,6 +128,8 @@ const SCENES: readonly Scene[] = [
   { name: 'ja-index-pinned', path: '/ja/', prepare: pinFromIndex },
   // T3-02：準備中の県（沖縄県）を固定した状態。トップの画面にも、斜線の県・凡例の「準備中」・さくいんの「（準備中）」が出る（フィクスチャは北海道だけが内容を出す）
   { name: 'ja-pending-pinned', path: '/ja/', prepare: pinPendingFromIndex },
+  // T3-03：県のカード。内容のある県（北海道。見出し・距離・行き方・名物3つ・名所3つ・最大化ボタン。解説文はこども向け・おとな向けが両方出る（T3-05 まで））を3言語で。準備中の県のカードは ja-pending-pinned
+  ...LANGS.map(lang => ({ name: `${lang}-card`, path: `/${lang}/`, prepare: pinHokkaidoFromIndex })),
   // T2-06：県を最大化して寄った状態。長野県（県全体が収まる）と東京都（父島を除いて、本土と伊豆諸島に寄る。U16・D36）
   { name: 'ja-maximized', path: '/ja/', prepare: maximizePref('20') },
   { name: 'ja-maximized-tokyo', path: '/ja/', prepare: maximizePref('13') },

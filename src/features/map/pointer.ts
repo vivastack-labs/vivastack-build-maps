@@ -19,14 +19,30 @@ export type PointerInput = {
 const TOUCH_POINTER_TYPE = 'touch';
 
 /**
+ * `selector` に合う祖先（自分を含む）の、`attributes` のうち最初にある属性の値が県コードの形のときだけ、その値を返す。
+ * 属性は外部から書き換えられうるので、境界で形を確かめる。
+ */
+function closestPrefCode(target: EventTarget | null, selector: string, attributes: readonly string[]): PrefCode | null {
+  if (typeof Element === 'undefined' || !(target instanceof Element)) return null;
+  const owner = target.closest(selector);
+  const code = attributes.map(attribute => owner?.getAttribute(attribute) ?? null).find(value => value !== null) ?? null;
+  return code !== null && PREF_CODE_PATTERN.test(code) ? code : null;
+}
+
+/**
  * イベントの対象から、県コードを引く。`data-pref`（県の形）か `data-muni-pref`（最大化した県の市区町村の層。T2-08）を持つ
  * 祖先（自分を含む）の値が県コードの形のときだけ返す。属性は外部から書き換えられうるので、境界で確かめる。
  */
 export function prefFromTarget(target: EventTarget | null): PrefCode | null {
-  if (typeof Element === 'undefined' || !(target instanceof Element)) return null;
-  const owner = target.closest('[data-pref], [data-muni-pref]');
-  const code = owner?.getAttribute('data-pref') ?? owner?.getAttribute('data-muni-pref') ?? null;
-  return code !== null && PREF_CODE_PATTERN.test(code) ? code : null;
+  return closestPrefCode(target, '[data-pref], [data-muni-pref]', ['data-pref', 'data-muni-pref']);
+}
+
+/**
+ * イベントの対象から、`attribute`（例：カードの最大化ボタンの `data-card-maximize`。F-CARD-08）を持つ祖先（自分を含む）の県コードを引く。
+ * 値が県コードの形でなければ `null`。
+ */
+export function prefFromAttribute(target: EventTarget | null, attribute: string): PrefCode | null {
+  return closestPrefCode(target, `[${attribute}]`, [attribute]);
 }
 
 function overToEvent({ pref, pointerType }: PointerInput): MapEvent | null {

@@ -34,7 +34,18 @@ export const en: Messages = {
     },
     distance: 'About %n km from Tokyo',
     maximize: 'Enlarge to see municipalities',
-    restore: 'Back to original size'
+    restore: 'Back to original size',
+    capital: 'Prefectural capital',
+    access: 'Getting there from Tokyo',
+    durationLabel: 'Estimated travel time',
+    duration: {
+      hoursMinutes: '%h hr %m min',
+      hours: '%h hr',
+      minutes: '%m min'
+    },
+    specialties: 'Specialties',
+    spots: 'Sights',
+    draft: 'Draft'
   },
   comingSoon: {
     label: 'Coming soon',

@@ -17,6 +17,8 @@ const CARD_HTML = `
     <p data-card-guide>案内文</p>
     <p data-card-pref="01" hidden>北海道</p>
     <p data-card-pref="13" hidden>東京都</p>
+    <button data-card-maximize="01"><span data-label-maximize>大きく</span><span data-label-restore hidden>もどす</span></button>
+    <button data-card-maximize="13"><span data-label-maximize>大きく</span><span data-label-restore hidden>もどす</span></button>
   </div>`;
 
 const pref = (code: string): Element => document.querySelector(`[data-pref="${code}"]`) as Element;
@@ -109,7 +111,7 @@ describe('applyCardState', () => {
   });
 
   test('4.11.1：表示する県のカードだけ hidden が外れ、案内文が隠れる', () => {
-    applyCardState(document.body, '13');
+    applyCardState(document.body, '13', null);
 
     expect(card('13').hidden).toBe(false);
     expect(card('01').hidden).toBe(true);
@@ -117,9 +119,9 @@ describe('applyCardState', () => {
   });
 
   test('県がないときは案内文だけが見える', () => {
-    applyCardState(document.body, '13');
+    applyCardState(document.body, '13', null);
 
-    applyCardState(document.body, null);
+    applyCardState(document.body, null, null);
 
     expect(card('13').hidden).toBe(true);
     expect(card('01').hidden).toBe(true);
@@ -127,12 +129,50 @@ describe('applyCardState', () => {
   });
 
   test('県を切り替えると、前の県のカードは隠れる', () => {
-    applyCardState(document.body, '13');
+    applyCardState(document.body, '13', null);
 
-    applyCardState(document.body, '01');
+    applyCardState(document.body, '01', null);
 
     expect(card('13').hidden).toBe(true);
     expect(card('01').hidden).toBe(false);
+  });
+});
+
+describe('applyCardState（最大化）', () => {
+  const labels = (code: string): { readonly maximize: HTMLElement; readonly restore: HTMLElement } => {
+    const button = document.querySelector(`[data-card-maximize="${code}"]`) as HTMLElement;
+    return { maximize: button.querySelector('[data-label-maximize]') as HTMLElement, restore: button.querySelector('[data-label-restore]') as HTMLElement };
+  };
+
+  beforeEach(() => {
+    document.body.innerHTML = CARD_HTML;
+  });
+
+  test('F-CARD-08：最大化していないときは、どのボタンも「大きくして…」の文言を見せる', () => {
+    applyCardState(document.body, '13', null);
+
+    for (const code of ['01', '13']) {
+      expect(labels(code).maximize.hidden, code).toBe(false);
+      expect(labels(code).restore.hidden, code).toBe(true);
+    }
+  });
+
+  test('F-CARD-08：applyCardState は最大化中の県のボタンだけ「元の大きさにもどす」を見せる', () => {
+    applyCardState(document.body, '13', '13');
+
+    expect(labels('13').maximize.hidden).toBe(true);
+    expect(labels('13').restore.hidden).toBe(false);
+    expect(labels('01').maximize.hidden).toBe(false);
+    expect(labels('01').restore.hidden).toBe(true);
+  });
+
+  test('F-CARD-08：最大化を解除すると、文言が元に戻る', () => {
+    applyCardState(document.body, '13', '13');
+
+    applyCardState(document.body, '13', null);
+
+    expect(labels('13').maximize.hidden).toBe(false);
+    expect(labels('13').restore.hidden).toBe(true);
   });
 });
 
