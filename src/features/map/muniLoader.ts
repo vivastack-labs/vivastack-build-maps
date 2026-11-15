@@ -2,19 +2,23 @@
 // DOM・React は使わない。fetch・オンラインの判定・タイマーは外から受け取る（単体テストで置き換えるため）。
 
 import type { GeometryCollection, Topology } from 'topojson-specification';
+import {
+  BROWSER_LOADER_DEPS,
+  createResourceLoader,
+  FETCH_TIMEOUT_MS,
+  SLOW_THRESHOLD_MS,
+  type LoadFailureReason,
+  type LoaderDeps,
+  type LoadResponse,
+  type LoadStatus,
+  type ResourceLoader
+} from '../loader/resourceLoader.ts';
 import { PREF_CODE_PATTERN } from './projection.ts';
+
+export { FETCH_TIMEOUT_MS, SLOW_THRESHOLD_MS };
 
 /** 市区町村データを置いているパス（県コード + `.topo.json` を続ける） */
 export const MUNI_BASE_PATH = '/geo/muni/';
-
-/**
- * 1回の読み込み（応答の本文まで）に待つ上限（ミリ秒。4.11.5）。超えたら打ち切って失敗にする（応答が来ないまま「読み込み中」が続かないように）。
- * 打ち切りは、fetch の失敗と同じく、オフラインか通信エラーかに分ける。
- */
-export const FETCH_TIMEOUT_MS = 15_000;
-
-/** 「読み込み中」を出すまでの時間（ミリ秒）。これ以内に終わったら出さない（ちらつき防止。4.11.5） */
-export const SLOW_THRESHOLD_MS = 300;
 
 /** 市区町村の属性（`geo/README.md`）。`cityName` は政令指定都市の区だけにある */
 export type MuniProperties = {
@@ -28,43 +32,19 @@ export type MuniProperties = {
 export type MuniTopology = Topology<{ municipalities: GeometryCollection<MuniProperties> }>;
 
 /** 読み込みの失敗の種類。通信エラー・HTTP のエラー（404 など）・データの形の不正 */
-export type MuniFailureReason = 'network' | 'http' | 'invalid';
+export type MuniFailureReason = LoadFailureReason;
 
 /** 読み込みの状態（4.11.5）。`slow` は 300ms を超えても終わらないとき */
-export type MuniLoadStatus =
-  | { readonly kind: 'loading' }
-  | { readonly kind: 'slow' }
-  | { readonly kind: 'loaded'; readonly data: MuniTopology }
-  | { readonly kind: 'failed'; readonly reason: MuniFailureReason }
-  | { readonly kind: 'offline' };
+export type MuniLoadStatus = LoadStatus<MuniTopology>;
 
 /** `fetch` の応答のうち、使う部分だけ */
-export type MuniResponse = { readonly ok: boolean; readonly status: number; json(): Promise<unknown> };
+export type MuniResponse = LoadResponse;
 
 /** 外から受け取る部品 */
-export type MuniLoaderDeps = {
-  /** `signal` が中断されたら、応答の待ちも本文の読み込みも reject にする（`fetch` の `signal`） */
-  readonly fetch: (url: string, init: { readonly signal: AbortSignal }) => Promise<MuniResponse>;
-  /** 1回の読み込みの上限（ミリ秒）。省くと `FETCH_TIMEOUT_MS` */
-  readonly fetchTimeoutMs?: number;
-  /** オンラインか（`navigator.onLine`） */
-  readonly isOnline: () => boolean;
-  readonly setTimeout: (callback: () => void, ms: number) => unknown;
-  readonly clearTimeout: (handle: unknown) => void;
-};
+export type MuniLoaderDeps = LoaderDeps;
 
-/** 読み込みの結果（途中の状態を除く） */
-type MuniResult = Exclude<MuniLoadStatus, { readonly kind: 'loading' | 'slow' }>;
-
-/** 市区町村データの読み込み部品 */
-export type MuniLoader = {
-  /**
-   * 県（県コード）の市区町村データを読み込む。`onStatus` には `loading` →（300ms を超えたら `slow`）→ 結果、の順に渡す。
-   * 成功したものはメモリに残し、2回目からは `loaded` だけを渡す。失敗は残さない（呼び直せば fetch し直す。自動では再試行しない）。
-   * 県コードでなければ、fetch せずに例外にする。
-   */
-  load(code: string, onStatus: (status: MuniLoadStatus) => void): Promise<MuniResult>;
-};
+/** 市区町村データの読み込み部品。`load(code, onStatus)` の流れは `ResourceLoader`（共通） */
+export type MuniLoader = ResourceLoader<MuniTopology>;
 
 const MUNI_CODE_PATTERN = /^\d{5}$/u;
 
@@ -93,86 +73,18 @@ export function validateMuniTopology(json: unknown, prefCode: string): MuniTopol
   return isValid ? (json as unknown as MuniTopology) : null;
 }
 
-/** fetch の例外を、オフラインか通信エラーかに分ける */
-const toFetchFailure = (isOnline: () => boolean): MuniResult => (isOnline() ? { kind: 'failed', reason: 'network' } : { kind: 'offline' });
-
-/** 打ち切り用の `signal` を付けて1回 fetch し、検証まで行う。例外にはせず、結果の状態で返す */
-async function request(code: string, deps: MuniLoaderDeps, signal: AbortSignal): Promise<MuniResult> {
-  let response: MuniResponse;
-  try {
-    response = await deps.fetch(`${MUNI_BASE_PATH}${code}.topo.json`, { signal });
-  } catch {
-    return toFetchFailure(deps.isOnline);
-  }
-  if (!response.ok) return { kind: 'failed', reason: 'http' };
-  try {
-    const data = validateMuniTopology(await response.json(), code);
-    return data === null ? { kind: 'failed', reason: 'invalid' } : { kind: 'loaded', data };
-  } catch {
-    // 打ち切りで本文の読み込みが止まったときは通信の失敗。それ以外は本文が JSON でない
-    return signal.aborted ? toFetchFailure(deps.isOnline) : { kind: 'failed', reason: 'invalid' };
-  }
-}
-
-/** 1回の読み込み。上限（`fetchTimeoutMs`）を超えたら中断する。タイマーは終わったら必ず止める */
-async function fetchMuni(code: string, deps: MuniLoaderDeps): Promise<MuniResult> {
-  const controller = new AbortController();
-  const timer = deps.setTimeout(() => controller.abort(), deps.fetchTimeoutMs ?? FETCH_TIMEOUT_MS);
-  try {
-    return await request(code, deps, controller.signal);
-  } finally {
-    deps.clearTimeout(timer);
-  }
-}
-
-/**
- * 市区町村データの読み込み部品を作る。成功のキャッシュと、読み込み中の Promise は、作った部品ごとに持つ。
- * 県コードの形は境界（ここ）で確かめる。
- */
+/** 市区町村データの読み込み部品を作る（`createResourceLoader` に URL と検証を渡す）。県コードの形は境界（ここ）で確かめる */
 export function createMuniLoader(deps: MuniLoaderDeps): MuniLoader {
-  const loaded = new Map<string, MuniResult>();
-  const inFlight = new Map<string, Promise<MuniResult>>();
-
-  const fetchOnce = (code: string): Promise<MuniResult> => {
-    const running = inFlight.get(code);
-    if (running) return running;
-    const started = fetchMuni(code, deps)
-      .then(result => {
-        if (result.kind === 'loaded') loaded.set(code, result);
-        return result;
-      })
-      // 失敗（reject）でも読み込み中の印を残さない。残すと、次の load が古い Promise を待ち続ける
-      .finally(() => inFlight.delete(code));
-    inFlight.set(code, started);
-    return started;
-  };
-
-  return {
-    async load(code, onStatus) {
-      if (!PREF_CODE_PATTERN.test(code)) throw new Error(`県コードではありません：${code}`);
-      const cached = loaded.get(code);
-      if (cached) {
-        onStatus(cached);
-        return cached;
-      }
-      onStatus({ kind: 'loading' });
-      const timer = deps.setTimeout(() => onStatus({ kind: 'slow' }), SLOW_THRESHOLD_MS);
-      try {
-        const result = await fetchOnce(code);
-        onStatus(result);
-        return result;
-      } finally {
-        // 結果が出たら、「読み込み中」の通知は止める（例外のときも）
-        deps.clearTimeout(timer);
-      }
-    }
-  };
+  return createResourceLoader<MuniTopology>(
+    {
+      url: code => `${MUNI_BASE_PATH}${code}.topo.json`,
+      isKey: code => PREF_CODE_PATTERN.test(code),
+      invalidKeyMessage: code => `県コードではありません：${code}`,
+      validate: validateMuniTopology
+    },
+    deps
+  );
 }
 
 /** ブラウザの `fetch`・`navigator.onLine` を使う、アプリで1つの読み込み部品（地図とカードの一覧が同じキャッシュを使う） */
-export const muniLoader: MuniLoader = createMuniLoader({
-  fetch: (url, init) => fetch(url, init),
-  isOnline: () => typeof navigator === 'undefined' || navigator.onLine,
-  setTimeout: (callback, ms) => globalThis.setTimeout(callback, ms),
-  clearTimeout: handle => globalThis.clearTimeout(handle as ReturnType<typeof setTimeout>)
-});
+export const muniLoader: MuniLoader = createMuniLoader(BROWSER_LOADER_DEPS);
