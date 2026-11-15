@@ -35,3 +35,11 @@ export const LANG_NAMES: Readonly<Record<Lang, string>> = {
   en: 'English',
   zh: '中文'
 };
+
+/** 言語切替のリンク（`LangSwitch`）に付ける属性の名前。値は言語のコード。`HashSync` がこの属性でリンクを探す */
+export const LANG_LINK_ATTRIBUTE = 'data-lang-link';
+
+/** 言語のページの、サイトの中のパス（`/ja/`）。言語切替のリンクの `href` の基になる（ハッシュは付けない） */
+export function langPath(lang: Lang): string {
+  return `/${lang}/`;
+}

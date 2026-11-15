@@ -1,4 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { flushSync } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { HashSync } from '@/components/HashSync';
@@ -27,7 +29,7 @@ function Links() {
     <ul>
       {['ja', 'en', 'zh'].map(code => (
         <li key={code}>
-          <a data-lang-link={code} href={`/${code}/`}>
+          <a data-lang-link={code} href={`/${code}/`} aria-current={code === 'en' ? 'page' : undefined}>
             {code}
           </a>
         </li>
@@ -92,7 +94,7 @@ describe('HashSync（4.11.2、F-I18N-03）', () => {
 
     // Assert
     expect(window.location.hash).toBe('#pref-13');
-    expect(spy.mock.calls.filter(call => call[2] === '/en/')).toEqual([]);
+    expect(spy.mock.calls.filter(call => new URL(String(call[2]), window.location.href).hash === '')).toEqual([]);
   });
 
   test('4.11.2：固定が変わると replaceState でハッシュを書く（解除で消す。履歴は増やさない）', () => {
@@ -118,19 +120,19 @@ describe('HashSync（4.11.2、F-I18N-03）', () => {
     expect(spy).toHaveBeenCalledTimes(3);
   });
 
-  test('F-I18N-03：言語切替のリンクの href にハッシュを付ける（解除で外す）', () => {
+  test('F-I18N-03：言語切替のリンクの href にハッシュを付ける（解除で外す）。今の言語（aria-current）のリンクは書き換えない', () => {
     // Arrange
     renderSync();
     expect(hrefs()).toEqual(['/ja/', '/en/', '/zh/']);
 
     // Act・Assert
     fireEvent.click(screen.getByText('pin-20'));
-    expect(hrefs()).toEqual(['/ja/#pref-20', '/en/#pref-20', '/zh/#pref-20']);
+    expect(hrefs()).toEqual(['/ja/#pref-20', '/en/', '/zh/#pref-20']);
     fireEvent.click(screen.getByText('pin-20'));
     expect(hrefs()).toEqual(['/ja/', '/en/', '/zh/']);
   });
 
-  test('F-I18N-03：開いたときのハッシュの県も、リンクの href に付く', () => {
+  test('F-I18N-03：開いたときのハッシュの県も、リンクの href に付く（今の言語のリンクは除く）', () => {
     // Arrange
     window.history.replaceState(null, '', '/en/#pref-13');
 
@@ -138,7 +140,7 @@ describe('HashSync（4.11.2、F-I18N-03）', () => {
     renderSync();
 
     // Assert
-    expect(hrefs()).toEqual(['/ja/#pref-13', '/en/#pref-13', '/zh/#pref-13']);
+    expect(hrefs()).toEqual(['/ja/#pref-13', '/en/', '/zh/#pref-13']);
   });
 
   test('4.11.2：正しくないハッシュのあとに固定して外すと、ハッシュは消える', () => {
@@ -165,5 +167,68 @@ describe('HashSync（4.11.2、F-I18N-03）', () => {
 
     // Assert
     expect(container).toBeEmptyDOMElement();
+  });
+
+  test('F-I18N-03：data-lang-link が言語でない値のリンクは書き換えない', () => {
+    // Arrange
+    render(
+      <MapStateProvider>
+        <a data-lang-link="fr" href="#fr">
+          fr
+        </a>
+        <a data-lang-link href="#x">
+          none
+        </a>
+        <HashSync />
+        <Probe />
+      </MapStateProvider>
+    );
+
+    // Act
+    fireEvent.click(screen.getByText('pin-20'));
+
+    // Assert
+    expect(hrefs()).toEqual(['#fr', '#x']);
+  });
+
+  test('4.11.2：開いたページの path と query を保ち、ハッシュだけを書く', () => {
+    // Arrange
+    window.history.replaceState(null, '', '/en/?a=1');
+    renderSync();
+
+    // Act
+    fireEvent.click(screen.getByText('pin-20'));
+
+    // Assert
+    expect(window.location.pathname + window.location.search + window.location.hash).toBe('/en/?a=1#pref-20');
+  });
+});
+
+describe('HashSync：描画の前に復元が終わる（T3-03・M1）', () => {
+  test('T3-03：flushSync が戻った直後に、固定が復元した県になっている（useEffect では間に合わない）', () => {
+    // Arrange：act を使わない（act は、effect が遅れても最後に全部を流してしまう）
+    const env = globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean };
+    const previous = env.IS_REACT_ACT_ENVIRONMENT;
+    env.IS_REACT_ACT_ENVIRONMENT = false;
+    window.history.replaceState(null, '', '/en/#pref-13');
+    const container = document.createElement('div');
+    document.body.append(container);
+    const root = createRoot(container);
+
+    // Act
+    flushSync(() => {
+      root.render(
+        <MapStateProvider>
+          <HashSync />
+          <Probe />
+        </MapStateProvider>
+      );
+    });
+
+    // Assert
+    expect(container.querySelector('[data-testid="pinned"]')?.textContent).toBe('13');
+    flushSync(() => root.unmount());
+    container.remove();
+    env.IS_REACT_ACT_ENVIRONMENT = previous;
   });
 });

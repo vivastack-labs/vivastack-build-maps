@@ -8,6 +8,7 @@ import { isSheetWidth } from './helpers';
 
 const NAGANO = '20';
 const TOKYO = '13';
+const HOKKAIDO = '01';
 const SITE_URL = 'https://maps.vivastack-dev.workers.dev';
 const ja = getMessages('ja').display;
 
@@ -68,8 +69,11 @@ test.describe('F-I18N-03・4.11.2：言語を切り替えても、固定して�
     for (const hash of ['#pref-99', '#pref-1', '#foo']) {
       test(`4.11.2：${hash} で開いても、エラーにならず、何も固定されない`, async ({ page }) => {
         // Arrange
-        const errors: Error[] = [];
-        page.on('pageerror', error => errors.push(error));
+        const errors: string[] = [];
+        page.on('pageerror', error => errors.push(error.message));
+        page.on('console', message => {
+          if (message.type() === 'error') errors.push(message.text());
+        });
 
         // Act
         await open(page, `/en/${hash}`);
@@ -78,6 +82,8 @@ test.describe('F-I18N-03・4.11.2：言語を切り替えても、固定して�
         await expect(pinnedPaths(page)).toHaveCount(0);
         await expect(pinnedItems(page)).toHaveCount(0);
         await expect(langLink(page, 'ja')).toHaveAttribute('href', '/ja/');
+        // 正しくないハッシュは、開いたときに消さない
+        expect(new URL(page.url()).hash).toBe(hash);
         expect(errors).toEqual([]);
       });
     }
@@ -196,7 +202,9 @@ test('T3-03：ハッシュつきで開いたとき、ハイドレーションの
   await page.goto(`/en/#pref-${TOKYO}`);
   await page.locator('[data-card-ready]').waitFor({ state: 'attached' });
   await expect(cardOf(page, TOKYO)).toBeVisible();
-  await page.waitForTimeout(300);
+  const sampleCount = () => page.evaluate(() => (window as unknown as { __samples: unknown[] }).__samples.length);
+  const countBefore = await sampleCount();
+  await expect.poll(sampleCount).toBeGreaterThan(countBefore);
 
   // Assert：ハイドレーションが終わったあとの記録が、すべて見えている。案内文も出ていない
   const samples = await page.evaluate(() => (window as unknown as { __samples: { ready: boolean; isVisible: boolean }[] }).__samples);
@@ -206,19 +214,23 @@ test('T3-03：ハッシュつきで開いたとき、ハイドレーションの
   await expect(page.locator('[data-card-guide]')).toBeHidden();
 });
 
-test('T3-06：768px 未満でハッシュつきで開くと、パネルが一部だけ見える状態で開き、フォーカスは動かない', async ({ page }) => {
+test('T3-06：768px 未満でハッシュつきで開くと、パネルが全部見える状態で開き、フォーカスは動かない', async ({ page }) => {
   // Arrange
-  await page.goto(`/en/#pref-${TOKYO}`);
+  await page.goto(`/en/#pref-${HOKKAIDO}`);
   test.skip(!(await isSheetWidth(page)), '下から出るパネルになる幅（768px 未満）だけ');
 
   // Act
   await page.locator('[data-card-ready]').waitFor({ state: 'attached' });
   await page.locator('[data-sheet-bar]:not([hidden])').waitFor();
 
-  // Assert：パネルは peek で開き、県名の見出しにフォーカスしていない
-  await expect(page.locator('[data-area="card"]')).toHaveAttribute('data-sheet', 'peek');
-  await expect(cardOf(page, TOKYO)).toBeVisible();
+  // Assert：パネルは full で開き（JavaScript の前の :target の見た目と同じ）、県名の見出しにフォーカスしていない
+  await expect(page.locator('[data-area="card"]')).toHaveAttribute('data-sheet', 'full');
+  await expect(cardOf(page, HOKKAIDO)).toBeVisible();
   expect(await page.evaluate(() => document.activeElement?.tagName)).toBe('BODY');
+
+  // 利用者が「たたむ」を押すと、一部だけ見える状態になる
+  await page.locator('[data-sheet-toggle]').click();
+  await expect(page.locator('[data-area="card"]')).toHaveAttribute('data-sheet', 'peek');
 });
 
 test.describe('JavaScript がないとき', () => {

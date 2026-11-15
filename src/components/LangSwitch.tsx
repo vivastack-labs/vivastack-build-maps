@@ -1,4 +1,4 @@
-import { LANGS, htmlLang, LANG_NAMES, type Lang } from '@/i18n/lang';
+import { LANGS, htmlLang, LANG_LINK_ATTRIBUTE, LANG_NAMES, langPath, type Lang } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
 import { plainText } from '@/lib/ruby';
 
@@ -19,7 +19,7 @@ export function LangSwitch({ lang }: Props) {
     <ul data-lang-switch aria-label={plainText(getMessages(lang).langSwitch.label)} className="flex flex-wrap items-center gap-2">
       {LANGS.map(code => (
         <li key={code}>
-          <a href={`/${code}/`} data-lang-link={code} hrefLang={htmlLang(code)} lang={htmlLang(code)} aria-current={code === lang ? 'page' : undefined} className={LINK_CLASS}>
+          <a href={langPath(code)} {...{ [LANG_LINK_ATTRIBUTE]: code }} hrefLang={htmlLang(code)} lang={htmlLang(code)} aria-current={code === lang ? 'page' : undefined} className={LINK_CLASS}>
             {LANG_NAMES[code]}
           </a>
         </li>

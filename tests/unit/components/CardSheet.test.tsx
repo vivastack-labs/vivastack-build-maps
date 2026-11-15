@@ -12,6 +12,7 @@ import { getMessages } from '@/i18n/messages';
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  window.history.replaceState(null, '', '/');
 });
 
 /** 768px 未満かどうかを差し替える（jsdom には matchMedia がない） */
@@ -398,40 +399,9 @@ describe('CardSheet', () => {
     expect(document.documentElement.style.getPropertyValue('--sheet-h')).toBe('');
   });
 
-  test('T3-07・WCAG 3.2.1：ハッシュの復元で開いたときは、パネルを開くがフォーカスを移さない', () => {
-    // Arrange：768px 未満で、ハッシュつきの URL を開く（利用者の操作はまだない）
-    stubSheetWidth(true);
-    window.history.replaceState(null, '', '/en/#pref-13');
-    const before = document.activeElement;
-
-    // Act
-    const { container } = render(
-      <MapStateProvider>
-        <HashSync />
-        <CardSheet labels={getMessages('en').sheet}>
-          <CardSwitch>
-            <article data-card-pref="13" hidden>
-              <h2 data-card-name tabIndex={-1}>
-                東京都
-              </h2>
-            </article>
-          </CardSwitch>
-        </CardSheet>
-      </MapStateProvider>
-    );
-
-    // Assert
-    expect(panel(container).getAttribute('data-sheet')).toBe('peek');
-    expect(document.activeElement).toBe(before);
-    expect(document.activeElement).toBe(document.body);
-    window.history.replaceState(null, '', '/');
-  });
-
-  test('T3-07：復元で開いたあと、利用者が閉じて固定し直したときは、フォーカスを移す', () => {
-    // Arrange：ハッシュで復元して開いている
-    stubSheetWidth(true);
-    window.history.replaceState(null, '', '/en/#pref-13');
-    const { container } = render(
+  /** ハッシュの復元（`HashSync`）つきの描画。カードの中身は東京都だけ */
+  function renderRestored() {
+    return render(
       <MapStateProvider>
         <HashSync />
         <CardSheet labels={getMessages('en').sheet}>
@@ -446,7 +416,79 @@ describe('CardSheet', () => {
         <Probe />
       </MapStateProvider>
     );
+  }
+
+  test('T3-07・WCAG 3.2.1：ハッシュの復元で開いたときは、パネルを開くがフォーカスを移さない', () => {
+    // Arrange：768px 未満で、ハッシュつきの URL を開く（利用者の操作はまだない）
+    stubSheetWidth(true);
+    window.history.replaceState(null, '', '/en/#pref-13');
+    const before = document.activeElement;
+
+    // Act
+    const { container } = renderRestored();
+
+    // Assert
+    expect(panel(container).getAttribute('data-sheet')).not.toBe('closed');
+    expect(document.activeElement).toBe(before);
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  test('T3-07（M2）：768px 未満でハッシュの復元で開いたときは、全部見える状態（full）で開く（:target の見た目と同じ。縮まない）', () => {
+    // Arrange
+    stubSheetWidth(true);
+    window.history.replaceState(null, '', '/en/#pref-13');
+
+    // Act
+    const { container } = renderRestored();
+
+    // Assert
+    expect(panel(container).getAttribute('data-sheet')).toBe('full');
+    expect(screen.getByRole('button', { name: 'Less' })).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('T3-07（M2）：全部見える状態で開いたあと、利用者が「たたむ」と一部だけ見える状態に戻る', () => {
+    // Arrange
+    stubSheetWidth(true);
+    window.history.replaceState(null, '', '/en/#pref-13');
+    const { container } = renderRestored();
+
+    // Act
+    fireEvent.click(screen.getByRole('button', { name: 'Less' }));
+
+    // Assert
     expect(panel(container).getAttribute('data-sheet')).toBe('peek');
+  });
+
+  test('T3-07（M2）：768px 以上では、復元しても広げない（peek のまま）', () => {
+    // Arrange
+    stubSheetWidth(false);
+    window.history.replaceState(null, '', '/en/#pref-13');
+
+    // Act
+    const { container } = renderRestored();
+
+    // Assert
+    expect(panel(container).getAttribute('data-sheet')).toBe('peek');
+  });
+
+  test('T3-07（M2）：利用者が操作してから固定したときは、今までどおり peek で開く', () => {
+    // Arrange：ハッシュなしで開き、利用者の操作で固定する
+    stubSheetWidth(true);
+    const { container } = render(<Fixture />);
+
+    // Act
+    pin();
+
+    // Assert
+    expect(panel(container).getAttribute('data-sheet')).toBe('peek');
+  });
+
+  test('T3-07：復元で開いたあと、利用者が閉じて固定し直したときは、一部だけ見える状態で開き、フォーカスを移す', () => {
+    // Arrange：ハッシュで復元して開いている
+    stubSheetWidth(true);
+    window.history.replaceState(null, '', '/en/#pref-13');
+    const { container } = renderRestored();
+    expect(panel(container).getAttribute('data-sheet')).toBe('full');
 
     // Act：利用者の操作で閉じ、また固定する
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
@@ -454,7 +496,7 @@ describe('CardSheet', () => {
     pin();
 
     // Assert
+    expect(panel(container).getAttribute('data-sheet')).toBe('peek');
     expect(document.activeElement).toBe(document.querySelector('[data-card-pref="13"] h2'));
-    window.history.replaceState(null, '', '/');
   });
 });

@@ -16,7 +16,6 @@ function pageUrl(lang: Lang): string {
  * `app/[lang]/layout.tsx` の `generateMetadata` の `alternates` にそのまま渡す。
  */
 export function alternateUrls(lang: Lang): { readonly canonical: string; readonly languages: Readonly<Record<string, string>> } {
-  const languages: Record<string, string> = Object.fromEntries(LANGS.map(code => [htmlLang(code), pageUrl(code)]));
-  languages['x-default'] = pageUrl(DEFAULT_LANG);
+  const languages = Object.fromEntries([...LANGS.map(code => [htmlLang(code), pageUrl(code)]), ['x-default', pageUrl(DEFAULT_LANG)]]);
   return { canonical: pageUrl(lang), languages };
 }

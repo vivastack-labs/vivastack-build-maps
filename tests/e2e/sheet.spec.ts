@@ -12,8 +12,8 @@ const PHONES = ['iphone', 'pixel'];
 const SEA_POINT = { x: 370 / 1000, y: 470 / 1130 } as const;
 
 /** ハイドレーションが終わるのを待ってから、ページを開く（終わる前の操作は失われる） */
-async function open(page: Page, lang = 'en'): Promise<void> {
-  await page.goto(`/${lang}/`);
+async function open(page: Page, lang = 'en', hash = ''): Promise<void> {
+  await page.goto(`/${lang}/${hash}`);
   await page.locator('[data-map-ready]').waitFor({ state: 'attached' });
   await page.locator('[data-index-ready]').waitFor({ state: 'attached' });
   await page.locator('[data-card-ready]').waitFor({ state: 'attached' });
@@ -277,24 +277,28 @@ test.describe('スマホ（768px 未満）の下から出るパネル', () => {
     await before.close();
   });
 
-  test('F-MAP-05（CLS）：読み込みの間に、レイアウトのずれ（layout-shift）が出ない', async ({ page }) => {
-    // Arrange：ページを開く前に、layout-shift を記録する
-    await page.addInitScript(() => {
-      (window as unknown as { __shift: number }).__shift = 0;
-      new PerformanceObserver(list => {
-        for (const entry of list.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) {
-          if (!entry.hadRecentInput) (window as unknown as { __shift: number }).__shift += entry.value;
-        }
-      }).observe({ type: 'layout-shift', buffered: true });
+  for (const hash of ['', `#pref-${HOKKAIDO}`]) {
+    test(`F-MAP-05（CLS）：${hash === '' ? '' : `ハッシュつき（${hash}）で開いても、`}読み込みの間に、レイアウトのずれ（layout-shift）が出ない`, async ({ page }) => {
+      // Arrange：ページを開く前に、layout-shift を記録する
+      await page.addInitScript(() => {
+        (window as unknown as { __shift: number }).__shift = 0;
+        new PerformanceObserver(list => {
+          for (const entry of list.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) {
+            if (!entry.hadRecentInput) (window as unknown as { __shift: number }).__shift += entry.value;
+          }
+        }).observe({ type: 'layout-shift', buffered: true });
+      });
+
+      // Act
+      await open(page, 'en', hash);
+      await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+
+      // Assert：カードが流れから消えることによるずれがない（0.01 は余裕。CLS の「良好」は 0.1 以下）。
+      // ハッシュつきでは、:target の全部見える状態から、ハイドレーションの後も全部見える状態のまま（T3-07。縮まない）
+      expect(await page.evaluate(() => (window as unknown as { __shift: number }).__shift)).toBeLessThan(0.01);
+      if (hash !== '') await expect(panel(page)).toHaveAttribute('data-sheet', 'full');
     });
-
-    // Act
-    await open(page);
-    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
-
-    // Assert：カードが流れから消えることによるずれがない（0.01 は余裕。CLS の「良好」は 0.1 以下）
-    expect(await page.evaluate(() => (window as unknown as { __shift: number }).__shift)).toBeLessThan(0.01);
-  });
+  }
 
   test('F-MAP-05：JavaScript が有効なのに読み込めなかったときも、:target の県があれば、パネルが全部見える状態になってカードが読める', async ({ page }) => {
     // Arrange・Act：JavaScript の読み込みを止めて、ハッシュつきで開く
