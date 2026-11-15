@@ -577,7 +577,16 @@ vivastack-build-maps/
 
 - `<head>` に固定の小さなインラインスクリプト（500バイト未満）を置き、描画の前に localStorage の値を `<html data-mode="kids" data-ruby="on">` に反映する。localStorage の読み書きは try/catch で囲む。
 - 表示の切替はCSSだけで行う（例：`html[data-mode="kids"] .adult { display: none }`、`html[data-ruby="off"] rt { display: none }`）。
-- ビルド時に、言語ごとの既定値（U1）を `<html>` に書いておく。JavaScriptがなくても既定のモードで読める（F-MODE-04）。
+- ビルド時に、言語ごとの既定値（U1 → D37）を `<html>` に書いておく。JavaScriptがなくても既定のモードで読める（F-MODE-04）。
+
+  | 言語 | `data-mode` | `data-ruby` |
+  |---|---|---|
+  | ja | `kids` | `on` |
+  | en・zh | `adult` | `on`（ふりがながないので効かない） |
+
+- localStorage のキーは `maps.mode`（`kids`｜`adult`）と `maps.ruby`（`on`｜`off`）。言語で分けない（モードは読む人の好みで、言語を変えても同じはず）。ボタンを押したときだけ保存するので、押していなければ言語ごとの既定値になる。正しくない値は無視して既定値のままにする。localStorage を使えなくても例外を出さず、切替はそのページの中では効く（4.11.5）。
+- `<html data-mode data-ruby>` は初期化スクリプトが書き換えるので `suppressHydrationWarning` を付ける。切替のボタン（Header。`aria-pressed`）の「押している」見た目は `<html>` の属性のバリアント（`@custom-variant kids`・`adult`・`ruby-off`）で付け、ハイドレーションの前から正しくする。JavaScript がないときは、ボタンを `noscript:`（`@media (scripting: none)`）で隠す。
+- 言語の切替（T3-07）を `<Link>` のソフトナビゲーションにすると、React が `<html>` の属性を新しい言語の既定値に書き戻し、保存した値が消える。全体の読み込み（`<a>`）にするか、移った後に保存した値を当て直す。
 
 **(4) CSP（D23）**
 
@@ -1207,7 +1216,7 @@ flowchart LR
 
 | # | 項目 | 案・メモ | 決める時期 |
 |---|---|---|---|
-| U1 | モードとふりがなの既定値 | 案：日本語はこども向け＋ふりがなON、英語・中国語はおとな向け | M3 |
+| U1 | ~~モードとふりがなの既定値~~ | 決定（D37）：日本語はこども向け＋ふりがなON、英語・中国語はおとな向け。第6章 6.6 (3) | — |
 | U2 | ~~対応ブラウザの範囲~~ | 決定（D25）：第5章 5.3 | — |
 | U3 | PWAでオフライン時に使える範囲 | 第5章 5.4 の案 | M4 |
 | U4 | ~~スタイルの方式（CSS Modules / Tailwind CSS）~~ | 決定（D26）：Tailwind CSS v4。第6章 6.2 | — |
@@ -1266,6 +1275,7 @@ flowchart LR
 | D34 | 地図データの変換 | mapshaper で、簡略化は市区町村100m・都道府県1km（距離で指定）。都道府県の形には 1km² 以上の島を残す（島ごとに分けてから簡略化する。`keep-shapes` は形ごとに1つの輪しか守らないため）。所属未定地は市区町村のファイルに入れず、県の形に含める。名前は N03、読みは総務省のカナ（コードで照合）。修正表は「直す前」の値を持つ（8.2、`geo/README.md`） |
 | D35 | 配信先のドメイン | workers.dev の専用のドメイン `https://maps.vivastack-dev.workers.dev/` で公開する（Worker名 `maps`）。ドメインのルートをこのアプリだけで使うので、`basePath`（`/maps`）をやめ、URLは `/{ja,en,zh}/`、`/` は `/ja/` へ 301。DNS・Route は使わない。Web Analytics は JSスニペットを埋め込む（6.4、11.1、11.4） |
 | D36 | 小笠原村など、`viewBox` の外に出る島の表示 | 実際の位置のまま描き、`viewBox` の外に出る島は都道府県の形から除く。父島は枠の下端に小さく残る。東京都を最大化したとき（T2-06）は本土と伊豆諸島に寄り、市区町村の形（T2-08）では小笠原村を実際の位置に描く。別枠にしない（6.6 (1)） |
+| D37 | モードとふりがなの既定値 | 日本語はこども向け＋ふりがな ON、英語・中国語はおとな向け（ふりがなは日本語のページだけなので、en・zh の `data-ruby` は `on` のまま効かない）。ビルド時に `<html data-mode data-ruby>` に書く。localStorage のキーは言語で分けず `maps.mode`・`maps.ruby`（ボタンを押したときだけ保存する）（6.6 (3)） |
 
 ## 付録B. 参考資料
 

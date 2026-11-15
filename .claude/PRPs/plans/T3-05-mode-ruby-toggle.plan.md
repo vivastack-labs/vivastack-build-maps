@@ -171,4 +171,8 @@ E2E の内容の文字は、フィクスチャ（`tests/fixtures/content`）の�
 
 ## 承認後に変えたこと
 
-（実装後に書く）
+- `applySetting`：`root.dataset[attr] = value` → `root.setAttribute('data-' + attr, value)`（ESLint の `no-param-reassign`。結果は同じ）。
+- `DisplayToggle`：`MutationObserver` だけで購読する → ボタンを押した直後に購読者へ直接知らせる `notify()` も足す（`MutationObserver` は非同期で、押した直後の `aria-pressed` が1拍遅れるため。外からの変更は `MutationObserver` で受ける）。
+- E2E「再試行」のボタンの名前：`もう一度` → `/^もう\s*一度/`（ふりがなが ON のとき、読み `いちど` も名前に入る。「もう片方の文が入らない」ことは変わらず確かめる）。
+- 追加の E2E：言語をまたいで設定が使われること、正しくない値は無視すること（計画の表に加えた）。
+- ドキュメント：開発計画 5章 U1 も取り消し線にして D37 を書いた（開発概要書と同じ扱い）。
