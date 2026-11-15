@@ -1,5 +1,6 @@
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
 import { distanceText, durationText } from '../../src/i18n/cardText';
+import { formatDate } from '../../src/i18n/format';
 import { getMessages } from '../../src/i18n/messages';
 import { loadContent } from '../../src/lib/content';
 import { distancesFromTokyo } from '../../src/lib/distance';
@@ -105,6 +106,45 @@ test.describe('F-CARD-02〜06：県のカード', () => {
   });
 });
 
+test.describe('F-SRC-01〜03：出典欄', () => {
+  test('F-SRC-01〜03：北海道のカードの出典欄は閉じていて、開くと出典と「出典なし」が見える', async ({ page }) => {
+    // Arrange：フィクスチャの北海道は、行き方（2件）とじゃがいも（1件）に出典があり、ほかは sources: []
+    const hokkaido = prefOf(HOKKAIDO);
+    const potato = hokkaido.specialties[0];
+    const potatoSource = potato?.sources[0];
+    const messages = getMessages('en');
+    await open(page);
+    await pinFromIndex(page, HOKKAIDO);
+    const sources = page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-sources]`);
+
+    // Assert：最初は閉じていて、中身は見えない（F-SRC-01）。「準備中」の沖縄県のカードには出典欄がない
+    await expect(sources).toBeVisible();
+    await expect(sources).toHaveJSProperty('open', false);
+    await expect(sources.locator('a').first()).toBeHidden();
+    await expect(page.locator(`[data-card-pref="${OKINAWA}"] [data-card-sources]`)).toHaveCount(0);
+
+    // Act
+    await sources.locator('summary').click();
+
+    // Assert：出典のある項目は、タイトルのリンク・URL・確認日（F-SRC-02）
+    await expect(sources).toHaveJSProperty('open', true);
+    const potatoItem = sources.locator('[data-source-item="specialties/potato"]');
+    await expect(potatoItem.locator('a')).toHaveText(potatoSource?.title ?? '');
+    await expect(potatoItem.locator('a')).toHaveAttribute('href', potatoSource?.url ?? '');
+    await expect(potatoItem.locator('a')).toHaveAttribute('rel', 'noopener noreferrer');
+    await expect(potatoItem.locator('[data-source-url]')).toHaveText(potatoSource?.url ?? '');
+    await expect(potatoItem.locator('[data-source-accessed]')).toHaveText(`${messages.card.accessed}: ${formatDate('en', potatoSource?.accessed ?? '')}`);
+    await expect(sources.locator('[data-source-item="access"] [data-source]')).toHaveCount(2);
+    // 出典のない項目は「出典なし」（F-SRC-03）。リンクは出さない
+    const milkItem = sources.locator('[data-source-item="specialties/milk"]');
+    await expect(milkItem.locator('[data-source-none]')).toHaveText(messages.card.noSource);
+    await expect(milkItem.locator('a')).toHaveCount(0);
+    // 行き方・名物・名所の順（4.11.7）
+    const keys = await sources.locator('[data-source-item]').evaluateAll(items => items.map(item => item.getAttribute('data-source-item')));
+    expect(keys).toEqual(['access', ...hokkaido.specialties.map(item => `specialties/${item.id}`), ...hokkaido.spots.map(item => `spots/${item.id}`)]);
+  });
+});
+
 test.describe('F-CARD-08：最大化ボタン', () => {
   test('最大化ボタンで最大化し、文言が「元の大きさにもどす」に変わる。もう一度押すと元に戻り、固定は残る', async ({ page }) => {
     // Arrange
@@ -154,6 +194,19 @@ test.describe('6.6 (2)：JavaScript がないとき', () => {
       await expect(page.locator('[data-card-maximize]:visible')).toHaveCount(0);
     });
   }
+
+  test('F-SRC-01：ハッシュの県のカードに出典欄があり、JavaScript がなくても開ける', async ({ page }) => {
+    // Arrange・Act
+    await page.goto(`/ja/#pref-${HOKKAIDO}`);
+
+    // Assert：閉じていて、summary を押すと開く（<details> はブラウザの機能で動く）
+    const sources = page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-sources]`);
+    await expect(sources).toBeVisible();
+    await expect(sources).toHaveJSProperty('open', false);
+    await sources.locator('summary').click();
+    await expect(sources).toHaveJSProperty('open', true);
+    await expect(sources.locator('[data-source-item="specialties/milk"] [data-source-none]')).toBeVisible();
+  });
 
   test('ハッシュがなければ、案内文だけが見える', async ({ page }) => {
     // Arrange・Act
