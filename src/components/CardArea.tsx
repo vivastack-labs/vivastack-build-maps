@@ -1,7 +1,9 @@
 import type { Lang } from '@/i18n/lang';
+import { cardDetailLabels } from '@/i18n/cardText';
 import { getMessages } from '@/i18n/messages';
 import type { PublishedPrefecture } from '@/lib/publish';
 import { TOKYO_CODE } from '@/lib/distance';
+import { CardDetails } from './CardDetails';
 import { CardSheet } from './CardSheet';
 import { CardSwitch } from './CardSwitch';
 import { MuniList } from './MuniList';
@@ -32,6 +34,7 @@ function distanceOf(distances: ReadonlyMap<string, number>, code: string): numbe
  * 並びは「県の見出し・内容 → 最大化ボタン → 出典（`PrefCard` の中。T3-04）→ 市区町村の一覧（最大化中だけ）」（4.11.7）。
  * 領域の `<section>` は `CardSheet`（T3-06）が出す。1024px以上は地図とさくいんの2行ぶんの高さの右の列に置き、スクロールしても見える位置に固定する（カードが画面より高いときは、カードの中でスクロールする）。
  * 768px 未満は、下から出るパネルにする（F-MAP-05）。
+ * 内容（行き方・名物・名所・出典）は HTML に入れず、`CardDetails` が県ごとの JSON から読み込んで描く（T3-09、D38）。
  * 案内文・カードの解説文は `ModeText` でこども向け・おとな向けの両方を出し、片方を CSS で隠す（T3-05。F-MODE-04）。
  * `MapStateProvider` の中に置く。
  */
@@ -50,6 +53,8 @@ export function CardArea({ lang, prefectures, distances }: Props) {
           {prefectures.map(prefecture => (
             <PrefCard key={prefecture.code} lang={lang} prefecture={prefecture} distanceKm={prefecture.code === TOKYO_CODE ? null : distanceOf(distances, prefecture.code)} />
           ))}
+          {/* T3-09：表示中の県の内容（行き方・名物・名所・出典）を JSON から読み込み、各カードの空の差し込み先に描く。1つだけ置く（props を47回 RSC のデータに入れない） */}
+          <CardDetails lang={lang} labels={cardDetailLabels(lang)} />
         </CardSwitch>
         <MuniList lang={lang} labels={getMessages(lang).muni} />
       </CardSheet>

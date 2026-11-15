@@ -65,7 +65,26 @@ const jaSource = {
     draft: '{下書|したが}き',
     sources: '{出典|しゅってん}',
     noSource: '{出典|しゅってん}なし',
-    accessed: '{確認日|かくにんび}'
+    accessed: '{確認日|かくにんび}',
+    // T3-09：カードの内容を JSON から読み込むときの文言（市区町村の `muni` と同じ言い方）
+    loading: '{読|よ}み{込|こ}み{中|ちゅう}',
+    loadFailed: {
+      kids: 'くわしい{内容|ないよう}を{読|よ}み{込|こ}めなかったよ',
+      adult: 'くわしい{内容|ないよう}を{読|よ}み{込|こ}めませんでした'
+    } satisfies ModeTextValue,
+    offline: {
+      kids: 'インターネットにつながっていないので、{表示|ひょうじ}できないよ',
+      adult: 'オフラインのため{表示|ひょうじ}できません'
+    } satisfies ModeTextValue,
+    retry: {
+      kids: 'もう{一度|いちど}',
+      adult: '{再試行|さいしこう}'
+    } satisfies ModeTextValue,
+    // JavaScript が無効のとき（scripting: none）の、カードの内容の代わりの文（5.3）
+    needsScript: {
+      kids: 'くわしい{内容|ないよう}は、JavaScript を{有効|ゆうこう}にすると{読|よ}めるよ',
+      adult: 'くわしい{内容|ないよう}は、JavaScript を{有効|ゆうこう}にすると{読|よ}めます'
+    } satisfies ModeTextValue
   },
   comingSoon: {
     label: '{準備中|じゅんびちゅう}',

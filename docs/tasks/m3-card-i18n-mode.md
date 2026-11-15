@@ -297,6 +297,14 @@
   - (c) 5.1 の基準値を見直す。
 - どの方式でも、上限のコンテンツで `pnpm size` が基準値に収まることを確かめる。
 
+- **決めた方式（オーナーが決定。開発概要書 D38）**：(a)。カードの内容（行き方・名物・名所・出典）を、県ごと・言語ごとの JSON（`/cards/{lang}/NN.json`。`app/cards/[lang]/[file]/route.ts` がビルド時に出力）にして、県を固定したとき・ホバーしたときに読み込む（`CardDetails`）。県名・地方名・県庁所在地・距離・最大化ボタン・「準備中」の文・ツールチップは HTML に残す。JavaScript がないときは、`:target` のカードに見出しまでを出し、内容の代わりに「JavaScript を有効にすると読めます」の文を出す。読み込みの部品は市区町村（T2-07）と共通にした（`src/features/loader/`）。(b) は JavaScript の下限が約 165KB で、ja の上限が約 384KB のまま収まらなかった。(c) は採らなかった。
+- 結果（上限のコンテンツ。`pnpm size`）：gzip 後 ja 269.8KB・en 260.3KB・zh 262.2KB。1県分の JSON は 3.4KB 以下。
+- 結果（Lighthouse 13.6.0、スマホの既定の設定。上限のコンテンツのビルドを `wrangler dev` で配信。ハッシュなしのトップ）：
+  - ja（3回）：Performance 99・99・99、LCP 1.2秒（3回とも）、CLS 0、TBT 110〜130ms、転送 277KB。
+  - en：Performance 99、LCP 1.1秒、CLS 0、TBT 100ms、転送 267KB。
+  - zh：Performance 100、LCP 1.2秒、CLS 0、TBT 80ms、転送 269KB。
+  - `pnpm size`：ja 269.8KB・en 260.3KB・zh 262.2KB（gzip）。1県分の JSON は最大 3.4KB。
+
 ### 完了条件
 
 - 上限のコンテンツのビルドで、`node scripts/measure-size.ts` の終了コードが 0。

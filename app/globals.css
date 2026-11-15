@@ -137,6 +137,20 @@
 }
 
 /*
+ * T3-09（CLS）：1列の配置（768px 以上 1024px 未満。カードがさくいんの上にある）で、ハッシュ（#pref-NN）つきで開いたとき、
+ * カードの内容（JSON）が入ると下のさくいんが押し出される。内容が入る前から、表示する県の差し込み先に画面の高さぶんの高さを取っておく。
+ * ハイドレーションの前は `:target` のカード（JavaScript が有効なときだけ。無効なら内容は読み込まれない）、ハイドレーションの後は
+ * `CardDetails` が付ける `data-card-reserve`（ハッシュから復元して、利用者が操作する前の間。内容が入った後も外さない。操作したら外す）。
+ * 768px 未満はパネル（固定位置）、1024px 以上はカードが右の列なので、さくいんは動かない。
+ */
+@media (scripting: enabled) and (48rem <= width < 64rem) {
+  [data-card-switch]:not([data-card-ready]) [data-card-pref]:target [data-card-body],
+  [data-card-body][data-card-reserve] {
+    min-height: 100svh;
+  }
+}
+
+/*
  * T3-05：モード・ふりがなの切替（F-MODE-01・02・04、6.6 (3)、D26）。<html data-mode data-ruby> は、ビルド時に言語ごとの既定値を書き、
  * <head> の初期化スクリプト（src/features/mode/initScript.ts）が最初の描画の前に、localStorage の保存した値で上書きする。
  * 隠すのは display: none（読み上げ・aria-live・ボタンの名前からも除く。visibility・opacity は使わない）。

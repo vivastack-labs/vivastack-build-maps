@@ -63,7 +63,7 @@ describe('CardArea', () => {
     expect(root.querySelector('[data-card-guide]')).not.toBeNull();
   });
 
-  test('T3-03：「準備中」の県（本番）は内容の代わりに準備中の文を出し、内容のある県は名物3つを出す', () => {
+  test('T3-03・T3-09：「準備中」の県（本番）は準備中の文を出し、内容のある県は内容の差し込み先だけを出す（内容は JSON から描く）', () => {
     // Arrange・Act：本番の絞り込み。フィクスチャの北海道だけが内容を持つ
     const production = publishedPrefectures(FIXTURE_DIR, 'production');
     const { container } = render(
@@ -72,10 +72,13 @@ describe('CardArea', () => {
       </MapStateProvider>
     );
 
-    // Assert
+    // Assert：内容の差し込み先（JSON から描く。T3-09）は、準備中でない北海道だけ
     expect(container.querySelectorAll('[data-card-coming-soon]')).toHaveLength(46);
-    expect(container.querySelectorAll('[data-card-pref="01"] [data-card-specialties] [data-card-item]')).toHaveLength(3);
+    expect(container.querySelectorAll('[data-card-body]')).toHaveLength(1);
+    expect(container.querySelector('[data-card-pref="01"] [data-card-body="01"]')).not.toBeNull();
+    expect(container.querySelector('[data-card-pref="01"] [data-card-sources-slot="01"]')).not.toBeNull();
     expect(container.querySelector('[data-card-pref="01"] [data-card-coming-soon]')).toBeNull();
+    expect(container.querySelector('[data-card-item]')).toBeNull();
   });
 
   for (const lang of LANGS) {

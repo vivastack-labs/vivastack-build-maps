@@ -39,11 +39,18 @@ async function pinPendingFromIndex(page: Page): Promise<void> {
   await page.mouse.move(0, 0);
 }
 
+/** 北海道（フィクスチャで内容のある県）のカードの内容が、JSON から差し込み先に描かれるのを待つ（T3-09） */
+async function waitForHokkaidoDetails(page: Page): Promise<void> {
+  await page.locator('[data-card-pref="01"] [data-card-details="loaded"]').waitFor({ state: 'attached' });
+}
+
 /** ハイドレーションが終わってから、さくいんの北海道（フィクスチャで内容のある県）の項目をクリックして固定し、マウスを外す（T3-03。本物のカード） */
 async function pinHokkaidoFromIndex(page: Page): Promise<void> {
   await page.locator('[data-index-ready]').waitFor({ state: 'attached' });
   await page.locator('a[data-pref="01"]').click();
   await page.locator('a[data-pref="01"][aria-pressed="true"]').waitFor();
+  // カードの内容（行き方・名物・名所・出典）は県ごとの JSON から描くので、描かれるのを待ってから撮る（T3-09）
+  await waitForHokkaidoDetails(page);
   await page.mouse.move(0, 0);
 }
 
@@ -99,6 +106,7 @@ function maximizePref(code: string): (page: Page) => Promise<void> {
     await maximizeOnly(page, code);
     await page.locator('[data-muni-status="loaded"]').waitFor({ state: 'attached' });
     await page.locator(`[data-muni-layer][data-muni-pref="${code}"]`).waitFor({ state: 'attached' });
+    if (code === '01') await waitForHokkaidoDetails(page);
   };
 }
 
@@ -131,6 +139,7 @@ async function hoverShape(page: Page, selector: string): Promise<void> {
 async function hoverHokkaido(page: Page): Promise<void> {
   await page.locator('[data-map-ready]').waitFor({ state: 'attached' });
   await hoverShape(page, 'path[data-pref="01"]');
+  await waitForHokkaidoDetails(page);
 }
 
 /** 北海道を最大化して、札幌市中央区にマウスをのせる（T2-09、F-TIP-02） */

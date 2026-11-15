@@ -350,6 +350,31 @@ describe('validateContent：ふりがな', () => {
     expect(errors[0]?.message).toContain('日本語の文にだけ');
   });
 
+  test.each([
+    ['解説文に { だけがある（en）', ['specialties', 0, 'description', 'en', 'adult'], 'Price {approx} 100 yen for a nice bowl of rice.'],
+    ['解説文に } だけがある（zh）', ['spots', 0, 'description', 'zh', 'kids'], '这是 a } b 的古城。'],
+    ['行き方の経路に { がある（en）', ['access', 'route', 'en'], 'Haneda { New Chitose'],
+    ['名前に } がある（zh）', ['specialties', 0, 'name', 'zh'], '土豆}']
+  ] as const)('D38：記法でない { } を含む英語・中国語の文は、JSON を作る前に（content:validate で）場所つきの誤りにする：%s', (_name, path, text) => {
+    // Arrange：ふりがなの記法（{漢字|よみ}）ではない { } は、ブラウザの RubyText で例外になり、ページ全体が消える
+    setIn(dir, HOKKAIDO, path, text);
+
+    // Act
+    const { errors } = validateContent(dir);
+
+    // Assert
+    expect(errors.map(issue => issue.path)).toEqual([path.reduce((acc, key) => (typeof key === 'number' ? `${acc}[${key}]` : acc === '' ? key : `${acc}.${key}`), '')]);
+  });
+
+  test('7.2：英語の文に、記法の形（{…|…}）だが読みが正しくないもの（{Tokyo|tokyo}）があっても、誤りは1つだけ（ふりがなは日本語の文にだけ書ける）', () => {
+    setIn(dir, HOKKAIDO, ['name', 'en'], 'Hokkaido {Tokyo|tokyo}');
+
+    const { errors } = validateContent(dir);
+
+    expect(errors.map(issue => issue.path)).toEqual(['name.en']);
+    expect(errors[0]?.message).toContain('日本語の文にだけ');
+  });
+
   test('7.2：行き方・名前など、解説文のほかの日本語の文も見る', () => {
     setIn(dir, HOKKAIDO, ['access', 'route', 'ja'], '{羽田空港|はねだ}→{新千歳|}');
 

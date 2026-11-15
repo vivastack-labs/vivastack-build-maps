@@ -2,7 +2,7 @@ import { render } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
 
 import { PrefCard } from '@/components/PrefCard';
-import { distanceText, durationText } from '@/i18n/cardText';
+import { distanceText } from '@/i18n/cardText';
 import { LANGS, type Lang } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
 import type { PublishedPrefecture } from '@/lib/publish';
@@ -30,26 +30,6 @@ const text = (element: Element | null): string => textWithoutRuby(element as Ele
 const q = (root: ParentNode, selector: string): HTMLElement => root.querySelector(selector) as HTMLElement;
 
 describe('PrefCard', () => {
-  test('4.11.7（T3-06）：パネルが一部だけ見える状態で隠す部分（行き方・名物・名所・出典）に data-sheet-detail を付け、見出しと最大化ボタンには付けない', () => {
-    // Arrange・Act
-    const container = renderCard('ja', hokkaido);
-    const detailKeys = [...container.querySelectorAll('[data-sheet-detail]')].map(element => element.getAttributeNames().find(name => name.startsWith('data-card-')));
-
-    // Assert
-    expect(detailKeys).toEqual(['data-card-access', 'data-card-specialties', 'data-card-spots', 'data-card-sources']);
-    for (const selector of ['[data-card-region]', '[data-card-name]', '[data-card-capital]', '[data-card-distance]', '[data-card-maximize]']) {
-      expect(q(container, selector).hasAttribute('data-sheet-detail'), selector).toBe(false);
-    }
-  });
-
-  test('4.11.7（T3-06）：「準備中」の文にも data-sheet-detail を付ける', () => {
-    // Arrange・Act
-    const container = renderCard('ja', okinawaPending);
-
-    // Assert
-    expect(q(container, '[data-card-coming-soon]').hasAttribute('data-sheet-detail')).toBe(true);
-  });
-
   test('4.11.6（T3-06）：県名の h2 は tabIndex=-1（パネルを開いたときにフォーカスを受ける）', () => {
     // Arrange・Act
     const container = renderCard('ja', hokkaido);
@@ -83,90 +63,6 @@ describe('PrefCard', () => {
     expect(withoutDistance.querySelector('[data-card-name]')).not.toBeNull();
   });
 
-  test.each(LANGS)('F-CARD-04：行き方に絵文字・交通手段・経路・所要時間を出し、「目安」と書く（%s）', lang => {
-    // Arrange・Act
-    const container = renderCard(lang, hokkaido);
-
-    // Assert
-    const access = q(container, '[data-card-access]');
-    const { access: accessItem } = hokkaido;
-    expect(accessItem).toBeDefined();
-    expect(text(access.querySelector('h3'))).toContain(plainText(getMessages(lang).card.access));
-    const emoji = q(access, '[data-card-emoji]');
-    expect(emoji.textContent).toBe('✈️');
-    expect(emoji.getAttribute('aria-hidden')).toBe('true');
-    expect(text(access)).toContain(plainText(accessItem?.mode[lang] ?? ''));
-    expect(text(access)).toContain(plainText(accessItem?.route[lang] ?? ''));
-    const duration = q(access, '[data-card-duration]');
-    expect(text(duration)).toContain(plainText(getMessages(lang).card.durationLabel));
-    expect(text(duration)).toContain(plainText(durationText(lang, 95)));
-  });
-
-  test('F-CARD-04：所要時間の目安は「1時間35分」のように出す（日本語）', () => {
-    // Arrange・Act
-    const container = renderCard('ja', hokkaido);
-
-    // Assert
-    expect(text(q(container, '[data-card-duration]'))).toContain('1時間35分');
-    expect(container.querySelector('[data-card-duration] ruby')?.textContent).toContain('時間');
-  });
-
-  test.each(LANGS)('F-CARD-05：名物3つの絵文字・名前・解説を出す（%s）', lang => {
-    // Arrange・Act
-    const container = renderCard(lang, hokkaido);
-
-    // Assert
-    const section = q(container, '[data-card-specialties]');
-    expect(text(section.querySelector('h3'))).toBe(plainText(getMessages(lang).card.specialties));
-    const items = [...section.querySelectorAll<HTMLElement>('[data-card-item]')];
-    expect(items).toHaveLength(3);
-    for (const [i, item] of items.entries()) {
-      const source = hokkaido.specialties[i];
-      expect(item.getAttribute('data-card-item')).toBe(source?.id);
-      expect(q(item, '[data-card-emoji]').textContent).toBe(source?.emoji);
-      expect(text(q(item, 'strong'))).toBe(plainText(source?.name[lang] ?? ''));
-      expect(text(q(item, '.kids'))).toBe(plainText(source?.description[lang].kids ?? ''));
-    }
-  });
-
-  test.each(LANGS)('F-CARD-06：名所3つの名前・解説を出す（絵文字は任意。%s）', lang => {
-    // Arrange・Act
-    const container = renderCard(lang, hokkaido);
-
-    // Assert
-    const section = q(container, '[data-card-spots]');
-    expect(text(section.querySelector('h3'))).toBe(plainText(getMessages(lang).card.spots));
-    const items = [...section.querySelectorAll<HTMLElement>('[data-card-item]')];
-    expect(items).toHaveLength(3);
-    for (const [i, item] of items.entries()) {
-      const source = hokkaido.spots[i];
-      expect(text(q(item, 'strong'))).toBe(plainText(source?.name[lang] ?? ''));
-      expect(text(q(item, '.adult'))).toBe(plainText(source?.description[lang].adult ?? ''));
-      // フィクスチャの北海道の名所は絵文字なし。空の絵文字の要素を出さない
-      expect(item.querySelector('[data-card-emoji]')).toBeNull();
-    }
-  });
-
-  test('F-CARD-06：名所に絵文字があれば出す', () => {
-    // Arrange：東京都の東京タワーは絵文字つき
-    const container = renderCard('ja', tokyoPreview, null);
-
-    // Assert
-    const emojis = [...container.querySelectorAll('[data-card-spots] [data-card-emoji]')].map(e => e.textContent);
-    expect(emojis).toEqual(['🗼']);
-  });
-
-  test('F-MODE-04：解説文はこども向け（.kids）とおとな向け（.adult）の両方を出す', () => {
-    // Arrange・Act
-    const container = renderCard('ja', hokkaido);
-
-    // Assert
-    const first = q(container, '[data-card-specialties] [data-card-item]');
-    expect(text(q(first, '.kids'))).toBe(plainText(hokkaido.specialties[0]?.description.ja.kids ?? ''));
-    expect(text(q(first, '.adult'))).toBe(plainText(hokkaido.specialties[0]?.description.ja.adult ?? ''));
-    expect(text(q(first, '.kids'))).not.toBe(text(q(first, '.adult')));
-  });
-
   test.each(LANGS)('4.11.4：準備中の県は行き方・名物・名所の代わりに「名物・名所は準備中です」を出す（県名・県庁所在地・距離は出す。%s）', lang => {
     // Arrange・Act
     const container = renderCard(lang, okinawaPending, 1550);
@@ -183,58 +79,12 @@ describe('PrefCard', () => {
     expect(container.querySelector('[data-card-item]')).toBeNull();
   });
 
-  test('4.11.4：プレビューで名物・名所が空の県（フィクスチャの沖縄県）には、空の見出しと一覧を出さない', () => {
-    // Arrange：プレビューは準備中にしないので、名物・名所が空の県は pending ではなく、空の配列のまま渡る
-    const okinawaPreview = prefOf(preview, '47');
-    expect(okinawaPreview.pending).toBe(false);
-    expect(okinawaPreview.specialties).toHaveLength(0);
-
-    // Act
-    const container = renderCard('ja', okinawaPreview, 1550);
-
-    // Assert
-    expect(container.querySelector('[data-card-specialties]')).toBeNull();
-    expect(container.querySelector('[data-card-spots]')).toBeNull();
-    expect(container.querySelector('[data-card-access]')).toBeNull();
-    expect(container.querySelector('h3')).toBeNull();
-    expect(container.querySelector('ul')).toBeNull();
-    expect(container.querySelector('[data-card-name]')).not.toBeNull();
-    expect(container.querySelector('[data-card-maximize]')).not.toBeNull();
-  });
-
   test('4.11.4：内容を出す県には「準備中」の文を出さない', () => {
     // Arrange・Act
     const container = renderCard('ja', hokkaido);
 
     // Assert
     expect(container.querySelector('[data-card-coming-soon]')).toBeNull();
-  });
-
-  test('7.1：draft の項目にだけ「下書き」の印を出す（本番の県には出ない）', () => {
-    // Arrange・Act：東京都は、名物の2つ目・3つ目と名所の2つ目が reviewed でない（フィクスチャ）
-    const draftCard = renderCard('ja', tokyoPreview, null);
-    const productionCard = renderCard('ja', hokkaido);
-
-    // Assert
-    const marked = [...draftCard.querySelectorAll('[data-card-item]')].map(item => item.querySelector('[data-card-draft]') !== null);
-    const expected = [...tokyoPreview.specialties, ...tokyoPreview.spots].map(item => item.draft);
-    expect(marked).toEqual(expected);
-    expect(marked.filter(Boolean)).toHaveLength(3);
-    expect(text(q(draftCard, '[data-card-draft]'))).toBe('下書き');
-    expect(productionCard.querySelector('[data-card-draft]')).toBeNull();
-  });
-
-  test('7.1：行き方が draft なら、行き方の見出しに「下書き」の印を出す', () => {
-    // Arrange
-    const access = tokyoPreview.access;
-    if (access === undefined) throw new Error('東京都に行き方がありません');
-    const drafted: PublishedPrefecture = { ...tokyoPreview, access: { ...access, draft: true } };
-
-    // Act
-    const container = renderCard('en', drafted, null);
-
-    // Assert
-    expect(text(q(container, '[data-card-access] h3 [data-card-draft]'))).toBe('Draft');
   });
 
   test.each(LANGS)('F-CARD-08：最大化ボタンを hidden で出し、両方の文言（最大化・元に戻す）を持つ（準備中の県にも出す。%s）', lang => {
@@ -267,32 +117,98 @@ describe('PrefCard', () => {
     expect(card.hidden).toBe(true);
   });
 
-  test('4.11.7：出典欄は最大化ボタンの後に置く（F-SRC-01）', () => {
+  test('D38：サーバーの HTML に、行き方・名物・名所・出典の内容を入れない（JSON から描く差し込み先だけを出す）', () => {
     // Arrange・Act
     const container = renderCard('ja', hokkaido);
 
     // Assert
-    const button = q(container, '[data-card-maximize]');
-    const sources = q(container, '[data-card-sources]');
-    expect(sources.tagName).toBe('DETAILS');
-    expect(sources.hasAttribute('open')).toBe(false);
-    expect(button.compareDocumentPosition(sources) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(q(container, 'article').lastElementChild).toBe(sources);
+    for (const selector of ['[data-card-access]', '[data-card-specialties]', '[data-card-spots]', '[data-card-item]', '[data-card-sources]', 'h3', 'ul']) {
+      expect(container.querySelector(selector), selector).toBeNull();
+    }
+    const html = container.innerHTML;
+    for (const item of [...hokkaido.specialties, ...hokkaido.spots]) expect(html).not.toContain(item.description.ja.adult);
+    expect(html).not.toContain(hokkaido.access?.route.ja ?? '');
   });
 
-  test('4.11.4：準備中の県には出典欄を出さない', () => {
+  test('D38：内容を出す県には、行き方などの差し込み先（data-card-body）と出典の差し込み先（data-card-sources-slot）を出す', () => {
     // Arrange・Act
-    const container = renderCard('ja', okinawaPending, 1550);
+    const container = renderCard('ja', hokkaido);
 
-    // Assert
-    expect(container.querySelector('[data-card-sources]')).toBeNull();
+    // Assert：差し込み先は data-sheet-detail（パネルが一部だけ見える状態で隠す。T3-06）
+    const body = q(container, '[data-card-body]');
+    const sources = q(container, '[data-card-sources-slot]');
+    expect(body.getAttribute('data-card-body')).toBe('01');
+    expect(sources.getAttribute('data-card-sources-slot')).toBe('01');
+    expect(body.hasAttribute('data-sheet-detail')).toBe(true);
+    expect(sources.hasAttribute('data-sheet-detail')).toBe(true);
+    expect(sources.children).toHaveLength(0);
   });
 
-  test('4.11.4：プレビューで項目がない県にも出典欄を出さない', () => {
+  test('4.11.7：差し込み先の並びは「距離 → 内容 → 最大化ボタン → 出典」（出典は最大化ボタンの後。F-SRC-01）', () => {
     // Arrange・Act
-    const container = renderCard('ja', prefOf(preview, '47'), 1550);
+    const container = renderCard('ja', hokkaido);
 
     // Assert
-    expect(container.querySelector('[data-card-sources]')).toBeNull();
+    const order = [...q(container, 'article').children].map(child => child.getAttributeNames().find(name => name.startsWith('data-card-')));
+    expect(order).toEqual(['data-card-region', 'data-card-name', 'data-card-capital', 'data-card-distance', 'data-card-body', 'data-card-maximize', 'data-card-sources-slot']);
+  });
+
+  test.each(LANGS)('5.3：JavaScript がないときのために、内容の差し込み先に「JavaScript を有効にすると読めます」の文を出す（こども向け・おとな向け。%s）', lang => {
+    // Arrange・Act
+    const container = renderCard(lang, hokkaido);
+
+    // Assert
+    const message = q(container, '[data-card-body] [data-card-needs-script]');
+    const { needsScript } = getMessages(lang).card;
+    expect(text(q(message, '.kids'))).toBe(plainText(needsScript.kids));
+    expect(text(q(message, '.adult'))).toBe(plainText(needsScript.adult));
+  });
+
+  test('5.3：「JavaScript を有効にすると読めます」の文は、JavaScript が無効のとき（scripting: none）だけ見せる（noscript: のバリアント。JavaScript が有効な人にハイドレーション前に見せない）', () => {
+    // Arrange・Act
+    const container = renderCard('ja', hokkaido);
+
+    // Assert：ふだんは hidden、noscript のときだけ block
+    const classes = q(container, '[data-card-needs-script]').className.split(' ');
+    expect(classes).toContain('hidden');
+    expect(classes).toContain('noscript:block');
+  });
+
+  test('4.11.4：準備中の県には差し込み先を出さない（読み込まない）', () => {
+    // Arrange・Act
+    const container = renderCard('ja', okinawaPending);
+
+    // Assert
+    expect(container.querySelector('[data-card-body]')).toBeNull();
+    expect(container.querySelector('[data-card-sources-slot]')).toBeNull();
+    expect(container.querySelector('[data-card-needs-script]')).toBeNull();
+  });
+
+  test('4.11.4：プレビューで名物・名所が空の県にも差し込み先を出す（JSON は空の内容になり、何も描かない）', () => {
+    // Arrange：プレビューは準備中にしない
+    const okinawaPreview = prefOf(preview, '47');
+    expect(okinawaPreview.pending).toBe(false);
+
+    // Act
+    const container = renderCard('ja', okinawaPreview, 1550);
+
+    // Assert
+    expect(container.querySelector('[data-card-body]')).not.toBeNull();
+    expect(container.querySelector('[data-card-name]')).not.toBeNull();
+    expect(container.querySelector('[data-card-maximize]')).not.toBeNull();
+  });
+
+  test('4.11.7（T3-06）：パネルが一部だけ見える状態で隠す部分（内容・出典の差し込み先・「準備中」の文）に data-sheet-detail を付け、見出しと最大化ボタンには付けない', () => {
+    // Arrange・Act
+    const container = renderCard('ja', hokkaido);
+    const pending = renderCard('ja', okinawaPending);
+
+    // Assert
+    const detailKeys = [...container.querySelectorAll('[data-sheet-detail]')].map(element => element.getAttributeNames().find(name => name.startsWith('data-card-')));
+    expect(detailKeys).toEqual(['data-card-body', 'data-card-sources-slot']);
+    for (const selector of ['[data-card-region]', '[data-card-name]', '[data-card-capital]', '[data-card-distance]', '[data-card-maximize]']) {
+      expect(q(container, selector).hasAttribute('data-sheet-detail'), selector).toBe(false);
+    }
+    expect(q(pending, '[data-card-coming-soon]').hasAttribute('data-sheet-detail')).toBe(true);
   });
 });

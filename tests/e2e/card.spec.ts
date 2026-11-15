@@ -1,4 +1,4 @@
-import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
+import { expect, test, type APIRequestContext, type Page, type Route } from '@playwright/test';
 import { distanceText, durationText } from '../../src/i18n/cardText';
 import { formatDate } from '../../src/i18n/format';
 import { getMessages } from '../../src/i18n/messages';
@@ -6,7 +6,7 @@ import { loadContent } from '../../src/lib/content';
 import { distancesFromTokyo } from '../../src/lib/distance';
 import { expandSheet } from './helpers';
 
-// F-CARD-02〜06・08、4.11.4、6.6 (2)、D24：県のカード（T3-03）。本番用のビルド。コンテンツは tests/fixtures/content/（playwright.config.ts の CONTENT_DIR）。
+// F-CARD-02〜06・08、4.11.4、6.6 (2)、D24・D38：県のカード（T3-03）。カードの内容（行き方・名物・名所・出典）は、県ごとの JSON（/cards/{lang}/NN.json。T3-09）から描く。本番用のビルド。コンテンツは tests/fixtures/content/（playwright.config.ts の CONTENT_DIR）。
 // 北海道は全部 reviewed（内容を出す）、東京都は reviewed・verified・draft が混在、沖縄県は未作成。本番で内容を出すのは北海道だけで、残りの46県は「準備中」。
 // 内容の文字は、ふりがなのない英語のページで比べる（ふりがなの <rt> が本文に混ざらない）。
 
@@ -43,6 +43,11 @@ async function pinFromIndex(page: Page, code: string): Promise<void> {
   await expandSheet(page);
 }
 
+/** カードの内容（JSON から描く。T3-09）が差し込み先に出るのを待つ */
+async function waitForDetails(page: Page, code: string, kind = 'loaded'): Promise<void> {
+  await expect(page.locator(`[data-card-pref="${code}"] [data-card-details="${kind}"]`)).toBeAttached();
+}
+
 test.describe('F-CARD-02〜06：県のカード', () => {
   test('F-CARD-02〜06：北海道を固定すると、本物のカード（見出し・距離・行き方・名物3つ・名所3つ）が見える', async ({ page }) => {
     // Arrange
@@ -53,6 +58,7 @@ test.describe('F-CARD-02〜06：県のカード', () => {
 
     // Act
     await pinFromIndex(page, HOKKAIDO);
+    await waitForDetails(page, HOKKAIDO);
 
     // Assert：見出し（F-CARD-02）・距離（F-CARD-03）
     const card = page.locator(`[data-card-pref="${HOKKAIDO}"]`);
@@ -115,6 +121,7 @@ test.describe('F-SRC-01〜03：出典欄', () => {
     const messages = getMessages('en');
     await open(page);
     await pinFromIndex(page, HOKKAIDO);
+    await waitForDetails(page, HOKKAIDO);
     const sources = page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-sources]`);
 
     // Assert：最初は閉じていて、中身は見えない（F-SRC-01）。「準備中」の沖縄県のカードには出典欄がない
@@ -195,24 +202,20 @@ test.describe('6.6 (2)：JavaScript がないとき', () => {
     });
   }
 
-  test('F-SRC-01：ハッシュの県のカードに出典欄があり、JavaScript がなくても開ける', async ({ page, browserName }) => {
+  test('5.3：JavaScript がないとき、:target のカードに見出しと「JavaScript を有効にすると読めます」の文が出て、内容と出典欄は出ない（D38）', async ({ page }) => {
     // Arrange・Act
-    await page.goto(`/ja/#pref-${HOKKAIDO}`);
+    await page.goto(`/en/#pref-${HOKKAIDO}`);
 
-    // Assert：閉じていて、summary を押すと開く（<details> はブラウザの機能で動く）
-    const sources = page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-sources]`);
-    await expect(sources).toBeVisible();
-    await expect(sources).not.toHaveAttribute('open');
-    const summary = sources.locator('summary');
-    if (browserName === 'webkit') {
-      // Playwright の WebKit で、JavaScript を止めると summary のクリックで details が開かない（実際の Safari の動きかは未確認）ので、キーボード（Enter）で開く
-      await summary.focus();
-      await page.keyboard.press('Enter');
-    } else {
-      await summary.click();
-    }
-    await expect(sources).toHaveAttribute('open', '');
-    await expect(sources.locator('[data-source-item="specialties/milk"] [data-source-none]')).toBeVisible();
+    // Assert：見出し（県名・県庁所在地・距離）と、内容の代わりの文
+    const card = page.locator(`[data-card-pref="${HOKKAIDO}"]`);
+    await expect(card.locator('[data-card-name]')).toHaveText(prefOf(HOKKAIDO).name.en);
+    await expect(card.locator('[data-card-capital]')).toBeVisible();
+    await expect(card.locator('[data-card-distance]')).toBeVisible();
+    await expect(card.locator('[data-card-needs-script]')).toBeVisible();
+    await expect(card.locator('[data-card-needs-script] .adult')).toHaveText(getMessages('en').card.needsScript.adult);
+    await expect(card.locator('[data-card-needs-script] .kids')).toBeHidden();
+    // 内容・出典欄は HTML にないので、出ない
+    await expect(card.locator('[data-card-access], [data-card-specialties], [data-card-spots], [data-card-item], [data-card-sources]')).toHaveCount(0);
   });
 
   test('ハッシュがなければ、案内文だけが見える', async ({ page }) => {
@@ -226,6 +229,22 @@ test.describe('6.6 (2)：JavaScript がないとき', () => {
 });
 
 test.describe('6.6 (2)：JavaScript があるとき、:target の規則は止まる', () => {
+  test('5.3：JavaScript が有効なら（scripting: enabled）、ハイドレーションの前（JavaScript を読み込む前）も「JavaScript を有効にすると読めます」の文は見えない', async ({ browser }) => {
+    // Arrange：JavaScript は有効のまま、読み込みだけを止める（ハイドレーションの前の状態）
+    const context = await browser.newContext({ javaScriptEnabled: true });
+    const page = await context.newPage();
+    await page.route('**/*.js', route => route.abort());
+
+    // Act
+    await page.goto(`/en/#pref-${HOKKAIDO}`);
+
+    // Assert：カードの見出しは読める。内容の代わりの文は出さない
+    await expect(page.locator('[data-card-ready]')).toHaveCount(0);
+    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-name]`)).toBeVisible();
+    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-needs-script]`)).toBeHidden();
+    await context.close();
+  });
+
   test('/en/#pref-13 を開くと、ハイドレーションの後は状態（固定）で東京都のカードだけが見え、別の県を固定するとその県のカードだけが見える', async ({ page }) => {
     // Arrange・Act：ハッシュで開き、`CardSwitch` のマウント（data-card-ready）を待つ
     await page.goto(`/en/#pref-${TOKYO}`);
@@ -247,51 +266,197 @@ test.describe('6.6 (2)：JavaScript があるとき、:target の規則は止ま
   });
 });
 
-test.describe('D24：HTML の大きさ', () => {
-  const firstSpecialty = prefOf(HOKKAIDO).specialties[0];
+test.describe('D38：カードの内容は県ごとの JSON', () => {
+  const hokkaido = prefOf(HOKKAIDO);
+  const firstSpecialty = hokkaido.specialties[0];
   const descriptions = firstSpecialty?.description;
 
-  /** ページの HTML を、`<script>` の外（本体）と中（RSC のデータ）に分けて返す */
-  async function htmlOf(request: APIRequestContext, lang: string): Promise<{ readonly all: string; readonly body: string; readonly scripts: string }> {
-    const all = await (await request.get(`/${lang}/`)).text();
-    return { all, body: all.replace(/<script[\s\S]*?<\/script>/gu, ''), scripts: [...all.matchAll(/<script[\s\S]*?<\/script>/gu)].map(match => match[0]).join('\n') };
+  /** 固定した県の JSON を待つ（`/cards/{lang}/NN.json`） */
+  const cardResponse = (page: Page, lang: string, code: string) => page.waitForResponse(response => new URL(response.url()).pathname === `/cards/${lang}/${code}.json`);
+
+  test('D38：/cards/en/01.json を読み込んでカードの内容を出す（JSON は application/json）', async ({ page }) => {
+    // Arrange
+    await open(page);
+
+    // Act：固定すると読み込む
+    const responsePromise = cardResponse(page, 'en', HOKKAIDO);
+    await pinFromIndex(page, HOKKAIDO);
+    const response = await responsePromise;
+
+    // Assert
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toContain('application/json');
+    const body = (await response.json()) as { code: string; specialties: { name: string }[] };
+    expect(body.code).toBe(HOKKAIDO);
+    expect(body.specialties.map(item => item.name)).toEqual(hokkaido.specialties.map(item => item.name.en));
+    await waitForDetails(page, HOKKAIDO);
+    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-specialties] [data-card-item]`)).toHaveCount(3);
+  });
+
+  test('D38：県を選ぶまで /cards/ は読み込まない。準備中の県（沖縄県）は読み込まない', async ({ page }) => {
+    // Arrange
+    const requested: string[] = [];
+    page.on('request', request => {
+      const { pathname } = new URL(request.url());
+      if (pathname.startsWith('/cards/')) requested.push(pathname);
+    });
+    await open(page);
+    expect(requested).toEqual([]);
+
+    // Act：準備中の県を固定する
+    await pinFromIndex(page, OKINAWA);
+    await expect(page.locator(`[data-card-pref="${OKINAWA}"] [data-card-coming-soon]`)).toBeVisible();
+
+    // Assert
+    expect(requested).toEqual([]);
+  });
+
+  test('D38：ホバーでカードを出すときも読み込む（固定しない）', async ({ page, isMobile }) => {
+    // Arrange：タッチではホバーしない
+    test.skip(isMobile, 'タッチにホバーはない');
+    await open(page);
+
+    // Act：さくいんの項目にマウスをのせる（1024px 未満ではさくいんのホバーでカードを変えない。T3-06）
+    const viewport = page.viewportSize();
+    test.skip((viewport?.width ?? 0) < 1024, '1024px 未満ではさくいんのホバーでカードを変えない');
+    const responsePromise = cardResponse(page, 'en', HOKKAIDO);
+    await page.locator(`a[data-pref="${HOKKAIDO}"]`).hover();
+    await responsePromise;
+
+    // Assert
+    await waitForDetails(page, HOKKAIDO);
+    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-specialties] [data-card-item]`)).toHaveCount(3);
+  });
+
+  test('D38：300ms を超える読み込みの間は「読み込み中」を出し、終わったら内容に変わる', async ({ page }) => {
+    // Arrange：応答を 800ms 遅らせる
+    await page.route('**/cards/en/*.json', async (route: Route) => {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      await route.continue();
+    });
+    await open(page);
+
+    // Act
+    await pinFromIndex(page, HOKKAIDO);
+
+    // Assert
+    const slow = page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-details="slow"]`);
+    await expect(slow).toContainText(getMessages('en').card.loading);
+    await waitForDetails(page, HOKKAIDO);
+    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-details="slow"]`)).toHaveCount(0);
+  });
+
+  for (const [name, fail] of [
+    ['HTTP のエラー（500）', (route: Route) => route.fulfill({ status: 500, body: 'error' })],
+    ['形が不正な JSON', (route: Route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ code: HOKKAIDO, specialties: 1, spots: [] }) })],
+    ['別の県の JSON', (route: Route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ code: TOKYO, specialties: [], spots: [] }) })]
+  ] as const) {
+    test(`D38：読み込みに失敗（${name}）すると文言と「再試行」を出し、再試行で内容が出る`, async ({ page }) => {
+      // Arrange：最初の1回だけ失敗させる
+      let isFirst = true;
+      await page.route('**/cards/en/01.json', route => {
+        if (!isFirst) return route.continue();
+        isFirst = false;
+        return fail(route);
+      });
+      await open(page);
+
+      // Act
+      await pinFromIndex(page, HOKKAIDO);
+
+      // Assert
+      const failed = page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-details="failed"]`);
+      await expect(failed).toBeVisible();
+      await expect(failed).toContainText(getMessages('en').card.loadFailed.adult);
+      await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-item]`)).toHaveCount(0);
+
+      // Act：再試行
+      await failed.locator('[data-card-retry]').click();
+
+      // Assert
+      await waitForDetails(page, HOKKAIDO);
+      await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-specialties] [data-card-item]`)).toHaveCount(3);
+      await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-retry]`)).toHaveCount(0);
+    });
   }
 
-  test('解説文は HTML の本体に1回、RSC のデータ（<script>）に1回だけ出る', async ({ request }) => {
-    // Arrange：ふりがながなく、HTML の記号を含まない、北海道の最初の名物の英語の解説文（おとな向け）
-    const sentence = descriptions?.en.adult ?? '';
-    expect(sentence).toMatch(/^[\w ,.]+$/u);
+  test('D38：オフラインのときは専用の文言と「再試行」を出し、オンラインに戻して再試行すると内容が出る', async ({ page, context }) => {
+    // Arrange：ページを開いてからオフラインにする
+    await open(page);
+    await context.setOffline(true);
 
     // Act
-    const { body, scripts } = await htmlOf(request, 'en');
-
-    // Assert：サーバーコンポーネントの結果は、本体と RSC のデータに1回ずつ（props などで3回目を作らない）
-    expect(body.split(sentence)).toHaveLength(2);
-    expect(scripts.split(sentence)).toHaveLength(2);
-  });
-
-  test('英語のページの HTML に、ほかの言語（日本語・中国語）の解説文は出てこない', async ({ request }) => {
-    // Arrange：カードを 'use client' にして全言語の元データを props で渡すと、ここで見つかる
-    const others = [descriptions?.ja.adult, descriptions?.ja.kids, descriptions?.zh.adult, descriptions?.zh.kids];
-    expect(others.every(text => typeof text === 'string' && text !== '')).toBe(true);
-
-    // Act
-    const { all } = await htmlOf(request, 'en');
+    await pinFromIndex(page, HOKKAIDO);
 
     // Assert
-    for (const text of others) expect(all).not.toContain(text);
-  });
+    const offline = page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-details="offline"]`);
+    await expect(offline).toContainText(getMessages('en').card.offline.adult);
 
-  test('日本語のページの HTML に、ふりがなの記法つきの元の文字列（{漢字|よみ}）は出てこない', async ({ request }) => {
-    // Arrange：ふりがなの変換（<ruby>）はビルド時にサーバーで済ませる。記法のままの文字列が出るなら、クライアントに元データが渡っている
-    const sources = [descriptions?.ja.adult, descriptions?.ja.kids];
-    for (const text of sources) expect(text).toMatch(/\{[^}|]+\|[^}]+\}/u);
-
-    // Act
-    const { all } = await htmlOf(request, 'ja');
+    // Act：オンラインに戻して再試行
+    await context.setOffline(false);
+    await offline.locator('[data-card-retry]').click();
 
     // Assert
-    // 辞書の文言（クライアントコンポーネントの props。小さい）には記法が残るので、記法の有無ではなく、コンテンツの文で確かめる
-    for (const text of sources) expect(all).not.toContain(text);
+    await waitForDetails(page, HOKKAIDO);
+  });
+
+  test('D38：2回目以降は読み込み直さない（成功はメモリに残る）', async ({ page }) => {
+    // Arrange
+    let count = 0;
+    await page.route('**/cards/en/01.json', route => {
+      count += 1;
+      return route.continue();
+    });
+    await open(page);
+    await pinFromIndex(page, HOKKAIDO);
+    await waitForDetails(page, HOKKAIDO);
+
+    // Act：別の県に切り替えて戻す
+    await pinFromIndex(page, TOKYO);
+    await pinFromIndex(page, HOKKAIDO);
+
+    // Assert
+    await waitForDetails(page, HOKKAIDO);
+    expect(count).toBe(1);
+  });
+
+  /** ページの HTML（本体と、末尾の RSC のデータの `<script>` を含む全体）を返す */
+  async function htmlOf(request: APIRequestContext, lang: string): Promise<string> {
+    return (await request.get(`/${lang}/`)).text();
+  }
+
+  test('D38：HTML にカードの解説文・行き方・出典が入らない（どの言語のページにも、どの言語の文も）', async ({ request }) => {
+    // Arrange：北海道の最初の名物の解説文（3言語・こども向け・おとな向け）と、行き方の経路・出典の URL
+    const sentences = [descriptions?.en.adult, descriptions?.en.kids, descriptions?.ja.adult, descriptions?.ja.kids, descriptions?.zh.adult, descriptions?.zh.kids];
+    expect(sentences.every(text => typeof text === 'string' && text !== '')).toBe(true);
+    const others = [hokkaido.access?.route.en, hokkaido.access?.route.ja, 'https://example.com/hokkaido/potato'];
+
+    for (const lang of ['ja', 'en', 'zh']) {
+      // Act
+      const html = await htmlOf(request, lang);
+
+      // Assert
+      for (const text of [...sentences, ...others]) expect(html, `${lang} に ${text ?? ''}`).not.toContain(text);
+      // 差し込み先は出る（準備中でない北海道だけ）
+      expect(html).toContain('data-card-body="01"');
+    }
+  });
+
+  test('D38：JSON は、その言語の文だけを含む（en にほかの言語の解説文は出ない）。ja はふりがなの記法のまま', async ({ request }) => {
+    // Act
+    const en = await (await request.get(`/cards/en/${HOKKAIDO}.json`)).text();
+    const ja = await (await request.get(`/cards/ja/${HOKKAIDO}.json`)).text();
+
+    // Assert
+    expect(en).toContain(descriptions?.en.adult ?? '');
+    for (const text of [descriptions?.ja.adult, descriptions?.zh.adult]) expect(en).not.toContain(text ?? '');
+    expect(ja).toContain(JSON.stringify(descriptions?.ja.adult ?? '').slice(1, -1));
+    expect(ja).toMatch(/\{[^}|]+\|[^}]+\}/u);
+  });
+
+  test('D38：範囲外の JSON は 404', async ({ request }) => {
+    for (const path of ['/cards/en/00.json', '/cards/en/48.json', '/cards/fr/01.json', '/cards/en/1.json']) {
+      expect((await request.get(path)).status(), path).toBe(404);
+    }
   });
 });
