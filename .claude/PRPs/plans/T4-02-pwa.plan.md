@@ -117,4 +117,10 @@
 
 ## 承認後に変えたこと
 
-（実装の後に書く）
+- `writeServiceWorker` の置き場所：`scripts/postbuild.ts` の中 → `scripts/service-worker.ts`（`postbuild.ts` が呼ぶ。`postbuild.ts` が長くなるため。テストは `tests/unit/scripts/service-worker.test.ts`。順番・失敗時に `dist/` を消すことは `postbuild.test.ts` で確かめる）。
+- `writeServiceWorker` の失敗の条件を足した：3言語の HTML のどれかがなければ、ファイルを書く前に例外。workbox の警告（パターンに合うファイルがない・2MB の上限で外れたファイル）があれば例外（オフラインの範囲が黙って小さくならないように）。
+- 登録：`useEffect` の中で、すぐ登録 → ページの `load` の後に登録（プリキャッシュの通信が、ページの読み込みと取り合わないように）。
+- `serviceWorkers: 'block'` は3つ目の `playwright.screenshots.config.ts` にも入れた（計画のとおり。理由はスクリーンショットが古い HTML に変わらないため）。`pwa.spec.ts` は、Chromium のうち、タッチの端末（Pixel）も飛ばす（最大化がダブルクリックのため）。
+- `workbox-build` は `7.4.1` に固定（ほかの依存と同じ）。インストールスクリプトはなく、`allowBuilds` は変えていない。
+- アイコンの SVG は小数0桁のパス（約 38KB）。
+- 文書：開発計画の T4-02 の「状態」は変えていない（前のタスクと同じく、マージの後に更新する）。T4-05・T4-06 のタスクの定義に、オフラインで開くページの扱いと実機確認の項目を足した。

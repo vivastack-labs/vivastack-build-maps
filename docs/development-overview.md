@@ -5,7 +5,7 @@
 | ドキュメント | docs/development-overview.md |
 | 版 | 0.8（ドラフト） |
 | 作成日 | 2026-11-11 |
-| 更新日 | 2026-11-13（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）） |
+| 更新日 | 2026-11-16（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）。0.11：PWA のオフラインで使える範囲と Service Worker のツールを決めた（5.4、U3・U13、D40・D41）） |
 | リポジトリ | vivastack-labs/vivastack-build-maps（リポジトリ直下がアプリ本体） |
 | 公開URL | `https://maps.vivastack-dev.workers.dev/{ja,en,zh}/` |
 | ステータス | 検討フェーズの決定事項を反映。「要検証」とした項目は実装時に確定する |
@@ -351,11 +351,20 @@ Lighthouse CIでこの基準値を超えたら、CIを失敗させる。
 
 ### 5.4 PWA
 
-- Web App Manifest を置き、ホーム画面に追加できるようにする。
-- Service Worker で次をキャッシュする（案）：
-  - アプリの枠組み（HTML・JS・CSS。都道府県の地図とカードの見出しはHTMLに含まれる。6.6）：インストール時にキャッシュ
-  - 市区町村の地図データ、カードの内容のJSON（`/cards/{lang}/NN.json`。D38）：一度見た県だけキャッシュ（カードの内容はHTMLに含まれないので、キャッシュしないとオフラインで出ない）
-- 使うツールは実装時に選ぶ（Serwist、workbox-build など）。
+U3・U13 を決めた（D40・D41）。
+
+- **Web App Manifest**：言語ごとに `/{lang}/app.webmanifest`（`app/[lang]/app.webmanifest/route.ts` がビルド時に出力する。名前を `manifest.webmanifest` にしないのは、Next.js のメタデータのファイル〔`app/manifest.ts`〕と紛れないため）。`name` はその言語のサイト名（ふりがなの記法は除く）、`short_name` は辞書の `pwa.shortName`（ja「めいぶつ地図」、en「Meibutsu Map」、zh「名产地图」）、`id`・`start_url` は `/{lang}/`（3言語を別のアプリとして追加できる）、`scope` は `/`（言語の切替でアプリの外に出ない）、`display` は `standalone`、`lang` は `<html lang>` と同じ。HTML の `<link rel="manifest">` は `generateMetadata` の `manifest` で出す。
+- **アイコン（仮）**：日本の形（`geo/data/prefs.topo.json`）を色のついた正方形の上に描いたもの。`public/icons/` に `icon.svg`（ファビコン）・`icon-192.png`・`icon-512.png`・`icon-maskable-512.png`（セーフゾーンの内側に収めたもの）・`apple-touch-icon.png`（180px。iOS のホーム画面）。`node scripts/make-icons.ts` で作り（毎回のビルドでは動かさない）、出力をコミットする。デザインは仮で、差し替えてよい。どれも同じオリジンなので、CSP（5.5）の `default-src 'self'`・`img-src 'self'` の範囲に入る。
+- **オフラインで使える範囲（U3 → D40）**：
+  - アプリの枠組み（3言語の HTML・manifest・`_next/static/` の JS・CSS・アイコン。都道府県の地図とカードの見出し・さくいんはHTMLに含まれる。6.6）：インストールのときにプリキャッシュする。一度開けば、電波がなくても地図と県名が使え、言語の切替（全体の読み込み）も動く。3言語ぶんをまとめて先に読むので、本番の上限のコンテンツでは 0.5〜0.6MB 前後（圧縮後）を裏で読む。
+  - 市区町村の地図データ（`/geo/muni/NN.topo.json`）とカードの内容のJSON（`/cards/{lang}/NN.json`。D38）：一度読み込んだものだけ。**NetworkFirst**（オンラインでは今までどおりネットワークから読み、成功した 200 の応答だけをキャッシュに入れる。ネットワークが失敗したときだけキャッシュから返す）。CacheFirst ではカードの内容を直したデプロイが反映されず、StaleWhileRevalidate ではオンラインでも1回古い内容を見せるため。キャッシュの上限は市区町村 47・カード 141（47県×3言語）。
+  - プリキャッシュしないもの：RSC の `*.txt`（言語の切替は全体の読み込み）、`404.html`・`404/`・`_not-found/`、`_headers`・`_redirects`。`/`（`/ja/` への 301）はオフラインでは開けない（`start_url` は `/{lang}/` なので、ホーム画面から開くときは困らない）。
+  - 市区町村とカードの読み込み（`createResourceLoader`）は `fetch` の前に `navigator.onLine` を見ない。キャッシュがあれば成功し、なければ `fetch` が失敗して `offline`（4.11.5）になる。
+- **ツール（U13 → D41）**：`workbox-build`（devDependency）の `generateSW`。設定だけから `sw.js` を作り、自分で Service Worker のコードを書かない。プリキャッシュの版（ファイルの内容のハッシュ）・古いキャッシュの削除・NetworkFirst が使える。Next.js のバンドラーに依存せず、静的出力の後の工程（`scripts/postbuild.ts`。6.4）にそのまま入る。Serwist（`@serwist/build` の `injectManifest`）は、Service Worker のソースを別に組み立てる工程が1つ増えるので選ばなかった。
+  - `scripts/service-worker.ts` の `writeServiceWorker(dist)` が `dist/sw.js` の1ファイルを作る（`inlineWorkboxRuntime`。`workbox-*.js` を別に置かない。ソースマップなし）。呼ぶのは `writePageCsp`（5.5）の後（プリキャッシュする HTML の版を、配信する HTML〔CSP の `<meta>` を書いた後〕の内容から求めるため）。3言語の HTML がない・大きさの上限などでプリキャッシュから外れたファイルがある（workbox の警告）ときは、ビルドを止めて `dist/` を消す。
+  - `skipWaiting`・`clientsClaim`：最初に開いたページも、インストールが終わったら Service Worker を通る（そうしないと、最初のページで見た県がキャッシュに入らない）。新しいデプロイは、Service Worker の更新の後の次の読み込みで反映される（更新を知らせる画面は作らない）。更新の前から開いているページが、削除された古い JS のファイルを後から読もうとすると失敗するが、再読み込みで直る。
+  - 登録は `ServiceWorkerRegistration`（クライアントコンポーネント。ページの読み込みが終わってから `/sw.js` を `scope: '/'` で登録する）。Next.js の JS のチャンク（外部ファイル）に入るので、インラインスクリプトは増えない（5.5）。`pnpm dev`（`NODE_ENV` が `production` でない）と、Service Worker のないブラウザでは何もしない。`public/_headers` の `/sw.js` は `Cache-Control: no-cache`（更新をすぐ見つけるため）。
+  - E2E は、既定で Service Worker を使わない（`serviceWorkers: 'block'`。`page.route` で失敗・遅延を作る既存のテストが、Service Worker に横取りされないため）。`tests/e2e/pwa.spec.ts`（Chromium だけ）だけが許可する。
 
 ### 5.5 セキュリティ
 
@@ -496,11 +505,12 @@ dist/                       ← wrangler の assets.directory
 ├─ 404.html                 ← app/global-not-found.tsx
 ├─ _next/...
 ├─ geo/muni/01.topo.json ... 47.topo.json   ← 都道府県の地図はHTMLに埋め込むので配信しない（6.6）
-├─ manifest.webmanifest
-└─ sw.js
+├─ {ja,en,zh}/app.webmanifest   ← app/[lang]/app.webmanifest/route.ts（5.4）
+├─ icons/                   ← public/icons/（5.4）
+└─ sw.js                    ← scripts/postbuild.ts が最後に作る（5.4）
 ```
 
-- `scripts/postbuild.ts` で、`out/` をそのままの構成で `dist/` にコピーする（`_redirects`・`_headers` は `public/` に置き、Next.js が `out/` の直下にコピーする）。`out/` を直接配信せずに `dist/` に分けておくのは、静的出力の後の工程（CSPのハッシュの書き込み、`sw.js` の生成。6.6、U13）をここに加えるため。`pnpm build` は `next build` → `node scripts/postbuild.ts` の順に実行する。
+- `scripts/postbuild.ts` で、`out/` をそのままの構成で `dist/` にコピーする（`_redirects`・`_headers` は `public/` に置き、Next.js が `out/` の直下にコピーする）。`out/` を直接配信せずに `dist/` に分けておくのは、静的出力の後の工程（CSPのハッシュの書き込み、`sw.js` の生成。5.4・5.5、6.6、D41）をここに加えるため。`pnpm build` は `next build` → `node scripts/postbuild.ts` の順に実行する。
 - 以前の案（`basePath: '/maps'`）では、`out/` の中が `/maps` の下にまとまらず（Next.js 16.4.6。U8）、`dist/maps/` に移していた。D35 でこの移動はなくなった。
 - 404 のページは `dist/404.html`（`app/global-not-found.tsx`。`<html lang="ja">`）。`wrangler.jsonc` の `not_found_handling: "404-page"` で、存在しないパスにはこのページが 404 で返る。
 
@@ -1297,7 +1307,7 @@ flowchart LR
 |---|---|---|---|
 | U1 | ~~モードとふりがなの既定値~~ | 決定（D37）：日本語はこども向け＋ふりがなON、英語・中国語はおとな向け。第6章 6.6 (3) | — |
 | U2 | ~~対応ブラウザの範囲~~ | 決定（D25）：第5章 5.3 | — |
-| U3 | PWAでオフライン時に使える範囲 | 第5章 5.4 の案 | M4 |
+| U3 | ~~PWAでオフライン時に使える範囲~~ | 決定（D40）：第5章 5.4 | — |
 | U4 | ~~スタイルの方式（CSS Modules / Tailwind CSS）~~ | 決定（D26）：Tailwind CSS v4。第6章 6.2 | — |
 | U5 | API Tokenの最小権限 | 第11章 11.3 で要検証 | M0 |
 | U6 | ~~`workers_dev: false` と `preview_urls: true` を同時に設定できるか~~ | 不要になった（D35）：本番を workers.dev で公開するので `workers_dev: true`。第11章 11.4 (2) | — |
@@ -1307,7 +1317,7 @@ flowchart LR
 | U10 | ~~総務省コードと国土地理院データの利用条件~~ | 決定（D32）：第8章 8.1 | — |
 | U11 | ~~コンテンツ生成用スキルの置き場所~~ | 決定（D22）：リポジトリ直下の `.claude/skills/` と `.claude/agents/` | — |
 | U12 | ~~市区町村名のローマ字の書き方~~ | 決定（D33）：第7章 7.4.1 | — |
-| U13 | Service Worker のツール | Serwist / workbox-build（第5章 5.4） | M4 |
+| U13 | ~~Service Worker のツール~~ | 決定（D41）：workbox-build の `generateSW`。第5章 5.4 | — |
 | U14 | GitHub のプランの制約（private・Free ではブランチ保護と Environments を使えない） | GitHub Team に変える / public にする / ブランチ保護なしで運用する（第11章 11.5） | M0 |
 | U15 | 本番リリース後の E2E の実行のしかた | 開発中は手動（D30）。リリース後に PR ごと・`main` への push ごと・手動のどれにするか（Actions の分数とプランによる） | M6 |
 | U16 | ~~小笠原諸島など、地図の本体の枠の外に出る島の表示~~ | 決定（D36）：第6章 6.6 (1) | — |
@@ -1357,6 +1367,8 @@ flowchart LR
 | D37 | モードとふりがなの既定値 | 日本語はこども向け＋ふりがな ON、英語・中国語はおとな向け（ふりがなは日本語のページだけなので、en・zh の `data-ruby` は `on` のまま効かない）。ビルド時に `<html data-mode data-ruby>` に書く。localStorage のキーは言語で分けず `maps.mode`・`maps.ruby`（ボタンを押したときだけ保存する）（6.6 (3)） |
 | D38 | カードの内容は県ごとのJSON | 行き方・名物・名所・出典を、県ごと・言語ごとのJSON（`/cards/{lang}/NN.json`。ビルド時に Route Handler で出力）にして、県を選んだときに読み込む。カードの見出し（県名・県庁所在地・距離）・ツールチップ・「準備中」の文はHTMLに残す。上限のコンテンツで、最初の読み込みが gzip 後 ja 269.8KB・en 260.3KB・zh 262.2KB（基準値 300KB）に収まる。JavaScript がないときは、カードの見出しまでを表示し、内容の代わりに「JavaScript を有効にすると読めます」の文を出す（5.3、F-MODE-04）（6.6 (2)） |
 | D39 | CSPの置き場所と `style-src` | ハッシュを含む CSP は各 HTML の `<meta http-equiv>`（`<meta charset>` の直後）、`frame-ancestors 'none'`・`object-src 'none'`・`base-uri 'self'` は `_headers` の `/*`。`style-src 'self'` だけにして、サーバーの HTML に `style` 属性を出さない（Tailwind のクラスで書く）。知らない形のインラインスクリプトはビルドを止める。Web Analytics のドメインは今許可する（5.5、6.6 (4)）。`_headers` は1行 2,000 字までで、ja のハッシュ 128 個が入らないため |
+| D40 | PWAでオフライン時に使える範囲と manifest | アプリの枠組み（3言語の HTML・manifest・JS・CSS・アイコン）はインストールのときにプリキャッシュし、市区町村の地図データ（`/geo/muni/`）とカードの内容のJSON（`/cards/`）は一度読んだものだけを NetworkFirst でキャッシュする（オンラインでは今と同じ、失敗したときだけキャッシュ）。manifest は言語ごとに `/{lang}/app.webmanifest`（`id`・`start_url` は `/{lang}/`、`scope` は `/`、`display` は `standalone`）。アイコンは日本の形を描いた仮のもの（5.4）。`generateSW` で作る `sw.js` が最初のページから有効になる（`skipWaiting`・`clientsClaim`）ので、更新を知らせる画面は作らない |
+| D41 | Service Worker のツール | `workbox-build` の `generateSW`。`scripts/postbuild.ts` の最後（CSP の書き込みの後）に `dist/sw.js`（1ファイル）を作る。自分で Service Worker のコードを書かず、版の管理・古いキャッシュの削除・NetworkFirst を使う。Serwist は Service Worker のソースを組み立てる工程が増えるので選ばなかった（5.4）。E2E は既定で Service Worker を使わず、`pwa.spec.ts` だけ許可する |
 
 ## 付録B. 参考資料
 
