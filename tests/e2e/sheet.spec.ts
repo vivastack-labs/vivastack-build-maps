@@ -37,6 +37,45 @@ async function tapSea(page: Page): Promise<void> {
   await page.locator('[data-map-sea]').tap({ position: { x: box.width * SEA_POINT.x, y: box.height * SEA_POINT.y } });
 }
 
+/**
+ * ページを開く前に、layout-shift（直前に利用者の入力がないもの）を記録する（ページを移るたびに0から数える）。
+ * `window.__shift` は全部の合計。`window.__shiftAfterDetails` は、カードの内容（JSON。T3-09）が差し込み先に描かれた時点以降の合計
+ * （内容が入ったことによるずれだけを見る。ハッシュつきで開くと、ブラウザが `:target` へスクロールする最初の数フレームにも、アプリと関係なくずれが記録される）。
+ */
+async function recordLayoutShift(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __shift: number; __shiftAfterDetails: number; __detailsAt: number | null };
+    w.__shift = 0;
+    w.__shiftAfterDetails = 0;
+    w.__detailsAt = null;
+    new PerformanceObserver(list => {
+      for (const entry of list.getEntries() as unknown as { value: number; hadRecentInput: boolean; startTime: number }[]) {
+        if (entry.hadRecentInput) continue;
+        w.__shift += entry.value;
+        if (w.__detailsAt !== null && entry.startTime >= w.__detailsAt) w.__shiftAfterDetails += entry.value;
+      }
+    }).observe({ type: 'layout-shift', buffered: true });
+    // 内容が描かれた時点（DOM に [data-card-details="loaded"] が入った時点）を、レイアウトの記録と同じ時計（performance.now）で残す
+    new MutationObserver(() => {
+      if (w.__detailsAt === null && document.querySelector('[data-card-details="loaded"]')) w.__detailsAt = performance.now();
+    }).observe(document, { childList: true, subtree: true });
+  });
+}
+
+/** カードの内容（JSON）が差し込み先に描かれ、その後の描画が落ち着くまで待つ（T3-09） */
+async function waitForDetailsSettled(page: Page, code: string): Promise<void> {
+  await page.locator(`[data-card-pref="${code}"] [data-card-details="loaded"]`).waitFor({ state: 'attached' });
+  // 内容が入ったあとの描画（と、あれば layout-shift の通知）を待つ
+  await page.waitForTimeout(500);
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+}
+
+/** 内容が描かれた後の layout-shift の合計（`waitForDetailsSettled` の後に呼ぶ） */
+const shiftAfterDetails = (page: Page): Promise<number> => page.evaluate(() => (window as unknown as { __shiftAfterDetails: number }).__shiftAfterDetails);
+
+/** ページを開いてからの layout-shift の合計 */
+const totalShift = (page: Page): Promise<number> => page.evaluate(() => (window as unknown as { __shift: number }).__shift);
+
 /** フォーカスのある要素の `data-pref`（県の要素でなければ null） */
 const focusedPref = (page: Page) => page.evaluate(() => document.activeElement?.getAttribute('data-pref') ?? null);
 
@@ -283,22 +322,17 @@ test.describe('スマホ（768px 未満）の下から出るパネル', () => {
   for (const hash of ['', `#pref-${HOKKAIDO}`]) {
     test(`F-MAP-05（CLS）：${hash === '' ? '' : `ハッシュつき（${hash}）で開いても、`}読み込みの間に、レイアウトのずれ（layout-shift）が出ない`, async ({ page }) => {
       // Arrange：ページを開く前に、layout-shift を記録する
-      await page.addInitScript(() => {
-        (window as unknown as { __shift: number }).__shift = 0;
-        new PerformanceObserver(list => {
-          for (const entry of list.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) {
-            if (!entry.hadRecentInput) (window as unknown as { __shift: number }).__shift += entry.value;
-          }
-        }).observe({ type: 'layout-shift', buffered: true });
-      });
+      await recordLayoutShift(page);
 
-      // Act
+      // Act：ハッシュつきでは、カードの内容（JSON。T3-09）が差し込み先に描かれるまで待ってから測る
       await open(page, 'en', hash);
-      await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+      if (hash === '') await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+      else await waitForDetailsSettled(page, HOKKAIDO);
+      const shift = await totalShift(page);
 
       // Assert：カードが流れから消えることによるずれがない（0.01 は余裕。CLS の「良好」は 0.1 以下）。
       // ハッシュつきでは、:target の全部見える状態から、ハイドレーションの後も全部見える状態のまま（T3-07。縮まない）
-      expect(await page.evaluate(() => (window as unknown as { __shift: number }).__shift)).toBeLessThan(0.01);
+      expect(shift).toBeLessThan(0.01);
       if (hash !== '') await expect(panel(page)).toHaveAttribute('data-sheet', 'full');
     });
   }
@@ -388,6 +422,56 @@ test.describe('768px 以上・JavaScript なし・1024px 未満のさくいん',
     // Assert
     expect(await panel(page).evaluate(element => getComputedStyle(element).position)).toBe('static');
     await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-specialties]`)).toBeVisible();
+  });
+
+  test('F-MAP-05・T3-09（CLS）：幅800px（1列）でハッシュつきで開いても、カードの内容（JSON）が入ったあとにさくいんがずれない', async ({ page }) => {
+    // Arrange
+    await page.setViewportSize({ width: 800, height: 900 });
+    await recordLayoutShift(page);
+
+    // Act
+    await open(page, 'en', `#pref-${HOKKAIDO}`);
+    await waitForDetailsSettled(page, HOKKAIDO);
+    const shift = await shiftAfterDetails(page);
+
+    // Assert：CLS の「良好」は 0.1 未満。さくいんの位置も、内容が入る前後で同じ
+    expect(shift).toBeLessThan(0.1);
+    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-specialties] [data-card-item]`)).toHaveCount(3);
+  });
+
+  test('F-MAP-05・T3-09（CLS）：幅800px（1列）で ja の県を固定して英語に切り替えても、カードの内容が入ったあとにさくいんがずれない', async ({ page }) => {
+    // Arrange：ja で北海道を固定する（利用者の操作）
+    await page.setViewportSize({ width: 800, height: 900 });
+    await recordLayoutShift(page);
+    await open(page, 'ja');
+    await indexItem(page, HOKKAIDO).click();
+    await expect(indexItem(page, HOKKAIDO)).toHaveAttribute('aria-pressed', 'true');
+
+    // Act：英語に切り替える（全体の読み込み。ハッシュで固定が引き継がれる）
+    await page.locator('a[data-lang-link="en"]').click();
+    await page.waitForURL(`**/en/#pref-${HOKKAIDO}`);
+    await waitForDetailsSettled(page, HOKKAIDO);
+    const shift = await shiftAfterDetails(page);
+
+    // Assert
+    expect(shift).toBeLessThan(0.1);
+  });
+
+  test('F-MAP-05・T3-09（CLS）：ハッシュから復元して、利用者が操作する前は、内容が入ったあとも差し込み先の高さを取っておく（さくいんが上がってこない）。操作したら外す', async ({ page }) => {
+    // Arrange
+    await page.setViewportSize({ width: 800, height: 900 });
+    await open(page, 'en', `#pref-${HOKKAIDO}`);
+    await page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-details="loaded"]`).waitFor({ state: 'attached' });
+    const body = page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-body]`);
+
+    // Assert：画面の高さぶん（100dvh）を取っている
+    expect(((await body.boundingBox())?.height ?? 0) / 900).toBeGreaterThanOrEqual(0.99);
+
+    // Act：利用者が操作する（さくいんの別の県を固定する）
+    await indexItem(page, NAGANO).click();
+
+    // Assert：外れる（準備中の県には内容の差し込み先がない）
+    await expect(body).not.toHaveAttribute('data-card-reserve');
   });
 
   test('F-MAP-05：幅767pxはパネル、幅768pxはパネルにならない（境界）', async ({ page }) => {

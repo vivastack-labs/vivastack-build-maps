@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useSyncExternalStore, type MouseEvent } from 'react';
+import { useEffect, useLayoutEffect, useRef, useSyncExternalStore, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { browserCardLoader, type CardLoader } from '@/features/card/cardLoader';
 import { cardPref, type PrefCode } from '@/features/map/state';
@@ -11,6 +11,7 @@ import { CardSources } from './CardSources';
 import { useMapState } from './MapStateProvider';
 import { ModeText } from './ModeText';
 import { RubyText } from './RubyText';
+import { useHasInteracted } from './useHasInteracted';
 import { useResourceData } from './useResourceData';
 
 type Props = {
@@ -48,6 +49,29 @@ function useCardSlots(pref: PrefCode | null): Slots | null {
   const body = useSyncExternalStore(subscribeNothing, () => findBody(pref), noSlot);
   if (pref === null || body === null) return null;
   return { pref, body, sources: body.closest('article')?.querySelector<HTMLElement>('[data-card-sources-slot]') ?? null };
+}
+
+/** 差し込み先に付ける印。1列の配置（768px 以上 1024px 未満）で、画面の高さぶんの高さを取っておく（`app/globals.css`） */
+const RESERVE_ATTRIBUTE = 'data-card-reserve';
+
+/**
+ * ハッシュから復元して、利用者がまだ操作していない間（T3-07）は、表示中の県の差し込み先に `data-card-reserve` を付ける（T3-09、CLS）。
+ * 1列の配置では、内容（JSON）が入ると下のさくいんが押し出される。入力の直後ではないので CLS に数えられる。
+ * 予約はハイドレーションの前の `:target` の規則（`globals.css`）から続け、内容が入った後も外さない（内容が画面より短いと、外したときにさくいんが上がってくる）。
+ * 利用者が操作したら外す（その後の変化は、入力から 500ms 以内なら CLS に数えられない）。別の県に移ったときも外す。
+ */
+function useReserveWhileRestoring(body: HTMLElement | null, isRestoring: boolean): void {
+  // マウント（ハイドレーションの最初のコミット）で、`:target` のカードの差し込み先に先に付ける。差し込み先は、ハイドレーションが終わった次の描画で見つかる
+  // （その間に `CardSwitch` が `data-card-ready` を付けて `:target` の規則が止まると、予約が一瞬外れ、画面の高さぶんのずれになる）。
+  // 付けたものは、次の effect が同じ差し込み先を扱い、外すとき（操作・別の県）に一緒に外す
+  useLayoutEffect(() => {
+    document.querySelector(`[data-card-pref]:target [data-card-body]`)?.setAttribute(RESERVE_ATTRIBUTE, '');
+  }, []);
+  useLayoutEffect(() => {
+    if (body === null || !isRestoring) return;
+    body.setAttribute(RESERVE_ATTRIBUTE, '');
+    return () => body.removeAttribute(RESERVE_ATTRIBUTE);
+  }, [body, isRestoring]);
 }
 
 /**
@@ -121,6 +145,8 @@ export function CardDetails({ lang, labels, loader }: Props) {
   const { state } = useMapState();
   const pref = cardPref(state);
   const slots = useCardSlots(pref);
+  const hasInteracted = useHasInteracted();
+  useReserveWhileRestoring(slots?.body ?? null, state.pinned !== null && !hasInteracted);
   const { status, isRetrying, retry } = useResourceData(slots === null ? null : pref, loader ?? browserCardLoader(lang));
   const rememberFocus = useRestoreFocusAfterRetry(slots?.body ?? null, status?.kind);
   if (slots === null || status === null) return null;
