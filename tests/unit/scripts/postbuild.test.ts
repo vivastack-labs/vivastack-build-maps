@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { MODE_INIT_SCRIPT } from '@/features/mode/initScript';
-import { assembleDist, injectCsp, inlineScripts, pageCsp, scriptHash, writePageCsp } from '../../../scripts/postbuild';
+import { assembleDist, injectCsp, inlineScripts, KNOWN_INLINE_SCRIPT_PREFIXES, pageCsp, scriptHash, unknownInlineScripts, writePageCsp } from '../../../scripts/postbuild';
 
 // D35：専用のドメインで配信するので、out/ をそのままの構成で dist/ に組み立てる（6.4）
 describe('assembleDist', () => {
@@ -100,6 +100,24 @@ describe('scriptHash', () => {
   });
 });
 
+describe('scriptHash の改行', () => {
+  test('5.5（L3）：scriptHash は \\r\\n・\\r を \\n に直してから取る（HTML のパーサーと同じ）', () => {
+    expect(scriptHash('a\r\nb\rc')).toBe(scriptHash('a\nb\nc'));
+  });
+});
+
+describe('unknownInlineScripts', () => {
+  test('5.5（M1）：知っている形（MODE_INIT_SCRIPT と完全一致・Next.js の3つの書き出しの形）は通し、それ以外のインラインスクリプトを返す', () => {
+    // Arrange
+    const known = [MODE_INIT_SCRIPT, '(globalThis["TURBOPACK"] || (globalThis["TURBOPACK"] = [])).push([])', '(self.__next_f=self.__next_f||[]).push([0])', 'self.__next_f.push([1,"a"])'];
+    const unknown = ['alert(1)', `${MODE_INIT_SCRIPT};alert(1)`, ' self.__next_f.push([1,"a"])'];
+
+    // Act & Assert
+    expect(unknownInlineScripts([...known, ...unknown])).toEqual(unknown);
+    expect(KNOWN_INLINE_SCRIPT_PREFIXES.length).toBeGreaterThan(0);
+  });
+});
+
 describe('inlineScripts', () => {
   test('5.5：inlineScripts は src のない script だけを集め、JavaScript でない type（application/json など）を除く', () => {
     // Arrange
@@ -179,8 +197,8 @@ describe('injectCsp', () => {
     expect(() => injectCsp(withCsp, csp)).toThrow('すでに');
   });
 
-  test('5.5：CSP に " を含むと属性を壊すので例外にする', () => {
-    expect(() => injectCsp('<head><meta charset="utf-8"></head>', 'a"b')).toThrow();
+  test.each(['"', '&', '<', '>'])('5.5（L7）：CSP に %s を含むと属性を壊す・解釈が変わるので例外にする', char => {
+    expect(() => injectCsp('<head><meta charset="utf-8"></head>', `a${char}b`)).toThrow();
   });
 });
 
@@ -195,6 +213,8 @@ describe('writePageCsp', () => {
     rmSync(root, { recursive: true, force: true });
   });
 
+  // 知っている形（Next.js の RSC のデータ）のスクリプトを持つページ
+  const next = (id: string): string => `self.__next_f.push([1,"${id}"])`;
   const page = (script: string): string => `<!DOCTYPE html><html><head><meta charSet="utf-8"/><script src="/x.js"></script><script>${script}</script></head><body></body></html>`;
   const put = (path: string, body: string): void => {
     mkdirSync(dirname(join(root, path)), { recursive: true });
@@ -208,10 +228,10 @@ describe('writePageCsp', () => {
 
   test('5.5：dist/ のすべての HTML に、そのページのハッシュの CSP を書く（ほかのファイルは変えない）', () => {
     // Arrange
-    put('ja/index.html', page('ja()'));
-    put('en/index.html', page('en()'));
-    put('404.html', page('nf()'));
-    put('_not-found/index.html', page('nf()'));
+    put('ja/index.html', page(next('ja')));
+    put('en/index.html', page(next('en')));
+    put('404.html', page(next('nf')));
+    put('_not-found/index.html', page(next('nf')));
     put('_headers', '/*\n  X-Frame-Options: DENY\n');
     put('_next/static/a.js', 'var a=1;');
     put('geo/muni/01.topo.json', '{}');
@@ -221,11 +241,11 @@ describe('writePageCsp', () => {
 
     // Assert
     expect(count).toBe(4);
-    expect(metaOf('ja/index.html')).toContain(scriptHash('ja()'));
-    expect(metaOf('ja/index.html')).not.toContain(scriptHash('en()'));
-    expect(metaOf('en/index.html')).toContain(scriptHash('en()'));
-    expect(metaOf('404.html')).toContain(scriptHash('nf()'));
-    expect(metaOf('_not-found/index.html')).toContain(scriptHash('nf()'));
+    expect(metaOf('ja/index.html')).toContain(scriptHash(next('ja')));
+    expect(metaOf('ja/index.html')).not.toContain(scriptHash(next('en')));
+    expect(metaOf('en/index.html')).toContain(scriptHash(next('en')));
+    expect(metaOf('404.html')).toContain(scriptHash(next('nf')));
+    expect(metaOf('_not-found/index.html')).toContain(scriptHash(next('nf')));
     expect(readFileSync(join(root, '_headers'), 'utf8')).toBe('/*\n  X-Frame-Options: DENY\n');
     expect(readFileSync(join(root, '_next/static/a.js'), 'utf8')).toBe('var a=1;');
     expect(readFileSync(join(root, 'geo/muni/01.topo.json'), 'utf8')).toBe('{}');
@@ -233,11 +253,21 @@ describe('writePageCsp', () => {
 
   test('5.5：すでに CSP の meta がある dist/ に再び書くと例外にする（二重に入れない）', () => {
     // Arrange
-    put('ja/index.html', page('ja()'));
+    put('ja/index.html', page(next('ja')));
     writePageCsp(root);
 
     // Act & Assert
     expect(() => writePageCsp(root)).toThrow('すでに');
+  });
+
+  test('5.5（M1）：知っている形に合わないインラインスクリプトがある HTML は、ファイル名つきの例外にして何も書かない', () => {
+    // Arrange
+    put('ja/index.html', page(next('ja')));
+    put('en/index.html', page('alert(document.cookie)'));
+
+    // Act & Assert
+    expect(() => writePageCsp(root)).toThrow(/en[\\/]index\.html.*alert\(document\.cookie\)/u);
+    expect(readFileSync(join(root, 'ja/index.html'), 'utf8')).toBe(page(next('ja')));
   });
 
   test('5.5：HTML が1つもないときは例外にする', () => {

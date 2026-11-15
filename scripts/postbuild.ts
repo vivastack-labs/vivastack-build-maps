@@ -5,6 +5,7 @@
 import { createHash } from 'node:crypto';
 import { cpSync, existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { MODE_INIT_SCRIPT } from '../src/features/mode/initScript.ts';
 
 const ROOT_FILES: readonly string[] = ['_redirects', '_headers'];
 
@@ -75,8 +76,23 @@ export const inlineScripts = (html: string): readonly string[] =>
     return EXECUTABLE_SCRIPT_TYPE.test(type) ? [match[2] ?? ''] : [];
   });
 
-/** スクリプトの中身（HTML に出たままの UTF-8 の文字列）の CSP のハッシュ（`'sha256-<base64>'`） */
-export const scriptHash = (text: string): string => `'sha256-${createHash('sha256').update(text, 'utf8').digest('base64')}'`;
+/**
+ * スクリプトの中身（HTML に出たままの UTF-8 の文字列）の CSP のハッシュ（`'sha256-<base64>'`）。
+ * HTML のパーサーは `\r\n`・`\r` を `\n` にして字句解析するので、同じ直し方をしてから取る。
+ */
+export const scriptHash = (text: string): string => `'sha256-${createHash('sha256').update(text.replace(/\r\n?/gu, '\n'), 'utf8').digest('base64')}'`;
+
+/**
+ * 出力に出てくることを知っているインラインスクリプトの書き出し（M1）。ビルドの出力の実際の形で、ほかの形のインラインスクリプトは
+ * ハッシュを許可せずビルドを止める（将来 `dangerouslySetInnerHTML` などで紛れ込んだスクリプトを、集めたハッシュで自動的に許可しないため）。
+ * Next.js の実行時の部品の読み込み（Turbopack）と、RSC のデータ（`self.__next_f`）。初期化スクリプト（D23）は `MODE_INIT_SCRIPT` との完全一致で確かめる。
+ * Next.js・Turbopack の更新で書き出しが変わってビルドが止まったら、出力を確かめてからここに足す。
+ */
+export const KNOWN_INLINE_SCRIPT_PREFIXES: readonly string[] = ['(globalThis["TURBOPACK"]', '(self.__next_f=', 'self.__next_f.push('];
+
+/** 知っている形（`MODE_INIT_SCRIPT` と完全一致、または `KNOWN_INLINE_SCRIPT_PREFIXES` で始まる）に合わないインラインスクリプトを返す */
+export const unknownInlineScripts = (scripts: readonly string[]): readonly string[] =>
+  scripts.filter(script => script !== MODE_INIT_SCRIPT && !KNOWN_INLINE_SCRIPT_PREFIXES.some(prefix => script.startsWith(prefix)));
 
 /**
  * HTML の `<meta>` に書く CSP（5.5）。`script-src` はそのページのインラインスクリプトのハッシュ（重複は除く）。`'strict-dynamic'`・`'unsafe-inline'` は使わない。
@@ -99,8 +115,8 @@ export const pageCsp = (hashes: readonly string[]): string =>
  * `<meta charset>` がない・CSP の `<meta>` がすでにある HTML は例外（ビルドを止める）。
  */
 export const injectCsp = (html: string, csp: string): string => {
-  if (csp.includes('"')) {
-    throw new Error('CSP に " を含められません（meta の content の属性が壊れます）');
+  if (/["&<>]/u.test(csp)) {
+    throw new Error('CSP に " & < > を含められません（meta の content の属性が壊れる、または解釈が変わります）');
   }
   if (CSP_META.test(html)) {
     throw new Error('CSP の meta がすでにあります（二重に入れません）');
@@ -120,21 +136,30 @@ const htmlFilesIn = (dir: string): readonly string[] =>
 
 /**
  * dist/ のすべての HTML に、そのページのインラインスクリプトのハッシュを入れた CSP の `<meta>` を書く（5.5、R9）。書いた HTML の数を返す。
- * HTML が1つもない・CSP の `<meta>` がすでにある・書いた後に集め直したハッシュが変わる場合は例外。
+ * HTML が1つもない・CSP の `<meta>` がすでにある・知っている形（`KNOWN_INLINE_SCRIPT_PREFIXES`）に合わないインラインスクリプトがある・
+ * 書いた後に集め直したハッシュが変わる場合は例外。すべて確かめてから書くので、途中で止まっても dist/ の HTML は書き換わらない。
  */
 export const writePageCsp = (distDir: string): number => {
   const files = htmlFilesIn(distDir);
   if (files.length === 0) {
     throw new Error(`${distDir} に HTML がありません`);
   }
-  for (const file of files) {
+  const outputs = files.map(file => {
     const html = readFileSync(file, 'utf8');
-    const hashes = inlineScripts(html).map(scriptHash);
+    const scripts = inlineScripts(html);
+    const unknown = unknownInlineScripts(scripts);
+    if (unknown.length > 0) {
+      throw new Error(`${file}：知らない形のインラインスクリプトがあります（ハッシュを許可しません）：${JSON.stringify((unknown[0] ?? '').slice(0, 80))}`);
+    }
+    const hashes = scripts.map(scriptHash);
     const out = injectCsp(html, pageCsp(hashes));
     const after = inlineScripts(out).map(scriptHash);
     if (after.length !== hashes.length || after.some((hash, index) => hash !== hashes[index])) {
       throw new Error(`${file}：CSP の meta を入れたことでインラインスクリプトが変わりました`);
     }
+    return { file, out };
+  });
+  for (const { file, out } of outputs) {
     writeFileSync(file, out);
   }
   return files.length;
