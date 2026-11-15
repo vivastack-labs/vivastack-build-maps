@@ -2,8 +2,9 @@
 /* T3-03：JavaScript がないときの :target の規則（末尾）用のレイヤー。!important の宣言は、先に並べたレイヤーが勝つので、Tailwind の層（theme・base…）より前に宣言する */
 @layer card-target;
 @import 'tailwindcss';
-/* テストの Playwright のセレクター（.kids:visible など）からユーティリティが出ないよう、テストはクラス名の検出の対象にしない */
+/* テストの Playwright のセレクター（.kids:visible など）と、それを書いた計画・エージェントの文書からユーティリティが出ないよう、クラス名の検出の対象にしない */
 @source not "../tests";
+@source not "../.claude";
 
 /* 6.2 D27：Webフォントは使わず、言語ごとにシステムフォントを指定する。
    --font-sans は Tailwind の preflight が html の font-family に使うので、ページ全体に効く。
