@@ -45,6 +45,15 @@ async function pinHokkaidoFromIndex(page: Page): Promise<void> {
   await page.mouse.move(0, 0);
 }
 
+/** 北海道のカードを出し、モードを「おとな」、ふりがなを OFF にする（T3-05。ヘッダーの切替のボタンの押した状態も写る） */
+async function pinHokkaidoAdultRubyOff(page: Page): Promise<void> {
+  await pinHokkaidoFromIndex(page);
+  await page.getByRole('banner').locator('[data-mode-button="adult"]').click();
+  await page.getByRole('banner').locator('[data-ruby-button]').click();
+  await page.locator('html[data-mode="adult"][data-ruby="off"]').waitFor();
+  await page.mouse.move(0, 0);
+}
+
 /** 北海道のカードを出し、その「出典」欄を開く（T3-04。出典のある項目〔行き方・じゃがいも〕と「出典なし」の項目が見える） */
 async function openHokkaidoSources(page: Page): Promise<void> {
   await pinHokkaidoFromIndex(page);
@@ -143,8 +152,10 @@ const SCENES: readonly Scene[] = [
   { name: 'ja-index-pinned', path: '/ja/', prepare: pinFromIndex },
   // T3-02：準備中の県（沖縄県）を固定した状態。トップの画面にも、斜線の県・凡例の「準備中」・さくいんの「（準備中）」が出る（フィクスチャは北海道だけが内容を出す）
   { name: 'ja-pending-pinned', path: '/ja/', prepare: pinPendingFromIndex },
-  // T3-03：県のカード。内容のある県（北海道。見出し・距離・行き方・名物3つ・名所3つ・最大化ボタン。解説文はこども向け・おとな向けが両方出る（T3-05 まで））を3言語で。準備中の県のカードは ja-pending-pinned
+  // T3-03：県のカード。内容のある県（北海道。見出し・距離・行き方・名物3つ・名所3つ・最大化ボタン）を3言語で。解説文は既定のモードの1つ（ja はこども向け、en・zh はおとな向け。T3-05）。準備中の県のカードは ja-pending-pinned
   ...LANGS.map(lang => ({ name: `${lang}-card`, path: `/${lang}/`, prepare: pinHokkaidoFromIndex })),
+  // T3-05：モードを「おとな」、ふりがなを OFF にした状態（解説文がおとな向けになり、ふりがなが消える。切替のボタンの押した状態）
+  { name: 'ja-card-adult-ruby-off', path: '/ja/', prepare: pinHokkaidoAdultRubyOff },
   // T3-04：カードの「出典」欄を開いた状態（北海道。出典のある項目と「出典なし」の項目）。フッターの出典は、各言語の top の全体の画像に入る
   { name: 'ja-card-sources', path: '/ja/', prepare: openHokkaidoSources },
   // T2-06：県を最大化して寄った状態。長野県（県全体が収まる）と東京都（父島を除いて、本土と伊豆諸島に寄る。U16・D36）
