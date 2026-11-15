@@ -49,6 +49,7 @@
 - オフラインで使える範囲（開発計画 5章 U3 の推奨案）と、Service Worker のツール（U13 の推奨案）を決める。結果を開発概要書 5.4 と第16章に書く。
 - Web App Manifest：言語ごとに用意し（`start_url` は `/{lang}/`、名前はその言語）、HTMLからリンクする。アイコンを用意する。
 - Service Worker（`dist/sw.js`）：
+  - `sw.js` を作るのは、`writePageCsp`（T4-01。CSP の `<meta>` を HTML に書く）の後にする（プリキャッシュする HTML と配信する HTML を合わせるため）。オフライン用の HTML を `dist/` に足すときも、`<meta charset>` つきの HTML として置けば、`writePageCsp` が CSP を入れる（知らない形のインラインスクリプトがあるとビルドが止まる）。
   - アプリの枠組み（HTML・JavaScript・CSS）を、インストールのときにキャッシュする。
   - カードの JSON（`/cards/{lang}/NN.json`。T3-09、D38）も、市区町村データと同じく、一度読み込んだ県だけキャッシュする（`createCardLoader` もふつうの `fetch` を使うので、Service Worker のキャッシュから返れば、オフラインでも成功になる。アプリの枠組みのキャッシュだけだと、オフラインでカードの内容が出ない）。
   - 市区町村データは、一度読み込んだ県だけキャッシュする。T2-07 の `muniLoader` はふつうの `fetch` を使うので、Service Worker のキャッシュから返れば、オフラインでも成功になる（`navigator.onLine` が `false` でも先には止めない）。

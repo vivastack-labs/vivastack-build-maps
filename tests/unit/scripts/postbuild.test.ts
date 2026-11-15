@@ -4,7 +4,18 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { MODE_INIT_SCRIPT } from '@/features/mode/initScript';
-import { assembleDist, injectCsp, inlineScripts, KNOWN_INLINE_SCRIPT_PREFIXES, pageCsp, scriptHash, unknownInlineScripts, writePageCsp } from '../../../scripts/postbuild';
+import {
+  assembleDist,
+  assembleDistWithCsp,
+  htmlProblems,
+  injectCsp,
+  inlineScripts,
+  KNOWN_EXACT_INLINE_SCRIPTS,
+  pageCsp,
+  scriptHash,
+  unknownInlineScripts,
+  writePageCsp
+} from '../../../scripts/postbuild';
 
 // D35：専用のドメインで配信するので、out/ をそのままの構成で dist/ に組み立てる（6.4）
 describe('assembleDist', () => {
@@ -107,14 +118,88 @@ describe('scriptHash の改行', () => {
 });
 
 describe('unknownInlineScripts', () => {
-  test('5.5（M1）：知っている形（MODE_INIT_SCRIPT と完全一致・Next.js の3つの書き出しの形）は通し、それ以外のインラインスクリプトを返す', () => {
-    // Arrange
-    const known = [MODE_INIT_SCRIPT, '(globalThis["TURBOPACK"] || (globalThis["TURBOPACK"] = [])).push([])', '(self.__next_f=self.__next_f||[]).push([0])', 'self.__next_f.push([1,"a"])'];
-    const unknown = ['alert(1)', `${MODE_INIT_SCRIPT};alert(1)`, ' self.__next_f.push([1,"a"])'];
+  const TURBOPACK = '(globalThis["TURBOPACK"] || (globalThis["TURBOPACK"] = [])).push(';
+
+  test('5.5（M1・L1）：知っている形（完全一致の文字列・RSC のデータ・Turbopack の JSON）は通す', () => {
+    // Arrange：実際の出力の形
+    const known = [
+      MODE_INIT_SCRIPT,
+      '(self.__next_f=self.__next_f||[]).push([0])',
+      'self.__next_f.push([1,"a\\"b\\n\\u003c"])',
+      'self.__next_f.push([2,null])',
+      'self.__next_f.push([3])',
+      `${TURBOPACK}{"otherChunks":["static/chunks/a.js"],"runtimeModuleIds":[5795]});`
+    ];
 
     // Act & Assert
-    expect(unknownInlineScripts([...known, ...unknown])).toEqual(unknown);
-    expect(KNOWN_INLINE_SCRIPT_PREFIXES.length).toBeGreaterThan(0);
+    expect(unknownInlineScripts(known)).toEqual([]);
+    expect(KNOWN_EXACT_INLINE_SCRIPTS).toContain(MODE_INIT_SCRIPT);
+  });
+
+  test('5.5（M1・L1）：知っている形に続けて別のコードがある・形が少し違うものは止める（全体に一致させる）', () => {
+    // Arrange
+    const unknown = [
+      'alert(1)',
+      `${MODE_INIT_SCRIPT};alert(1)`,
+      ' self.__next_f.push([1,"a"])',
+      'self.__next_f.push([1,"a"]);alert(1)',
+      'self.__next_f.push([1,"a"+alert(1)+"b"])',
+      'self.__next_f.push([1,"a\\"+alert(1)])',
+      'self.__next_f.push([1,alert(1)])',
+      'self.__next_f.push([x,"a"])',
+      '(self.__next_f=self.__next_f||[]).push([0]);alert(1)',
+      '(self.__next_f=alert(1)||[]).push([0])',
+      `${TURBOPACK}{"a":1});alert(1);(`,
+      `${TURBOPACK}alert(1));`,
+      `${TURBOPACK}[1,2]);`,
+      `${TURBOPACK}{"a":1})`,
+      `${TURBOPACK}{"a":1});alert(1)`
+    ];
+
+    // Act & Assert
+    expect(unknownInlineScripts(unknown)).toEqual(unknown);
+  });
+});
+
+describe('htmlProblems', () => {
+  const head = '<!DOCTYPE html><html><head><meta charSet="utf-8"/>';
+
+  test('5.5（M2）：知っている形の HTML（script の中身に style= や <style があっても）には問題がない', () => {
+    const html = `${head}<link rel="stylesheet" href="/a.css"/><script src="/a.js"></script><script>self.__next_f.push([1,"<style>a{}</style> style=x"])</script></head><body><div class="a style=b" data-style="x" aria-label="style = y"></div><script type="application/json">{"style":1}</script></body></html>`;
+
+    expect(htmlProblems(html)).toEqual([]);
+  });
+
+  test.each([
+    ['<style> 要素', `${head}<style>a{}</style></head><body></body></html>`, '<style>'],
+    ['<style> 要素（属性つき）', `${head}<style media="x">a{}</style></head><body></body></html>`, '<style>'],
+    ['style 属性', `${head}</head><body><div style="color:red"></div></body></html>`, 'style 属性'],
+    ['style 属性（SVG・スペースなし）', `${head}</head><body><svg><g class="a"style="x"/></svg></body></html>`, 'style 属性'],
+    ['style 属性（大文字・= の前に空白）', `${head}</head><body><p STYLE = "x"></p></body></html>`, 'style 属性'],
+    ['<meta charset> の前の script', '<html><head><script src="/a.js"></script><meta charSet="utf-8"/></head></html>', '<meta charset> より前'],
+    ['<meta charset> の前の link', '<html><head><link rel="stylesheet" href="/a.css"/><meta charset="utf-8"/></head></html>', '<meta charset> より前'],
+    ['speculationrules', `${head}<script type="speculationrules">{}</script></head></html>`, 'speculationrules'],
+    ['importmap', `${head}<script type="importmap">{}</script></head></html>`, 'importmap'],
+    ['text/plain の script', `${head}<script type="text/plain">x</script></head></html>`, 'text/plain']
+  ])('5.5（M2）：%s があれば問題として返す', (_label, html, expected) => {
+    // Act
+    const problems = htmlProblems(html);
+
+    // Assert
+    expect(problems.length).toBeGreaterThan(0);
+    expect(problems.join('\n')).toContain(expected);
+  });
+
+  test('5.5（M2）：JavaScript（type なし・module・text/javascript）と JSON（application/json・ld+json）の script は問題にしない', () => {
+    const scripts = [
+      '<script>a()</script>',
+      '<script type="module">a()</script>',
+      '<script type="text/javascript">a()</script>',
+      '<script type="application/json">{}</script>',
+      '<script type="application/ld+json">{}</script>'
+    ];
+
+    expect(htmlProblems(`${head}${scripts.join('')}</head></html>`)).toEqual([]);
   });
 });
 
@@ -251,6 +336,16 @@ describe('writePageCsp', () => {
     expect(readFileSync(join(root, 'geo/muni/01.topo.json'), 'utf8')).toBe('{}');
   });
 
+  test('5.5（M2）：style 属性・<style>・<meta charset> の前の script がある HTML は、ファイル名つきの例外にして何も書かない', () => {
+    // Arrange
+    put('ja/index.html', page(next('ja')));
+    put('en/index.html', `<!DOCTYPE html><html><head><meta charSet="utf-8"/></head><body><div style="color:red"></div></body></html>`);
+
+    // Act & Assert
+    expect(() => writePageCsp(root)).toThrow(/en[\\/]index\.html.*style 属性/u);
+    expect(readFileSync(join(root, 'ja/index.html'), 'utf8')).toBe(page(next('ja')));
+  });
+
   test('5.5：すでに CSP の meta がある dist/ に再び書くと例外にする（二重に入れない）', () => {
     // Arrange
     put('ja/index.html', page(next('ja')));
@@ -272,5 +367,47 @@ describe('writePageCsp', () => {
 
   test('5.5：HTML が1つもないときは例外にする', () => {
     expect(() => writePageCsp(root)).toThrow('HTML');
+  });
+});
+
+describe('assembleDistWithCsp', () => {
+  let root: string;
+
+  beforeEach(() => {
+    root = mkdtempSync(join(tmpdir(), 'postbuild-with-csp-'));
+  });
+
+  afterEach(() => {
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  const put = (path: string, body: string): void => {
+    mkdirSync(dirname(join(root, path)), { recursive: true });
+    writeFileSync(join(root, path), body);
+  };
+
+  test('5.5：out/ を dist/ に組み立てて、全 HTML に CSP の meta を書く', () => {
+    // Arrange
+    put('out/_redirects', 'x');
+    put('out/_headers', 'x');
+    put('out/ja/index.html', '<head><meta charSet="utf-8"/><script>self.__next_f.push([1,"a"])</script></head>');
+
+    // Act
+    assembleDistWithCsp({ outDir: join(root, 'out'), distDir: join(root, 'dist') });
+
+    // Assert
+    expect(readFileSync(join(root, 'dist/ja/index.html'), 'utf8')).toContain('Content-Security-Policy');
+  });
+
+  test('5.5：CSP を書けなかったときは、CSP のない dist/ を残さずに、元の例外を投げ直す', () => {
+    // Arrange
+    put('out/_redirects', 'x');
+    put('out/_headers', 'x');
+    put('out/ja/index.html', '<head><meta charSet="utf-8"/><script>alert(1)</script></head>');
+
+    // Act & Assert
+    expect(() => assembleDistWithCsp({ outDir: join(root, 'out'), distDir: join(root, 'dist') })).toThrow('知らない形');
+    expect(existsSync(join(root, 'dist'))).toBe(false);
+    expect(existsSync(join(root, 'out/ja/index.html'))).toBe(true);
   });
 });

@@ -5,7 +5,7 @@
 | ドキュメント | docs/development-overview.md |
 | 版 | 0.8（ドラフト） |
 | 作成日 | 2026-11-11 |
-| 更新日 | 2026-11-13（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）） |
+| 更新日 | 2026-11-13（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）） |
 | リポジトリ | vivastack-labs/vivastack-build-maps（リポジトリ直下がアプリ本体） |
 | 公開URL | `https://maps.vivastack-dev.workers.dev/{ja,en,zh}/` |
 | ステータス | 検討フェーズの決定事項を反映。「要検証」とした項目は実装時に確定する |
@@ -367,7 +367,8 @@ Lighthouse CIでこの基準値を超えたら、CIを失敗させる。
     - HTML の `<meta http-equiv="Content-Security-Policy">`（`scripts/postbuild.ts` が `dist/` の各 HTML の `<meta charset>` の直後に書く）：`default-src 'self'; script-src 'self' <そのページのハッシュ> https://static.cloudflareinsights.com; style-src 'self'; connect-src 'self' https://cloudflareinsights.com; img-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'`。ページごとに自分の HTML のハッシュだけを持つ。`<meta>` の CSP はそれより後ろの要素にだけ効くので、どの `<script>`・`<link>` よりも前（`<head>` の最初）に置く。
     - `_headers` の `/*`（ハッシュを含まない短いもの）：`frame-ancestors 'none'; object-src 'none'; base-uri 'self'`。`frame-ancestors` は `<meta>` では効かないため。ブラウザはヘッダーと `<meta>` の両方を守る（両方を満たすものだけが動く）。ヘッダーには `script-src` を書かないので、スクリプトの許可は `<meta>` だけで決まる。
   - `'strict-dynamic'` は使わない（`'self'` が無視されて、HTML の `<script src>` が止まるため）。`'unsafe-inline'` も使わない。
-  - **知らない形のインラインスクリプトは許可しない**。ハッシュを許可するのは、`MODE_INIT_SCRIPT`（D23）との完全一致と、Next.js・Turbopack の出力の書き出し（`(globalThis["TURBOPACK"]`・`(self.__next_f=`・`self.__next_f.push(`）で始まるものだけ。これらのどれにも合わないインラインスクリプトが HTML にあると、`postbuild.ts` が例外にしてビルドを止める（将来 `dangerouslySetInnerHTML` などで紛れ込んだスクリプトを、集めたハッシュで自動的に許可しないため）。Next.js の更新で書き出しが変わってビルドが止まったら、出力を確かめて `KNOWN_INLINE_SCRIPT_PREFIXES` に足す。
+  - **知らない形のインラインスクリプトは許可しない**。ハッシュを許可するのは、文字列の全体が次のどれかに一致するものだけ（知っている形の後ろに別のコードを続けたものは許さない）：`MODE_INIT_SCRIPT`（D23）と `(self.__next_f=self.__next_f||[]).push([0])` との完全一致（`KNOWN_EXACT_INLINE_SCRIPTS`）、RSC のデータ `self.__next_f.push([番号])`・`([番号,"JSON の文字列"])`・`([番号,null])`、Turbopack の `(globalThis["TURBOPACK"] || (globalThis["TURBOPACK"] = [])).push(` と `);` の間が JSON のオブジェクトのもの。これらのどれにも合わないインラインスクリプトが HTML にあると、`postbuild.ts` が例外にしてビルドを止める（将来 `dangerouslySetInnerHTML` などで紛れ込んだスクリプトを、集めたハッシュで自動的に許可しないため）。Next.js の更新で書き出しが変わってビルドが止まったら、出力を確かめて `scripts/postbuild.ts` の形を直す。2つ目の初期化スクリプトを足すときは `KNOWN_EXACT_INLINE_SCRIPTS` に足す。
+  - **HTML の形も確かめる**。CSP を書く前に、`<script>` の中身を除いた HTML に、`<style>` 要素・`style` 属性・`<meta charset>` より前の `<script>`・`<link>` がないこと、`<script>` の type が JavaScript か JSON（`application/json`・`application/ld+json`）だけであること（importmap・speculationrules などは扱いを決めるまで止める）を確かめる。合わなければファイル名つきでビルドを止める。
   - **`style-src 'self'`（`'unsafe-inline'`・`'unsafe-hashes'` なし）**。`'unsafe-inline'` は CSS の注入（画面の書き換え・情報の読み出し）を許す。`'unsafe-hashes'` は style 属性の値が変わるたびにハッシュが要る。そこで、サーバーが出力する HTML に `style` 属性を出さない決まりにした（地図の箱の縦横比・県境と沖縄の枠の線の太さ・海域名と県名ラベルの文字の大きさの6つを、Tailwind の任意値のクラス〔`[stroke-width:calc(0.8px/var(--zoom-k,1))]` など〕に置き換えた）。JavaScript から `element.style.setProperty` など（CSSOM）で書く値（`--zoom-k`・ツールチップの位置・`--sheet-h`・d3 の `selection.style`・React がクライアントで描く `style`）は、`style-src` では止まらないので使ってよい。HTML の `<style>` 要素とインラインのイベント属性（`onclick=` など）も使わない。
   - Web Analyticsのドメイン（`https://static.cloudflareinsights.com` を `script-src` に、`https://cloudflareinsights.com` を `connect-src` に）を許可する。計測用のスクリプトの埋め込みは T6（外部の `src` なので、ハッシュは要らない）。
   - `img-src 'self'`・`form-action 'self'` は `default-src` と同じ値だが、明示する（フォームはないが、注入されたフォームの送信先を縛る）。`upgrade-insecure-requests` は HSTS があるので足さない。
@@ -666,7 +667,7 @@ vivastack-build-maps/
 **(4) CSP（D23）**
 
 - `scripts/postbuild.ts` の `writePageCsp` が、`dist/` のすべての HTML（`ja`・`en`・`zh`・`404.html`・`_not-found` など）から、`src` のない `<script>` の中身を集めて SHA-256（base64）を計算し、そのページの `script-src` に入れた CSP の `<meta http-equiv="Content-Security-Policy">` を `<meta charset>` の直後に書く（置き場所の理由は 5.5、D39）。`type` が JavaScript でないもの（`application/json` など）は実行されないので除く。ハッシュは `\r\n`・`\r` を `\n` に直してから取る（HTML のパーサーと同じ）。
-- Next.js自体のインラインスクリプトと、(3) の初期化スクリプトを、同じ仕組みで許可する（R9）。許可するのは知っている形（5.5）だけで、合わないものがあればビルドを止める。すべての HTML を確かめてから書くので、止まっても `dist/` は書き換わらない。CSP の文字列に `"`・`&`・`<`・`>` があっても止める。
+- Next.js自体のインラインスクリプトと、(3) の初期化スクリプトを、同じ仕組みで許可する（R9）。許可するのは知っている形（5.5）だけで、合わないものがあればビルドを止める。すべての HTML を確かめてから書くので、検査で止まったときは HTML を1つも書き換えない。CSP を書けなかったときは、CSP のない `dist/` を残さないよう `dist/` を消す。CSP の文字列に `"`・`&`・`<`・`>` があっても止める。
 - 今後インラインスクリプトを足すときは、HTML に出れば自動でハッシュが入る（知っている形に合う場合）。サーバーの HTML に `style` 属性を出さない（5.5）。
 - E2Eテスト（`tests/e2e/csp.spec.ts`）で、3言語・404のページの操作の間にCSP違反（`securitypolicyviolation`・コンソール）が出ないことと、CSP の `<meta>` の位置、`_headers` の `frame-ancestors`、知らないインラインスクリプトが止まることを確認する。
 
