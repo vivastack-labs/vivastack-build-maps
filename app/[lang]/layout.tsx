@@ -40,7 +40,7 @@ export default async function RootLayout({ children, params }: Props) {
       <body className="bg-page-bg text-page-text">
         <Header lang={lang} />
         {children}
-        <Footer />
+        <Footer lang={lang} />
       </body>
     </html>
   );
