@@ -18,8 +18,9 @@
 - `scripts/postbuild.ts` に加える：
   - 出力したHTMLから、インラインスクリプト（`src` のない `<script>`）をすべて集め、SHA-256（base64）を計算する。
   - T3-05 で分かったこと：`<head>` の初期化スクリプト（D23）の文字列は `src/features/mode/initScript.ts` の `MODE_INIT_SCRIPT`（定数。利用者の入力が入らない固定の文字列）。出力した HTML には `<script>try{var s=localStorage,…</script>` として入る。HTML から集めるハッシュに入る（Next.js のインラインスクリプトと同じ仕組み）。ハッシュを定数から直接計算した値と、HTML から集めた値が一致することも確かめるとよい。
-  - `_headers` に、ページ（言語）ごとの CSP を書き込む。
-- CSP の内容：`default-src 'self'`、`script-src 'self'` と集めたハッシュと Web Analytics のドメイン、`connect-src 'self'` と Web Analytics のドメイン（市区町村データ `/geo/muni/` とカードの JSON `/cards/`〔T3-09、D38〕を同じオリジンの `fetch` で読み込むので、`'self'` が要る）、`object-src 'none'`、`base-uri 'self'`、`frame-ancestors 'none'`。スタイルの指定（`style-src`）は、ツールチップの位置などに `style` 属性を使うかを確かめて決め、理由を開発概要書 5.5 に書く。
+  - 各 HTML の `<meta http-equiv="Content-Security-Policy">`（`<meta charset>` の直後）に、ページごとの CSP を書き込む。`_headers` の1行は 2,000 字までで、ハッシュが入らないため（5.5、D39）。`_headers` の `/*` には `frame-ancestors 'none'` などの短いものだけを書く。
+  - 知っている形（`MODE_INIT_SCRIPT` と完全一致、Next.js・Turbopack の書き出し）に合わないインラインスクリプトがあれば、ビルドを止める。
+- CSP の内容：`default-src 'self'`、`script-src 'self'` と集めたハッシュと Web Analytics のドメイン、`connect-src 'self'` と Web Analytics のドメイン（市区町村データ `/geo/muni/` とカードの JSON `/cards/`〔T3-09、D38〕を同じオリジンの `fetch` で読み込むので、`'self'` が要る）、`object-src 'none'`、`base-uri 'self'`、`frame-ancestors 'none'`。`style-src` は `'self'` だけ（`'unsafe-inline'` なし）。サーバーの HTML の `style` 属性（6つ）はクラスに置き換え、今後出さない決まりにした（開発概要書 5.5）。`img-src 'self'`・`form-action 'self'` も足した。
 - 開発概要書 11.4 (4) の `_headers` の例を、実際の内容に合わせる。
 
 ### 完了条件
@@ -31,7 +32,7 @@
 - 単体（`postbuild.ts`）：
   - 既知の文字列から、正しい SHA-256（base64）を計算する。
   - HTMLから、インラインスクリプトだけを集める（`src` のある `<script>`、`type="application/json"` などは、扱いを決めてテストする）。
-  - `_headers` に、ページごとの CSP を書き込む。既存のヘッダーは消さない。
+  - 各 HTML の `<meta>` に、ページごとの CSP を書き込む。HTML 以外のファイルと `_headers` は変えない。
 - E2E：3言語のページを開いて地図を操作する間に、CSP 違反（`securitypolicyviolation` イベント、コンソールのエラー）が1件も出ない（R9）。
 
 ---
@@ -48,10 +49,11 @@
 - オフラインで使える範囲（開発計画 5章 U3 の推奨案）と、Service Worker のツール（U13 の推奨案）を決める。結果を開発概要書 5.4 と第16章に書く。
 - Web App Manifest：言語ごとに用意し（`start_url` は `/{lang}/`、名前はその言語）、HTMLからリンクする。アイコンを用意する。
 - Service Worker（`dist/sw.js`）：
+  - `sw.js` を作るのは、`writePageCsp`（T4-01。CSP の `<meta>` を HTML に書く）の後にする（プリキャッシュする HTML と配信する HTML を合わせるため）。オフライン用の HTML を `dist/` に足すときも、`<meta charset>` つきの HTML として置けば、`writePageCsp` が CSP を入れる（知らない形のインラインスクリプトがあるとビルドが止まる）。
   - アプリの枠組み（HTML・JavaScript・CSS）を、インストールのときにキャッシュする。
   - カードの JSON（`/cards/{lang}/NN.json`。T3-09、D38）も、市区町村データと同じく、一度読み込んだ県だけキャッシュする（`createCardLoader` もふつうの `fetch` を使うので、Service Worker のキャッシュから返れば、オフラインでも成功になる。アプリの枠組みのキャッシュだけだと、オフラインでカードの内容が出ない）。
   - 市区町村データは、一度読み込んだ県だけキャッシュする。T2-07 の `muniLoader` はふつうの `fetch` を使うので、Service Worker のキャッシュから返れば、オフラインでも成功になる（`navigator.onLine` が `false` でも先には止めない）。
-- Service Worker を登録するスクリプトは外部ファイルにする（CSP のハッシュを増やさないため）。
+- Service Worker を登録するスクリプトは外部ファイルにする（CSP のハッシュを増やさないため。T4-01 で、知らない形のインラインスクリプトがあるとビルドが止まるので、インラインにすると気付く）。`manifest` へのリンク・アイコンは `default-src 'self'`・`img-src 'self'` の範囲に収める。
 
 ### 完了条件
 

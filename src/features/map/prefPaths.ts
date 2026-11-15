@@ -32,6 +32,7 @@ export type PrefPath = {
 /**
  * 県名ラベルの文字の大きさ（viewBox の単位）。幅821pxで、ja・zh は約13px。
  * 英語の県名は横に長く（Kagoshima など）、同じ大きさでは隣の県のラベルとの重なりを避けきれないので、小さくする。
+ * 表示は `JapanMap` の `PREF_LABEL_FONT_CLASS`（style 属性は `style-src 'self'` で止まるのでクラスで書く。5.5）。変えるときは両方を直す（`JapanMap.test.tsx` が一致を確かめる）。
  */
 export const LABEL_FONT_SIZE: Readonly<Record<Lang, number>> = { ja: 16, en: 13, zh: 16 };
 

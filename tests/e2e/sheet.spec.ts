@@ -497,7 +497,11 @@ test.describe('768px 以上・JavaScript なし・1024px 未満のさくいん',
     await open(page, 'en', `#pref-${HOKKAIDO}`);
     await waitForDetailsSettled(page, HOKKAIDO);
     // Safari（iPadOS を含む）には、スクロールアンカリング（高さが変わっても、見ている位置を保つ機能）がない。Chromium でもそれを止めて確かめる
-    await page.addStyleTag({ content: 'html, body { overflow-anchor: none; }' });
+    // （<style> の追加は CSP の style-src 'self' で止まるので、CSSOM で書く。5.5）
+    await page.evaluate(() => {
+      document.documentElement.style.overflowAnchor = 'none';
+      document.body.style.overflowAnchor = 'none';
+    });
     const target = indexItem(page, NAGANO);
     await target.scrollIntoViewIfNeeded();
     await expect(target).toBeInViewport();

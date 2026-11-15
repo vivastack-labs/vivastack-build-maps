@@ -5,6 +5,10 @@
 /* テストの Playwright のセレクター（.kids:visible など）と、それを書いた計画・エージェントの文書からユーティリティが出ないよう、クラス名の検出の対象にしない */
 @source not "../tests";
 @source not "../.claude";
+/* T4-01：文書（AGENTS.md・開発概要書など）に書いたクラス名の例（`[stroke-width:calc(…)]` など）から、無効な規則が出ないようにする */
+@source not "../AGENTS.md";
+@source not "../CLAUDE.md";
+@source not "../docs";
 
 /* 6.2 D27：Webフォントは使わず、言語ごとにシステムフォントを指定する。
    --font-sans は Tailwind の preflight が html の font-family に使うので、ページ全体に効く。

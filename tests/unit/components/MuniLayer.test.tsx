@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, test } from 'vitest';
 import { MapStateProvider } from '@/components/MapStateProvider';
 import { MuniLayer } from '@/components/MuniLayer';
+import { MUNI_LABEL_FONT_SIZE } from '@/features/map/labels';
 import type { Lang } from '@/i18n/lang';
 import { loadedLoader, Probe, toggleMaximize } from './muni-test-helpers';
 
@@ -42,6 +43,18 @@ describe('MuniLayer', () => {
     expect(shapes.map(shape => shape.getAttribute('data-muni'))).toEqual(['20101', '20102', '20103', '20104']);
     expect(shapes.every(shape => /^[0-4]$/u.test(shape.getAttribute('data-shade') ?? '') && (shape.getAttribute('d') ?? '').startsWith('M'))).toBe(true);
     expect(container.querySelector('path[data-muni-outline]')?.getAttribute('d')).toMatch(/^M/u);
+  });
+
+  test('5.5：線の太さ・ラベルの文字の大きさは、--zoom-k で割る値をクラスで書く（style 属性を使わない）', async () => {
+    const { container } = renderLayer();
+
+    await toggleMaximize();
+
+    const group = container.querySelector('[data-muni-layer]') as SVGGElement;
+    expect(group.querySelectorAll('[style]')).toHaveLength(0);
+    expect(group.querySelector('g.stroke-muni-border')?.classList.contains('[stroke-width:calc(0.5px/var(--zoom-k,1))]')).toBe(true);
+    expect(group.querySelector('path[data-muni-outline]')?.classList.contains('[stroke-width:calc(1.4px/var(--zoom-k,1))]')).toBe(true);
+    expect(group.querySelector('[data-muni-labels]')?.classList.contains(`[font-size:calc(${MUNI_LABEL_FONT_SIZE}px/var(--zoom-k,1))]`)).toBe(true);
   });
 
   test('T2-08：変換が終わるまで、市区町村の形は描かない（地図は県の形のまま）', async () => {

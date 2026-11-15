@@ -1,5 +1,4 @@
 import { loadPrefPaths } from '@/features/map/prefPaths';
-import { VIEWBOX } from '@/features/map/projection';
 import type { Lang } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
 import type { PublishedPrefecture } from '@/lib/publish';
@@ -16,6 +15,9 @@ type Props = {
   readonly prefectures: readonly PublishedPrefecture[];
 };
 
+/** 地図の箱の縦横比（`VIEWBOX` と同じ 1000 / 1130。`MapArea.test.tsx` が確かめる）。style 属性は style-src 'self' で止まるので、クラスで書く（5.5・D39） */
+const MAP_BOX_ASPECT_CLASS = 'aspect-[1000/1130]';
+
 /** 県コード → 寄る範囲・移動できる範囲。ビルド時に求めて `MapZoom` に渡す（47県で約3KB） */
 function prefBounds(): Readonly<Record<string, PrefBounds>> {
   return Object.fromEntries(loadPrefPaths().map(({ code, fitBounds, panBounds }) => [code, { fit: fitBounds, pan: panBounds }]));
@@ -28,7 +30,7 @@ function prefBounds(): Readonly<Record<string, PrefBounds>> {
 export function MapArea({ lang, prefectures }: Props) {
   return (
     <section data-area="map" className="w-full min-w-0">
-      <div data-map-box className="relative w-full overflow-clip rounded" style={{ aspectRatio: `${VIEWBOX.width} / ${VIEWBOX.height}` }}>
+      <div data-map-box className={`relative w-full overflow-clip rounded ${MAP_BOX_ASPECT_CLASS}`}>
         <MapZoom bounds={prefBounds()} labels={getMessages(lang).zoom}>
           <MapInteraction>
             <JapanMap lang={lang} prefectures={prefectures}>

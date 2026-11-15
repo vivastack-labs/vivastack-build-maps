@@ -37,7 +37,7 @@
 
 ### 実装内容
 
-- Cloudflare Web Analytics に `maps.vivastack-dev.workers.dev` を登録する（11.1）。workers.dev では自動設定が使えない見込みなので、ダッシュボードで確かめ、使えなければ計測用のJSスニペット（トークン入り）をHTMLに埋め込む（D35。CSP は T4-01 で Web Analytics のドメインを許可済み）。結果を開発概要書 11.1 に書く。
+- Cloudflare Web Analytics に `maps.vivastack-dev.workers.dev` を登録する（11.1）。workers.dev では自動設定が使えない見込みなので、ダッシュボードで確かめ、使えなければ計測用のJSスニペット（トークン入り）をHTMLに埋め込む（D35。CSP は T4-01 で Web Analytics のドメインを許可済み。スニペットは外部の `src` なので、ハッシュは要らない。インラインで書くと、T4-01 の検査でビルドが止まる。`next/script` の `beforeInteractive` は使わない〔`(self.__next_s=…)` のインラインが出てビルドが止まる〕。レイアウトにふつうの `<script defer src=… data-cf-beacon=…>` を書く）。結果を開発概要書 11.1 に書く。
 - `CHANGELOG.md` に v1.0.0 を書き、`main` に merge して本番にデプロイする。
 - 本番のURLに対する確認用の E2E（読むだけの操作）を用意し、デプロイの後に実行する。
 

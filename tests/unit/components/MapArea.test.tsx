@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, test } from 'vitest';
 
 import { MapArea } from '@/components/MapArea';
@@ -21,8 +22,21 @@ describe('MapArea', () => {
     // Assert
     const box = container.querySelector('[data-area="map"] [data-map-box]') as HTMLElement;
     expect(box).not.toBeNull();
-    expect(box.style.aspectRatio.replace(/\s/g, '')).toBe(`${VIEWBOX.width}/${VIEWBOX.height}`);
+    expect(box.classList.contains(`aspect-[${VIEWBOX.width}/${VIEWBOX.height}]`)).toBe(true);
     expect(box.querySelector('svg')).not.toBeNull();
+  });
+
+  test("5.5：サーバーで描く地図の領域の HTML に style 属性がない（style-src 'self' で止まるため。クラスで書く）", () => {
+    // Arrange・Act：サーバーの出力（effect が動かない）。MapZoom がブラウザで書く style（CSSOM）は対象外
+    const html = renderToStaticMarkup(
+      <MapStateProvider>
+        <MapArea lang="ja" prefectures={publishedPrefectures()} />
+      </MapStateProvider>
+    );
+
+    // Assert
+    expect(html).toContain('<svg');
+    expect(html).not.toMatch(/\sstyle=/u);
   });
 
   test('T2-11：地図の箱は overflow-clip（スクロールできない箱にして、フォーカスで地図がずれないようにする）', () => {
