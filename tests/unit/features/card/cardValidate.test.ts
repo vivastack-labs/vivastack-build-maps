@@ -63,6 +63,22 @@ describe('validateCardData', () => {
     expect(validateCardData(json, '01')).toBeNull();
   });
 
+  test.each([
+    ['名物の名前', withItem({ name: 'a { b' })],
+    ['解説文（kids）', withItem({ description: { kids: 'Price {approx} 100 yen', adult: 'x' } })],
+    ['解説文（adult）', withItem({ description: { kids: 'x', adult: 'a } b' } })],
+    ['行き方の交通手段', withAccess({ mode: '{飛行機' })],
+    ['行き方の経路', withAccess({ route: 'a } b' })],
+    ['所要時間の文', withAccess({ durationText: '{1|' })],
+    ['出典のタイトル', withSource({ title: 'Guide {draft' })]
+  ])('D38：ふりがなの記法の誤り（{ } だけがある）を含む文は invalid にする（ブラウザの RubyText が例外になり、ページ全体が消えるのを防ぐ）：%s', (_name, json) => {
+    expect(validateCardData(json, '01')).toBeNull();
+  });
+
+  test('D38：正しいふりがなの記法（{漢字|よみ}）を含む文は受け入れる', () => {
+    expect(validateCardData(withItem({ name: '{北海道|ほっかいどう}のじゃがいも' }), '01')).not.toBeNull();
+  });
+
   test('F-SRC-02：http の出典の URL も受け入れる', () => {
     const json = withSource({ url: 'http://example.com/' });
 

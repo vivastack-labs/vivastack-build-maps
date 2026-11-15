@@ -6,7 +6,7 @@ import { formatDate } from '../../i18n/format.ts';
 import type { Lang } from '../../i18n/lang.ts';
 import type { Source } from '../../lib/content-schema.generated.ts';
 import type { Drafted, PublishedPrefecture } from '../../lib/publish.ts';
-import { plainText } from '../../lib/ruby.ts';
+import { parseRuby, plainText } from '../../lib/ruby.ts';
 
 /** こども向け・おとな向けの文（F-MODE-04）。日本語はふりがなの記法つき */
 export type CardModes = { readonly kids: string; readonly adult: string };
@@ -49,9 +49,15 @@ export type CardData = {
   readonly spots: readonly CardItem[];
 };
 
+/** JSON に入れる文。ふりがなの記法に誤り（記法でない { } など）があれば例外にする（ブラウザの `RubyText` が例外になり、ページ全体が消えるため。`content:validate` が先に止める） */
+function checked(text: string): string {
+  parseRuby(text);
+  return text;
+}
+
 /** 出典1件を、その言語の JSON の形にする。タイトルのふりがなは ja だけ（ほかの言語の文は記法を使わない）。確認日は言語の書式にする */
 function toSource(lang: Lang, { title, url, accessed }: Source): CardSource {
-  return { title: lang === 'ja' ? title : plainText(title), url, accessedText: formatDate(lang, accessed) };
+  return { title: lang === 'ja' ? checked(title) : plainText(title), url, accessedText: formatDate(lang, accessed) };
 }
 
 /** 名物・名所1件を、その言語の JSON の形にする（`emoji` がなければキーごと含めない） */
@@ -60,8 +66,8 @@ function toItem(lang: Lang, item: Drafted<{ id: string; emoji?: string; name: Re
     id: item.id,
     draft: item.draft,
     ...(item.emoji === undefined ? {} : { emoji: item.emoji }),
-    name: item.name[lang],
-    description: { kids: item.description[lang].kids, adult: item.description[lang].adult },
+    name: checked(item.name[lang]),
+    description: { kids: checked(item.description[lang].kids), adult: checked(item.description[lang].adult) },
     sources: item.sources.map(source => toSource(lang, source))
   };
 }
@@ -81,8 +87,8 @@ export function cardData(prefecture: PublishedPrefecture, lang: Lang): CardData 
           access: {
             draft: access.draft,
             emoji: access.emoji,
-            mode: access.mode[lang],
-            route: access.route[lang],
+            mode: checked(access.mode[lang]),
+            route: checked(access.route[lang]),
             durationText: durationText(lang, access.durationMin),
             sources: access.sources.map(source => toSource(lang, source))
           }

@@ -74,18 +74,20 @@ function textsOf(pref: Prefecture, lang: Lang): readonly PathText[] {
 /** ふりがなの記法（{…|…}）らしい部分 */
 const RUBY_NOTATION = /\{[^{}]*\|[^{}]*\}/u;
 
-/** 7.2・D2：ふりがなの誤り（誤り）と、ふりがなの付いていない漢字（警告）。日本語の文だけを見る。英語・中国語に記法があれば誤り */
+/** 7.2・D2：ふりがなの誤り（誤り）と、ふりがなの付いていない漢字（警告）。警告は日本語の文だけを見る。英語・中国語に記法があれば誤り（記法でない { } も誤り。D38） */
 export function checkFurigana(pref: Prefecture): RuleResult {
   const results = textsOf(pref, 'ja').map(([path, text]) => {
     const { errors, warnings } = checkRuby(text);
     const toIssue = ({ index, message }: { index: number; message: string }): RuleIssue => ({ path, message: `${characterNumber(text, index)}文字目：${message}` });
     return { errors: errors.map(toIssue), warnings: warnings.map(toIssue) };
   });
-  const misplaced = (['en', 'zh'] as const)
-    .flatMap(lang => textsOf(pref, lang))
-    .filter(([, text]) => RUBY_NOTATION.test(text))
-    .map(([path]) => ({ path, message: 'ふりがなの記法（{漢字|よみ}）は、日本語の文にだけ書けます' }));
-  return { errors: [...results.flatMap(r => r.errors), ...misplaced], warnings: results.flatMap(r => r.warnings) };
+  const otherTexts = (['en', 'zh'] as const).flatMap(lang => textsOf(pref, lang));
+  const misplaced = otherTexts.filter(([, text]) => RUBY_NOTATION.test(text)).map(([path]) => ({ path, message: 'ふりがなの記法（{漢字|よみ}）は、日本語の文にだけ書けます' }));
+  // 記法でない { } も誤り（D38：JSON の文はブラウザの RubyText が読むので、{ } が1つあるだけで例外になり、ページ全体が消える）
+  const stray = otherTexts.flatMap(([path, text]) =>
+    checkRuby(text).errors.map(({ index, message }): RuleIssue => ({ path, message: `${characterNumber(text, index)}文字目：${message}。{ } は、ふりがなの記法（{漢字|よみ}）のほかには書けません` }))
+  );
+  return { errors: [...results.flatMap(r => r.errors), ...misplaced, ...stray], warnings: results.flatMap(r => r.warnings) };
 }
 
 /** 7.3：日本語・中国語は空白を除いた字数（日本語は読みを除く）、英語は語数 */

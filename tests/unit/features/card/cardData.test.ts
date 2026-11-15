@@ -96,6 +96,18 @@ describe('cardData', () => {
     expect(data).toEqual({ code: '47', specialties: [], spots: [] });
   });
 
+  test('D38：記法でない { } を含む文があれば、JSON を作る前に例外にする（念のため。content:validate が先に誤りにする）', () => {
+    // Arrange
+    const broken: PublishedPrefecture = {
+      ...hokkaido,
+      specialties: hokkaido.specialties.map((item, i) => (i === 0 ? { ...item, description: { ...item.description, en: { kids: 'a { b', adult: 'x' } } } : item))
+    };
+
+    // Act・Assert
+    expect(() => cardData(broken, 'en')).toThrow(/ふりがな/u);
+    expect(() => cardData(broken, 'ja')).not.toThrow();
+  });
+
   test('D38：準備中の県（本番）は内容を持たないので、空の JSON になる（未確認の内容は publish() が外している）', () => {
     expect(cardData(okinawaProduction, 'ja')).toEqual({ code: '47', specialties: [], spots: [] });
   });
