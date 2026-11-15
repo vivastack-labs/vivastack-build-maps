@@ -37,16 +37,22 @@ function distanceOf(distances: ReadonlyMap<string, number>, code: string): numbe
  */
 export function CardArea({ lang, prefectures, distances }: Props) {
   return (
-    <CardSheet labels={getMessages(lang).sheet}>
-      <CardSwitch>
-        <p data-card-guide>
-          <ModeText text={getMessages(lang).card.guide} />
-        </p>
-        {prefectures.map(prefecture => (
-          <PrefCard key={prefecture.code} lang={lang} prefecture={prefecture} distanceKm={prefecture.code === TOKYO_CODE ? null : distanceOf(distances, prefecture.code)} />
-        ))}
-      </CardSwitch>
-      <MuniList lang={lang} labels={getMessages(lang).muni} />
-    </CardSheet>
+    <>
+      {/* 768px 未満でパネルが閉じている間だけ、地図の下に出す案内文（CSS で出し入れする。app/globals.css。4.11.1・4.11.7）。パネルの中の案内文は閉じている間は見えない */}
+      <p data-sheet-guide className="min-w-0 px-1">
+        <ModeText text={getMessages(lang).card.guide} />
+      </p>
+      <CardSheet labels={getMessages(lang).sheet}>
+        <CardSwitch>
+          <p data-card-guide>
+            <ModeText text={getMessages(lang).card.guide} />
+          </p>
+          {prefectures.map(prefecture => (
+            <PrefCard key={prefecture.code} lang={lang} prefecture={prefecture} distanceKm={prefecture.code === TOKYO_CODE ? null : distanceOf(distances, prefecture.code)} />
+          ))}
+        </CardSwitch>
+        <MuniList lang={lang} labels={getMessages(lang).muni} />
+      </CardSheet>
+    </>
   );
 }

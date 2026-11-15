@@ -4,8 +4,9 @@
 export type SheetState = 'closed' | 'peek' | 'full';
 
 /**
- * パネルになる幅（768px 未満）の `matchMedia` の条件。Tailwind の `md`（48rem）の手前と同じ境目で、
- * `CardSheet` の `max-md:` のクラスと合わせる。
+ * パネルになる幅（768px 未満）の `matchMedia` の条件。Tailwind の `md`（48rem）の手前と同じ境目。
+ * 同じ境目 48rem は、ほかに `app/globals.css`（カスタムバリアント `sheet:` と、パネルまわりの `@media`。JavaScript が有効〔`scripting: enabled`〕のときだけ）と、
+ * `tests/e2e/helpers.ts` の `isSheetWidth` にある。変えるときは、3か所を合わせる（`CardSheet` のバーを隠す `md:hidden` も同じ値）。
  */
 export const SHEET_QUERY = '(width < 48rem)';
 

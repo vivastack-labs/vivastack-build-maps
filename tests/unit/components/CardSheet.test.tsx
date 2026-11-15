@@ -1,5 +1,6 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { renderToStaticMarkup } from 'react-dom/server';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { hydrateRoot } from 'react-dom/client';
+import { renderToStaticMarkup, renderToString } from 'react-dom/server';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
 import { CardSheet } from '@/components/CardSheet';
@@ -52,6 +53,9 @@ function Fixture() {
       <a href="#pref-13" data-pref="13" data-testid="index-13">
         東京都
       </a>
+      <a href="#pref-01" data-pref="01" data-testid="index-01">
+        北海道
+      </a>
       <CardSheet labels={getMessages('en').sheet}>
         <CardSwitch>
           <p data-card-guide>案内文</p>
@@ -77,7 +81,7 @@ const state = () => screen.getByTestId('state').textContent;
 const pin = (code: '13' | '01' = '13') => fireEvent.click(screen.getByText(`pin-${code}`));
 
 describe('CardSheet', () => {
-  test('マウントすると data-sheet が付き、バーのボタンの hidden が外れる', () => {
+  test('マウントすると、バーのボタンの hidden が外れる（data-sheet は最初から closed）', () => {
     // Arrange・Act
     const { container } = render(<Fixture />);
 
@@ -98,13 +102,33 @@ describe('CardSheet', () => {
     await waitFor(() => expect(panel(container).hasAttribute('data-sheet-motion')).toBe(true));
   });
 
-  test('F-MAP-05：サーバーの出力（JavaScript の前）には data-sheet がなく、バーは hidden', () => {
+  test('F-MAP-05（CLS を出さない）：サーバーの出力（JavaScript の前）に data-sheet="closed" があり、バーは hidden', () => {
     // Arrange・Act：ハイドレーションの前の HTML を、サーバーの描画で確かめる
     const html = renderToStaticMarkup(<Fixture />);
 
     // Assert
-    expect(html).not.toContain('data-sheet=');
+    expect(html).toMatch(/<section[^>]*data-area="card"[^>]*data-sheet="closed"|<section[^>]*data-sheet="closed"[^>]*data-area="card"/u);
     expect(html).toMatch(/<div[^>]*data-sheet-bar[^>]*hidden/u);
+  });
+
+  test('サーバーの出力とハイドレーションで食い違わず、警告が出ない', async () => {
+    // Arrange：サーバーの HTML を作り、その上にハイドレーションする
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const container = document.createElement('div');
+    container.innerHTML = renderToString(<Fixture />);
+    document.body.append(container);
+
+    // Act
+    await act(async () => {
+      hydrateRoot(container, <Fixture />);
+    });
+
+    // Assert
+    expect(errors).not.toHaveBeenCalled();
+    expect(panel(container).getAttribute('data-sheet')).toBe('closed');
+    expect((container.querySelector('[data-sheet-bar]') as HTMLElement).hidden).toBe(false);
+    errors.mockRestore();
+    container.remove();
   });
 
   test('4.11.3：固定するとパネルが peek で開き、固定を外すと closed になる', () => {
@@ -246,5 +270,130 @@ describe('CardSheet', () => {
     const { container } = render(<Fixture />);
     pin();
     expect(panel(container).getAttribute('data-sheet')).toBe('peek');
+  });
+
+  test('4.11.3：パネルの中で Esc を押すと、固定を解除して閉じる（修飾キーつき・繰り返しは無視）', () => {
+    // Arrange
+    stubSheetWidth(true);
+    const { container } = render(<Fixture />);
+    pin();
+    const heading = document.querySelector('[data-card-pref="13"] h2') as HTMLElement;
+
+    // Act・Assert：Ctrl つき・繰り返しは無視する
+    fireEvent.keyDown(heading, { key: 'Escape', ctrlKey: true });
+    fireEvent.keyDown(heading, { key: 'Escape', repeat: true });
+    expect(panel(container).getAttribute('data-sheet')).toBe('peek');
+    fireEvent.keyDown(heading, { key: 'a' });
+    expect(panel(container).getAttribute('data-sheet')).toBe('peek');
+
+    // Act・Assert：Esc で閉じる
+    fireEvent.keyDown(heading, { key: 'Escape' });
+    expect(state()).toBe('pinned= maximized=');
+    expect(panel(container).getAttribute('data-sheet')).toBe('closed');
+  });
+
+  test('4.11.2：最大化中のパネルの Esc は、最大化だけを解く（パネルは開いたまま）', () => {
+    // Arrange
+    stubSheetWidth(true);
+    const { container } = render(<Fixture />);
+    fireEvent.click(screen.getByText('maximize-13'));
+
+    // Act
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Close' }), { key: 'Escape' });
+
+    // Assert
+    expect(state()).toBe('pinned=13 maximized=');
+    expect(panel(container).getAttribute('data-sheet')).toBe('peek');
+  });
+
+  test('パネルにならない幅（768px 以上）では、パネルの中の Esc は何もしない', () => {
+    // Arrange
+    stubSheetWidth(false);
+    render(<Fixture />);
+    pin();
+
+    // Act
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Close' }), { key: 'Escape' });
+
+    // Assert
+    expect(state()).toBe('pinned=13 maximized=');
+  });
+
+  test('4.11.6：開いたまま別の県に固定を移したとき、フォーカスが外の県の要素にあれば、戻り先をそれに更新する', () => {
+    // Arrange：さくいんの項目（13）から開く
+    stubSheetWidth(true);
+    render(<Fixture />);
+    screen.getByTestId('index-13').focus();
+    pin('13');
+
+    // Act：地図の別の県の要素にフォーカスして、固定をその県に移し、パネルの「とじる」で閉じる
+    const other = screen.getByTestId('index-01');
+    other.focus();
+    pin('01');
+    screen.getByRole('button', { name: 'Close' }).focus();
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+    // Assert：最初の項目（13）ではなく、直前の県の要素（01）に戻る
+    expect(document.activeElement).toBe(other);
+  });
+
+  test('4.11.6：覚えた要素が DOM から消えていたら、地図の県のパスに戻す', () => {
+    // Arrange
+    stubSheetWidth(true);
+    render(<Fixture />);
+    // React の管理の外の要素（消しても片付けで失敗しない）にフォーカスして、固定する
+    const indexItem = document.createElement('a');
+    indexItem.setAttribute('data-pref', '13');
+    indexItem.tabIndex = 0;
+    document.body.append(indexItem);
+    indexItem.focus();
+    pin();
+    indexItem.remove();
+
+    // Act
+    screen.getByRole('button', { name: 'Close' }).focus();
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+    // Assert
+    expect(document.activeElement).toBe(document.querySelector('path[data-pref="13"]'));
+  });
+
+  test('768px 以上で固定してから狭くして「とじる」を押しても、地図の県のパスに戻る（覚えた要素なし）', () => {
+    // Arrange：広い幅で固定する（フォーカスは動かない）
+    stubSheetWidth(false);
+    render(<Fixture />);
+    pin();
+
+    // Act：狭くして、パネルの中のボタンから閉じる
+    stubSheetWidth(true);
+    screen.getByRole('button', { name: 'Close' }).focus();
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+    // Assert
+    expect(document.activeElement).toBe(document.querySelector('path[data-pref="13"]'));
+  });
+
+  test('--sheet-h：開いている間、パネルの高さを html に書き、閉じたら消す', () => {
+    // Arrange：jsdom には ResizeObserver がないので、通知を自分で起こす
+    let notify: () => void = () => undefined;
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(callback: () => void) {
+          notify = callback;
+        }
+        observe() {}
+        disconnect() {}
+      }
+    );
+    const { container, unmount } = render(<Fixture />);
+    Object.defineProperty(panel(container), 'offsetHeight', { configurable: true, value: 180 });
+
+    // Act・Assert
+    pin();
+    notify();
+    expect(document.documentElement.style.getPropertyValue('--sheet-h')).toBe('180px');
+    unmount();
+    expect(document.documentElement.style.getPropertyValue('--sheet-h')).toBe('');
   });
 });

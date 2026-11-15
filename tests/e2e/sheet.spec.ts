@@ -199,6 +199,117 @@ test.describe('スマホ（768px 未満）の下から出るパネル', () => {
     expect(await focusedPref(page)).toBeNull();
   });
 
+  test('4.11.3：パネルの見出しにフォーカスがある状態で Esc を押すと、パネルが閉じ、フォーカスが元の県に戻る', async ({ page }) => {
+    // Arrange
+    await open(page);
+    await indexItem(page, HOKKAIDO).focus();
+    await indexItem(page, HOKKAIDO).tap();
+    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] h2[data-card-name]`)).toBeFocused();
+
+    // Act
+    await page.keyboard.press('Escape');
+
+    // Assert
+    await expect(panel(page)).toHaveAttribute('data-sheet', 'closed');
+    await expect(indexItem(page, HOKKAIDO)).toHaveAttribute('aria-pressed', 'false');
+    await expect(indexItem(page, HOKKAIDO)).toBeFocused();
+  });
+
+  for (const state of ['peek', 'full'] as const) {
+    test(`4.11.7：パネルが${state === 'peek' ? '一部だけ見える' : '全部見える'}状態でも、フッターまでスクロールすると、フッターがパネルと重ならない`, async ({ page }) => {
+      // Arrange
+      await open(page);
+      await tapIndex(page, HOKKAIDO);
+      if (state === 'full') await page.locator('[data-sheet-toggle]').tap();
+      await expect(panel(page)).toHaveAttribute('data-sheet', state);
+
+      // Act
+      await page.locator('footer').scrollIntoViewIfNeeded();
+      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+
+      // Assert：フッターの下端が、パネルの上端より上にある（動きが止まるのを待つ）
+      const gap = async () => {
+        const footer = await page.locator('footer').boundingBox();
+        const sheet = await panel(page).boundingBox();
+        return (sheet?.y ?? 0) - ((footer?.y ?? 0) + (footer?.height ?? 0));
+      };
+      await expect.poll(gap).toBeGreaterThanOrEqual(-1);
+    });
+  }
+
+  test('4.11.1・4.11.7：パネルが閉じている間は地図の下に案内文が見え、県をタップすると消える。閉じると、また見える', async ({ page }) => {
+    // Arrange・Assert：閉じている間は、地図のすぐ下に出る
+    await open(page);
+    const guide = page.locator('[data-sheet-guide]');
+    await expect(guide).toBeVisible();
+    const map = await page.locator('[data-area="map"]').boundingBox();
+    const guideBox = await guide.boundingBox();
+    expect(guideBox?.y).toBeGreaterThanOrEqual((map?.y ?? 0) + (map?.height ?? 0) - 1);
+    // 見えている案内文はこども向け・おとな向けの片方だけ（モードの既定）
+    await expect(guide.locator('.kids:visible, .adult:visible')).toHaveCount(1);
+
+    // Act・Assert：県をタップすると消える
+    await mapPath(page, NAGANO).tap();
+    await expect(panel(page)).toHaveAttribute('data-sheet', 'peek');
+    await expect(guide).toBeHidden();
+
+    // Act・Assert：閉じると、また見える
+    await page.locator('[data-sheet-close]').tap();
+    await expect(guide).toBeVisible();
+  });
+
+  test('F-MAP-05（CLS）：JavaScript を読み込む前の HTML でも、さくいんの位置がハイドレーションの後と同じで、パネルはすでに画面の下に固定されている', async ({ page, context }) => {
+    // Arrange：JavaScript の読み込みを止めたページ（scripting は有効。ハイドレーションしない）と、ふつうのページ
+    const before = await context.newPage();
+    await before.route('**/*.js', route => route.abort());
+    await before.goto('/en/');
+    await open(page);
+
+    // Act
+    const indexBefore = await before.locator('[data-area="index"]').boundingBox();
+    const indexAfter = await page.locator('[data-area="index"]').boundingBox();
+
+    // Assert
+    expect(indexBefore?.y).toBeDefined();
+    expect(Math.round(indexBefore?.y ?? -1)).toBe(Math.round(indexAfter?.y ?? -2));
+    expect(await before.locator('[data-area="card"]').evaluate(element => getComputedStyle(element).position)).toBe('fixed');
+    await expect(before.locator('[data-area="card"]')).toHaveAttribute('data-sheet', 'closed');
+    await before.close();
+  });
+
+  test('F-MAP-05（CLS）：読み込みの間に、レイアウトのずれ（layout-shift）が出ない', async ({ page }) => {
+    // Arrange：ページを開く前に、layout-shift を記録する
+    await page.addInitScript(() => {
+      (window as unknown as { __shift: number }).__shift = 0;
+      new PerformanceObserver(list => {
+        for (const entry of list.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) {
+          if (!entry.hadRecentInput) (window as unknown as { __shift: number }).__shift += entry.value;
+        }
+      }).observe({ type: 'layout-shift', buffered: true });
+    });
+
+    // Act
+    await open(page);
+    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+
+    // Assert：カードが流れから消えることによるずれがない（0.01 は余裕。CLS の「良好」は 0.1 以下）
+    expect(await page.evaluate(() => (window as unknown as { __shift: number }).__shift)).toBeLessThan(0.01);
+  });
+
+  test('F-MAP-05：JavaScript が有効なのに読み込めなかったときも、:target の県があれば、パネルが全部見える状態になってカードが読める', async ({ page }) => {
+    // Arrange・Act：JavaScript の読み込みを止めて、ハッシュつきで開く
+    await page.route('**/*.js', route => route.abort());
+    await page.goto(`/en/#pref-${HOKKAIDO}`);
+
+    // Assert：ハイドレーションしていない（data-card-ready がない）が、カードが見え、パネルの高さは画面の約85%
+    await expect(page.locator('[data-card-ready]')).toHaveCount(0);
+    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"]`)).toBeVisible();
+    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-specialties]`)).toBeVisible();
+    const height = await page.evaluate(() => window.innerHeight);
+    expect(((await panel(page).boundingBox())?.height ?? 0) / height).toBeGreaterThanOrEqual(0.8);
+    await expect(page.locator('[data-sheet-guide]')).toBeHidden();
+  });
+
   for (const width of [360, 320]) {
     test(`5.3：幅${width}pxで、パネルが閉じていても開いていても横スクロールが出ない`, async ({ page }) => {
       // Arrange
@@ -225,6 +336,8 @@ test.describe('スマホ（768px 未満）の下から出るパネル', () => {
     // Arrange
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await open(page);
+    // 動きを有効にする属性が付いてから測る（付く前は、設定に関係なく transition がなく、素通りしてしまう）
+    await expect(panel(page)).toHaveAttribute('data-sheet-motion', '');
     await tapIndex(page, HOKKAIDO);
 
     // Act・Assert
@@ -257,6 +370,7 @@ test.describe('768px 以上・JavaScript なし・1024px 未満のさくいん',
     await expect(panel(page)).toBeVisible();
     expect(await panel(page).evaluate(element => getComputedStyle(element).position)).toBe('static');
     await expect(page.locator('[data-sheet-bar]')).toBeHidden();
+    await expect(page.locator('[data-sheet-guide]')).toBeHidden();
 
     // Act：固定しても、カードは流れの中にあり、一部だけ隠さない
     await indexItem(page, HOKKAIDO).click();
@@ -285,11 +399,12 @@ test.describe('768px 以上・JavaScript なし・1024px 未満のさくいん',
     await page.goto(`/en/#pref-${HOKKAIDO}`);
 
     // Assert
-    await expect(panel(page)).not.toHaveAttribute('data-sheet', /.*/u);
     expect(await panel(page).evaluate(element => getComputedStyle(element).position)).toBe('static');
     await expect(page.locator(`[data-card-pref="${HOKKAIDO}"]`)).toBeVisible();
     await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-specialties]`)).toBeVisible();
     await expect(page.locator('[data-sheet-bar]')).toBeHidden();
+    // 地図の下の案内文も出さない（カードの案内文と重複させない）
+    await expect(page.locator('[data-sheet-guide]')).toBeHidden();
     await context.close();
   });
 

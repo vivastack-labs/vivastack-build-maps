@@ -106,7 +106,7 @@ export const textWithoutRt = (locator: Locator): Promise<string> =>
     return copy.textContent ?? '';
   });
 
-/** 768px 未満か（カードが下から出るパネルになる幅。T3-06、4.11.7）。この幅では、閉じたパネルの中の案内文は見えない */
+/** 768px 未満か（カードが下から出るパネルになる幅。T3-06、4.11.7）。この幅では、閉じたパネルの中の案内文は見えない。境目の 48rem は `src/features/map/sheet.ts` の `SHEET_QUERY`・`app/globals.css` と同じ */
 export const isSheetWidth = (page: Page): Promise<boolean> => page.evaluate(() => window.matchMedia('(width < 48rem)').matches);
 
 /**

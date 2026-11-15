@@ -23,6 +23,22 @@ const renderCard = (lang: (typeof LANGS)[number]) =>
   );
 
 describe('CardArea', () => {
+  test.each(LANGS)('4.11.1・4.11.7（T3-06）：768px 未満でパネルが閉じている間に地図の下へ出す案内文（%s）。こども向け・おとな向けの両方で、パネルの前にある', lang => {
+    // Arrange・Act
+    const { container } = renderCard(lang);
+
+    // Assert
+    const guide = container.querySelector('[data-sheet-guide]') as HTMLElement;
+    const messages = getMessages(lang).card.guide;
+    expect(textWithoutRuby(guide.querySelector('.kids') as Element)).toBe(plainText(messages.kids));
+    expect(textWithoutRuby(guide.querySelector('.adult') as Element)).toBe(plainText(messages.adult));
+    // パネル（<section data-area="card">）の兄弟で、その前にある
+    const section = container.querySelector('section[data-area="card"]') as HTMLElement;
+    expect(guide.nextElementSibling).toBe(section);
+    // パネルの中の案内文（data-card-guide）とは別の要素
+    expect(section.contains(guide)).toBe(false);
+  });
+
   test('F-CARD-03：県の距離がなければ例外（0 km と出さない）', () => {
     // Arrange・Act・Assert
     expect(() =>
