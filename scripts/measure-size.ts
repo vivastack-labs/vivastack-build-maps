@@ -1,11 +1,14 @@
 // 5.1・6.6 (2)・D24：最初に読み込むサイズの計測（T3-08。pnpm size。T4-04 で CI からも呼ぶ）。
 // 言語ごとに dist/{lang}/index.html と、その HTML が最初に読み込む JS・CSS を数え、gzip 後の合計を基準値と比べる。
 // 数えない：__next.*.txt（ソフトナビゲーション用）、市区町村の TopoJSON（最大化したとき）、動的に読む chunk、画像・アイコン、noModule の script。
-// 実行：node scripts/measure-size.ts [--dist dist] [--budget 300] [--json]（Node.js の型の除去で直接動かすので、enum などは使わない）
-//   終了コード：0＝基準値に収まる、1＝どれか1言語でも基準値を超える、2＝引数・ファイルの誤り
+// dist/ を今の状態のまま測る。CI では pnpm build の直後に実行する（E2E・スクリーンショットのビルドは CONTENT_DIR=tests/fixtures/content で dist/ を上書きするので、その後に測らない）。
+// 数えられなかった script・stylesheet の参照（外部の URL など）があれば、小さく見積もらないように終了コード 2 にする。
+// Cloudflare Web Analytics の beacon のように、外部の参照を許すときは --allow-external <URL>=<バイト数> で、その参照と見込みの転送サイズ（圧縮後）を明示する。
+// 実行：node scripts/measure-size.ts [--dist dist] [--budget 300] [--allow-external <URL>=<バイト数> …] [--json]（Node.js の型の除去で直接動かすので、enum などは使わない）
+//   終了コード：0＝基準値に収まる、1＝どれか1言語でも基準値を超える、2＝引数・ファイルの誤り、数えられなかった参照がある
 // 相対の import には .ts を付ける。
-import { readFileSync, statSync } from 'node:fs';
-import { isAbsolute, join, relative, resolve } from 'node:path';
+import { readFileSync, realpathSync, statSync } from 'node:fs';
+import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { parseArgs } from 'node:util';
 import { brotliCompressSync, constants, gzipSync } from 'node:zlib';
 import { LANGS, type Lang } from '../src/i18n/lang.ts';
@@ -18,8 +21,11 @@ const BYTES_PER_KB = 1000;
 /** 圧縮前・gzip（既定のレベル 6）・brotli（品質 11）のバイト数 */
 export type Size = { readonly raw: number; readonly gzip: number; readonly brotli: number };
 
-/** assetPaths の結果。paths は数えるファイルの URL のパス（重複なし）、warnings は数えなかった参照 */
-export type AssetScan = { readonly paths: readonly string[]; readonly warnings: readonly string[] };
+/**
+ * assetPaths の結果。paths は数えるファイルの URL のパス（重複なし）、skipped は数えなかった script・stylesheet 等の参照（HTML に書かれた値。重複なし）、
+ * warnings は skipped を説明する文（HTML 由来の値は `JSON.stringify` で入れる）
+ */
+export type AssetScan = { readonly paths: readonly string[]; readonly skipped: readonly string[]; readonly warnings: readonly string[] };
 
 /** 1言語ぶんの計測結果 */
 export type LangReport = {
@@ -32,12 +38,18 @@ export type LangReport = {
   readonly rsc: Size;
   readonly js: Size & { readonly count: number };
   readonly css: Size & { readonly count: number };
-  /** HTML 全体＋JS＋CSS */
+  /** `--allow-external` で許した外部の参照の、見込みのサイズ（バイト数を3つの列すべてに入れる） */
+  readonly external: Size & { readonly count: number };
+  /** HTML 全体＋JS＋CSS＋外部の参照 */
   readonly total: Size;
   /** 数えた JS・CSS の URL のパス */
   readonly files: readonly string[];
+  /** 数えられず、許してもいない参照の説明。1つでもあれば、合計は小さく出ているので、run は終了コード 2 にする */
   readonly warnings: readonly string[];
 };
+
+/** `--allow-external` で許した外部の参照（HTML に書かれた値そのまま）→ 見込みのバイト数 */
+export type AllowedExternals = ReadonlyMap<string, number>;
 
 /** run の出力先。write は表・JSON、warn は警告・誤り */
 export type Io = { readonly write: (line: string) => void; readonly warn: (line: string) => void };
@@ -59,11 +71,11 @@ function isLoadedLink(attributes: ReadonlyMap<string, string>): boolean {
   return rel.includes('preload') && ['script', 'style'].includes((attributes.get('as') ?? '').toLowerCase());
 }
 
-type Resolved = { readonly path: string } | { readonly warning: string };
+type Resolved = { readonly path: string } | { readonly skipped: string; readonly warning: string };
 
 /** href・src の値を、dist の中のパス（`/` で始まる）にする。サイトの外・dist の外を指すものは警告にする */
 function resolveReference(raw: string): Resolved {
-  const skipped = (reason: string): Resolved => ({ warning: `${raw}：${reason}ので数えません` });
+  const skipped = (reason: string): Resolved => ({ skipped: raw, warning: `${JSON.stringify(raw)}：${reason}ので数えません` });
   const pathOnly = raw.replace(/[?#][\s\S]*$/u, '');
   if (!pathOnly.startsWith('/') || pathOnly.startsWith('//')) return skipped('サイトの外か、`/` で始まらないパス');
   let decoded: string;
@@ -79,7 +91,7 @@ function resolveReference(raw: string): Resolved {
 /**
  * HTML が最初に読み込むファイルの URL のパスを、重複なしで返す（5.1）。
  * 数える：`<script src>`（noModule を除く。今のブラウザは読まない）、`<link rel="stylesheet">`、`as="script"|"style"` の `preload`、`modulepreload`。
- * `/` で始まる dist の中のパスだけを数え、外部の URL・相対パス・dist の外を指すパス（`..`）は数えずに警告にする（境界の入力検証）。
+ * `/` で始まる dist の中のパスだけを数え、外部の URL・相対パス・dist の外を指すパス（`..`）は数えずに skipped と警告にする（境界の入力検証）。
  */
 export function assetPaths(html: string): AssetScan {
   const scripts = [...html.matchAll(SCRIPT_ELEMENT)].map(([, source = '']) => attributesOf(source)).filter(attributes => attributes.has('src') && !attributes.has('nomodule'));
@@ -87,9 +99,11 @@ export function assetPaths(html: string): AssetScan {
   const links = [...html.replace(SCRIPT_ELEMENT, '').matchAll(LINK_TAG)].map(([, source = '']) => attributesOf(source)).filter(isLoadedLink);
   const references = [...scripts.map(attributes => attributes.get('src')), ...links.map(attributes => attributes.get('href'))].filter((value): value is string => value !== undefined && value !== '');
   const resolved = references.map(resolveReference);
+  const skipped = [...new Map(resolved.flatMap(item => ('skipped' in item ? [[item.skipped, item.warning] as const] : []))).entries()];
   return {
     paths: [...new Set(resolved.flatMap(item => ('path' in item ? [item.path] : [])))],
-    warnings: resolved.flatMap(item => ('warning' in item ? [item.warning] : []))
+    skipped: skipped.map(([raw]) => raw),
+    warnings: skipped.map(([, warning]) => warning)
   };
 }
 
@@ -110,33 +124,42 @@ export function measure(files: readonly Uint8Array[]): Size {
 
 const add = (a: Size, b: Size): Size => ({ raw: a.raw + b.raw, gzip: a.gzip + b.gzip, brotli: a.brotli + b.brotli });
 
-/** dist の中のファイルを読む。dist の外・ファイルでないものは誤りにする（HTML の参照は外から来るので確かめる） */
+/** target が base の中（base 自身を含まない）にあるか */
+function isInside(base: string, target: string): boolean {
+  const path = relative(base, target);
+  return path !== '' && path !== '..' && !path.startsWith(`..${sep}`) && !isAbsolute(path);
+}
+
+/** dist の中のファイルを読む。dist の外（シンボリックリンクの先を含む）・ファイルでないものは誤りにする（HTML の参照は外から来るので確かめる） */
 function readInside(distDir: string, urlPath: string): Buffer {
   const file = resolve(distDir, `.${urlPath}`);
-  const path = relative(resolve(distDir), file);
-  if (path === '' || path.startsWith('..') || isAbsolute(path)) throw new Error(`${urlPath} が dist の外を指しています`);
-  let isFile = false;
+  if (!isInside(resolve(distDir), file)) throw new Error(`${JSON.stringify(urlPath)} が dist の外を指しています`);
+  let real: string;
   try {
-    isFile = statSync(file).isFile();
+    real = realpathSync(file);
+    if (!statSync(real).isFile()) throw new Error('ファイルではありません');
   } catch {
-    // ないときは下で誤りにする
+    throw new Error(`${JSON.stringify(urlPath)} が ${distDir} にありません`);
   }
-  if (!isFile) throw new Error(`${urlPath} が ${distDir} にありません`);
-  return readFileSync(file);
+  if (!isInside(realpathSync(distDir), real)) throw new Error(`${JSON.stringify(urlPath)} が、シンボリックリンクで dist の外を指しています`);
+  return readFileSync(real);
 }
 
 const withCount = (files: readonly Buffer[]): Size & { readonly count: number } => ({ ...measure(files), count: files.length });
 
-/** 1言語ぶんを測る。HTML が指すファイルが dist になければ例外 */
-export function measureLang(distDir: string, lang: Lang): LangReport {
+/** 1言語ぶんを測る。HTML が指すファイルが dist になければ例外。外部の参照は、allowed にあれば見込みのサイズを足し、なければ warnings にする */
+export function measureLang(distDir: string, lang: Lang, allowed: AllowedExternals = new Map()): LangReport {
   const htmlFile = readInside(distDir, `/${lang}/index.html`);
   const text = htmlFile.toString('utf8');
-  const { paths, warnings } = assetPaths(text);
+  const { paths, skipped, warnings: skippedWarnings } = assetPaths(text);
   const { body, rsc } = splitHtml(text);
   const assets = paths.toSorted().map(path => ({ path, file: readInside(distDir, path) }));
   const css = withCount(assets.filter(({ path }) => path.endsWith('.css')).map(({ file }) => file));
   const js = withCount(assets.filter(({ path }) => !path.endsWith('.css')).map(({ file }) => file));
   const html = measure([htmlFile]);
+  const estimates = skipped.flatMap(raw => (allowed.has(raw) ? [allowed.get(raw) ?? 0] : []));
+  const estimated = estimates.reduce((sum, bytes) => sum + bytes, 0);
+  const external = { raw: estimated, gzip: estimated, brotli: estimated, count: estimates.length };
   return {
     lang,
     html,
@@ -144,9 +167,10 @@ export function measureLang(distDir: string, lang: Lang): LangReport {
     rsc: measure([Buffer.from(rsc)]),
     js,
     css,
-    total: add(add(html, js), css),
+    external,
+    total: add(add(add(html, js), css), external),
     files: assets.map(({ path }) => path),
-    warnings
+    warnings: skippedWarnings.filter((_, i) => !allowed.has(skipped[i] ?? ''))
   };
 }
 
@@ -168,6 +192,7 @@ function formatReport(report: LangReport, budgetKB: number): readonly string[] {
     row('　うち RSC のデータ', report.rsc),
     row(`JS（${report.js.count} ファイル）`, report.js),
     row(`CSS（${report.css.count} ファイル）`, report.css),
+    ...(report.external.count > 0 ? [row(`外部の参照（見込み。${report.external.count} 件）`, report.external)] : []),
     row('合計（HTML 全体＋JS＋CSS）', report.total),
     '',
     `基準値 ${budgetKB} KB（gzip）：${verdict}`,
@@ -175,29 +200,50 @@ function formatReport(report: LangReport, budgetKB: number): readonly string[] {
   ];
 }
 
-type Options = { readonly distDir: string; readonly budgetKB: number; readonly json: boolean };
+type Options = { readonly distDir: string; readonly budgetKB: number; readonly json: boolean; readonly allowed: AllowedExternals };
+
+/** `--allow-external` の値 `<URL>=<バイト数>` を、URL と見込みのバイト数にする（URL の中に `=` があってもよいので、最後の `=` で分ける）。誤りは例外 */
+function parseAllowedExternal(value: string): readonly [string, number] {
+  const at = value.lastIndexOf('=');
+  const url = value.slice(0, at);
+  const bytes = value.slice(at + 1);
+  if (at <= 0 || !/^\d+$/u.test(bytes) || !Number.isSafeInteger(Number(bytes))) {
+    throw new Error(`--allow-external は <URL>=<バイト数（0以上の整数）> の形にしてください：${JSON.stringify(value)}`);
+  }
+  return [url, Number(bytes)];
+}
 
 /** コマンドラインの引数を確かめる。誤りは例外 */
 function parseOptions(argv: readonly string[]): Options {
   const { values } = parseArgs({
     args: [...argv],
-    options: { dist: { type: 'string' }, budget: { type: 'string' }, json: { type: 'boolean' } },
+    options: { dist: { type: 'string' }, budget: { type: 'string' }, json: { type: 'boolean' }, 'allow-external': { type: 'string', multiple: true } },
     strict: true
   });
   const budgetKB = values.budget === undefined ? DEFAULT_BUDGET_KB : Number(values.budget);
-  if (!Number.isFinite(budgetKB) || budgetKB <= 0) throw new Error(`--budget は正の数（KB）にしてください：${String(values.budget)}`);
-  return { distDir: values.dist ?? join(import.meta.dirname, '..', 'dist'), budgetKB, json: values.json === true };
+  if (!Number.isFinite(budgetKB) || budgetKB <= 0) throw new Error(`--budget は正の数（KB）にしてください：${JSON.stringify(values.budget)}`);
+  return {
+    distDir: values.dist ?? join(import.meta.dirname, '..', 'dist'),
+    budgetKB,
+    json: values.json === true,
+    allowed: new Map((values['allow-external'] ?? []).map(parseAllowedExternal))
+  };
 }
 
-/** 計測して結果を出し、終了コードを返す（0：収まる、1：超過、2：引数・ファイルの誤り） */
+/** 計測して結果を出し、終了コードを返す（0：収まる、1：超過、2：引数・ファイルの誤り、数えられなかった参照がある） */
 export function run(argv: readonly string[], io: Io): number {
   try {
-    const { distDir, budgetKB, json } = parseOptions(argv);
-    const reports = LANGS.map(lang => measureLang(distDir, lang));
+    const { distDir, budgetKB, json, allowed } = parseOptions(argv);
+    const reports = LANGS.map(lang => measureLang(distDir, lang, allowed));
     reports.forEach(report => report.warnings.forEach(warning => io.warn(`[${report.lang}] ${warning}`)));
     const ok = reports.every(report => report.total.gzip <= budgetKB * BYTES_PER_KB);
     const lines = json ? [JSON.stringify({ budgetKB, ok, results: reports }, null, 2)] : reports.flatMap(report => formatReport(report, budgetKB));
     lines.forEach(io.write);
+    // 数えられなかった参照があると、合計は小さく出ている。収まって見えても成功にしない
+    if (reports.some(report => report.warnings.length > 0)) {
+      io.warn('数えられなかった参照があるので、合計は実際より小さく出ています。外部の参照を許すときは --allow-external <URL>=<バイト数> で見込みのサイズを指定してください');
+      return 2;
+    }
     return ok ? 0 : 1;
   } catch (error) {
     io.warn(error instanceof Error ? error.message : String(error));

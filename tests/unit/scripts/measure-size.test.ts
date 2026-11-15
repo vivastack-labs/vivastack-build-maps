@@ -1,12 +1,23 @@
-import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { brotliCompressSync, constants, gzipSync } from 'node:zlib';
-import { describe, expect, test } from 'vitest';
+import { afterEach, describe, expect, test } from 'vitest';
 import { assetPaths, measure, measureLang, run, splitHtml } from '../../../scripts/measure-size';
 
 const SITE = join(import.meta.dirname, '../../fixtures/measure-size/site');
 const read = (path: string): Buffer => readFileSync(join(SITE, path));
+const dirs: string[] = [];
+/** フィクスチャを写した一時ディレクトリ（テストごとに片付ける） */
+const copySite = (): string => {
+  const dir = mkdtempSync(join(tmpdir(), 'measure-size-'));
+  dirs.push(dir);
+  cpSync(SITE, dir, { recursive: true });
+  return dir;
+};
+afterEach(() => {
+  dirs.splice(0).forEach(dir => rmSync(dir, { recursive: true, force: true }));
+});
 const gzipSize = (...paths: readonly string[]): number => paths.reduce((sum, path) => sum + gzipSync(read(path)).length, 0);
 
 // 5.1：最初に読み込むサイズの計測（T3-08）
@@ -44,7 +55,7 @@ describe('assetPaths', () => {
       '<script src="/_next/ok.js"></script>'
     ].join('');
 
-    expect(assetPaths(html)).toEqual({ paths: ['/_next/ok.js'], warnings: [] });
+    expect(assetPaths(html)).toEqual({ paths: ['/_next/ok.js'], skipped: [], warnings: [] });
   });
 
   test('5.1：assetPaths は外部の URL と dist の外を指すパスを数えずに警告する', () => {
@@ -59,11 +70,22 @@ describe('assetPaths', () => {
       '<link rel="stylesheet" href="/_next/ok.css"/>'
     ].join('');
 
-    const { paths, warnings } = assetPaths(html);
+    const { paths, skipped, warnings } = assetPaths(html);
 
     expect(paths).toEqual(['/_next/ok.css']);
+    expect(skipped).toEqual(['https://cdn.example.com/x.js', '//cdn.example.com/y.js', '../outside.js', '/_next/../../outside.js', '/%2e%2e/outside.js', '/_next/%E0%A4%A.js', 'relative.js']);
     expect(warnings).toHaveLength(7);
-    expect(warnings[0]).toContain('https://cdn.example.com/x.js');
+    expect(warnings[0]).toContain('"https://cdn.example.com/x.js"');
+  });
+
+  test('S2：警告に入れる HTML 由来の値は JSON.stringify で出し、改行・制御文字をそのまま出さない', () => {
+    const html = '<script src="https://x.example/a\n::error::injected\u001b[31m"></script>';
+
+    const { warnings } = assetPaths(html);
+
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).not.toMatch(/[\n\u001b]/u);
+    expect(warnings[0]).toContain(String.raw`\n::error::injected\u001b[31m`);
   });
 });
 
@@ -122,8 +144,46 @@ describe('measureLang', () => {
     expect(report.rsc.raw).toBeGreaterThan(0);
   });
 
-  test('5.1：HTML が読み込むファイルが dist になければ、エラーにする', () => {
+  test('5.1：dist に {lang}/index.html がなければ、エラーにする', () => {
     expect(() => measureLang(join(SITE, 'ja'), 'ja')).toThrow(/index\.html/u);
+  });
+
+  test('M2：HTML が指す JS が dist になければ、そのパスを含む例外にする', () => {
+    // Arrange：HTML が指す chunk を消した dist
+    const dir = copySite();
+    rmSync(join(dir, '_next/static/chunks/main.js'));
+
+    // Act・Assert
+    expect(() => measureLang(dir, 'ja')).toThrow(/\/_next\/static\/chunks\/main\.js/u);
+  });
+
+  test('S1：参照先がシンボリックリンクで dist の外を指していれば、例外にする', () => {
+    // Arrange：main.js を、dist の外のファイルへのリンクにする
+    const dir = copySite();
+    const outside = join(copySite(), 'outside.js');
+    writeFileSync(outside, '// outside\n');
+    rmSync(join(dir, '_next/static/chunks/main.js'));
+    symlinkSync(outside, join(dir, '_next/static/chunks/main.js'));
+
+    // Act・Assert
+    expect(() => measureLang(dir, 'ja')).toThrow(/シンボリックリンク/u);
+  });
+
+  test('S1：dist の中を指すシンボリックリンクと、`..` で始まるファイル名（`..x.js`）は数える', () => {
+    // Arrange
+    const dir = copySite();
+    writeFileSync(join(dir, '_next/static/chunks/..x.js'), '// dot dot\n');
+    symlinkSync(join(dir, '_next/static/chunks/lazy.js'), join(dir, '_next/static/chunks/link.js'));
+    const htmlPath = join(dir, 'ja/index.html');
+    writeFileSync(htmlPath, readFileSync(htmlPath, 'utf8').replace('</head>', '<script src="/_next/static/chunks/..x.js"></script><script src="/_next/static/chunks/link.js"></script></head>'));
+
+    // Act
+    const report = measureLang(dir, 'ja');
+
+    // Assert
+    expect(report.files).toContain('/_next/static/chunks/..x.js');
+    expect(report.files).toContain('/_next/static/chunks/link.js');
+    expect(report.js.count).toBe(4);
   });
 });
 
@@ -188,20 +248,80 @@ describe('run', () => {
     expect(codes).toEqual([2, 2, 2, 2]);
   });
 
-  test('5.1：数えなかった参照（外部の URL など）は、言語つきで warn に出し、表には数えない', () => {
-    // Arrange：外部の URL の script を足した dist
-    const dir = mkdtempSync(join(tmpdir(), 'measure-size-'));
-    cpSync(SITE, dir, { recursive: true });
+  /** 英語のページだけに外部の script を足した dist */
+  const withExternal = (url: string): string => {
+    const dir = copySite();
     const htmlPath = join(dir, 'en/index.html');
-    writeFileSync(htmlPath, readFileSync(htmlPath, 'utf8').replace('</head>', '<script src="https://cdn.example.com/x.js"></script></head>'));
-    const { warnings, io } = capture();
+    writeFileSync(htmlPath, readFileSync(htmlPath, 'utf8').replace('</head>', `<script src="${url}"></script></head>`));
+    return dir;
+  };
+
+  test('M1：数えられなかった参照（外部の URL など）があれば、言語つきで warn に出し、基準値に収まっていても終了コード 2', () => {
+    // Arrange
+    const dir = withExternal('https://static.cloudflareinsights.com/beacon.min.js');
+    const { lines, warnings, io } = capture();
 
     // Act
-    const code = run(['--dist', dir], io);
-    rmSync(dir, { recursive: true, force: true });
+    const code = run(['--dist', dir, '--budget', '300'], io);
 
     // Assert
-    expect(code).toBe(0);
-    expect(warnings).toEqual([expect.stringMatching(/^\[en\] https:\/\/cdn\.example\.com\/x\.js/u)]);
+    expect(code).toBe(2);
+    expect(warnings[0]).toMatch(/^\[en\] "https:\/\/static\.cloudflareinsights\.com\/beacon\.min\.js"/u);
+    expect(warnings).toHaveLength(2);
+    expect(lines.join('\n')).toContain('## en');
+  });
+
+  test('M1：--allow-external で許した参照は、見込みのバイト数を合計に足し、収まれば 0・超えれば 1', () => {
+    // Arrange
+    const url = 'https://static.example.com/beacon.min.js?a=b';
+    const dir = withExternal(url);
+    const base = measureLang(dir, 'en', new Map([[url, 0]])).total.gzip;
+    const bytes = 5000;
+    const under = capture();
+    const over = capture();
+
+    // Act
+    const okCode = run(['--dist', dir, '--json', '--allow-external', `${url}=${bytes}`], under.io);
+    const overCode = run(['--dist', dir, '--budget', String((base + bytes - 1) / 1000), '--allow-external', `${url}=${bytes}`], over.io);
+
+    // Assert
+    const en = (JSON.parse(under.lines.join('\n')) as { results: { lang: string; total: { gzip: number; raw: number }; external: { count: number; gzip: number } }[] }).results[1];
+    expect(okCode).toBe(0);
+    expect(under.warnings).toEqual([]);
+    expect(en?.lang).toBe('en');
+    expect(en?.external).toMatchObject({ count: 1, gzip: bytes });
+    expect(en?.total.gzip).toBe(base + bytes);
+    expect(overCode).toBe(1);
+    expect(over.lines.join('\n')).toContain('外部の参照（見込み。1 件）');
+    expect(over.warnings).toEqual([]);
+  });
+
+  test('M1：--allow-external は、許していない別の参照が残っていれば、2 のまま', () => {
+    const dir = withExternal('https://other.example.com/x.js');
+    const { io } = capture();
+
+    expect(run(['--dist', dir, '--allow-external', 'https://static.example.com/b.js=100'], io)).toBe(2);
+  });
+
+  test('M1：--allow-external の値が <URL>=<バイト数> の形でなければ、終了コード 2', () => {
+    const codes = ['no-equals', '=100', 'https://x.example/a.js=abc', 'https://x.example/a.js=-1', 'https://x.example/a.js='].map(value => {
+      const { warnings, io } = capture();
+      const code = run(args('--allow-external', value), io);
+      expect(warnings.join('')).toContain('--allow-external');
+      return code;
+    });
+
+    expect(codes).toEqual([2, 2, 2, 2, 2]);
+  });
+
+  test('M2：HTML が指す JS が dist になければ、run は終了コード 2 とそのパスを含むメッセージを返す', () => {
+    const dir = copySite();
+    rmSync(join(dir, '_next/static/chunks/main.js'));
+    const { warnings, io } = capture();
+
+    const code = run(['--dist', dir], io);
+
+    expect(code).toBe(2);
+    expect(warnings.join('')).toContain('/_next/static/chunks/main.js');
   });
 });

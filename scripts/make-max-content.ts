@@ -1,19 +1,21 @@
 // 7.3・D24・6.6 (2)：上限の長さまで埋めたダミーのコンテンツを作る（T3-08。HTML の大きさの実測用）。
 // content/prefectures/ の47県の基本情報（県名・県庁）に、行き方1件・名物3件・名所3件を足して、--out に YAML で書く（コミットしない）。
 // 解説文は 7.3 の上限の字数・語数ちょうど。日本語は漢字をすべてふりがなつきで書き、文字の約半分が漢字になるようにする。
+// 漢字の語と読みは、public/geo/muni/ の本物の市区町村の名前から取る（max-content-vocabulary.ts）。同名のファイルがあり、このスクリプトが作ったものでなければ上書きしない。
 // 乱数は固定のシード（既定 1）なので、毎回同じ内容になる。出力先は、リポジトリの外か、.gitignore されたリポジトリの中だけ。
 // 実行：node scripts/make-max-content.ts --out <ディレクトリ> [--seed 1]
 //   測る：CONTENT_DIR=<ディレクトリ> pnpm build && pnpm size（Node.js の型の除去で直接動かすので、enum などは使わない）
 // 相対の import には .ts を付ける。
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { stringify } from 'yaml';
 import { loadContent, type Prefecture } from '../src/lib/content.ts';
 import type { Specialty, Spot } from '../src/lib/content-schema.generated.ts';
 import { LENGTH_RANGES } from '../src/lib/content-rules.ts';
-import { ACCESS_MODES, EMOJIS, EN_WORDS, JA_KANA_BY_LENGTH, JA_KANJI_WORDS, ZH_WORDS } from './max-content-words.ts';
+import { loadVocabulary, type Vocabulary } from './max-content-vocabulary.ts';
+import { ACCESS_MODES, EMOJIS, JA_KANA_BY_LENGTH } from './max-content-words.ts';
 
 type Lang = 'ja' | 'en' | 'zh';
 type Mode = 'kids' | 'adult';
@@ -53,7 +55,7 @@ export function createRng(seed: number): Rng {
 const pick = <T>(rng: Rng, items: readonly T[]): T => items[Math.floor(rng() * items.length)] as T;
 
 /** 日本語の文。ふりがなを除いて length 字（terminator を含む）。漢字の語は必ず {漢字|よみ} にし、字数の約 KANJI_SHARE を漢字にする */
-export function jaText(rng: Rng, length: number, terminator: string): string {
+export function jaText(rng: Rng, length: number, terminator: string, words: Vocabulary): string {
   const parts: string[] = [];
   let remaining = length - terminator.length;
   let written = 0;
@@ -62,7 +64,7 @@ export function jaText(rng: Rng, length: number, terminator: string): string {
     if (kanji <= written * KANJI_SHARE) {
       const [base, reading] = pick(
         rng,
-        JA_KANJI_WORDS.filter(([word]) => word.length <= remaining)
+        words.ja.filter(([word]) => word.length <= remaining)
       );
       parts.push(`{${base}|${reading}}`);
       kanji += base.length;
@@ -79,13 +81,13 @@ export function jaText(rng: Rng, length: number, terminator: string): string {
 }
 
 /** 中国語の文。length 字（terminator を含む） */
-export function zhText(rng: Rng, length: number, terminator: string): string {
+export function zhText(rng: Rng, length: number, terminator: string, words: Vocabulary): string {
   const parts: string[] = [];
   let remaining = length - terminator.length;
   while (remaining > 0) {
     const word = pick(
       rng,
-      ZH_WORDS.filter(candidate => candidate.length <= remaining)
+      words.zh.filter(candidate => candidate.length <= remaining)
     );
     parts.push(word);
     remaining -= word.length;
@@ -95,50 +97,54 @@ export function zhText(rng: Rng, length: number, terminator: string): string {
 
 const capitalize = (word: string): string => word.charAt(0).toUpperCase() + word.slice(1);
 
-/** 英語の文。ちょうど words 語。頭を大文字に、終わりをピリオドにする */
-export function enSentence(rng: Rng, words: number): string {
-  const list = Array.from({ length: words }, () => pick(rng, EN_WORDS));
+/** 英語の文。ちょうど count 語。頭を大文字に、終わりをピリオドにする */
+export function enSentence(rng: Rng, count: number, words: Vocabulary): string {
+  const list = Array.from({ length: count }, () => pick(rng, words.en));
   return `${[capitalize(list[0] ?? ''), ...list.slice(1)].join(' ')}.`;
 }
 
 /** 3言語・2モードの解説文。上限は 7.3 の `LENGTH_RANGES` */
-function description(rng: Rng, kind: ItemKind): Description {
+function description(rng: Rng, kind: ItemKind, words: Vocabulary): Description {
   const max = (lang: Lang, mode: Mode): number => LENGTH_RANGES[kind][lang][mode][1];
   const byMode = (make: (mode: Mode) => string): { readonly kids: string; readonly adult: string } => ({ kids: make('kids'), adult: make('adult') });
   return {
-    ja: byMode(mode => jaText(rng, max('ja', mode), '。')),
-    en: byMode(mode => enSentence(rng, max('en', mode))),
-    zh: byMode(mode => zhText(rng, max('zh', mode), '。'))
+    ja: byMode(mode => jaText(rng, max('ja', mode), '。', words)),
+    en: byMode(mode => enSentence(rng, max('en', mode), words)),
+    zh: byMode(mode => zhText(rng, max('zh', mode), '。', words))
   };
 }
 
 /** 名前（2語）。ja は漢字の語2つ（ふりがなつき）、en は2語、zh は漢字2語 */
-function name(rng: Rng): { readonly ja: string; readonly en: string; readonly zh: string } {
-  return { ja: jaText(rng, 2 + Math.floor(rng() * 3), ''), en: [capitalize(pick(rng, EN_WORDS)), pick(rng, EN_WORDS)].join(' '), zh: zhText(rng, 2 + Math.floor(rng() * 3), '') };
+function name(rng: Rng, words: Vocabulary): { readonly ja: string; readonly en: string; readonly zh: string } {
+  return {
+    ja: jaText(rng, 2 + Math.floor(rng() * 3), '', words),
+    en: [capitalize(pick(rng, words.en)), pick(rng, words.en)].join(' '),
+    zh: zhText(rng, 2 + Math.floor(rng() * 3), '', words)
+  };
 }
 
 /** 出典を SOURCES_PER_ITEM 件。URL は SOURCE_URL_LENGTH 字（ランダムな末尾で、同じ文字列の繰り返しを避ける） */
-function sources(rng: Rng, prefId: string, itemId: string): Source[] {
+function sources(rng: Rng, prefId: string, itemId: string, words: Vocabulary): Source[] {
   return Array.from({ length: SOURCES_PER_ITEM }, (_, i): Source => {
     const head = `https://www.example.jp/${prefId}/${itemId}/${i === 0 ? 'a' : 'b'}/`;
     const tail = Array.from({ length: SOURCE_URL_LENGTH - head.length }, () => pick(rng, [...URL_CHARS])).join('');
-    return { title: jaText(rng, SOURCE_TITLE_LENGTH, ''), url: head + tail, accessed: pick(rng, ACCESSED_DATES) };
+    return { title: jaText(rng, SOURCE_TITLE_LENGTH, '', words), url: head + tail, accessed: pick(rng, ACCESSED_DATES) };
   });
 }
 
-function item(rng: Rng, prefId: string, kind: ItemKind, index: number): Specialty | Spot {
+function item(rng: Rng, prefId: string, kind: ItemKind, index: number, words: Vocabulary): Specialty | Spot {
   const id = ITEM_IDS[kind][index] ?? '';
-  return { id, emoji: pick(rng, EMOJIS), name: name(rng), description: description(rng, kind), sources: sources(rng, prefId, id), status: 'reviewed' };
+  return { id, emoji: pick(rng, EMOJIS), name: name(rng, words), description: description(rng, kind, words), sources: sources(rng, prefId, id, words), status: 'reviewed' };
 }
 
-function access(rng: Rng, base: Prefecture): NonNullable<Prefecture['access']> {
+function access(rng: Rng, base: Prefecture, words: Vocabulary): NonNullable<Prefecture['access']> {
   const [emoji, ja, en, zh] = pick(rng, ACCESS_MODES);
   return {
     emoji,
     mode: { ja, en, zh },
     route: { ja: `{羽田空港|はねだくうこう} → ${base.capital.name.ja}`, en: `Haneda Airport → ${base.capital.name.en}`, zh: `羽田机场 → ${base.capital.name.zh}` },
     durationMin: ACCESS_DURATION_MIN + Math.floor(rng() * ACCESS_DURATION_SPAN),
-    sources: sources(rng, base.id, 'access'),
+    sources: sources(rng, base.id, 'access', words),
     status: 'reviewed'
   };
 }
@@ -147,7 +153,7 @@ function access(rng: Rng, base: Prefecture): NonNullable<Prefecture['access']> {
  * 県の基本情報（県名・県庁など）に、行き方・名物・名所を足す。すべて reviewed、解説文は上限の長さ、出典は各項目2件。
  * 入力は変えない。同じシードなら同じ内容になる
  */
-export function makeMaxContent(base: readonly Prefecture[], seed: number): readonly Prefecture[] {
+export function makeMaxContent(base: readonly Prefecture[], seed: number, words: Vocabulary): readonly Prefecture[] {
   const rng = createRng(seed);
   return base.map((pref): Prefecture => ({
     id: pref.id,
@@ -155,18 +161,30 @@ export function makeMaxContent(base: readonly Prefecture[], seed: number): reado
     region: pref.region,
     name: pref.name,
     capital: pref.capital,
-    access: access(rng, pref),
-    specialties: Array.from({ length: ITEMS_PER_LIST }, (_, i) => item(rng, pref.id, 'specialties', i)) as Prefecture['specialties'],
-    spots: Array.from({ length: ITEMS_PER_LIST }, (_, i) => item(rng, pref.id, 'spots', i)) as Prefecture['spots']
+    access: access(rng, pref, words),
+    specialties: Array.from({ length: ITEMS_PER_LIST }, (_, i) => item(rng, pref.id, 'specialties', i, words)) as Prefecture['specialties'],
+    spots: Array.from({ length: ITEMS_PER_LIST }, (_, i) => item(rng, pref.id, 'spots', i, words)) as Prefecture['spots']
   }));
 }
 
 const HEADER = '# make-max-content.ts が作った、上限まで埋めたダミーのコンテンツ（T3-08）。文は無意味で、事実の確認も出典の確認もしていない。コミットしない\n';
 
-/** 県ごとに `NN-id.yaml` を dir に書く（dir がなければ作る） */
+/** 既存のファイルが、このスクリプトが作ったもの（先頭が HEADER）でなければ例外にする（本物のコンテンツなどの上書きの事故を防ぐ） */
+function assertOverwritable(path: string): void {
+  if (existsSync(path) && !readFileSync(path, 'utf8').startsWith(HEADER)) {
+    throw new Error(`${path} がすでにあり、このスクリプトが作ったファイルではありません（先頭に「# make-max-content.ts が作った」の行がありません）。上書きしません`);
+  }
+}
+
+/**
+ * 県ごとに `NN-id.yaml` を dir に書く（dir がなければ作る）。
+ * 同じ名前のファイルがすでにあり、先頭が HEADER でなければ、何も書かずに例外にする
+ */
 export function writeMaxContent(dir: string, prefectures: readonly Prefecture[]): void {
+  const files = prefectures.map(pref => ({ path: join(dir, `${pref.code}-${pref.id}.yaml`), text: `${HEADER}---\n${stringify(pref, { lineWidth: 0 })}` }));
+  files.forEach(({ path }) => assertOverwritable(path));
   mkdirSync(dir, { recursive: true });
-  prefectures.forEach(pref => writeFileSync(join(dir, `${pref.code}-${pref.id}.yaml`), `${HEADER}---\n${stringify(pref, { lineWidth: 0 })}`));
+  files.forEach(({ path, text }) => writeFileSync(path, text));
 }
 
 /** path が git の .gitignore で無視される場所か（`git check-ignore`） */
@@ -194,6 +212,7 @@ export type Io = { readonly write: (line: string) => void; readonly warn: (line:
 /** run の依存（テストで置き換える） */
 export type Deps = {
   readonly base?: readonly Prefecture[];
+  readonly words?: Vocabulary;
   readonly repoRoot?: string;
   readonly isIgnored?: (path: string) => boolean;
 };
@@ -209,7 +228,7 @@ export function run(argv: readonly string[], io: Io, deps: Deps = {}): number {
     if (!Number.isInteger(seed)) throw new Error(`--seed は整数にしてください：${String(values.seed)}`);
     const repoRoot = deps.repoRoot ?? REPO_ROOT;
     assertSafeOutDir(values.out, { repoRoot, isIgnored: deps.isIgnored ?? (path => isGitIgnored(path, repoRoot)) });
-    const prefectures = makeMaxContent(deps.base ?? loadContent(join(REPO_ROOT, 'content/prefectures')), seed);
+    const prefectures = makeMaxContent(deps.base ?? loadContent(join(REPO_ROOT, 'content/prefectures')), seed, deps.words ?? loadVocabulary());
     writeMaxContent(values.out, prefectures);
     io.write(`${prefectures.length}県のダミーのコンテンツを ${values.out} に書きました（シード ${seed}）`);
     return 0;
