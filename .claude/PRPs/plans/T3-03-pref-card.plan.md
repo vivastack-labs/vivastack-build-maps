@@ -162,15 +162,17 @@ props に渡さない意味は、「HTML の本体に1回＋RSC のデータに1
 
 ## 承認後に変えたこと
 
-- `:target` の規則：`app/globals.css` の通常の規則 → 先頭で宣言したレイヤー `@layer card-target` の中（理由：preflight の `[hidden] { display: none !important }` は `@layer base` の中にあり、!important はレイヤーでは先に並べたものが勝つので、レイヤーなしの規則では勝てなかった。E2E で確かめた）。
-- `PrefCard` の props：`labels` を渡す → `lang` から `getMessages` で引く（サーバーコンポーネントで、props はRSCのデータに入らないため）。
-- 辞書の文言：行き方の見出しは「東京からの行き方／Getting there from Tokyo／从东京出发的交通方式」、`card.draft` の日本語は「下書き」（ふりがな付き）。
-- `durationText`：日本語の「分」の読みを数に合わせて「ふん」「ぷん」にする（辞書は `{分|ふん}` で書き、`cardText.ts` が差し替える）。
-- `applyCardState` の引数に `maximized` を足した（必須。`CardSwitch` が `cardPref` と一緒に渡す）。
-- E2E の JavaScript なしのテストは、東京都（`#pref-13`）に加えて北海道（`#pref-01`）でも確かめた。
-- レビュー・全プロジェクトの E2E の指摘への対応（追加）：
-  - `PrefCard`：名物・名所が空の県（プレビューの未作成の県）では、空の見出しと一覧を出さない。
-  - E2E `pinFromIndex`：先に `hover()` してカードが表示されるのを待ってから `click()`（1列の配置でカードの高さが変わり、pointerdown と pointerup が別の項目になるのを避ける。T3-06 に書き足した）。
-  - E2E に、JavaScript ありで `/en/#pref-13` を開く（`:target` の規則が止まる）テストと、D24 のほかの言語の文・ふりがなの記法の元の文字列が出ないテストを足した。
-  - `prefFromAttribute(target, attribute)` を `pointer.ts` に足し、`CardSwitch` の県コードの検証の重複をなくした（`prefFromTarget` と同じ検証を共有）。
-  - T3-07 の定義に、ハッシュつきの URL を JS ありで開いたときのカードの消え方を書き足した。
+| 項目 | 承認したとき | 実際 | 理由 |
+|---|---|---|---|
+| `:target` の規則の置き場所 | `app/globals.css` の通常の規則（`!important`） | 先頭で宣言したレイヤー `@layer card-target` の中 | preflight の `[hidden] { display: none !important }` は `@layer base` の中にあり、`!important` はレイヤーでは先に並べたものが勝つ。レイヤーなしの規則では勝てなかった（E2E で確かめた） |
+| `PrefCard` の文言 | props の `labels` で渡す | `lang` から `getMessages` で引く | サーバーコンポーネントなので props は RSC のデータに入らないが、受け渡しを減らせる |
+| 行き方の見出し | 「行き方」 | 「東京からの行き方／Getting there from Tokyo／从东京出发的交通方式」 | 何からの行き方かを明確にするため |
+| `durationText` の「分」 | `{分\|ふん}` | 数に合わせて「ふん」「ぷん」にする（辞書は `{分\|ふん}`、`cardText.ts` が差し替える） | 1・3・4・6・8・0 で終わる数は「ぷん」と読む |
+| `applyCardState` | 最大化の状態を足す | 必須の引数 `maximized` を足し、`CardSwitch` が `cardPref` と一緒に渡す | — |
+| JavaScript なしの E2E | 東京都（`#pref-13`） | 北海道（`#pref-01`）でも確かめる | 内容のある県のカードも `:target` で見えることを確かめるため |
+| 名物・名所が空の県 | 計画になし | プレビューで空の見出しと一覧を出さない | レビュー（MEDIUM）。プレビューでは未作成の県も「準備中」にならない |
+| D24 のテスト・6.6 (2) の説明 | 本体1回＋RSC 1回を数える | ほかの言語の文と、ふりがなの記法の元の文字列が出ないことも確かめる。6.6 (2) に「クライアントで描いても回数は同じだが、props に全言語の元データと記法が入る。サーバーで描いて props にも渡すと3回」と書く | レビュー（MEDIUM）。回数だけでは、カードをクライアントコンポーネントにする後退を見つけられない |
+| JS ありでハッシュつきの E2E | 計画になし | `/en/#pref-13` を JS ありで開き、`:target` の規則が止まることを確かめる | レビュー（MEDIUM）。`:not([data-card-ready])` を守るテストがなかった |
+| E2E の `pinFromIndex` | `click()` | `hover()` → カードの表示を待つ → `click()` | 1列の配置で、ホバーでカードの高さが変わり、`pointerdown` と `pointerup` が別の項目になって固定されなかった（スマホ・タブレットのプロジェクト）。根本の対処は T3-06 の定義に書いた |
+| 県コードの検証 | `CardSwitch` の中で確かめる | `pointer.ts` の `prefFromAttribute` にまとめ、`prefFromTarget` と検証を共有する | レビュー（LOW）。検証の規則を1か所にする |
+| 後のタスクへの書き足し | T3-04・T3-05・T3-08 | T3-06（カードの高さとさくいんのずれ）・T3-07（ハッシュつきで開いたときのカードの消え方）も | E2E とレビューで分かったため |
