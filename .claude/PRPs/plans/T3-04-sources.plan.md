@@ -40,7 +40,7 @@
 - 出典欄を出すのは、項目（行き方・名物・名所）が1つ以上あるときだけ。「準備中」の県（`pending`）と、プレビューで項目がない県には出さない。
 - 新しいサーバーコンポーネント `src/components/SourceList.tsx`（`PrefCard.tsx` が 200 行を超えないように分ける）。フックなし。文字はすべて `RubyText`（タイトルもふりがなの記法を通す）。
 - 外部へのリンクは `target="_blank" rel="noopener noreferrer"`（判断 4）。
-- 確認日：`src/i18n/format.ts` に `formatDate(lang, isoDate)` を足す。`Intl.DateTimeFormat(htmlLang(lang), { dateStyle: 'long', timeZone: 'UTC' })` を言語ごとに1つ作って使い回し、`YYYY-MM-DD` を `Date.UTC` で日付にする（端末のタイムゾーンで日がずれない）。形が合わない・存在しない日（`2026-02-30`）は例外（ビルドを止める）。ja・zh「2026年11月15日」、en「November 15, 2026」。
+- 確認日：`src/i18n/format.ts` に `formatDate(lang, isoDate)` を足す。`Intl.DateTimeFormat(htmlLang(lang), { dateStyle: 'long', timeZone: 'UTC' })` を言語ごとに1つ作って使い回し、`YYYY-MM-DD` を `parseIsoDate`（`src/lib/isoDate.ts`。`setUTCFullYear` で UTC の日付にする。0〜99年も扱う）で日付にする（端末のタイムゾーンで日がずれない）。形が合わない・存在しない日（`2026-02-30`）は例外（ビルドを止める）。ja・zh「2026年11月15日」、en「November 15, 2026」。
 - 「下書き」の印は出典欄には付けない（項目の見出しの横にすでにある）。
 - `CardArea` のコメント（「出典を入れる T3-04 で並びを決める」）を、決めた並びに直す。
 
@@ -74,7 +74,7 @@
 | ファイル | テスト名（要件ID） | 確かめること |
 |---|---|---|
 | `tests/unit/i18n/format.test.ts` | `formatDate：確認日を言語の書式にする（F-SRC-02）` | ja・zh「2026年11月15日」、en「November 15, 2026」 |
-| 同 | `formatDate：タイムゾーンで日がずれない（F-SRC-02）` | `2026-01-01` が `TZ` に関係なく1月1日（`process.env.TZ` を変えずに、UTC で作ることを結果で確かめる） |
+| 同 | `formatDate：タイムゾーンで日がずれない（F-SRC-02）` | `2026-01-01` が `TZ` に関係なく1月1日（`TZ` を `Pacific/Pago_Pago`〔UTC-11〕にして、モジュールを読み込み直してから確かめる。前提として `resolvedOptions().timeZone` も確かめる） |
 | 同 | `formatDate：形が合わない・存在しない日は例外にする` | `2026-1-1`・`2026-02-30`・空文字 |
 | `tests/unit/components/SourceList.test.tsx` | `出典のある項目は、タイトル・URL・確認日を表示する（F-SRC-02）` | リンクの `href`・名前、URL の文字、「確認日：…」 |
 | 同 | `sources: [] の項目は「出典なし」と表示する（F-SRC-03）` | `data-source-none` |
@@ -125,6 +125,7 @@
 - 出典欄の項目の見出しに `data-source-item-name` を付けた（テスト・E2E が項目の名前を引くため）。
 - フィクスチャの北海道に出典を足したので、警告の件数を数える既存の単体テスト（`tests/unit/lib/content.test.ts`・`tests/unit/scripts/validate-content.test.ts`）の数を直した（警告 14 → 12 など）。
 - 検証の追加（レビューの指摘）：`content:validate` に、出典のタイトルのふりがなの記法の誤りと、存在しない確認日（`2026-02-30`）を、場所つきの誤りにする検査を足した（`src/lib/content-rules.ts` の `checkSourceContents`）。日付の判定は `src/lib/isoDate.ts` の `parseIsoDate`（0〜99年も扱う）を `formatDate` と共有する。
+- タイムゾーンのテスト：`process.env.TZ` を変えない → `vi.stubEnv('TZ', 'Pacific/Pago_Pago')` にして `vi.resetModules()` と動的 import で `format.ts` を読み込み直す（`Intl.DateTimeFormat` は作る時点のタイムゾーンを覚えるため）。`timeZone: 'UTC'` を外すと落ちることを確かめた。
 - 英語・中国語のページでは、出典のタイトルを `plainText()` にして、ふりがな（`<rt>`）を出さない（ほかの en・zh の文は記法を使わないため。タイトルに `lang` は付けない）。
 - E2E：フッターの文は `<rt>` を除いて全体を比べる（`textWithoutRt` を `tests/e2e/helpers.ts` に移して共有）。JavaScript なしのテストは `open` 属性で確かめ、WebKit ではマウスのクリックが `<details>` を開かないので、キーボード（Enter）で開く。
 - ほかに計画から変えたことはない。

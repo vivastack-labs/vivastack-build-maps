@@ -377,6 +377,7 @@ describe('validateContent：出典の中身', () => {
     expect(errors).toHaveLength(1);
     expect(errors[0]).toMatchObject({ file: HOKKAIDO, path: 'specialties[0].sources[1].title' });
     expect(errors[0]?.message).toContain('読みが空です');
+    expect(errors[0]?.line).toBe(lineOf(dir, HOKKAIDO, '{農林|}水産省'));
   });
 
   test('9.3：存在しない確認日（2026-02-30）は、場所（access.sources[0].accessed）つきの誤りにする', () => {

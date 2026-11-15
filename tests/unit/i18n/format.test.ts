@@ -18,6 +18,8 @@ describe('formatDate', () => {
   test('formatDate：端末のタイムゾーンで日がずれない（F-SRC-02）', async () => {
     // Arrange：UTC-11 の端末。Intl.DateTimeFormat は作る時点のタイムゾーンを覚えるので、TZ を変えてからモジュールを読み込み直す
     vi.stubEnv('TZ', 'Pacific/Pago_Pago');
+    // 前提の確認：worker_threads の pool では TZ が効かないことがあり、効かないと、このテストは退行を検出できずに通ってしまう
+    expect(new Intl.DateTimeFormat().resolvedOptions().timeZone).toBe('Pacific/Pago_Pago');
     vi.resetModules();
     const { formatDate: formatInPagoPago } = await import('@/i18n/format');
 

@@ -195,7 +195,7 @@ test.describe('6.6 (2)：JavaScript がないとき', () => {
     });
   }
 
-  test('F-SRC-01：ハッシュの県のカードに出典欄があり、JavaScript がなくても開ける', async ({ page }) => {
+  test('F-SRC-01：ハッシュの県のカードに出典欄があり、JavaScript がなくても開ける', async ({ page, browserName }) => {
     // Arrange・Act
     await page.goto(`/ja/#pref-${HOKKAIDO}`);
 
@@ -203,9 +203,14 @@ test.describe('6.6 (2)：JavaScript がないとき', () => {
     const sources = page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-sources]`);
     await expect(sources).toBeVisible();
     await expect(sources).not.toHaveAttribute('open');
-    // マウスのクリックは、JavaScript を止めた WebKit では <details> を開かない（Playwright の WebKit で確認）ので、キーボード（Enter）で開く
-    await sources.locator('summary').focus();
-    await page.keyboard.press('Enter');
+    const summary = sources.locator('summary');
+    if (browserName === 'webkit') {
+      // Playwright の WebKit で、JavaScript を止めると summary のクリックで details が開かない（実際の Safari の動きかは未確認）ので、キーボード（Enter）で開く
+      await summary.focus();
+      await page.keyboard.press('Enter');
+    } else {
+      await summary.click();
+    }
     await expect(sources).toHaveAttribute('open', '');
     await expect(sources.locator('[data-source-item="specialties/milk"] [data-source-none]')).toBeVisible();
   });
