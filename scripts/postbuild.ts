@@ -1,11 +1,12 @@
 // 6.4・D29・D35：next build の出力（out/）を、Workers の assets.directory（dist/）に組み立てる。
 // 専用のドメインのルートで配信するので、out/ の構成のままコピーする（_redirects・_headers も dist/ の直下になる）。
-// dist/ に分けておくのは、静的出力の後の工程（CSP のハッシュの書き込み〔T4-01〕、sw.js の生成。6.6・U13）をここに加えるため。
+// dist/ に分けておくのは、静的出力の後の工程（CSP のハッシュの書き込み〔T4-01〕、sw.js の生成〔T4-02〕。6.6・U13）をここに加えるため。
 // 実行：node scripts/postbuild.ts（Node.js の型の除去で直接動かすので、enum などは使わない）
 import { createHash } from 'node:crypto';
 import { cpSync, existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { MODE_INIT_SCRIPT } from '../src/features/mode/initScript.ts';
+import { writeServiceWorker } from './service-worker.ts';
 
 const ROOT_FILES: readonly string[] = ['_redirects', '_headers'];
 
@@ -259,14 +260,15 @@ const removeDist = ({ outDir, distDir }: AssembleOptions): void => {
 };
 
 /**
- * `out/` を `dist/` に組み立て、すべての HTML に CSP の `<meta>` を書く。組み立て（コピー）か CSP の書き込みに失敗したときは、
- * 中途半端な・CSP のない `dist/` を残さないよう `dist/` を消して、元の例外を投げ直す（5.5）。
+ * `out/` を `dist/` に組み立て、すべての HTML に CSP の `<meta>` を書き、最後に `sw.js` を作る（T4-02、U13。プリキャッシュの版を、CSP を書いた後の HTML の内容から求めるため、この順）。
+ * 組み立て（コピー）・CSP の書き込み・`sw.js` の生成のどれかに失敗したときは、中途半端な・CSP や `sw.js` のない `dist/` を残さないよう `dist/` を消して、元の例外を投げ直す（5.5）。
  * `dist/` を消すのに失敗しても、元の例外を隠さない。
  */
-export const assembleDistWithCsp = (options: AssembleOptions): void => {
+export const assembleDistWithCsp = async (options: AssembleOptions): Promise<void> => {
   try {
     assembleDist(options);
     writePageCsp(options.distDir);
+    await writeServiceWorker(options.distDir);
   } catch (error) {
     removeDist(options);
     throw error;
@@ -276,5 +278,5 @@ export const assembleDistWithCsp = (options: AssembleOptions): void => {
 // 実行した場所によらず、リポジトリの直下の out/・dist/ を使う
 if (import.meta.main) {
   const repoRoot = join(import.meta.dirname, '..');
-  assembleDistWithCsp({ outDir: join(repoRoot, 'out'), distDir: join(repoRoot, 'dist') });
+  await assembleDistWithCsp({ outDir: join(repoRoot, 'out'), distDir: join(repoRoot, 'dist') });
 }

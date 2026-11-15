@@ -55,6 +55,13 @@
   - 市区町村データは、一度読み込んだ県だけキャッシュする。T2-07 の `muniLoader` はふつうの `fetch` を使うので、Service Worker のキャッシュから返れば、オフラインでも成功になる（`navigator.onLine` が `false` でも先には止めない）。
 - Service Worker を登録するスクリプトは外部ファイルにする（CSP のハッシュを増やさないため。T4-01 で、知らない形のインラインスクリプトがあるとビルドが止まるので、インラインにすると気付く）。`manifest` へのリンク・アイコンは `default-src 'self'`・`img-src 'self'` の範囲に収める。
 
+### T4-02 で決めたこと・分かったこと
+
+- U3 は D40、U13 は D41（開発概要書 5.4）。manifest は言語ごとの `/{lang}/app.webmanifest`、`sw.js` は `scripts/service-worker.ts` の `writeServiceWorker`（`workbox-build` の `generateSW`）が `postbuild.ts` の最後に作る。アイコンは仮（`node scripts/make-icons.ts` で `public/icons/` に作り直せる）。
+- Playwright の設定は `serviceWorkers: 'block'` を既定にした。Service Worker が通信を横取りすると、`page.route` で失敗・遅延を作る既存のテストの結果が変わるため。`tests/e2e/pwa.spec.ts` だけ `serviceWorkers: 'allow'`（Chromium のデスクトップだけ）。
+- プリキャッシュするのは、3言語の `index.html`・`app.webmanifest`・`_next/static/` の JS・CSS・`icons/`。後から HTML のページ（T4-05 の `/about/`・`/privacy/` など）を足しても、`generateSW` の対象（`scripts/service-worker.ts` の `PRECACHE_PATTERNS`）に足さない限り、オフラインでは開けない。T4-05 で決める。
+- プリキャッシュの対象に合わないファイル（パターンに1つも合わない・大きさの上限を超える）があると、`writeServiceWorker` が例外にしてビルドを止める。
+
 ### 完了条件
 
 - 開発概要書の U3・U13 が決定になっている。
@@ -138,6 +145,7 @@
 ### 完了条件
 
 - 3言語で、2つのページがフッターからたどれる。
+- T4-02 で分かったこと：オフラインでも開くかを決める。開くなら `scripts/service-worker.ts` の `PRECACHE_PATTERNS` に足す（今は3言語の `index.html` だけ）。
 
 ### テスト条件
 
@@ -161,6 +169,8 @@
 - PC だけ・タッチだけのテストを、タグで分ける。
 - `docs/device-checklist.md`：公開前の実機確認のチェックリスト（端末、OSの版、確認する操作。ピンチ、パネル、オフラインなど CI で確かめられないものを含む）。
   - T2-06 から引き継ぐ項目：Apple Pencil（`pointerType` が `pen`）のダブルタップで、最大化と Safari のダブルタップ拡大が重ならないこと（`touch-action: none` で解消する想定）。iPhone（WebKit は CDP が使えない）でのピンチ・スワイプによる拡大・移動。ピンチ（pixel の CDP）とスワイプは T2-06 の E2E で確かめている。
+  - T4-02 から引き継ぐ項目：ホーム画面への追加（iPhone の Safari・Android の Chrome。アイコン・名前・`standalone` の表示）、一度開いた後の機内モードでの起動（地図・見たことのある県のカード・市区町村が出て、見ていない県は「オフラインのため表示できません」）、デプロイの後の更新（1〜2回の再読み込みで新しい内容になること）。Chrome の DevTools の Application で、Manifest にエラーがなく、インストールできるかも確かめる。
+  - T4-02 から引き継ぐ項目：2言語以上をホーム画面に追加したとき、それぞれが自分の言語（`start_url`）で開くこと。リンクを受けるアプリ（Android の WebAPK。`scope` がどの言語も `/` で重なるため、外のリンクを押したときにどのアプリで開くか）。
   - スマホで地図の上を縦にスワイプしても、ページがスクロールしない（`touch-action: none`）。地図の上で指を置くとスクロールできなくなるので、使いにくくないか（地図の外側に余白があるか）を確かめる。
 
 ### 完了条件

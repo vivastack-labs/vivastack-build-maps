@@ -98,6 +98,9 @@ export const en: Messages = {
     },
     ai: 'Created with AI and checked by people'
   },
+  pwa: {
+    shortName: 'Meibutsu Map'
+  },
   sheet: {
     expand: 'More',
     collapse: 'Less',
