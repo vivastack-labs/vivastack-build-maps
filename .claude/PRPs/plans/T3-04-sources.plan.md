@@ -121,11 +121,14 @@
 
 ## 承認後に変えたこと
 
-- `LABEL_SEPARATOR`：`PrefCard.tsx` の中 → `src/i18n/cardText.ts` に移して export（`SourceList` の「確認日：…」でも使うため）。
-- 出典欄の項目の見出しに `data-source-item-name` を付けた（テスト・E2E が項目の名前を引くため）。
-- フィクスチャの北海道に出典を足したので、警告の件数を数える既存の単体テスト（`tests/unit/lib/content.test.ts`・`tests/unit/scripts/validate-content.test.ts`）の数を直した（警告 14 → 12 など）。
-- 検証の追加（レビューの指摘）：`content:validate` に、出典のタイトルのふりがなの記法の誤りと、存在しない確認日（`2026-02-30`）を、場所つきの誤りにする検査を足した（`src/lib/content-rules.ts` の `checkSourceContents`）。日付の判定は `src/lib/isoDate.ts` の `parseIsoDate`（0〜99年も扱う）を `formatDate` と共有する。
-- タイムゾーンのテスト：`process.env.TZ` を変えない → `vi.stubEnv('TZ', 'Pacific/Pago_Pago')` にして `vi.resetModules()` と動的 import で `format.ts` を読み込み直す（`Intl.DateTimeFormat` は作る時点のタイムゾーンを覚えるため）。`timeZone: 'UTC'` を外すと落ちることを確かめた。
-- 英語・中国語のページでは、出典のタイトルを `plainText()` にして、ふりがな（`<rt>`）を出さない（ほかの en・zh の文は記法を使わないため。タイトルに `lang` は付けない）。
-- E2E：フッターの文は `<rt>` を除いて全体を比べる（`textWithoutRt` を `tests/e2e/helpers.ts` に移して共有）。JavaScript なしのテストは `open` 属性で確かめ、WebKit ではマウスのクリックが `<details>` を開かないので、キーボード（Enter）で開く。
-- ほかに計画から変えたことはない。
+| 項目 | 承認したとき | 実際 | 理由 |
+|---|---|---|---|
+| `LABEL_SEPARATOR` | `PrefCard.tsx` の中 | `src/i18n/cardText.ts` に移して export | `SourceList` の「確認日：…」でも使うため |
+| 出典欄の項目の見出し | 属性なし | `data-source-item-name` を付けた | テスト・E2E が項目の名前を引くため |
+| 既存の単体テストの警告の件数 | 変えない | `tests/unit/lib/content.test.ts`・`tests/unit/scripts/validate-content.test.ts` の数を直した（警告 14 → 12 など） | フィクスチャの北海道に出典を足したため |
+| `content:validate` の検査 | 変えない | 出典のタイトルのふりがなの記法の誤りと、存在しない確認日（`2026-02-30`）を、場所つきの誤りにする（`src/lib/content-rules.ts` の `checkSourceContents`）。日付の判定は `src/lib/isoDate.ts` の `parseIsoDate`（0〜99年も扱う）を `formatDate` と共有する | レビューの指摘。検証を通ったのにビルドで場所の分からない例外になるため |
+| タイムゾーンのテスト | `process.env.TZ` を変えずに結果で確かめる | `vi.stubEnv('TZ', 'Pacific/Pago_Pago')` にし、`vi.resetModules()` と動的 import で `format.ts` を読み込み直す。TZ が効いたことも確かめる | JST・UTC では退行を検出できず、`Intl.DateTimeFormat` は作る時点のタイムゾーンを覚えるため（`timeZone: 'UTC'` を外すと落ちることを確かめた） |
+| en・zh の出典のタイトル | `RubyText` で描く | `plainText()` にして、ふりがな（`<rt>`）を出さない（`lang` は付けない） | ほかの en・zh の文は記法を使わないため（レビューの指摘） |
+| フッターの E2E | `toContainText(plainText(…))` | `<rt>` を除いて全体を比べる（`textWithoutRt` を `tests/e2e/helpers.ts` に移して共有） | 日本語のページで `<rt>` の読みが文に入り、必ず失敗したため |
+| JavaScript なしの出典欄の E2E | `open` プロパティで確かめ、クリックで開く | `open` 属性で確かめる。WebKit だけ Enter で開く | JavaScript を止めると Firefox・WebKit でプロパティを評価できず、Playwright の WebKit ではクリックで `<details>` が開かないため（実際の Safari の動きかは未確認） |
+| スクリーンショット `ja-card-sources` | 出典欄を開いて撮る | 開いた後、ページを先頭に戻し、カードの中を最後までスクロールする | 1024px以上ではカードの中がスクロールし、開いた出典欄が写らなかったため |
