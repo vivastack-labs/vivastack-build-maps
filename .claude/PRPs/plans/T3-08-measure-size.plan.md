@@ -97,4 +97,15 @@ node scripts/make-max-content.ts --out <ディレクトリ>
 
 ## 承認後に変えたこと
 
-（実装後に書く）
+オーナーの判断が要らない、細かな違い。
+
+| 項目 | 計画 | 実際（理由） |
+|---|---|---|
+| 単体テストのフィクスチャの場所 | `tests/fixtures/measure-size/dist/` | `tests/fixtures/measure-size/site/`（`.gitignore` の `dist/` に当たり、コミットできないため） |
+| 数えない script | `__next.*.txt`・動的 chunk・画像など | `noModule` の script も数えない（今のブラウザは読まず、Lighthouse の転送サイズにも入らないため） |
+| ダミーのふりがなの量 | 漢字の語の約半分にふりがな | 漢字はすべてふりがなつきにし、文字の約半分を漢字にする（ふりがなのない漢字は `content:validate` の警告になるため。完了条件の「誤り・警告なし」を優先） |
+| 語彙 | `make-max-content.ts` に含める | `scripts/max-content-words.ts` に分けた（ファイルを小さく保つため） |
+| 基準値の KB | 記載なし | 1KB＝1000 バイト（DevTools・Lighthouse と同じ。小さく見積もる側） |
+| 終了コード | 0・1 | 引数・ファイルの誤りは 2（超過の 1 と区別するため） |
+| RSC のデータの区切り | `self.__next_f.push` の中身 | `<script>self.__next_f.push(…)</script>` の要素ごと。本体と合わせると HTML 全体の長さに一致する |
+| ダミーの出力先 | `--out` | `--out` は必須。リポジトリの中なら `git check-ignore` で無視される場所だけ許す（コミットを防ぐため） |
