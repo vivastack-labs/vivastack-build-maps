@@ -105,7 +105,7 @@
 | # | 項目 | 推奨案 | 理由 | ほかの案 |
 |---|---|---|---|---|
 | 1 | U13：ツール | `workbox-build` の `generateSW`（`inlineWorkboxRuntime` で `sw.js` 1つ） | SW のコードを書かずに、プリキャッシュの版の管理・古いキャッシュの削除・NetworkFirst が使える。postbuild の最後にそのまま入る。2026-05 にも版が出ている | Serwist（`@serwist/build` の `injectManifest`）：SW のソースを書いて組み立てる工程が増える。自前の SW：依存はないが、版の管理・更新の扱いを自分で持つ |
-| 2 | U3：プリキャッシュの範囲 | 3言語の HTML と JS・CSS・manifest・アイコン（およそ 0.5〜0.6MB を裏で読む） | 言語の切替もオフラインで動く。開いた言語だけにするには、`generateSW` では書けない自前のコードが要る | 開いた言語の HTML だけ（通信は約 3 分の 2。自前のコードが要る） |
+| 2 | U3：プリキャッシュの範囲 | 3言語の HTML と JS・CSS・manifest・アイコン（計画のときの見込みは 0.5〜0.6MB。実測で増える通信は約 0.3MB。`_next/static` は最初のページで HTTP キャッシュに入るため） | 言語の切替もオフラインで動く。開いた言語だけにするには、`generateSW` では書けない自前のコードが要る | 開いた言語の HTML だけ（通信は約 3 分の 2。自前のコードが要る） |
 | 3 | 市区町村・カードの JSON の戦略 | NetworkFirst（オンラインは今と同じ、失敗したときだけキャッシュ） | カードの内容を直したデプロイがすぐ反映される。オンラインの動きが今と変わらない | StaleWhileRevalidate（速いが1回古い内容を見せる）、CacheFirst（更新されない） |
 | 4 | 更新の反映 | `skipWaiting` ＋ `clientsClaim`。更新の通知 UI は作らない | 最初に開いたページで見た県もキャッシュに入る（テスト条件の「一度見た県」）。新しいデプロイは次の読み込みで反映 | 待機させて「更新があります」を出す（UI と文言が増える。今は要らない） |
 | 5 | manifest の出し方とパス | ルートハンドラー `app/[lang]/app.webmanifest/route.ts`（`/ja/app.webmanifest`）、名前は辞書から | カードの JSON と同じ形。名前を辞書で管理できる。`manifest.webmanifest` は Next.js のメタデータのファイルと紛れるので避ける | `public/` に3つの静的ファイル（辞書と二重管理になる）、postbuild で書く |
