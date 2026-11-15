@@ -1,10 +1,11 @@
-import { distanceText, durationText } from '@/i18n/cardText';
+import { distanceText, durationText, LABEL_SEPARATOR } from '@/i18n/cardText';
 import type { Lang } from '@/i18n/lang';
 import { getMessages, type Messages } from '@/i18n/messages';
 import type { Access, Drafted, PublishedPrefecture } from '@/lib/publish';
 import type { Specialty, Spot } from '@/lib/content-schema.generated';
 import { ModeText } from './ModeText';
 import { RubyText } from './RubyText';
+import { SourceList } from './SourceList';
 
 type Props = {
   readonly lang: Lang;
@@ -13,9 +14,6 @@ type Props = {
   /** 東京からの距離（km。10km 単位）。東京都は基準の点なので `null`（距離の行を出さない。F-CARD-03） */
   readonly distanceKm: number | null;
 };
-
-/** 見出しの項目名と、その値の間の区切り */
-const LABEL_SEPARATOR: Readonly<Record<Lang, string>> = { ja: '：', en: ': ', zh: '：' };
 
 /** 「下書き」の印（プレビューのときだけ、`reviewed` でない項目に付く。7.1） */
 function DraftMark({ label }: { readonly label: string }) {
@@ -102,6 +100,7 @@ function ItemSection({
  * 表示する県の切り替えと最大化ボタンの文言の切り替えは、`CardSwitch` が属性だけで行う。
  * 本番で内容を出さない県（`pending`）は、行き方・名物・名所の代わりに「準備中」の文を出す（4.11.4）。
  * 最大化ボタンは JavaScript がないと動かないので `hidden` で出し、`CardSwitch` が外す。
+ * 出典欄（`SourceList`。F-SRC-01。閉じた `<details>`）は最大化ボタンの後に置く（4.11.7）。JavaScript がなくても `:target` で開いたカードの中に入る。
  * 文字はすべて `RubyText` で描く（`dangerouslySetInnerHTML` は使わない）。
  */
 export function PrefCard({ lang, prefecture, distanceKm }: Props) {
@@ -145,6 +144,8 @@ export function PrefCard({ lang, prefecture, distanceKm }: Props) {
           <RubyText text={labels.restore} />
         </span>
       </button>
+      {/* 項目（行き方・名物・名所）がない県には出さない（SourceList が空なら何も出さない。準備中の県は項目を持たない） */}
+      <SourceList lang={lang} access={access} specialties={specialties} spots={spots} />
     </article>
   );
 }

@@ -125,8 +125,10 @@
 ### 実装内容
 
 - `app/[lang]/about/page.tsx`：このサイトの目的、地図データの出典（8.3 の文）と加工したこと、境界が暫定の地域がある旨（8.2、R10）、AIで作成し人が確認していること。
+  - T3-04 で分かったこと：フッターには、地図データ（国土数値情報）の出典と AI の明記だけを載せた。8.3 の2つ目の段落の、読みがな（総務省「全国地方公共団体コード」）と県庁の位置（地理院地図）の出典は、ここ（「このサイトについて」）に載せる。
 - `app/[lang]/privacy/page.tsx`：Cloudflare Web Analytics を使うこと、Cookie を使わないこと、設定を端末（localStorage）にだけ保存すること。
 - 3言語で書く。フッターから2つのページにリンクする。
+  - T3-04 で分かったこと：`Footer`（`src/components/Footer.tsx`）は `lang` を受け取り、出典の文は辞書の `footer`（`mapSource.before`・`after`・`ai`）にある。リンクは `data-footer-ai` の後に足す（文言は辞書の `footer` に足す）。
 
 ### 完了条件
 

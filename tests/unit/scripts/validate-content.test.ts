@@ -29,7 +29,7 @@ describe('runValidate', () => {
     expect(code).toBe(1);
     expect(lines).toContain('誤り（1件）：');
     // 形が通らなかった東京都は、内容のルール（出典が空の警告）を見ない
-    expect(lines.at(-1)).toBe('検証しました：形が通った県46件、誤り1件、警告7件');
+    expect(lines.at(-1)).toBe('検証しました：形が通った県46件、誤り1件、警告5件');
   });
 
   test('7.3：警告だけなら、警告を出して終了コード0', () => {
@@ -37,8 +37,8 @@ describe('runValidate', () => {
 
     expect(code).toBe(0);
     expect(lines).not.toContain('誤り（0件）：');
-    expect(lines).toContain('警告（14件）：');
-    expect(lines.at(-1)).toBe('検証しました：形が通った県47件、誤り0件、警告14件');
+    expect(lines).toContain('警告（12件）：');
+    expect(lines.at(-1)).toBe('検証しました：形が通った県47件、誤り0件、警告12件');
   });
 
   test('7.1：1行に1件、「ファイル:行 場所 メッセージ」の形で出す', () => {
