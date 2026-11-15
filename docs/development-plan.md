@@ -140,8 +140,8 @@ flowchart LR
 | T3-03 | feat | 県のカード | 完了 |
 | T3-04 | feat | 出典の表示 | 完了 |
 | T3-05 | feat | モード・ふりがなの切替 | 完了 |
-| T3-06 | feat | スマホの下から出るパネル | 作業中 |
-| T3-07 | feat | 言語の切替 | 未着手 |
+| T3-06 | feat | スマホの下から出るパネル | 完了 |
+| T3-07 | feat | 言語の切替 | 作業中 |
 | T3-08 | perf | 最初の読み込みのサイズの実測 | 未着手 |
 
 ### 3.5 M4 PWA・品質（[tasks/m4-pwa-quality.md](tasks/m4-pwa-quality.md)）
