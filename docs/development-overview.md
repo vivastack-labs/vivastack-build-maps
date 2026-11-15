@@ -361,9 +361,16 @@ Lighthouse CIでこの基準値を超えたら、CIを失敗させる。
 
 - 静的配信のみ。サーバー側の処理、データベース、ログイン機能は持たない。
 - `_headers` で次のヘッダーを設定する：CSP、`X-Content-Type-Options`、`Referrer-Policy`、`Permissions-Policy`、HSTS。
-- CSPについて：
-  - Next.jsの静的出力にはインラインのスクリプトが含まれる。静的配信ではnonceを使えないため、ビルド後にハッシュを集めてCSPに書き込む方法で許可する（6.6、D23）。
-  - Web Analyticsのドメインを許可する。
+- CSPについて（D39）：
+  - Next.jsの静的出力にはインラインのスクリプトが含まれる。静的配信ではnonceを使えないため、ビルド後にインラインスクリプトのSHA-256を集めてCSPに書き込む方法で許可する（6.6 (4)、D23）。
+  - **置き場所を2つに分ける**。Cloudflare の `_headers` は1行 2,000 字まで（ヘッダー名を含む）で、SHA-256 のハッシュは1つ約 54 字なので、1行に入るのは約 35 個まで。日本語のページのインラインスクリプトは 128 個（約 7,000 字）あり、数はコンテンツの量で増えるので、`_headers` にページごとのハッシュを書く方法は使えない。Worker のコードでヘッダーを付ける方法は、静的配信だけの構成（上）を変え、`_headers` も効かなくなる。
+    - HTML の `<meta http-equiv="Content-Security-Policy">`（`scripts/postbuild.ts` が `dist/` の各 HTML の `<meta charset>` の直後に書く）：`default-src 'self'; script-src 'self' <そのページのハッシュ> https://static.cloudflareinsights.com; style-src 'self'; connect-src 'self' https://cloudflareinsights.com; img-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'`。ページごとに自分の HTML のハッシュだけを持つ。`<meta>` の CSP はそれより後ろの要素にだけ効くので、どの `<script>`・`<link>` よりも前（`<head>` の最初）に置く。
+    - `_headers` の `/*`（ハッシュを含まない短いもの）：`frame-ancestors 'none'; object-src 'none'; base-uri 'self'`。`frame-ancestors` は `<meta>` では効かないため。ブラウザはヘッダーと `<meta>` の両方を守る（両方を満たすものだけが動く）。ヘッダーには `script-src` を書かないので、スクリプトの許可は `<meta>` だけで決まる。
+  - `'strict-dynamic'` は使わない（`'self'` が無視されて、HTML の `<script src>` が止まるため）。`'unsafe-inline'` も使わない。
+  - **知らない形のインラインスクリプトは許可しない**。ハッシュを許可するのは、`MODE_INIT_SCRIPT`（D23）との完全一致と、Next.js・Turbopack の出力の書き出し（`(globalThis["TURBOPACK"]`・`(self.__next_f=`・`self.__next_f.push(`）で始まるものだけ。これらのどれにも合わないインラインスクリプトが HTML にあると、`postbuild.ts` が例外にしてビルドを止める（将来 `dangerouslySetInnerHTML` などで紛れ込んだスクリプトを、集めたハッシュで自動的に許可しないため）。Next.js の更新で書き出しが変わってビルドが止まったら、出力を確かめて `KNOWN_INLINE_SCRIPT_PREFIXES` に足す。
+  - **`style-src 'self'`（`'unsafe-inline'`・`'unsafe-hashes'` なし）**。`'unsafe-inline'` は CSS の注入（画面の書き換え・情報の読み出し）を許す。`'unsafe-hashes'` は style 属性の値が変わるたびにハッシュが要る。そこで、サーバーが出力する HTML に `style` 属性を出さない決まりにした（地図の箱の縦横比・県境と沖縄の枠の線の太さ・海域名と県名ラベルの文字の大きさの6つを、Tailwind の任意値のクラス〔`[stroke-width:calc(0.8px/var(--zoom-k,1))]` など〕に置き換えた）。JavaScript から `element.style.setProperty` など（CSSOM）で書く値（`--zoom-k`・ツールチップの位置・`--sheet-h`・d3 の `selection.style`・React がクライアントで描く `style`）は、`style-src` では止まらないので使ってよい。HTML の `<style>` 要素とインラインのイベント属性（`onclick=` など）も使わない。
+  - Web Analyticsのドメイン（`https://static.cloudflareinsights.com` を `script-src` に、`https://cloudflareinsights.com` を `connect-src` に）を許可する。計測用のスクリプトの埋め込みは T6（外部の `src` なので、ハッシュは要らない）。
+  - `img-src 'self'`・`form-action 'self'` は `default-src` と同じ値だが、明示する（フォームはないが、注入されたフォームの送信先を縛る）。`upgrade-insecure-requests` は HSTS があるので足さない。
 - Webフォントは使わず、端末のシステムフォントで表示する（6.2、D27）。フォントのための外部リクエストはしない。
 - GitHub Actionsで使うActionは、コミットSHAでバージョンを固定する。
 - シークレットの扱いは第11章 11.2 に従う。
@@ -658,9 +665,10 @@ vivastack-build-maps/
 
 **(4) CSP（D23）**
 
-- `scripts/postbuild.ts` で、出力したHTMLに含まれるインラインスクリプトをすべて集めてSHA-256を計算し、`_headers` のCSPにページ（言語）ごとに書き込む。
-- Next.js自体のインラインスクリプトと、(3) の初期化スクリプトを、同じ仕組みで許可する（R9）。
-- E2Eテストで、CSP違反がコンソールに出ないことを確認する。
+- `scripts/postbuild.ts` の `writePageCsp` が、`dist/` のすべての HTML（`ja`・`en`・`zh`・`404.html`・`_not-found` など）から、`src` のない `<script>` の中身を集めて SHA-256（base64）を計算し、そのページの `script-src` に入れた CSP の `<meta http-equiv="Content-Security-Policy">` を `<meta charset>` の直後に書く（置き場所の理由は 5.5、D39）。`type` が JavaScript でないもの（`application/json` など）は実行されないので除く。ハッシュは `\r\n`・`\r` を `\n` に直してから取る（HTML のパーサーと同じ）。
+- Next.js自体のインラインスクリプトと、(3) の初期化スクリプトを、同じ仕組みで許可する（R9）。許可するのは知っている形（5.5）だけで、合わないものがあればビルドを止める。すべての HTML を確かめてから書くので、止まっても `dist/` は書き換わらない。CSP の文字列に `"`・`&`・`<`・`>` があっても止める。
+- 今後インラインスクリプトを足すときは、HTML に出れば自動でハッシュが入る（知っている形に合う場合）。サーバーの HTML に `style` 属性を出さない（5.5）。
+- E2Eテスト（`tests/e2e/csp.spec.ts`）で、3言語・404のページの操作の間にCSP違反（`securitypolicyviolation`・コンソール）が出ないことと、CSP の `<meta>` の位置、`_headers` の `frame-ancestors`、知らないインラインスクリプトが止まることを確認する。
 
 ---
 
@@ -1035,13 +1043,15 @@ flowchart TB
 
 **(4) `_headers`（`dist/` の直下に置く。例）**
 
+`script-src` などハッシュを含む CSP は、`_headers` の1行の上限（2,000 字）に入らないので、各 HTML の `<meta>` に書く（5.5、6.6 (4)、D39）。ここには、`<meta>` では効かない `frame-ancestors` などの短いものだけを書く。
+
 ```
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), camera=(), microphone=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains
-  Content-Security-Policy: （実装時に決める。5.5 を参照）
+  Content-Security-Policy: frame-ancestors 'none'; object-src 'none'; base-uri 'self'
 
 /geo/*
   Cache-Control: public, max-age=86400
@@ -1246,7 +1256,7 @@ jobs:
 | R6 | 地図データが重い | スマホで表示が遅い | 県ごとに分けて必要なときに読み込む、形の簡略化、Lighthouse CIの基準値 |
 | R7 | Next.jsの静的出力の構成とパス | パスの不整合で表示されない | `basePath` を使わず（D35）、`dist/` を配信する `wrangler dev` に対するE2Eテストで確認する |
 | R8 | 解説文の量（1,692本）が多く、時間がかかる | 公開が遅れる | 1県＝1PRで並行して進める。期限は設けない |
-| R9 | CSPとNext.jsのインラインスクリプトの相性 | ページが動かない、または保護が弱くなる | ビルド後にインラインスクリプトのハッシュを集めてCSPに書き込む（6.6）。CSP違反が出ないことをE2Eで確認する |
+| R9 | CSPとNext.jsのインラインスクリプトの相性 | ページが動かない、または保護が弱くなる | ビルド後にインラインスクリプトのハッシュを集めてCSPに書き込む（6.6）。知らない形のインラインスクリプトはビルドを止める（5.5）。CSP違反が出ないことをE2Eで確認する |
 | R10 | 境界が確定していない地域の扱い | 誤解を招く | データが暫定である旨を明記する |
 
 ---
@@ -1345,6 +1355,7 @@ flowchart LR
 | D36 | 小笠原村など、`viewBox` の外に出る島の表示 | 実際の位置のまま描き、`viewBox` の外に出る島は都道府県の形から除く。父島は枠の下端に小さく残る。東京都を最大化したとき（T2-06）は本土と伊豆諸島に寄り、市区町村の形（T2-08）では小笠原村を実際の位置に描く。別枠にしない（6.6 (1)） |
 | D37 | モードとふりがなの既定値 | 日本語はこども向け＋ふりがな ON、英語・中国語はおとな向け（ふりがなは日本語のページだけなので、en・zh の `data-ruby` は `on` のまま効かない）。ビルド時に `<html data-mode data-ruby>` に書く。localStorage のキーは言語で分けず `maps.mode`・`maps.ruby`（ボタンを押したときだけ保存する）（6.6 (3)） |
 | D38 | カードの内容は県ごとのJSON | 行き方・名物・名所・出典を、県ごと・言語ごとのJSON（`/cards/{lang}/NN.json`。ビルド時に Route Handler で出力）にして、県を選んだときに読み込む。カードの見出し（県名・県庁所在地・距離）・ツールチップ・「準備中」の文はHTMLに残す。上限のコンテンツで、最初の読み込みが gzip 後 ja 269.8KB・en 260.3KB・zh 262.2KB（基準値 300KB）に収まる。JavaScript がないときは、カードの見出しまでを表示し、内容の代わりに「JavaScript を有効にすると読めます」の文を出す（5.3、F-MODE-04）（6.6 (2)） |
+| D39 | CSPの置き場所と `style-src` | ハッシュを含む CSP は各 HTML の `<meta http-equiv>`（`<meta charset>` の直後）、`frame-ancestors 'none'`・`object-src 'none'`・`base-uri 'self'` は `_headers` の `/*`。`style-src 'self'` だけにして、サーバーの HTML に `style` 属性を出さない（Tailwind のクラスで書く）。知らない形のインラインスクリプトはビルドを止める。Web Analytics のドメインは今許可する（5.5、6.6 (4)）。`_headers` は1行 2,000 字までで、ja のハッシュ 128 個が入らないため |
 
 ## 付録B. 参考資料
 
