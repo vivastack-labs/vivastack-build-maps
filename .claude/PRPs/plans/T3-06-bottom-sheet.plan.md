@@ -140,3 +140,4 @@
 | ページの末尾の余白 | （なし） | パネルが開いている間（`peek`・`full` とも）、`ResizeObserver` で測ったパネルの高さを `<html>` の `--sheet-h` に書き、`body` の `padding-bottom` と `scroll-padding-bottom` に使う。`full` も同じ扱い（高さ 85dvh ぶんの余白） | レビュー MEDIUM-2。`full` だけ余白なしにすると、パネルを開いたまま末尾を読む操作がフッターに届かない。余白はパネルが開いている間だけ |
 | 戻り先の更新 | 開く前の要素に固定 | 開いたまま別の県に固定を移したとき、フォーカスがパネルの外の県の要素にあれば、戻り先をそれに更新する | レビュー LOW-7 |
 | `SHEET_QUERY` の JSDoc | `max-md:` と合わせる | 実装（`sheet:` のカスタムバリアント）に合わせ、48rem のある場所（`sheet.ts`・`globals.css`・`helpers.ts`）を書いた | レビュー LOW-6 |
+| スクリーンショットの SP の画面（`ja-card-sources`・`en-maximized-list`） | 変えない | 出典欄・市区町村の一覧を開く前に、`expandSheet` でパネルを全部見える状態にする | 一部だけ見える状態では `<details>` が隠れていて、クリックできずに止まった |
