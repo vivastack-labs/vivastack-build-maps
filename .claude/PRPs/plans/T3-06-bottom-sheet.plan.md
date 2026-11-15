@@ -121,4 +121,12 @@
 
 ## 承認後に変えたこと
 
-（実装後に書く）
+承認した判断 1〜9 は、そのまま実装した。次の点は、実装のなかで細部を決めた（オーナーの判断が要らない範囲）。
+
+| 項目 | 承認したとき | 実際 | 理由 |
+|---|---|---|---|
+| `CardSheet` が出す要素 | `CardArea` の `<section>` の中身を包む | `CardSheet` が `<section data-area="card">` 自体を出し、`CardArea` は中身を `children` で渡す | `data-sheet` とパネルの見た目を `<section>` 自身に付けるため。DOM の構造は変わらない |
+| 動き（`motion-safe:` のクラス） | `motion-safe:transition-transform` | `globals.css` の `[data-sheet-motion]` の規則（`translate` ＋閉じるときだけ `visibility`）。`CardSheet` がマウントの2フレーム後に `data-sheet-motion` を付ける | Tailwind v4 の `translate-y-full` は `translate` プロパティなので `transform` の遷移では動かない。`data-sheet` を最初に書いたときの「流れの中 → 画面の下」の切り替えで、パネルが滑って見えるのを防ぐ。開くときに `visibility` を遷移させると、フォーカスを移せないため、閉じるときだけにした |
+| 1列の配置の幅の定数 | `matchMedia('(width < 64rem)')` を `PrefIndexInteraction` に直接 | `sheet.ts` に `ONE_COLUMN_QUERY`、`usePrefInteraction` に `isHoverSuppressed` を足して渡す | 条件の定数を1か所に置き、地図とさくいんで共通のフックのままにするため |
+| 既存の E2E の直し | 「カードの中身を `toBeVisible` で確かめているものは、全部見える状態を開いてから確かめる」 | `helpers.ts` に `isSheetWidth`・`expandSheet`・`expectShown` を足し、`card.spec.ts`・`mode.spec.ts`・`interaction.spec.ts`・`layout.spec.ts` を直した。さくいんのホバーを先にして待つ手順（T3-03 の回避策）は、さくいんのホバーでカードを変えなくなったので外した | スマホでは閉じたパネルの中の案内文が見えない（`invisible`）ため、案内文は `display` で確かめる |
+| 海のタップで閉じたときのフォーカスの E2E | 「フォーカスを奪わない」 | 「フォーカスを地図の県に戻さない」（海のタップでフォーカスがパネルの外へ出るので、戻らないことを確かめる）。フォーカスがパネルの外にあるときに戻さないことは、単体テストで確かめる | タップするとフォーカスがページの本体に移り、別の要素にフォーカスを置いたままタップする状況を作れないため |
