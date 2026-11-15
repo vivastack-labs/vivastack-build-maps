@@ -366,6 +366,15 @@ describe('validateContent：ふりがな', () => {
     expect(errors.map(issue => issue.path)).toEqual([path.reduce((acc, key) => (typeof key === 'number' ? `${acc}[${key}]` : acc === '' ? key : `${acc}.${key}`), '')]);
   });
 
+  test('7.2：英語の文に、記法の形（{…|…}）だが読みが正しくないもの（{Tokyo|tokyo}）があっても、誤りは1つだけ（ふりがなは日本語の文にだけ書ける）', () => {
+    setIn(dir, HOKKAIDO, ['name', 'en'], 'Hokkaido {Tokyo|tokyo}');
+
+    const { errors } = validateContent(dir);
+
+    expect(errors.map(issue => issue.path)).toEqual(['name.en']);
+    expect(errors[0]?.message).toContain('日本語の文にだけ');
+  });
+
   test('7.2：行き方・名前など、解説文のほかの日本語の文も見る', () => {
     setIn(dir, HOKKAIDO, ['access', 'route', 'ja'], '{羽田空港|はねだ}→{新千歳|}');
 

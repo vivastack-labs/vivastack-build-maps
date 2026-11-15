@@ -84,9 +84,12 @@ export function checkFurigana(pref: Prefecture): RuleResult {
   const otherTexts = (['en', 'zh'] as const).flatMap(lang => textsOf(pref, lang));
   const misplaced = otherTexts.filter(([, text]) => RUBY_NOTATION.test(text)).map(([path]) => ({ path, message: 'ふりがなの記法（{漢字|よみ}）は、日本語の文にだけ書けます' }));
   // 記法でない { } も誤り（D38：JSON の文はブラウザの RubyText が読むので、{ } が1つあるだけで例外になり、ページ全体が消える）
-  const stray = otherTexts.flatMap(([path, text]) =>
-    checkRuby(text).errors.map(({ index, message }): RuleIssue => ({ path, message: `${characterNumber(text, index)}文字目：${message}。{ } は、ふりがなの記法（{漢字|よみ}）のほかには書けません` }))
-  );
+  // 記法の形（{…|…}）の文は、上の「日本語の文にだけ」の誤りに1つにまとめる
+  const stray = otherTexts
+    .filter(([, text]) => !RUBY_NOTATION.test(text))
+    .flatMap(([path, text]) =>
+      checkRuby(text).errors.map(({ index, message }): RuleIssue => ({ path, message: `${characterNumber(text, index)}文字目：${message}。{ } は、ふりがなの記法（{漢字|よみ}）のほかには書けません` }))
+    );
   return { errors: [...results.flatMap(r => r.errors), ...misplaced, ...stray], warnings: results.flatMap(r => r.warnings) };
 }
 
