@@ -1,9 +1,10 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, test, vi } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 
 import { CardSwitch } from '@/components/CardSwitch';
 import { MapStateProvider, useMapState } from '@/components/MapStateProvider';
 import { PrefIndexInteraction } from '@/components/PrefIndexInteraction';
+import { ONE_COLUMN_QUERY } from '@/features/map/sheet';
 
 /** ホバー中の県（`hovered`）を文字にして出す。カードは `displayed` なので、ホバーの解除はこれで確かめる */
 function HoveredProbe() {
@@ -254,5 +255,52 @@ describe('PrefIndexInteraction', () => {
     const { container } = render(<Fixture />);
 
     expect(container.querySelector('[data-index-ready]')).not.toBeNull();
+  });
+
+  describe('1024px 未満（1列の配置。T3-06）', () => {
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    /** 1列の配置（1024px 未満）かどうかを差し替える */
+    const stubOneColumn = (isOneColumn: boolean) =>
+      vi.stubGlobal(
+        'matchMedia',
+        vi.fn((query: string) => ({ matches: isOneColumn && query === ONE_COLUMN_QUERY, media: query }))
+      );
+
+    test('1024px 未満では、さくいんのホバー（マウス・キーボードのフォーカス）でカードを変えない（クリックは固定する）', () => {
+      // Arrange
+      stubOneColumn(true);
+      render(<Fixture />);
+      const tokyo = screen.getByTestId('tokyo');
+
+      // Act・Assert：マウス
+      mouseOver(tokyo);
+      expect(visibleCard()).toEqual([]);
+      expect(screen.getByTestId('hovered')).toBeEmptyDOMElement();
+
+      // Act・Assert：キーボードのフォーカス
+      act(() => tokyo.focus());
+      expect(visibleCard()).toEqual([]);
+      act(() => tokyo.blur());
+
+      // Act・Assert：クリックは固定する（カードが変わる）
+      mouseClick(tokyo);
+      expect(tokyo).toHaveAttribute('aria-pressed', 'true');
+      expect(visibleCard()).toEqual(['東京都']);
+    });
+
+    test('1024px 以上では、さくいんのホバーでカードが変わる', () => {
+      // Arrange
+      stubOneColumn(false);
+      render(<Fixture />);
+
+      // Act
+      mouseOver(screen.getByTestId('tokyo'));
+
+      // Assert
+      expect(visibleCard()).toEqual(['東京都']);
+    });
   });
 });

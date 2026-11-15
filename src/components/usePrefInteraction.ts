@@ -57,6 +57,11 @@ type Options = {
    * 省くと `dispatchKey`（Enter・Space・Shift + Enter・Esc）だけを行う
    */
   readonly onKey?: (event: KeyboardEvent<HTMLElement>) => void;
+  /**
+   * `true` を返す間は、ホバー（マウスをのせる・外す、キーボードのフォーカス・外れ）を `mapReducer` に渡さない（クリック・キー操作は渡す）。
+   * 呼ぶたびに評価する（画面の幅の変化に追従する）。省くと常に渡す
+   */
+  readonly isHoverSuppressed?: () => boolean;
 };
 
 /** 根の要素に付けるイベントのハンドラー（`onClick` は呼ぶ側が決める） */
@@ -84,7 +89,7 @@ type Result = {
  * イベントはまとめて受け（委譲）、県は `data-pref` で引く。キーボードのフォーカス（`:focus-visible`）＝ホバー（F-KB-01）。
  * Ctrl・Meta・Alt つきとキーの繰り返しのキーは無視する。
  */
-export function usePrefInteraction({ readyAttribute, onKey }: Options): Result {
+export function usePrefInteraction({ readyAttribute, onKey, isHoverSuppressed }: Options): Result {
   const { state, dispatch } = useMapState();
   const ref = useRef<HTMLDivElement>(null);
   // click・dblclick は pointerType を確実に持たないブラウザがあるので、直前の pointerdown のものを使う
@@ -100,6 +105,7 @@ export function usePrefInteraction({ readyAttribute, onKey }: Options): Result {
   }, [state]);
 
   const send = (kind: PointerKind, target: EventTarget, pointerType: string, related?: EventTarget | null) => {
+    if ((kind === 'over' || kind === 'out') && isHoverSuppressed?.()) return;
     const event = toMapEvent({ kind, pref: prefFromTarget(target), relatedPref: prefFromTarget(related ?? null), pointerType });
     if (event) dispatch(event);
   };
@@ -116,8 +122,12 @@ export function usePrefInteraction({ readyAttribute, onKey }: Options): Result {
       if (onKey) onKey(event);
       else dispatchKey(event, dispatch);
     },
-    onFocus: event => handleFocus(event, dispatch),
-    onBlur: event => handleBlur(event, dispatch)
+    onFocus: event => {
+      if (!isHoverSuppressed?.()) handleFocus(event, dispatch);
+    },
+    onBlur: event => {
+      if (!isHoverSuppressed?.()) handleBlur(event, dispatch);
+    }
   };
 
   return { ref, state, handlers, sendClick: target => send('click', target, lastPointerType.current) };

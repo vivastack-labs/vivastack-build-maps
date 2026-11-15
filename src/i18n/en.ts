@@ -81,6 +81,11 @@ export const en: Messages = {
     },
     ai: 'Created with AI and checked by people'
   },
+  sheet: {
+    expand: 'More',
+    collapse: 'Less',
+    close: 'Close'
+  },
   display: {
     label: 'Mode',
     kids: 'Kids',

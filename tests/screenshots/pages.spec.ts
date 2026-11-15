@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 import { test, type Page } from '@playwright/test';
 import { LANGS } from '../../src/i18n/lang';
-import { settledPoint } from '../e2e/helpers';
+import { expandSheet, settledPoint } from '../e2e/helpers';
 
 // PRに載せるスクリーンショットの画面（playwright.screenshots.config.ts）。今の作業ツリーだけを撮る（before は撮らない）。
 // 画面が変わるタスクでは、変わった状態（例：県を選んでパネルを開いた状態）を SCENES に足す
@@ -11,6 +11,8 @@ type Scene = {
   readonly prepare?: (page: Page) => Promise<void>;
   /** PC だけで撮る（マウスの操作で出る画面。スマホ（タッチ）では出ないので撮らない） */
   readonly pcOnly?: boolean;
+  /** スマホ（sp。幅360px）だけで撮る（768px 未満の下から出るパネル。T3-06） */
+  readonly spOnly?: boolean;
 };
 
 /** ハイドレーションが終わってから県をクリックして固定し、マウスを地図から外す（ホバーの見た目を写さない） */
@@ -45,6 +47,14 @@ async function pinHokkaidoFromIndex(page: Page): Promise<void> {
   await page.mouse.move(0, 0);
 }
 
+/** 北海道を固定して、パネルを全部見える状態にする（T3-06。768px 未満の下から出るパネル。「くわしく」を押す） */
+async function expandSheetAfterPin(page: Page): Promise<void> {
+  await pinHokkaidoFromIndex(page);
+  await page.locator('[data-sheet-toggle]').click();
+  await page.locator('[data-area="card"][data-sheet="full"]').waitFor();
+  await page.mouse.move(0, 0);
+}
+
 /** 北海道のカードを出し、モードを「おとな」、ふりがなを OFF にする（T3-05。ヘッダーの切替のボタンの押した状態も写る） */
 async function pinHokkaidoAdultRubyOff(page: Page): Promise<void> {
   await pinHokkaidoFromIndex(page);
@@ -57,6 +67,8 @@ async function pinHokkaidoAdultRubyOff(page: Page): Promise<void> {
 /** 北海道のカードを出し、その「出典」欄を開く（T3-04。出典のある項目〔行き方・じゃがいも〕と「出典なし」の項目が見える） */
 async function openHokkaidoSources(page: Page): Promise<void> {
   await pinHokkaidoFromIndex(page);
+  // 768px 未満（スマホ）では、一部だけ見えるパネルに出典欄がないので、全部見える状態にしてから開く（T3-06）
+  await expandSheet(page);
   await page.locator('[data-card-pref="01"] [data-card-sources] summary').click();
   await page.locator('[data-card-pref="01"] details[data-card-sources][open]').waitFor();
   // summary のクリックでページとカードの中が途中までスクロールするので、ページは先頭に戻し、
@@ -93,6 +105,8 @@ function maximizePref(code: string): (page: Page) => Promise<void> {
 /** 長野県を最大化し、カードの「市区町村の一覧」を開く（4.11.6） */
 async function maximizeWithList(page: Page): Promise<void> {
   await maximizePref('20')(page);
+  // 768px 未満（スマホ）では、一部だけ見えるパネルに市区町村の一覧がないので、全部見える状態にしてから開く（T3-06）
+  await expandSheet(page);
   await page.locator('details[data-muni-list] summary').click();
   await page.locator('details[data-muni-list][open]').waitFor();
 }
@@ -154,6 +168,9 @@ const SCENES: readonly Scene[] = [
   { name: 'ja-pending-pinned', path: '/ja/', prepare: pinPendingFromIndex },
   // T3-03：県のカード。内容のある県（北海道。見出し・距離・行き方・名物3つ・名所3つ・最大化ボタン）を3言語で。解説文は既定のモードの1つ（ja はこども向け、en・zh はおとな向け。T3-05）。準備中の県のカードは ja-pending-pinned
   ...LANGS.map(lang => ({ name: `${lang}-card`, path: `/${lang}/`, prepare: pinHokkaidoFromIndex })),
+  // T3-06：スマホの下から出るパネル。北海道を固定した「一部だけ見える」状態（見出しと最大化ボタン）と、「くわしく」を押した「全部見える」状態（画面の高さの約85%）
+  { name: 'ja-sheet-peek', path: '/ja/', prepare: pinHokkaidoFromIndex, spOnly: true },
+  { name: 'ja-sheet-full', path: '/ja/', prepare: expandSheetAfterPin, spOnly: true },
   // T3-05：モードを「おとな」、ふりがなを OFF にした状態（解説文がおとな向けになり、ふりがなが消える。切替のボタンの押した状態）
   { name: 'ja-card-adult-ruby-off', path: '/ja/', prepare: pinHokkaidoAdultRubyOff },
   // T3-04：カードの「出典」欄を開いた状態（北海道。出典のある項目と「出典なし」の項目）。フッターの出典は、各言語の top の全体の画像に入る
@@ -181,6 +198,7 @@ const OUT_DIR = process.env.SCREENSHOT_OUT ?? '';
 for (const scene of SCENES) {
   test(scene.name, async ({ page }, testInfo) => {
     test.skip(scene.pcOnly === true && testInfo.project.name !== 'pc', 'マウスの操作で出る画面は PC だけで撮る');
+    test.skip(scene.spOnly === true && testInfo.project.name !== 'sp', '下から出るパネルはスマホだけで撮る');
     await page.goto(scene.path);
     // フォントの読み込みが終わる前に撮ると、文字が別のフォントで写る
     await page.evaluate(() => document.fonts.ready);

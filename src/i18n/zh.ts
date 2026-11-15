@@ -81,6 +81,11 @@ export const zh: Messages = {
     },
     ai: '由 AI 制作，并经人工确认'
   },
+  sheet: {
+    expand: '展开',
+    collapse: '收起',
+    close: '关闭'
+  },
   display: {
     label: '模式',
     kids: '儿童',

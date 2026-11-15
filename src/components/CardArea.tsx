@@ -2,6 +2,7 @@ import type { Lang } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
 import type { PublishedPrefecture } from '@/lib/publish';
 import { TOKYO_CODE } from '@/lib/distance';
+import { CardSheet } from './CardSheet';
 import { CardSwitch } from './CardSwitch';
 import { MuniList } from './MuniList';
 import { PrefCard } from './PrefCard';
@@ -29,25 +30,29 @@ function distanceOf(distances: ReadonlyMap<string, number>, code: string): numbe
  * 最大化中の「市区町村の一覧」（`MuniList`。T2-08）は、47枚のカードの中ではなく、カードの下に1つだけ置く
  * （カードの中に置くとクライアントコンポーネントが47個できる）。
  * 並びは「県の見出し・内容 → 最大化ボタン → 出典（`PrefCard` の中。T3-04）→ 市区町村の一覧（最大化中だけ）」（4.11.7）。
- * 1024px以上では、地図とさくいんの2行ぶんの高さの右の列に置き、スクロールしても見える位置に固定する。カードが画面より高いときは、カードの中でスクロールする。
+ * 領域の `<section>` は `CardSheet`（T3-06）が出す。1024px以上は地図とさくいんの2行ぶんの高さの右の列に置き、スクロールしても見える位置に固定する（カードが画面より高いときは、カードの中でスクロールする）。
+ * 768px 未満は、下から出るパネルにする（F-MAP-05）。
  * 案内文・カードの解説文は `ModeText` でこども向け・おとな向けの両方を出し、片方を CSS で隠す（T3-05。F-MODE-04）。
  * `MapStateProvider` の中に置く。
  */
 export function CardArea({ lang, prefectures, distances }: Props) {
   return (
-    <section
-      data-area="card"
-      className="min-w-0 rounded border border-slate-300 p-4 lg:sticky lg:top-4 lg:col-start-3 lg:row-span-2 lg:row-start-1 lg:max-h-[calc(100dvh-2rem)] lg:self-start lg:overflow-y-auto"
-    >
-      <CardSwitch>
-        <p data-card-guide>
-          <ModeText text={getMessages(lang).card.guide} />
-        </p>
-        {prefectures.map(prefecture => (
-          <PrefCard key={prefecture.code} lang={lang} prefecture={prefecture} distanceKm={prefecture.code === TOKYO_CODE ? null : distanceOf(distances, prefecture.code)} />
-        ))}
-      </CardSwitch>
-      <MuniList lang={lang} labels={getMessages(lang).muni} />
-    </section>
+    <>
+      {/* 768px 未満でパネルが閉じている間だけ、地図の下に出す案内文（CSS で出し入れする。app/globals.css。4.11.1・4.11.7）。パネルの中の案内文は閉じている間は見えない */}
+      <p data-sheet-guide className="min-w-0 px-1">
+        <ModeText text={getMessages(lang).card.guide} />
+      </p>
+      <CardSheet labels={getMessages(lang).sheet}>
+        <CardSwitch>
+          <p data-card-guide>
+            <ModeText text={getMessages(lang).card.guide} />
+          </p>
+          {prefectures.map(prefecture => (
+            <PrefCard key={prefecture.code} lang={lang} prefecture={prefecture} distanceKm={prefecture.code === TOKYO_CODE ? null : distanceOf(distances, prefecture.code)} />
+          ))}
+        </CardSwitch>
+        <MuniList lang={lang} labels={getMessages(lang).muni} />
+      </CardSheet>
+    </>
   );
 }

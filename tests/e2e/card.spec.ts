@@ -4,6 +4,7 @@ import { formatDate } from '../../src/i18n/format';
 import { getMessages } from '../../src/i18n/messages';
 import { loadContent } from '../../src/lib/content';
 import { distancesFromTokyo } from '../../src/lib/distance';
+import { expandSheet, expectShown } from './helpers';
 
 // F-CARD-02〜06・08、4.11.4、6.6 (2)、D24：県のカード（T3-03）。本番用のビルド。コンテンツは tests/fixtures/content/（playwright.config.ts の CONTENT_DIR）。
 // 北海道は全部 reviewed（内容を出す）、東京都は reviewed・verified・draft が混在、沖縄県は未作成。本番で内容を出すのは北海道だけで、残りの46県は「準備中」。
@@ -30,17 +31,16 @@ async function open(page: Page, lang = 'en'): Promise<void> {
 
 /**
  * さくいんの項目をクリックして県を固定する（地図の小さな県を座標で押さずに済む）。
- * 先に `hover()` して、その県のカードが表示されるのを待ってから `click()` する。
- * 1列の配置（1024px 未満）ではカードがさくいんの上にあり、マウスを項目にのせるとカードが案内文から県のカードに変わって高さが変わる。
- * `click()` のマウスの移動の途中でそれが起きると、`pointerdown` と `pointerup` が別の項目になり、`click` が共通の祖先に出て固定にならない。
- * 先にカードを変えておけば、`click()` が位置を取り直してから押すので、同じ項目で `pointerdown`・`pointerup` になる（タッチのプロジェクトもマウスのイベントで動く）。
+ * 1024px 未満（1列の配置）ではカードがさくいんの上にあるが、さくいんのホバーではカードを変えないので（T3-06、4.11.2）、
+ * マウスの移動の途中でカードの高さが変わって `pointerdown` と `pointerup` が別の項目になることはない。そのまま `click()` する。
+ * 768px 未満（パネル）では、内容を確かめられるよう、全部見える状態にする（`expandSheet`）。
  */
 async function pinFromIndex(page: Page, code: string): Promise<void> {
   const item = page.locator(`a[data-pref="${code}"]`);
-  await item.hover();
-  await expect(page.locator(`[data-card-pref="${code}"]`)).toBeVisible();
   await item.click();
   await expect(item).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator(`[data-card-pref="${code}"]`)).toBeVisible();
+  await expandSheet(page);
 }
 
 test.describe('F-CARD-02〜06：県のカード', () => {
@@ -232,7 +232,7 @@ test.describe('6.6 (2)：JavaScript があるとき、:target の規則は止ま
     await page.locator('[data-card-ready]').waitFor({ state: 'attached' });
 
     // Assert：状態が空なので、ハッシュのカードは見えず（:target の規則が止まる）、案内文が見える
-    await expect(page.locator('[data-card-guide]')).toBeVisible();
+    await expectShown(page, page.locator('[data-card-guide]'), true);
     await expect(page.locator('[data-card-pref]:visible')).toHaveCount(0);
 
     // Act：さくいんから北海道を固定する
