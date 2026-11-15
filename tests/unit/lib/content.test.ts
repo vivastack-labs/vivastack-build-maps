@@ -359,6 +359,46 @@ describe('validateContent：ふりがな', () => {
   });
 });
 
+// 9.3：出典のタイトルと確認日（スキーマで見られない中身）
+describe('validateContent：出典の中身', () => {
+  test('7.2：出典のタイトルのふりがなの記法の誤りは、場所（specialties[0].sources[1].title）つきの誤りにする', () => {
+    setIn(
+      dir,
+      HOKKAIDO,
+      ['specialties', 0, 'sources'],
+      [
+        { title: '農林水産省のページ', url: 'https://example.com/a', accessed: '2026-11-11' },
+        { title: '{農林|}水産省', url: 'https://example.com/b', accessed: '2026-11-11' }
+      ]
+    );
+
+    const { errors } = validateContent(dir);
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatchObject({ file: HOKKAIDO, path: 'specialties[0].sources[1].title' });
+    expect(errors[0]?.message).toContain('読みが空です');
+  });
+
+  test('9.3：存在しない確認日（2026-02-30）は、場所（access.sources[0].accessed）つきの誤りにする', () => {
+    setIn(dir, HOKKAIDO, ['access', 'sources'], [{ title: 'ガイド', url: 'https://example.com/a', accessed: '2026-02-30' }]);
+
+    const { errors } = validateContent(dir);
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toMatchObject({ file: HOKKAIDO, path: 'access.sources[0].accessed' });
+    expect(errors[0]?.message).toContain('存在しない日付');
+    expect(errors[0]?.line).toBe(lineOf(dir, HOKKAIDO, '2026-02-30'));
+  });
+
+  test('9.3：実在する確認日は誤りにしない', () => {
+    setIn(dir, HOKKAIDO, ['spots', 1, 'sources'], [{ title: 'ガイド', url: 'https://example.com/a', accessed: '2024-02-29' }]);
+
+    const { errors } = validateContent(dir);
+
+    expect(errors).toEqual([]);
+  });
+});
+
 // 7.3：文字数・9.3：出典
 describe('validateContent：文字数と出典', () => {
   test('7.3：解説文の文字数が範囲外なら警告にし、誤りにはしない（上限）', () => {

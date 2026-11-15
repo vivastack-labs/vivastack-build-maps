@@ -1,3 +1,4 @@
+import { parseIsoDate } from '../lib/isoDate.ts';
 import { htmlLang, LANGS, type Lang } from './lang.ts';
 
 // Intl.NumberFormat は作るのが重いので、言語ごとに1つ作って使い回す。ロケールは <html lang> と同じ値（D27）
@@ -21,20 +22,13 @@ const DATE_FORMATS: Readonly<Record<Lang, Intl.DateTimeFormat>> = Object.fromEnt
   LANGS.map(lang => [lang, new Intl.DateTimeFormat(htmlLang(lang), { dateStyle: 'long', timeZone: 'UTC' })])
 ) as Record<Lang, Intl.DateTimeFormat>;
 
-const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
-
 /**
  * `YYYY-MM-DD` の日付を、言語の書式の文字にする（出典の確認日。F-SRC-02、D28）。
  * ja・zh は「2026年11月15日」、en は「November 15, 2026」。
- * 形が合わない・存在しない日（`2026-02-30`）は例外にして、ビルドを止める（コンテンツの誤りを黙って出さない）。
+ * 形が合わない・存在しない日（`2026-02-30`）は例外にして、ビルドを止める（コンテンツの誤りを黙って出さない。`content:validate` も同じ判定で誤りにする）。
  */
 export function formatDate(lang: Lang, isoDate: string): string {
-  const match = ISO_DATE.exec(isoDate);
-  if (match === null) throw new Error(`日付は YYYY-MM-DD の形にしてください（今の値：${JSON.stringify(isoDate)}）`);
-  const [year, month, day] = [Number(match[1]), Number(match[2]), Number(match[3])];
-  const date = new Date(Date.UTC(year, month - 1, day));
-  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
-    throw new Error(`存在しない日付です（今の値：${JSON.stringify(isoDate)}）`);
-  }
+  const date = parseIsoDate(isoDate);
+  if (date === null) throw new Error(`日付は実在する YYYY-MM-DD にしてください（今の値：${JSON.stringify(isoDate)}）`);
   return DATE_FORMATS[lang].format(date);
 }

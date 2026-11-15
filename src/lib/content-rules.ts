@@ -1,6 +1,7 @@
 // コンテンツの内容のルール（T1-07、開発概要書 7.1〜7.3・9.3）。形（JSON Schema）が通った県だけを見る。
 // scripts/ から Node.js で直接読み込むので、相対の import には .ts を付ける。
 import type { Prefecture, Sources, Specialty, Spot } from './content-schema.generated.ts';
+import { parseIsoDate } from './isoDate.ts';
 import { characterNumber, checkRuby, plainText } from './ruby.ts';
 
 /** YAML の中の場所（例：['specialties', 0, 'description', 'ja', 'kids']） */
@@ -114,18 +115,36 @@ function lengthIssue(path: ContentPath, text: string, lang: Lang, [min, max]: Ra
 
 /** 9.3：出典が空なら警告（画面には「出典なし」と出る） */
 export function checkSources(pref: Prefecture): readonly RuleIssue[] {
-  const lists: readonly (readonly [ContentPath, Sources])[] = [
-    ...(pref.access ? [[['access'], pref.access.sources] as const] : []),
-    ...itemsOf(pref).map(([path, item]) => [path, item.sources] as const)
-  ];
-  return lists.filter(([, sources]) => sources.length === 0).map(([path]) => ({ path: [...path, 'sources'], message: '出典がありません（画面には「出典なし」と出ます）' }));
+  return sourceListsOf(pref)
+    .filter(([, sources]) => sources.length === 0)
+    .map(([path]) => ({ path: [...path, 'sources'], message: '出典がありません（画面には「出典なし」と出ます）' }));
+}
+
+/** 出典のある項目（行き方・名物・名所）の、出典の一覧と場所 */
+function sourceListsOf(pref: Prefecture): readonly (readonly [ContentPath, Sources])[] {
+  return [...(pref.access ? [[['access'], pref.access.sources] as const] : []), ...itemsOf(pref).map(([path, item]) => [path, item.sources] as const)];
+}
+
+/**
+ * 出典の中身の誤り。タイトルのふりがなの記法の誤り（7.2）と、存在しない確認日（9.3）。
+ * タイトルは出典の表記のままなので、ふりがなの付いていない漢字は警告にしない。形（`YYYY-MM-DD`）はスキーマで見るので、ここでは実在する日かだけを見る
+ */
+export function checkSourceContents(pref: Prefecture): readonly RuleIssue[] {
+  return sourceListsOf(pref).flatMap(([path, sources]) =>
+    sources.flatMap((source, i): readonly RuleIssue[] => {
+      const at = [...path, 'sources', i] as const;
+      const titleIssues = checkRuby(source.title).errors.map(({ index, message }) => ({ path: [...at, 'title'], message: `${characterNumber(source.title, index)}文字目：${message}` }));
+      const dateIssues = parseIsoDate(source.accessed) === null ? [{ path: [...at, 'accessed'], message: `存在しない日付です（${source.accessed}）。実在する YYYY-MM-DD にしてください` }] : [];
+      return [...titleIssues, ...dateIssues];
+    })
+  );
 }
 
 /** 1県分の内容のルールをまとめて見る（ファイルをまたぐ重複は content.ts で見る） */
 export function checkPrefecture(fileName: string, pref: Prefecture): RuleResult {
   const furigana = checkFurigana(pref);
   return {
-    errors: [...checkFileName(fileName, pref), ...checkItemIds(pref), ...furigana.errors],
+    errors: [...checkFileName(fileName, pref), ...checkItemIds(pref), ...furigana.errors, ...checkSourceContents(pref)],
     warnings: [...furigana.warnings, ...checkLengths(pref), ...checkSources(pref)]
   };
 }
