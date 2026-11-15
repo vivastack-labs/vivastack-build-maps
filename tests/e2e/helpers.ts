@@ -97,3 +97,11 @@ export async function settledPoint(locator: Locator): Promise<{ readonly x: numb
     .toBe(true);
   return settled;
 }
+
+/** ふりがなの読み（<rt>）を除いた文字（`plainText()` と比べるため） */
+export const textWithoutRt = (locator: Locator): Promise<string> =>
+  locator.evaluate(element => {
+    const copy = element.cloneNode(true) as Element;
+    copy.querySelectorAll('rt').forEach(rt => rt.remove());
+    return copy.textContent ?? '';
+  });

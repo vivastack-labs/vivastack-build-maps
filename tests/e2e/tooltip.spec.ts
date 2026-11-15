@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { loadContent } from '../../src/lib/content';
 import { plainText } from '../../src/lib/ruby';
-import { settle, settledPoint } from './helpers';
+import { settle, settledPoint, textWithoutRt } from './helpers';
 
 // F-TIP-01・02、4.11.3、4.11.4：ツールチップ（T2-09）。コンテンツは tests/fixtures/content/（playwright.config.ts の CONTENT_DIR。開発計画 1.1）。
 // 北海道は名物が3つ（reviewed）、沖縄県は名物がない（未作成）。マウスの位置は、形の内側の点（外接矩形の中心は、北海道・沖縄県では形の外になる）。
@@ -25,14 +25,6 @@ async function open(page: Page, lang = 'ja'): Promise<void> {
   await page.goto(`/${lang}/`);
   await page.locator('[data-map-ready]').waitFor({ state: 'attached' });
 }
-
-/** ふりがなの読み（<rt>）を除いた文字（`plainText()` と比べるため） */
-const textWithoutRt = (locator: Locator): Promise<string> =>
-  locator.evaluate(element => {
-    const copy = element.cloneNode(true) as Element;
-    copy.querySelectorAll('rt').forEach(rt => rt.remove());
-    return copy.textContent ?? '';
-  });
 
 /** 形を画面に入れてから、形の内側の点を返す（動きが止まるのを待つ） */
 async function pointOn(locator: Locator): Promise<{ readonly x: number; readonly y: number }> {

@@ -119,7 +119,7 @@ test.describe('F-SRC-01〜03：出典欄', () => {
 
     // Assert：最初は閉じていて、中身は見えない（F-SRC-01）。「準備中」の沖縄県のカードには出典欄がない
     await expect(sources).toBeVisible();
-    await expect(sources).toHaveJSProperty('open', false);
+    await expect(sources).not.toHaveAttribute('open');
     await expect(sources.locator('a').first()).toBeHidden();
     await expect(page.locator(`[data-card-pref="${OKINAWA}"] [data-card-sources]`)).toHaveCount(0);
 
@@ -127,7 +127,7 @@ test.describe('F-SRC-01〜03：出典欄', () => {
     await sources.locator('summary').click();
 
     // Assert：出典のある項目は、タイトルのリンク・URL・確認日（F-SRC-02）
-    await expect(sources).toHaveJSProperty('open', true);
+    await expect(sources).toHaveAttribute('open', '');
     const potatoItem = sources.locator('[data-source-item="specialties/potato"]');
     await expect(potatoItem.locator('a')).toHaveText(potatoSource?.title ?? '');
     await expect(potatoItem.locator('a')).toHaveAttribute('href', potatoSource?.url ?? '');
@@ -202,9 +202,11 @@ test.describe('6.6 (2)：JavaScript がないとき', () => {
     // Assert：閉じていて、summary を押すと開く（<details> はブラウザの機能で動く）
     const sources = page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-sources]`);
     await expect(sources).toBeVisible();
-    await expect(sources).toHaveJSProperty('open', false);
-    await sources.locator('summary').click();
-    await expect(sources).toHaveJSProperty('open', true);
+    await expect(sources).not.toHaveAttribute('open');
+    // マウスのクリックは、JavaScript を止めた WebKit では <details> を開かない（Playwright の WebKit で確認）ので、キーボード（Enter）で開く
+    await sources.locator('summary').focus();
+    await page.keyboard.press('Enter');
+    await expect(sources).toHaveAttribute('open', '');
     await expect(sources.locator('[data-source-item="specialties/milk"] [data-source-none]')).toBeVisible();
   });
 

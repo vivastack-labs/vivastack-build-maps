@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { LANGS } from '../../src/i18n/lang';
 import { getMessages } from '../../src/i18n/messages';
 import { plainText } from '../../src/lib/ruby';
+import { textWithoutRt } from './helpers';
 
 // F-SRC-04・8.3：フッターの出典（T3-04）。本番用のビルド。
 
@@ -17,9 +18,8 @@ for (const lang of LANGS) {
     const footer = page.getByRole('contentinfo');
     const source = footer.locator('[data-footer-map-source]');
     await expect(source).toBeVisible();
-    await expect(source).toContainText(plainText(mapSource.before));
-    await expect(source).toContainText(plainText(mapSource.after));
+    expect(await textWithoutRt(source)).toBe(plainText(mapSource.before) + N03_URL + plainText(mapSource.after));
     await expect(source.getByRole('link', { name: N03_URL })).toHaveAttribute('href', N03_URL);
-    await expect(footer.locator('[data-footer-ai]')).toHaveText(plainText(ai));
+    expect(await textWithoutRt(footer.locator('[data-footer-ai]'))).toBe(plainText(ai));
   });
 }

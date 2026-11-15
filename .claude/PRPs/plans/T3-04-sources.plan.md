@@ -124,4 +124,7 @@
 - `LABEL_SEPARATOR`：`PrefCard.tsx` の中 → `src/i18n/cardText.ts` に移して export（`SourceList` の「確認日：…」でも使うため）。
 - 出典欄の項目の見出しに `data-source-item-name` を付けた（テスト・E2E が項目の名前を引くため）。
 - フィクスチャの北海道に出典を足したので、警告の件数を数える既存の単体テスト（`tests/unit/lib/content.test.ts`・`tests/unit/scripts/validate-content.test.ts`）の数を直した（警告 14 → 12 など）。
+- 検証の追加（レビューの指摘）：`content:validate` に、出典のタイトルのふりがなの記法の誤りと、存在しない確認日（`2026-02-30`）を、場所つきの誤りにする検査を足した（`src/lib/content-rules.ts` の `checkSourceContents`）。日付の判定は `src/lib/isoDate.ts` の `parseIsoDate`（0〜99年も扱う）を `formatDate` と共有する。
+- 英語・中国語のページでは、出典のタイトルを `plainText()` にして、ふりがな（`<rt>`）を出さない（ほかの en・zh の文は記法を使わないため。タイトルに `lang` は付けない）。
+- E2E：フッターの文は `<rt>` を除いて全体を比べる（`textWithoutRt` を `tests/e2e/helpers.ts` に移して共有）。JavaScript なしのテストは `open` 属性で確かめ、WebKit ではマウスのクリックが `<details>` を開かないので、キーボード（Enter）で開く。
 - ほかに計画から変えたことはない。
