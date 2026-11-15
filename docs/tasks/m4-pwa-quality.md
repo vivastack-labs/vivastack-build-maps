@@ -19,7 +19,7 @@
   - 出力したHTMLから、インラインスクリプト（`src` のない `<script>`）をすべて集め、SHA-256（base64）を計算する。
   - T3-05 で分かったこと：`<head>` の初期化スクリプト（D23）の文字列は `src/features/mode/initScript.ts` の `MODE_INIT_SCRIPT`（定数。利用者の入力が入らない固定の文字列）。出力した HTML には `<script>try{var s=localStorage,…</script>` として入る。HTML から集めるハッシュに入る（Next.js のインラインスクリプトと同じ仕組み）。ハッシュを定数から直接計算した値と、HTML から集めた値が一致することも確かめるとよい。
   - `_headers` に、ページ（言語）ごとの CSP を書き込む。
-- CSP の内容：`default-src 'self'`、`script-src 'self'` と集めたハッシュと Web Analytics のドメイン、`connect-src 'self'` と Web Analytics のドメイン、`object-src 'none'`、`base-uri 'self'`、`frame-ancestors 'none'`。スタイルの指定（`style-src`）は、ツールチップの位置などに `style` 属性を使うかを確かめて決め、理由を開発概要書 5.5 に書く。
+- CSP の内容：`default-src 'self'`、`script-src 'self'` と集めたハッシュと Web Analytics のドメイン、`connect-src 'self'` と Web Analytics のドメイン（市区町村データ `/geo/muni/` とカードの JSON `/cards/`〔T3-09、D38〕を同じオリジンの `fetch` で読み込むので、`'self'` が要る）、`object-src 'none'`、`base-uri 'self'`、`frame-ancestors 'none'`。スタイルの指定（`style-src`）は、ツールチップの位置などに `style` 属性を使うかを確かめて決め、理由を開発概要書 5.5 に書く。
 - 開発概要書 11.4 (4) の `_headers` の例を、実際の内容に合わせる。
 
 ### 完了条件
@@ -49,6 +49,7 @@
 - Web App Manifest：言語ごとに用意し（`start_url` は `/{lang}/`、名前はその言語）、HTMLからリンクする。アイコンを用意する。
 - Service Worker（`dist/sw.js`）：
   - アプリの枠組み（HTML・JavaScript・CSS）を、インストールのときにキャッシュする。
+  - カードの JSON（`/cards/{lang}/NN.json`。T3-09、D38）も、市区町村データと同じく、一度読み込んだ県だけキャッシュする（`createCardLoader` もふつうの `fetch` を使うので、Service Worker のキャッシュから返れば、オフラインでも成功になる。アプリの枠組みのキャッシュだけだと、オフラインでカードの内容が出ない）。
   - 市区町村データは、一度読み込んだ県だけキャッシュする。T2-07 の `muniLoader` はふつうの `fetch` を使うので、Service Worker のキャッシュから返れば、オフラインでも成功になる（`navigator.onLine` が `false` でも先には止めない）。
 - Service Worker を登録するスクリプトは外部ファイルにする（CSP のハッシュを増やさないため）。
 
@@ -103,6 +104,7 @@
 - `lighthouserc`：`/ja/`・`/en/`・`/zh/` をスマホの設定で測る。基準：Performance 90以上、LCP 2.5秒以下、CLS 0.1以下。
 - INP は Lighthouse（実験室の計測）では測れないので、代わりに TBT を基準にする（値は着手時に決め、開発概要書 5.1 に書く）。
 - 最初に読み込むサイズ（300KB以下）は、T3-08 の `scripts/measure-size.ts` で確かめる。
+- T3-09 で、カードの内容を県ごとの JSON にした（D38）ので、CI の Lighthouse が本物のコンテンツ（今は47県とも「準備中」）だけを測ると、上限の量のときのサイズを確かめられない。上限のコンテンツ（`scripts/make-max-content.ts`）でも測るか、`pnpm size` を上限のコンテンツで CI に加えるかを、着手時に決める。
 - `ci.yml`・`deploy.yml` に `pnpm lhci` を加える。
 
 ### 完了条件
