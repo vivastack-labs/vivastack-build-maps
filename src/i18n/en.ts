@@ -45,7 +45,10 @@ export const en: Messages = {
     },
     specialties: 'Specialties',
     spots: 'Sights',
-    draft: 'Draft'
+    draft: 'Draft',
+    sources: 'Sources',
+    noSource: 'No source',
+    accessed: 'Accessed'
   },
   comingSoon: {
     label: 'Coming soon',
@@ -70,6 +73,13 @@ export const en: Messages = {
       adult: 'Retry'
     },
     listSummary: 'List of municipalities (%n)'
+  },
+  footer: {
+    mapSource: {
+      before: 'Source: Created by processing "National Land Numerical Information (Administrative Area Data)" (Ministry of Land, Infrastructure, Transport and Tourism) (',
+      after: ')'
+    },
+    ai: 'Created with AI and checked by people'
   },
   index: {
     heading: 'Prefecture index'

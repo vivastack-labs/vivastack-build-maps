@@ -45,7 +45,10 @@ export const zh: Messages = {
     },
     specialties: '特产',
     spots: '名胜',
-    draft: '草稿'
+    draft: '草稿',
+    sources: '出处',
+    noSource: '无出处',
+    accessed: '确认日期'
   },
   comingSoon: {
     label: '准备中',
@@ -70,6 +73,13 @@ export const zh: Messages = {
       adult: '重试'
     },
     listSummary: '市区町村列表（%n）'
+  },
+  footer: {
+    mapSource: {
+      before: '出处：根据「国土数值信息（行政区域数据）」（日本国土交通省）（',
+      after: '）加工制作'
+    },
+    ai: '由 AI 制作，并经人工确认'
   },
   index: {
     heading: '都道府县索引'

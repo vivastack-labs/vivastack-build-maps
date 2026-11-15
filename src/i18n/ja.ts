@@ -62,7 +62,10 @@ const jaSource = {
     },
     specialties: '{名物|めいぶつ}',
     spots: '{名所|めいしょ}',
-    draft: '{下書|したが}き'
+    draft: '{下書|したが}き',
+    sources: '{出典|しゅってん}',
+    noSource: '{出典|しゅってん}なし',
+    accessed: '{確認日|かくにんび}'
   },
   comingSoon: {
     label: '{準備中|じゅんびちゅう}',
@@ -87,6 +90,14 @@ const jaSource = {
       adult: '{再試行|さいしこう}'
     } satisfies ModeTextValue,
     listSummary: '{市区町村|しくちょうそん}の{一覧|いちらん}（%n）'
+  },
+  footer: {
+    // URL（リンク）の前後の文。URL は Footer.tsx の定数で、before と after の間に入る（8.3）
+    mapSource: {
+      before: '{出典|しゅってん}：「{国土数値情報|こくどすうちじょうほう}（{行政区域|ぎょうせいくいき}データ）」（{国土交通省|こくどこうつうしょう}）（',
+      after: '）を{加工|かこう}して{作成|さくせい}'
+    },
+    ai: 'AIで{作成|さくせい}し、{人|ひと}が{確認|かくにん}しています'
   },
   index: {
     heading: '{県名|けんめい}さくいん'

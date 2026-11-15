@@ -5,6 +5,9 @@ import { fillCount } from './format.ts';
 import type { Lang } from './lang.ts';
 import { getMessages } from './messages.ts';
 
+/** 見出しの項目名と、その値の間の区切り（「県庁所在地：札幌市」「Accessed: …」） */
+export const LABEL_SEPARATOR: Readonly<Record<Lang, string>> = { ja: '：', en: ': ', zh: '：' };
+
 /** 1時間の分 */
 const MINUTES_PER_HOUR = 60;
 

@@ -238,4 +238,33 @@ describe('PrefCard', () => {
     expect(card.getAttribute('data-card-pref')).toBe('01');
     expect(card.hidden).toBe(true);
   });
+
+  test('4.11.7：出典欄は最大化ボタンの後に置く（F-SRC-01）', () => {
+    // Arrange・Act
+    const container = renderCard('ja', hokkaido);
+
+    // Assert
+    const button = q(container, '[data-card-maximize]');
+    const sources = q(container, '[data-card-sources]');
+    expect(sources.tagName).toBe('DETAILS');
+    expect(sources.hasAttribute('open')).toBe(false);
+    expect(button.compareDocumentPosition(sources) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(q(container, 'article').lastElementChild).toBe(sources);
+  });
+
+  test('4.11.4：準備中の県には出典欄を出さない', () => {
+    // Arrange・Act
+    const container = renderCard('ja', okinawaPending, 1550);
+
+    // Assert
+    expect(container.querySelector('[data-card-sources]')).toBeNull();
+  });
+
+  test('4.11.4：プレビューで項目がない県にも出典欄を出さない', () => {
+    // Arrange・Act
+    const container = renderCard('ja', prefOf(preview, '47'), 1550);
+
+    // Assert
+    expect(container.querySelector('[data-card-sources]')).toBeNull();
+  });
 });

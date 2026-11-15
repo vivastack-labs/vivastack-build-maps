@@ -23,7 +23,14 @@ access:
     en: "Haneda Airport → New Chitose Airport"
     zh: "羽田机场 → 新千岁机场"
   durationMin: 95
-  sources: []
+  # 出典はテスト用のダミー（example.com）。実在のサイトの内容を確かめたものではない
+  sources:
+    - title: "{空|そら}の{旅|たび}のガイド（テスト用）"
+      url: "https://example.com/hokkaido/access-a"
+      accessed: "2026-11-15"
+    - title: "Flight times to Hokkaido (test)"
+      url: "https://example.com/hokkaido/access-b"
+      accessed: "2026-10-01"
   status: reviewed
 specialties:
   - id: potato
@@ -41,7 +48,10 @@ specialties:
       zh:
         kids: "在宽阔的田地里长大的土豆，又软又好吃。"
         adult: "在北海道宽阔的田地里种植的土豆，秋天收获后运往全国各地。"
-    sources: []
+    sources:
+      - title: "Potato growing in Hokkaido (test)"
+        url: "https://example.com/hokkaido/potato"
+        accessed: "2026-11-03"
     status: reviewed
   - id: milk
     emoji: "🥛"
