@@ -168,6 +168,22 @@
   }
 }
 
+/*
+ * 開閉の動き。`CardSheet` がマウントの2フレーム後に `data-sheet-motion` を付けるまでは動かさない。動きを減らす設定（prefers-reduced-motion: reduce）では付けない（F-ZOOM-05 と同じ扱い）。
+ * 閉じるときだけ `visibility` も遷移に入れ、滑り終わってから見えなくする（開くときは、すぐ見えてフォーカスを受けられるようにする）。
+ */
+@media (width < 48rem) and (prefers-reduced-motion: no-preference) {
+  [data-sheet][data-sheet-motion] {
+    transition: translate 200ms ease;
+  }
+
+  [data-sheet='closed'][data-sheet-motion] {
+    transition:
+      translate 200ms ease,
+      visibility 200ms;
+  }
+}
+
 /* 一部だけ見える状態は、見出しと最大化ボタンだけにする。カードの並びは変えず、残りを隠す（`data-sheet-detail`。PrefCard・SourceList・MuniList） */
 @media (width < 48rem) {
   [data-sheet='peek'] [data-sheet-detail] {

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
@@ -87,6 +87,15 @@ describe('CardSheet', () => {
     expect(bar.hidden).toBe(false);
     expect(screen.getByRole('button', { name: 'More' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
+  });
+
+  test('F-MAP-05：マウントしてしばらくしてから data-sheet-motion を付ける（最初の配置の切り替えを動かさない）', async () => {
+    // Arrange・Act
+    const { container } = render(<Fixture />);
+
+    // Assert：マウントの直後にはまだない。数フレーム後に付く
+    expect(panel(container).hasAttribute('data-sheet-motion')).toBe(false);
+    await waitFor(() => expect(panel(container).hasAttribute('data-sheet-motion')).toBe(true));
   });
 
   test('F-MAP-05：サーバーの出力（JavaScript の前）には data-sheet がなく、バーは hidden', () => {
