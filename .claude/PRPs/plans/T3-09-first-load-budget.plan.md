@@ -78,7 +78,7 @@
 
 ### 4. JavaScript がないとき
 
-- `:target` で開いたカードには、見出し（県名・県庁所在地・距離）だけが出る。差し込み先に「くわしい内容は JavaScript を有効にすると読めます」（辞書の `card.needsScript`。`noscript:block`、ふだんは `hidden`）を出す。JavaScript が有効なのに読み込めなかったとき（`data-card-ready` がない）も同じ文を出す（`globals.css`）。
+- `:target` で開いたカードには、見出し（県名・県庁所在地・距離）だけが出る。差し込み先に「くわしい内容は JavaScript を有効にすると読めます」（辞書の `card.needsScript`。`hidden noscript:block`）を出す。JavaScript が有効なときは、ハイドレーションの前も、読み込めなかったときも出さない（レビュー MEDIUM-1。JavaScript が有効な人に誤った案内を見せないため）。
 - 5.3 の「JavaScript が使えない環境でも…県名さくいんから県のカードを開ける」と F-MODE-04 は、「カードの見出しまで」に書き直す（判断 2）。
 
 ### 5. 文書
@@ -89,30 +89,30 @@
 
 ## 先に書くテスト
 
+実際に書いた主なテスト（ファイルとテスト名の抜粋）。
+
 | ファイル | テスト名 |
 |---|---|
-| `tests/unit/features/card/cardData.test.ts` | `D38：cardData はその言語の行き方・名物・名所・出典だけを返す（ほかの言語の文を含まない）` |
-| 同 | `D38：ja の文はふりがなの記法のまま、en・zh は記法を含まない` |
-| 同 | `D38：プレビューの draft の項目には draft: true が付く` |
-| `tests/unit/features/card/cardValidate.test.ts` | `D38：validateCardData は正しい JSON を受け入れる` |
-| 同 | `D38：県コードの違い・項目の欠け・文字列でない値・http(s) でない出典の URL を invalid にする` |
-| `tests/unit/features/loader/*.test.ts` | 今の `muniLoader.test.ts` の状態の流れのテストを共通の部分へ移す（市区町村の検証のテストは残す） |
-| `tests/unit/features/card/cardLoader.test.ts` | `D38：/cards/{lang}/NN.json を読み、loading → loaded を通知する`、`300ms を超えると slow`、`HTTP の誤り・形の誤り・オフラインを分ける`、`同じ県の読み込みは1回にまとめ、成功だけを残す` |
-| `tests/unit/components/CardDetails.test.tsx` | `F-CARD-02〜06：表示中の県の行き方・名物・名所を差し込み先に描く`、`F-SRC-01〜03：出典を出典欄の差し込み先に描く`、`表示中の県が変わったら前の県の結果を使わない`、`失敗したら文言と再試行、再試行で読み直す` |
-| `tests/unit/scripts/measure-size.test.ts` | 変えない |
-| `tests/e2e/card.spec.ts` | 今のテストを JSON から描く形に直す。`D38：/cards/ja/01.json を読み込んでカードの内容を出す`、`D38：読み込み中・失敗（再試行で出る）・オフラインの表示`（`page.route`）、`D38：HTML にカードの解説文が入らない`（今の「D24 の出現回数」を置き換える） |
-| `tests/e2e/lang-switch.spec.ts` | `D38：ハッシュから復元した県のカードの内容が出る` |
-| `tests/e2e/card.spec.ts`（JavaScript なし） | `5.3：JavaScript がないとき、:target のカードに見出しと「JavaScript を有効に」の文が出る` |
+| `tests/unit/features/card/cardData.test.ts` | `D38：cardData はその言語の行き方・名物・名所・出典だけを返す（ほかの言語の文を含まない）`、`D38：所要時間の文と確認日の文字は、言語に合わせてサーバーで作る`、`D38：ja の文はふりがなの記法のまま、en・zh は記法を含まない`、`D38：プレビューの draft の項目には draft: true が付く（reviewed は false）`、`D38：記法でない { } を含む文があれば、JSON を作る前に例外にする`、`D38：準備中の県（本番）は内容を持たないので、空の JSON になる` |
+| `tests/unit/features/card/cardValidate.test.ts` | `D38：validateCardData は正しい JSON を受け入れる（そのまま返す）`、県コードの違い・項目の欠け・型・http(s) でない出典の URL・記法の誤りを `invalid` にするテスト |
+| `tests/unit/features/card/cardLoader.test.ts` | `D38：/cards/{lang}/NN.json を読み、loading → loaded を通知する`、`D38：300ms を超えると slow`、`D38：HTTP の誤り・形の誤り・オフラインを分ける`、`D38：同じ県の読み込みは1回にまとめ、成功だけを残す`、`D38：言語・県コードの形が合わなければ例外にする` |
+| `tests/unit/features/card/cardRoute.test.ts` | `D38：47県 × 3言語の NN.json を出す`、`D38：言語・ファイル名・県が正しければ、その言語のカードの内容を返す`、`D38：県が一覧にないときは null（404）` |
+| `tests/unit/features/loader/resourceLoader.test.ts` | `muniLoader.test.ts` から移した状態の流れのテスト（市区町村の検証・URL のテストは `muniLoader.test.ts` に残した） |
+| `tests/unit/components/CardDetails.test.tsx` | `F-CARD-02〜06：表示中の県の行き方・名物・名所を差し込み先に描く`、`F-SRC-01〜03：出典を出典欄の差し込み先（最大化ボタンの後）に描く`、`D38：表示中の県が変わったら、前の県の結果を使わない`、`4.11.5：失敗したら文言（こども向け・おとな向け）と「再試行」を出し、再試行で読み直す`、`4.11.5：オフラインなら専用の文言と「再試行」を出す` ほか |
+| `tests/unit/lib/content.test.ts` | en・zh の記法でない `{` `}` を場所つきの誤りにするテスト |
+| `tests/e2e/card.spec.ts` | `D38：/cards/en/01.json を読み込んでカードの内容を出す（JSON は application/json）`、`D38：300ms を超える読み込みの間は「読み込み中」を出し…`、`D38：オフラインのときは専用の文言と「再試行」を出し…`、`D38：HTML にカードの解説文・行き方・出典が入らない`（「D24 の出現回数」を置き換え）、`5.3：JavaScript がないとき、:target のカードに見出しと「JavaScript を有効にすると読めます」の文が出て…`、`5.3：JavaScript が有効なら…ハイドレーションの前も…文は見えない` |
+| `tests/e2e/lang-switch.spec.ts` | `D38：ハッシュから復元した県のカードの内容（JSON）が出る。言語を切り替えると、その言語の内容になる` |
+| `tests/e2e/sheet.spec.ts` | `F-MAP-05・T3-09（CLS）：幅800px（1列）でハッシュつきで開いても…さくいんがずれない`、同じく `ja の県を固定して英語に切り替えても…`、`ハッシュから復元して、利用者が操作する前は…高さを取っておく`、`ハッシュつきで開いて、さくいんまでスクロールしてから県を押しても、クリックが失われず固定される`、`内容が入ったとき、予約を外しても画面の外の要素しか動かないなら、すぐに外す` |
 
-既存の E2E（`mode.spec.ts`・`sheet.spec.ts`・`pending.spec.ts`・`e2e-preview/preview.spec.ts` など）でカードの内容を見ているものは、JSON が届くのを待つ形に直す。
+`mode.spec.ts`・`tests/screenshots/pages.spec.ts` など、カードの内容を見ているものは JSON が届くのを待つ形に直した。
 
 ## 作る・変えるファイル（順番）
 
-1. `src/features/loader/`（共通の読み込み）と `muniLoader.ts` の移行（テストが通ったまま）
-2. `src/features/card/cardData.ts`・`cardValidate.ts`・`cardLoader.ts` と単体テスト
+1. `src/features/loader/resourceLoader.ts`（共通の読み込み）、`src/components/useResourceData.ts`、`muniLoader.ts`・`useMuniData.ts` の移行（テストが通ったまま）
+2. `src/features/card/cardData.ts`・`cardValidate.ts`・`cardLoader.ts`・`cardRoute.ts` と単体テスト。`src/lib/content-rules.ts`（en・zh の記法でない `{` `}`）
 3. `app/cards/[lang]/[file]/route.ts`（ビルドで `dist/cards/` ができることを確かめる）
-4. `PrefCard`・`SourceList` の描画の部品の分割、差し込み先、`CardDetails`、辞書（ja・en・zh）
-5. `globals.css`（JavaScript なし・読み込めなかったときの文）
+4. `PrefCard` の差し込み先、`CardBody`・`CardSources`（`SourceList` を JSON から描く形に）、`CardDetails`、`CardArea`、`useHasInteracted`（`CardSheet` から分けて共有）、辞書（ja・en・zh・`cardText.ts`）
+5. `globals.css`（JavaScript なしの文、1列の配置の予約の高さ）
 6. E2E の追加と修正、スクリーンショットの画面（必要なら）
 7. 測る（メイン）：上限のコンテンツで `pnpm size`、Lighthouse（ja・en・zh）
 8. 文書（開発概要書・開発計画・タスクの定義・`AGENTS.md`）
@@ -139,3 +139,20 @@
 | 6 | 検索エンジンへの影響 | このタスクでは対応しない。開発計画 5章に「県ごとの静的なページ（JavaScript なしと検索向け）」を検討課題として書く | (a) にすると、解説文が最初の HTML に入らず、検索結果に出にくくなる。県ごとのページは JavaScript なしの表示も戻せるが、ページが141増える大きな変更なので、公開前に別に決める |
 | 7 | 読み込みの部品の共通化 | 市区町村の `createMuniLoader` の状態の流れを共通にし、カードと市区町村で使う | 同じ状態（`slow`・`offline`・再試行）を2回書くと食い違う。市区町村の単体テスト・E2E が通ったままで移す |
 | 8 | 1県分のカードのデータの基準 | 5.1 に「1県分のカードのデータ（圧縮後）10KB 以下（目安）」を足す。`pnpm size` では確かめない | 市区町村の「1県分 100KB 以下（目安）」と同じ扱い。上限で約 3.4KB なので余裕がある |
+
+## 承認後に変えたこと
+
+オーナーの判断が要らない、細かな違いと、レビューの指摘で足したもの。
+
+| 項目 | 承認したとき | 実際 | 理由 |
+|---|---|---|---|
+| 準備中の県の JSON | 作らない | 内容が空の JSON を出す | Next.js の静的出力は経路が1つ以上要る。本物のコンテンツは47県とも準備中で、除くと `generateStaticParams` が空になりビルドが止まる。内容は `publish()` が外しているので、未確認の内容は出ない。クライアントは差し込み先のない県（準備中）を読み込まない |
+| Route Handler の検証 | Route Handler の中 | `src/features/card/cardRoute.ts`（`parseCardFile`・`cardStaticParams`・`cardForRequest`）に分けた | 単体テストできる純粋関数にするため。コンテンツの読み込みはファイルの中で1回だけ |
+| 所要時間の文・確認日の文字 | クライアントで `durationText`・`formatDate` | JSON を作るとき（サーバー）に、その言語の文字にして入れる | 辞書3言語がクライアントの JavaScript に入らないように |
+| 見出しの文言 | 辞書から props で | サーバーで `cardDetailLabels` を作り、`CardDetails` に1回だけ渡す | 同上 |
+| 描画の部品 | `PrefCard`・`SourceList` を分ける | `CardBody`・`CardSources`（`SourceList` を改名し、JSON の `CardData` から描く） | 描くのはクライアントだけになったため |
+| 記法でない `{` `}`（レビュー HIGH-1） | なし | en・zh の文の `{` `}` を `content:validate` の場所つきの誤りにし、`cardData` は例外、`validateCardData` は `invalid` にする | 以前はサーバーで描いてビルドが止まったが、JSON では文がそのままブラウザに届き、`RubyText` の例外でページ全体が消えるため |
+| 1列の配置の CLS（レビュー HIGH-2・MEDIUM-A・LOW） | なし | 768〜1023px で、ハッシュから復元して利用者が操作する（click・keydown）まで、表示中の県の差し込み先に `min-height: 100svh` を取っておく（ハイドレーションの前は `:target`）。内容が画面の下端まで届くならすぐ外す。差し込み先は `flow-root` | 内容が後から入ると、カードの下のさくいんが押し出される（予約なしで CLS 約 0.5）。pointerdown で外すと押した県が動いてクリックが失われる。`dvh` はアドレスバーの出し入れで変わる |
+| JavaScript の案内の文（レビュー MEDIUM-1） | JavaScript が有効でも読み込めなかったときは出す | JavaScript が無効のときだけ出す | ハイドレーションの前に、JavaScript が有効な人にも見えてしまうため |
+| ハッシュつきの最初のずれ | なし | 開発計画 5章に課題として書いた（T4-04 の前に決める） | 1列の配置でハッシュつきで開くと、main でも CLS 0.639（:target が最初のレイアウトの後に決まる。T3-03 の方式）。T3-09 では予約のぶん 0.899。予約をやめても合計は良くならない（レビューで比べた） |
+| 検索への影響（判断 6） | 開発計画 5章に検討課題 | 同じ（独立した行。決めるのは T6-01 の前） | なし |
