@@ -1,7 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
-import { LANGS, type Lang } from '../../src/i18n/lang';
+import { MUNI_LABEL_FONT_SIZE } from '../../src/features/map/labels';
+import { LABEL_FONT_SIZE } from '../../src/features/map/prefPaths';
+import { LANGS } from '../../src/i18n/lang';
 import { getMessages } from '../../src/i18n/messages';
-import { expandSheet } from './helpers';
+import { expandSheet, settledPoint } from './helpers';
 
 // 5.5・R9・D23：CSP（T4-01）。ハッシュを書いた CSP は各 HTML の <meta>、frame-ancestors などは _headers。本番用のビルド（wrangler dev で dist/ を配信）。
 // ここでは、主な操作（固定・最大化・市区町村・カードの JSON・ツールチップ・モードとふりがなの切替・言語の切替・404）の間に、
@@ -9,8 +11,17 @@ import { expandSheet } from './helpers';
 
 const HOKKAIDO = '01';
 const SAPPORO_CHUO = '01101';
-/** ズーム 1 のときの県名ラベルの文字の大きさ（`LABEL_FONT_SIZE`）。style 属性をクラスにしても、CSP の下で効いていることを確かめる */
-const LABEL_FONT_PX: Readonly<Record<Lang, string>> = { ja: '16px', en: '13px', zh: '16px' };
+/**
+ * 県境・沖縄の枠・海域名・市区町村の線の太さと文字の大きさ（viewBox の単位。倍率1のとき）。`JapanMap`・`MuniLayer` のクラスと同じ値
+ * （県名ラベルの文字の大きさは `LABEL_FONT_SIZE`、市区町村のラベルは `MUNI_LABEL_FONT_SIZE`）
+ */
+const PREF_BORDER_WIDTH = 0.8;
+const OKINAWA_FRAME_WIDTH = 1.5;
+const SEA_LABEL_FONT_SIZE = 24;
+const MUNI_BORDER_WIDTH = 0.5;
+const MUNI_OUTLINE_WIDTH = 1.4;
+/** 画面の上の大きさの許容の誤差（倍率 `data-zoom-scale` は丸めて書かれる） */
+const RELATIVE_TOLERANCE = 0.02;
 
 type Violation = { readonly directive: string; readonly blocked: string };
 
@@ -30,10 +41,32 @@ async function collectViolations(page: Page): Promise<string[]> {
     );
   });
   page.on('console', message => {
-    if (/content security policy|refused to/iu.test(message.text())) found.push(`console：${message.text()}`);
+    if (/content[-\s]security[-\s]policy|refused to/iu.test(message.text())) found.push(`console：${message.text()}`);
   });
   page.on('pageerror', error => found.push(`pageerror：${error.message}`));
   return found;
+}
+
+type SizeCheck = { readonly selector: string; readonly property: 'fontSize' | 'strokeWidth'; readonly base: number };
+
+/**
+ * 画面の上の大きさが、基準 ÷ 倍率になっているのを待つ（style 属性をクラスにしても、CSP の下で `--zoom-k` が効いている）。
+ * `zoomed` が false なら倍率1（基準のまま）、true なら倍率が1より大きいとき。基準が 16px の文字はブラウザの既定と同じなので、zoomed でも確かめる
+ */
+async function expectZoomInvariantSizes(page: Page, checks: readonly SizeCheck[], zoomed: boolean): Promise<void> {
+  await expect
+    .poll(async () => {
+      const measured = await page.evaluate(
+        (targets: readonly SizeCheck[]) => ({
+          k: Number(document.querySelector('[data-map-layer]')?.getAttribute('data-zoom-scale')),
+          sizes: targets.map(({ selector, property }) => parseFloat(getComputedStyle(document.querySelector(selector) as Element)[property]))
+        }),
+        checks
+      );
+      const isZoomStateRight = zoomed ? measured.k > 1 : measured.k === 1;
+      return isZoomStateRight && checks.every(({ base }, index) => Math.abs((measured.sizes[index] ?? 0) - base / measured.k) <= (base / measured.k) * RELATIVE_TOLERANCE);
+    })
+    .toBe(true);
 }
 
 /** ハイドレーションが終わるのを待ってから、ページを開く（終わる前の操作は失われる） */
@@ -52,8 +85,14 @@ test.describe('R9：CSP の下で、主な操作の間に CSP 違反が出ない
       const display = getMessages(lang).display;
       await open(page, `/${lang}/`);
 
-      // style 属性をクラスにした値が、CSP の下でも効いている（県名ラベルの文字の大きさ。倍率1）
-      await expect(page.locator('[data-pref-labels]')).toHaveCSS('font-size', LABEL_FONT_PX[lang]);
+      // style 属性をクラスにした値が、CSP の下でも効いている（倍率1：基準のまま）
+      const prefChecks: readonly SizeCheck[] = [
+        { selector: '[data-pref-labels]', property: 'fontSize', base: LABEL_FONT_SIZE[lang] },
+        { selector: '[data-sea-label]', property: 'fontSize', base: SEA_LABEL_FONT_SIZE },
+        { selector: '[data-map-layer] > g.stroke-map-border', property: 'strokeWidth', base: PREF_BORDER_WIDTH },
+        { selector: '[data-okinawa-frame]', property: 'strokeWidth', base: OKINAWA_FRAME_WIDTH }
+      ];
+      await expectZoomInvariantSizes(page, prefChecks, false);
       await expect(page.locator('[data-map-box]')).toHaveCSS('aspect-ratio', /^1000 \/ 1130$/u);
 
       // Act：さくいんで北海道を固定する（カードの JSON を読み込む）。マウスならホバーも
@@ -71,14 +110,26 @@ test.describe('R9：CSP の下で、主な操作の間に CSP 違反が出ない
       await expect(page.locator(`[data-muni-layer][data-muni-pref="${HOKKAIDO}"]`)).toBeAttached();
       await expect(page.locator('[data-muni-status="loaded"]')).toBeAttached();
       await expect(page.locator(`path[data-muni="${SAPPORO_CHUO}"]`)).toBeAttached();
-      await expect(page.locator('[data-muni-labels]')).toHaveCSS('font-size', /^\d+(\.\d+)?px$/u);
 
-      // Act：ツールチップ（マウスのとき）
+      // Assert：寄った後（倍率が1より大きい）は、基準 ÷ 倍率。県の層と市区町村の層の両方
+      await expectZoomInvariantSizes(
+        page,
+        [
+          ...prefChecks,
+          { selector: '[data-muni-labels]', property: 'fontSize', base: MUNI_LABEL_FONT_SIZE },
+          { selector: '[data-muni-layer] > g.stroke-muni-border', property: 'strokeWidth', base: MUNI_BORDER_WIDTH },
+          { selector: 'path[data-muni-outline]', property: 'strokeWidth', base: MUNI_OUTLINE_WIDTH }
+        ],
+        true
+      );
+
+      // Act・Assert：ツールチップ（マウスのとき）。札幌市中央区の形の内側にマウスを動かすと、市区町村のツールチップが見える
       if (!hasTouch) {
-        const box = await page.locator('[data-map-box]').boundingBox();
-        if (!box) throw new Error('地図の箱の位置を取れません');
-        await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-        await page.mouse.move(box.x + box.width / 2 + 5, box.y + box.height / 2 + 5);
+        const sapporo = page.locator(`path[data-muni="${SAPPORO_CHUO}"]`);
+        await sapporo.scrollIntoViewIfNeeded();
+        const point = await settledPoint(sapporo);
+        await page.mouse.move(point.x, point.y);
+        await expect(page.locator('[data-tip-muni]')).toBeVisible();
       }
 
       // Act：モードとふりがなの切替（localStorage に保存する）
