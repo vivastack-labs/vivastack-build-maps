@@ -81,6 +81,12 @@ export const zh: Messages = {
     },
     ai: '由 AI 制作，并经人工确认'
   },
+  display: {
+    label: '模式',
+    kids: '儿童',
+    adult: '成人',
+    ruby: '注音假名'
+  },
   index: {
     heading: '都道府县索引'
   },

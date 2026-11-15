@@ -17,6 +17,7 @@
 
 - `scripts/postbuild.ts` に加える：
   - 出力したHTMLから、インラインスクリプト（`src` のない `<script>`）をすべて集め、SHA-256（base64）を計算する。
+  - T3-05 で分かったこと：`<head>` の初期化スクリプト（D23）の文字列は `src/features/mode/initScript.ts` の `MODE_INIT_SCRIPT`（定数。利用者の入力が入らない固定の文字列）。出力した HTML には `<script>try{var s=localStorage,…</script>` として入る。HTML から集めるハッシュに入る（Next.js のインラインスクリプトと同じ仕組み）。ハッシュを定数から直接計算した値と、HTML から集めた値が一致することも確かめるとよい。
   - `_headers` に、ページ（言語）ごとの CSP を書き込む。
 - CSP の内容：`default-src 'self'`、`script-src 'self'` と集めたハッシュと Web Analytics のドメイン、`connect-src 'self'` と Web Analytics のドメイン、`object-src 'none'`、`base-uri 'self'`、`frame-ancestors 'none'`。スタイルの指定（`style-src`）は、ツールチップの位置などに `style` 属性を使うかを確かめて決め、理由を開発概要書 5.5 に書く。
 - 開発概要書 11.4 (4) の `_headers` の例を、実際の内容に合わせる。

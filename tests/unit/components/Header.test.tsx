@@ -28,4 +28,17 @@ describe('Header', () => {
       expect(textWithoutRuby(heading)).toBe(plainText(getMessages(lang).siteName));
     });
   }
+
+  test('4.11.7：Header に切替のボタンがある（ja はふりがなも。T3-05）', () => {
+    // Arrange・Act
+    const ja = render(<Header lang="ja" />);
+
+    // Assert
+    expect(within(screen.getByRole('banner')).getByRole('button', { name: 'こども' })).toBeInTheDocument();
+    expect(ja.container.querySelector('[data-ruby-button]')).not.toBeNull();
+    ja.unmount();
+    const en = render(<Header lang="en" />);
+    expect(within(screen.getByRole('banner')).getByRole('button', { name: 'Kids' })).toBeInTheDocument();
+    expect(en.container.querySelector('[data-ruby-button]')).toBeNull();
+  });
 });

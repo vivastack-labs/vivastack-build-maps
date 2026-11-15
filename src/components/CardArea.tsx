@@ -5,7 +5,7 @@ import { TOKYO_CODE } from '@/lib/distance';
 import { CardSwitch } from './CardSwitch';
 import { MuniList } from './MuniList';
 import { PrefCard } from './PrefCard';
-import { RubyText } from './RubyText';
+import { ModeText } from './ModeText';
 
 type Props = {
   readonly lang: Lang;
@@ -30,8 +30,7 @@ function distanceOf(distances: ReadonlyMap<string, number>, code: string): numbe
  * （カードの中に置くとクライアントコンポーネントが47個できる）。
  * 並びは「県の見出し・内容 → 最大化ボタン → 出典（`PrefCard` の中。T3-04）→ 市区町村の一覧（最大化中だけ）」（4.11.7）。
  * 1024px以上では、地図とさくいんの2行ぶんの高さの右の列に置き、スクロールしても見える位置に固定する。カードが画面より高いときは、カードの中でスクロールする。
- * こども向け・おとな向けの出し分けは T3-05 まで入れないので、案内文はおとな向けだけを出す
- * （`ModeText` を今使うと両方が表示され、スクリーンリーダーも両方を読む）。カードの解説文は、タスクの定義どおり両方を出す。
+ * 案内文・カードの解説文は `ModeText` でこども向け・おとな向けの両方を出し、片方を CSS で隠す（T3-05。F-MODE-04）。
  * `MapStateProvider` の中に置く。
  */
 export function CardArea({ lang, prefectures, distances }: Props) {
@@ -42,7 +41,7 @@ export function CardArea({ lang, prefectures, distances }: Props) {
     >
       <CardSwitch>
         <p data-card-guide>
-          <RubyText text={getMessages(lang).card.guide.adult} />
+          <ModeText text={getMessages(lang).card.guide} />
         </p>
         {prefectures.map(prefecture => (
           <PrefCard key={prefecture.code} lang={lang} prefecture={prefecture} distanceKm={prefecture.code === TOKYO_CODE ? null : distanceOf(distances, prefecture.code)} />

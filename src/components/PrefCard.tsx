@@ -53,7 +53,7 @@ function AccessSection({ lang, access, labels }: { readonly lang: Lang; readonly
   );
 }
 
-/** 名物・名所の一覧（F-CARD-05・06）。解説文はこども向け・おとな向けの両方を出す（F-MODE-04。見せる方の切り替えは T3-05） */
+/** 名物・名所の一覧（F-CARD-05・06）。解説文はこども向け・おとな向けの両方を出す（F-MODE-04。見せる方は CSS で切り替える。T3-05） */
 function ItemList({ lang, items, labels }: { readonly lang: Lang; readonly items: readonly Drafted<Specialty | Spot>[]; readonly labels: Messages['card'] }) {
   return (
     <ul className="mt-1 space-y-2">

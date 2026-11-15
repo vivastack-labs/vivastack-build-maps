@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { htmlLang, isLang, langStaticParams } from '@/i18n/lang';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
+import { MODE_INIT_SCRIPT } from '@/features/mode/initScript';
+import { DEFAULT_DISPLAY } from '@/features/mode/settings';
 import { getMessages } from '@/i18n/messages';
 import { buildTarget } from '@/lib/publish';
 import { plainText } from '@/lib/ruby';
@@ -30,13 +32,19 @@ export async function generateMetadata({ params }: Pick<Props, 'params'>): Promi
   return { title: plainText(getMessages(lang).siteName), ...(buildTarget() === 'preview' ? { robots: { index: false } } : {}) };
 }
 
-// D28：app/[lang]/layout.tsx をルートレイアウトにして <html lang> を出力する（6.2 D27）
+// D28：app/[lang]/layout.tsx をルートレイアウトにして <html lang> を出力する（6.2 D27）。
+// T3-05：<html data-mode data-ruby> に言語ごとの既定値（D37）を書く（JavaScript がなくても既定のモードで読める。F-MODE-04）。
+// <head> の初期化スクリプトが、最初の描画の前に localStorage の保存した値で上書きするので、<html> の属性は suppressHydrationWarning にする（D23）。
+// dangerouslySetInnerHTML はここだけ。中身は固定の定数（利用者の入力が入らない）。
 export default async function RootLayout({ children, params }: Props) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
 
   return (
-    <html lang={htmlLang(lang)}>
+    <html lang={htmlLang(lang)} data-mode={DEFAULT_DISPLAY[lang].mode} data-ruby={DEFAULT_DISPLAY[lang].ruby} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: MODE_INIT_SCRIPT }} />
+      </head>
       <body className="bg-page-bg text-page-text">
         <Header lang={lang} />
         {children}
