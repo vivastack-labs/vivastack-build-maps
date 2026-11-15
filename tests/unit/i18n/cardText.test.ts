@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { distanceText, durationText } from '@/i18n/cardText';
+import { cardDetailLabels, distanceText, durationText } from '@/i18n/cardText';
 
 describe('distanceText', () => {
   test('F-CARD-03：distanceText は辞書の文に桁区切りの km を入れる（ja/en/zh）', () => {
@@ -42,5 +42,31 @@ describe('durationText', () => {
     expect(() => durationText('ja', -5)).toThrow('所要時間');
     expect(() => durationText('en', 12.5)).toThrow('所要時間');
     expect(() => durationText('zh', Number.NaN)).toThrow('所要時間');
+  });
+});
+
+describe('cardDetailLabels', () => {
+  test('D38：項目名と区切りを足した文言を、言語ごとに返す（クライアントが辞書全体を読み込まないため、props で渡す）', () => {
+    // Arrange・Act
+    const ja = cardDetailLabels('ja');
+    const en = cardDetailLabels('en');
+
+    // Assert
+    expect(ja.durationLabel).toBe('{所要時間|しょようじかん}の{目安|めやす}：');
+    expect(ja.accessed).toBe('{確認日|かくにんび}：');
+    expect(en.durationLabel).toBe('Estimated travel time: ');
+    expect(en.accessed).toBe('Accessed: ');
+    expect(en.draft).toBe('Draft');
+    expect(en.access).toBe('Getting there from Tokyo');
+  });
+
+  test.each(['ja', 'en', 'zh'] as const)('D38：読み込みの状態の文言（読み込み中・失敗・オフライン・再試行）がある（%s）', lang => {
+    const labels = cardDetailLabels(lang);
+
+    expect(labels.loading).not.toBe('');
+    for (const modeText of [labels.loadFailed, labels.offline, labels.retry]) {
+      expect(modeText.kids).not.toBe('');
+      expect(modeText.adult).not.toBe('');
+    }
   });
 });

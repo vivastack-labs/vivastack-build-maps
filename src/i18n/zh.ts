@@ -48,7 +48,24 @@ export const zh: Messages = {
     draft: '草稿',
     sources: '出处',
     noSource: '无出处',
-    accessed: '确认日期'
+    accessed: '确认日期',
+    loading: '加载中…',
+    loadFailed: {
+      kids: '没能加载详细内容',
+      adult: '详细内容加载失败'
+    },
+    offline: {
+      kids: '没有联网，所以无法显示',
+      adult: '离线状态下无法显示'
+    },
+    retry: {
+      kids: '再试一次',
+      adult: '重试'
+    },
+    needsScript: {
+      kids: '开启 JavaScript 就能看到详细内容哦',
+      adult: '启用 JavaScript 后可查看详细内容'
+    }
   },
   comingSoon: {
     label: '准备中',

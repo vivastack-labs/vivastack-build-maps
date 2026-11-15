@@ -137,6 +137,16 @@
 }
 
 /*
+ * T3-09：カードの内容（行き方・名物・名所・出典）は、JavaScript が県ごとの JSON から読み込んで差し込み先に描く（D38、5.2）。
+ * JavaScript がないとき、と、JavaScript が有効でも読み込めなかったとき（`data-card-ready` がない）は、差し込み先の
+ * 「JavaScript を有効にすると読めます」の文（`[data-card-needs-script]`）が、`:target` で開いたカードの見出しの下に見える。
+ * `CardSwitch` がマウントすると `data-card-ready` が付き、この文は隠れる（JSON が読み込めなかったときの文言と「再試行」は `CardDetails` が出す）。
+ */
+[data-card-ready] [data-card-needs-script] {
+  display: none;
+}
+
+/*
  * T3-05：モード・ふりがなの切替（F-MODE-01・02・04、6.6 (3)、D26）。<html data-mode data-ruby> は、ビルド時に言語ごとの既定値を書き、
  * <head> の初期化スクリプト（src/features/mode/initScript.ts）が最初の描画の前に、localStorage の保存した値で上書きする。
  * 隠すのは display: none（読み上げ・aria-live・ボタンの名前からも除く。visibility・opacity は使わない）。

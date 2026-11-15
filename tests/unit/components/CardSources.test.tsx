@@ -1,7 +1,9 @@
 import { render } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
 
-import { SourceList } from '@/components/SourceList';
+import { CardSources } from '@/components/CardSources';
+import { cardData } from '@/features/card/cardData';
+import { cardDetailLabels } from '@/i18n/cardText';
 import { formatDate } from '@/i18n/format';
 import { LANGS, type Lang } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
@@ -15,19 +17,17 @@ const production = publishedPrefectures(FIXTURE_DIR, 'production');
 const hokkaido = production.find(p => p.code === '01') as PublishedPrefecture;
 const okinawa = publishedPrefectures(FIXTURE_DIR, 'preview').find(p => p.code === '47') as PublishedPrefecture;
 
-const renderSources = (lang: Lang, prefecture: PublishedPrefecture = hokkaido) =>
-  render(<SourceList lang={lang} access={prefecture.access} specialties={prefecture.specialties} spots={prefecture.spots} />).container;
+const renderSources = (lang: Lang, prefecture: PublishedPrefecture = hokkaido) => render(<CardSources data={cardData(prefecture, lang)} labels={cardDetailLabels(lang)} />).container;
 
 const text = (element: Element | null): string => textWithoutRuby(element as Element);
 const q = (root: ParentNode, selector: string): HTMLElement => root.querySelector(selector) as HTMLElement;
 const itemOf = (root: ParentNode, key: string): HTMLElement => q(root, `[data-source-item="${key}"]`);
 
-describe('SourceList', () => {
-  test('出典のある項目は、タイトル・URL・確認日を表示する（F-SRC-02）', () => {
-    // Arrange・Act
+// 出典欄は、JSON（cardData）から描く（T3-09、D38）
+describe('CardSources', () => {
+  test('F-SRC-02：出典のある項目は、タイトル・URL・確認日を表示する', () => {
     const container = renderSources('ja');
 
-    // Assert：行き方は2件
     const sources = [...itemOf(container, 'access').querySelectorAll<HTMLElement>('[data-source]')];
     expect(sources).toHaveLength(2);
     const [first, second] = sources as [HTMLElement, HTMLElement];
@@ -40,34 +40,27 @@ describe('SourceList', () => {
     expect(text(q(second, '[data-source-accessed]'))).toBe('確認日：2026年10月1日');
   });
 
-  test('sources: [] の項目は「出典なし」と表示する（F-SRC-03）', () => {
-    // Arrange・Act
+  test('F-SRC-03：sources: [] の項目は「出典なし」と表示する', () => {
     const container = renderSources('ja');
 
-    // Assert：牛乳は出典なし。リンクも確認日も出さない
     const milk = itemOf(container, 'specialties/milk');
     expect(text(q(milk, '[data-source-none]'))).toBe('出典なし');
     expect(milk.querySelector('a')).toBeNull();
     expect(milk.querySelector('[data-source]')).toBeNull();
-    // 出典のある項目には「出典なし」を出さない
     expect(itemOf(container, 'specialties/potato').querySelector('[data-source-none]')).toBeNull();
   });
 
-  test('「出典」欄は、最初は閉じている（F-SRC-01）', () => {
-    // Arrange・Act
+  test('F-SRC-01：「出典」欄は、最初は閉じている', () => {
     const container = renderSources('ja');
 
-    // Assert
     const details = q(container, 'details[data-card-sources]');
     expect(details.hasAttribute('open')).toBe(false);
     expect(text(q(details, 'summary'))).toBe('出典');
   });
 
-  test('外部へのリンクに rel="noopener noreferrer" と target="_blank" を付ける（判断4）', () => {
-    // Arrange・Act
+  test('判断4：外部へのリンクに rel="noopener noreferrer" と target="_blank" を付ける', () => {
     const container = renderSources('en');
 
-    // Assert
     const links = [...container.querySelectorAll('a')];
     expect(links).toHaveLength(3);
     for (const link of links) {
@@ -77,11 +70,9 @@ describe('SourceList', () => {
     }
   });
 
-  test.each(LANGS)('行き方・名物・名所の順に、項目の名前で並べる（F-SRC-02。%s）', lang => {
-    // Arrange・Act
+  test.each(LANGS)('F-SRC-02：行き方・名物・名所の順に、項目の名前で並べる（%s）', lang => {
     const container = renderSources(lang);
 
-    // Assert
     const items = [...container.querySelectorAll<HTMLElement>('[data-source-item]')];
     const keys = [...hokkaido.specialties.map(s => `specialties/${s.id}`), ...hokkaido.spots.map(s => `spots/${s.id}`)];
     expect(items.map(item => item.getAttribute('data-source-item'))).toEqual(['access', ...keys]);
@@ -92,11 +83,9 @@ describe('SourceList', () => {
     expect(heading(items[4] as HTMLElement)).toBe(plainText(hokkaido.spots[0]?.name[lang] ?? ''));
   });
 
-  test('英語のページは英語の文言と書式で出す（F-SRC-02）', () => {
-    // Arrange・Act
+  test('F-SRC-02：英語のページは英語の文言と書式で出す', () => {
     const container = renderSources('en');
 
-    // Assert
     expect(text(q(container, 'summary'))).toBe('Sources');
     expect(text(q(itemOf(container, 'specialties/milk'), '[data-source-none]'))).toBe('No source');
     expect(text(q(itemOf(container, 'specialties/potato'), '[data-source-accessed]'))).toBe('Accessed: November 3, 2026');
@@ -104,37 +93,30 @@ describe('SourceList', () => {
   });
 
   test('中国語のページは中国語の文言で出す', () => {
-    // Arrange・Act
     const container = renderSources('zh');
 
-    // Assert
     expect(text(q(container, 'summary'))).toBe('出处');
     expect(text(q(itemOf(container, 'specialties/milk'), '[data-source-none]'))).toBe('无出处');
     expect(text(q(itemOf(container, 'specialties/potato'), '[data-source-accessed]'))).toBe('确认日期：2026年11月3日');
   });
 
-  test('項目が1つもなければ何も出さない（4.11.4）', () => {
-    // Arrange・Act
-    const container = renderSources('ja', okinawa);
-
-    // Assert
-    expect(container.innerHTML).toBe('');
+  test('4.11.4：項目が1つもなければ何も出さない', () => {
+    expect(renderSources('ja', okinawa).innerHTML).toBe('');
   });
 
   test('行き方がなく名物・名所だけの県でも出す', () => {
-    // Arrange・Act
-    const container = render(<SourceList lang="ja" access={undefined} specialties={hokkaido.specialties} spots={[]} />).container;
+    const data = cardData(hokkaido, 'ja');
+    const withoutAccess = { code: data.code, specialties: data.specialties, spots: data.spots };
 
-    // Assert
+    const { container } = render(<CardSources data={{ ...withoutAccess, spots: [] }} labels={cardDetailLabels('ja')} />);
+
     expect(container.querySelector('[data-source-item="access"]')).toBeNull();
     expect(container.querySelectorAll('[data-source-item]')).toHaveLength(3);
   });
 
-  test.each(['en', 'zh'] as const)('ja 以外のページでは、出典のタイトルのふりがなの記法を読みなしの文字にする（%s）', lang => {
-    // Arrange・Act：行き方の1件目のタイトルは「{空|そら}の{旅|たび}のガイド（テスト用）」
+  test.each(['en', 'zh'] as const)('F-SRC-02：ja 以外のページでは、出典のタイトルは読みなしの文字（%s）', lang => {
     const container = renderSources(lang);
 
-    // Assert
     const link = q(itemOf(container, 'access'), 'a');
     expect(link.textContent).toBe('空の旅のガイド（テスト用）');
     expect(container.querySelector('ruby, rt')).toBeNull();

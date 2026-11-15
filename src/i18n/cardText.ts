@@ -3,7 +3,7 @@
 // scripts/ から Node.js で直接読み込むことがあるので、相対の import には .ts を付ける。
 import { fillCount } from './format.ts';
 import type { Lang } from './lang.ts';
-import { getMessages } from './messages.ts';
+import { getMessages, type ModeTextValue } from './messages.ts';
 
 /** 見出しの項目名と、その値の間の区切り（「県庁所在地：札幌市」「Accessed: …」） */
 export const LABEL_SEPARATOR: Readonly<Record<Lang, string>> = { ja: '：', en: ': ', zh: '：' };
@@ -36,4 +36,43 @@ export function durationText(lang: Lang, minutes: number): string {
   const text = template.replace('%h', String(h)).replace('%m', String(m));
   const reading = PUN_LAST_DIGITS.has(m % 10) ? '{分|ぷん}' : FUN_RUBY;
   return text.replace(FUN_RUBY, reading);
+}
+
+/**
+ * `CardDetails`（クライアント）に props で1回だけ渡す文言（T3-09、6.6 (2)）。ふりがなの記法つき（`RubyText`・`ModeText` で描く）。
+ * クライアントが辞書の全部（3言語）を読み込まないよう、必要な分だけをサーバーで選ぶ。項目名の後ろの区切り（`durationLabel`・`accessed`）は足してある。
+ */
+export type CardDetailLabels = {
+  readonly access: string;
+  readonly durationLabel: string;
+  readonly specialties: string;
+  readonly spots: string;
+  readonly draft: string;
+  readonly sources: string;
+  readonly noSource: string;
+  readonly accessed: string;
+  readonly loading: string;
+  readonly loadFailed: ModeTextValue;
+  readonly offline: ModeTextValue;
+  readonly retry: ModeTextValue;
+};
+
+/** `CardDetails` に渡す文言を、辞書から作る（サーバーで呼ぶ） */
+export function cardDetailLabels(lang: Lang): CardDetailLabels {
+  const { card } = getMessages(lang);
+  const separator = LABEL_SEPARATOR[lang];
+  return {
+    access: card.access,
+    durationLabel: card.durationLabel + separator,
+    specialties: card.specialties,
+    spots: card.spots,
+    draft: card.draft,
+    sources: card.sources,
+    noSource: card.noSource,
+    accessed: card.accessed + separator,
+    loading: card.loading,
+    loadFailed: card.loadFailed,
+    offline: card.offline,
+    retry: card.retry
+  };
 }

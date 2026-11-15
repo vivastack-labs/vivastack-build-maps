@@ -48,7 +48,24 @@ export const en: Messages = {
     draft: 'Draft',
     sources: 'Sources',
     noSource: 'No source',
-    accessed: 'Accessed'
+    accessed: 'Accessed',
+    loading: 'Loading…',
+    loadFailed: {
+      kids: "Couldn't load the details.",
+      adult: 'Failed to load the details.'
+    },
+    offline: {
+      kids: "You're offline, so this can't be shown.",
+      adult: 'Unavailable while offline.'
+    },
+    retry: {
+      kids: 'Try again',
+      adult: 'Retry'
+    },
+    needsScript: {
+      kids: 'Turn on JavaScript to read the details!',
+      adult: 'Enable JavaScript to read the details.'
+    }
   },
   comingSoon: {
     label: 'Coming soon',
