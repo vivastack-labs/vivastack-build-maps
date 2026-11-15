@@ -154,19 +154,20 @@ test.describe('F-MODE-03・D23：設定の保存', () => {
   });
 
   test('D23：保存した設定は言語をまたいで使われる（モードは読む人の好み）', async ({ page }) => {
-    // Arrange：ja でおとなにする
+    // Arrange：ja の既定はこども向け、en の既定はおとな向け。ja で「こども」を押して保存する（en の既定と違う値）
     await open(page);
     await modeButton(page, ja.adult).click();
-    await expect(page.locator('html')).toHaveAttribute('data-mode', 'adult');
-
-    // Act：en を開く（既定もおとななので、こどもを保存して確かめる）
-    await open(page, 'en');
-    await page.locator('[data-mode-button="kids"]').click();
-    await open(page, 'zh');
-
-    // Assert
+    await modeButton(page, ja.kids).click();
     await expect(page.locator('html')).toHaveAttribute('data-mode', 'kids');
+
+    // Act
+    await open(page, 'en');
+
+    // Assert：en の既定（adult）ではなく、保存した kids になる
+    await expect(page.locator('html')).toHaveAttribute('data-mode', 'kids');
+    await expect(page.locator('[data-mode-button="kids"]')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('[data-card-guide] .kids')).toBeVisible();
+    await expect(page.locator('[data-card-guide] .adult')).toBeHidden();
   });
 
   test('D23：保存した値が正しくなければ、既定値のままにする', async ({ page }) => {

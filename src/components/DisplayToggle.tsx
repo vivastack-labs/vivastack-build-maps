@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from 'react';
 
-import { applySetting, DEFAULT_DISPLAY, type Mode, MODE_STORAGE_KEY, parseMode, parseRuby, type Ruby, RUBY_STORAGE_KEY } from '@/features/mode/settings';
+import { applySetting, DEFAULT_DISPLAY, type Mode, parseMode, parseRuby, type Ruby } from '@/features/mode/settings';
 import type { Lang } from '@/i18n/lang';
 import type { Messages } from '@/i18n/messages';
 
@@ -55,12 +55,17 @@ const ADULT_BUTTON = `${BUTTON} -ml-px rounded-r adult:bg-map-selected adult:tex
 const RUBY_BUTTON = `${BUTTON} rounded bg-map-selected text-slate-950 ruby-off:bg-transparent ruby-off:text-inherit`;
 
 function saveMode(mode: Mode): void {
-  applySetting(document.documentElement, () => window.localStorage, MODE_STORAGE_KEY, 'mode', mode);
+  applySetting(document.documentElement, () => window.localStorage, 'mode', mode);
   notify();
 }
 
-function saveRuby(ruby: Ruby): void {
-  applySetting(document.documentElement, () => window.localStorage, RUBY_STORAGE_KEY, 'ruby', ruby);
+/**
+ * ふりがなを入れ替える。次の値は、描いた時点の値ではなく、押した時点の `<html>` の属性から決める
+ * （ハイドレーション直後に、初期化スクリプトが書いた値と描いた値がずれていても取りこぼさない）
+ */
+function toggleRuby(fallback: Ruby): void {
+  const current = parseRuby(document.documentElement.dataset.ruby) ?? fallback;
+  applySetting(document.documentElement, () => window.localStorage, 'ruby', current === 'on' ? 'off' : 'on');
   notify();
 }
 
@@ -85,7 +90,7 @@ export function DisplayToggle({ lang, labels }: Props) {
         </button>
       </div>
       {lang === 'ja' ? (
-        <button type="button" data-ruby-button aria-pressed={ruby === 'on'} onClick={() => saveRuby(ruby === 'on' ? 'off' : 'on')} className={RUBY_BUTTON}>
+        <button type="button" data-ruby-button aria-pressed={ruby === 'on'} onClick={() => toggleRuby(defaults.ruby)} className={RUBY_BUTTON}>
           {labels.ruby}
         </button>
       ) : null}

@@ -2,6 +2,8 @@
 /* T3-03：JavaScript がないときの :target の規則（末尾）用のレイヤー。!important の宣言は、先に並べたレイヤーが勝つので、Tailwind の層（theme・base…）より前に宣言する */
 @layer card-target;
 @import 'tailwindcss';
+/* テストの Playwright のセレクター（.kids:visible など）からユーティリティが出ないよう、テストはクラス名の検出の対象にしない */
+@source not "../tests";
 
 /* 6.2 D27：Webフォントは使わず、言語ごとにシステムフォントを指定する。
    --font-sans は Tailwind の preflight が html の font-family に使うので、ページ全体に効く。
@@ -126,15 +128,18 @@
     display: block !important;
   }
 }
-[data-card-switch]:not([data-card-ready]):has([data-card-pref]:target) [data-card-guide] {
-  display: none;
+/* :has() を解釈できないブラウザでは、セレクターを含む規則全体が捨てられる。ほかの規則と1つの一覧にまとめられて巻き込まないよう、@supports で包む（T3-05） */
+@supports selector(:has(*)) {
+  [data-card-switch]:not([data-card-ready]):has([data-card-pref]:target) [data-card-guide] {
+    display: none;
+  }
 }
 
 /*
  * T3-05：モード・ふりがなの切替（F-MODE-01・02・04、6.6 (3)、D26）。<html data-mode data-ruby> は、ビルド時に言語ごとの既定値を書き、
  * <head> の初期化スクリプト（src/features/mode/initScript.ts）が最初の描画の前に、localStorage の保存した値で上書きする。
  * 隠すのは display: none（読み上げ・aria-live・ボタンの名前からも除く。visibility・opacity は使わない）。
- * レイヤーの外に書くので、Tailwind のユーティリティ（@layer utilities）より常に強い（.kids・.adult の要素に display が付いても隠れる）。
+ * レイヤーの外に書くので、`!important` のユーティリティを除き、Tailwind のユーティリティ（@layer utilities）より強い（.kids・.adult の要素に display が付いても隠れる）。
  */
 :root[data-mode='kids'] .adult,
 :root[data-mode='adult'] .kids {

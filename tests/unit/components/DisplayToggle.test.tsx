@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { DisplayToggle } from '@/components/DisplayToggle';
 import { getMessages } from '@/i18n/messages';
@@ -72,7 +72,7 @@ describe('DisplayToggle', () => {
     // Arrange
     render(<DisplayToggle lang="ja" labels={getMessages('ja').display} />);
 
-    // Act：初期化スクリプトや別のタブからの変更など、ボタン以外が属性を書く
+    // Act：初期化スクリプトなど、ボタン以外が属性を書く
     await act(async () => {
       html.dataset.mode = 'adult';
       html.dataset.ruby = 'off';
@@ -126,5 +126,34 @@ describe('DisplayToggle', () => {
 
     // Assert
     expect(container.querySelector('[data-display-toggle]')?.className).toContain('noscript:hidden');
+  });
+
+  test('ハイドレーション直後など、描いた値と <html> の属性がずれていても、押した時点の属性から次の値を決める', () => {
+    // Arrange：描いた時点では ruby=on。購読の通知なしに属性だけを off にする（通知が届く前に押した状況）
+    render(<DisplayToggle lang="ja" labels={getMessages('ja').display} />);
+    html.dataset.ruby = 'off';
+
+    // Act
+    fireEvent.click(screen.getByRole('button', { name: 'ふりがな' }));
+
+    // Assert：描いた値（on）から決めると off のままになる。押した時点の値（off）から on になる
+    expect(html.dataset.ruby).toBe('on');
+  });
+
+  test('アンマウントすると購読が外れ、MutationObserver も止まる', () => {
+    // Arrange
+    const disconnect = vi.spyOn(MutationObserver.prototype, 'disconnect');
+    const { unmount } = render(<DisplayToggle lang="ja" labels={getMessages('ja').display} />);
+    const before = disconnect.mock.calls.length;
+
+    // Act
+    unmount();
+
+    // Assert：observer を止めた（2つの設定ぶん）。以降の属性の変更・ボタンの通知で、例外も再描画も起きない
+    expect(disconnect.mock.calls.length - before).toBe(2);
+    expect(() => {
+      html.dataset.mode = 'adult';
+    }).not.toThrow();
+    disconnect.mockRestore();
   });
 });

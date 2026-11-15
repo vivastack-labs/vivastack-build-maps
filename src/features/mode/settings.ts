@@ -32,15 +32,20 @@ export function parseRuby(value: unknown): Ruby | null {
   return value === 'on' || value === 'off' ? value : null;
 }
 
+/** 設定の名前（`<html>` の `data-*` の名前）と、その値の型 */
+type SettingValues = { readonly mode: Mode; readonly ruby: Ruby };
+
+const STORAGE_KEYS: Readonly<Record<keyof SettingValues, string>> = { mode: MODE_STORAGE_KEY, ruby: RUBY_STORAGE_KEY };
+
 /**
- * 設定を `<html>` の `data-*` に書き、localStorage に保存する（F-MODE-03）。
+ * 設定を `<html>` の `data-*` に書き、localStorage に保存する（F-MODE-03）。保存のキーは設定の名前から決まり、値の型も名前で決まる（組み合わせの誤りは型で落ちる）。
  * 属性を先に書くので、保存に失敗しても（プライベートモード・保存の禁止など）切替はそのページの中では効く。
  * 保存の例外は飲み込む（4.11.5：エラーは表示しない）。`storage` を関数で受け取るのは、プロパティを読むだけで例外になる環境があるため。
  */
-export function applySetting(root: HTMLElement, storage: () => Storage, key: string, attr: 'mode' | 'ruby', value: Mode | Ruby): void {
+export function applySetting<K extends keyof SettingValues>(root: HTMLElement, storage: () => Storage, attr: K, value: SettingValues[K]): void {
   root.setAttribute(`data-${attr}`, value);
   try {
-    storage().setItem(key, value);
+    storage().setItem(STORAGE_KEYS[attr], value);
   } catch {
     // 4.11.5：保存できなくても表示は変えない
   }

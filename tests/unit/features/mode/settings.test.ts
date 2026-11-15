@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 
 import { LANGS } from '@/i18n/lang';
-import { applySetting, DEFAULT_DISPLAY, MODE_STORAGE_KEY, parseMode, parseRuby, RUBY_STORAGE_KEY } from '@/features/mode/settings';
+import { applySetting, DEFAULT_DISPLAY, parseMode, parseRuby } from '@/features/mode/settings';
 
 /** <html> の代わり。setAttribute で書かれた属性を `attributes` に持つ */
 const fakeRoot = (): HTMLElement & { attributes: Record<string, string> } => {
@@ -37,8 +37,8 @@ describe('settings', () => {
     const setItem = vi.fn();
 
     // Act
-    applySetting(root, () => ({ setItem }) as unknown as Storage, MODE_STORAGE_KEY, 'mode', 'adult');
-    applySetting(root, () => ({ setItem }) as unknown as Storage, RUBY_STORAGE_KEY, 'ruby', 'off');
+    applySetting(root, () => ({ setItem }) as unknown as Storage, 'mode', 'adult');
+    applySetting(root, () => ({ setItem }) as unknown as Storage, 'ruby', 'off');
 
     // Assert
     expect(root.attributes).toEqual({ 'data-mode': 'adult', 'data-ruby': 'off' });
@@ -54,9 +54,9 @@ describe('settings', () => {
     };
 
     // Act・Assert：storage を取る関数が投げる場合と、setItem が投げる場合
-    expect(() => applySetting(root, throwing, MODE_STORAGE_KEY, 'mode', 'adult')).not.toThrow();
+    expect(() => applySetting(root, throwing, 'mode', 'adult')).not.toThrow();
     expect(root.attributes['data-mode']).toBe('adult');
-    expect(() => applySetting(root, () => ({ setItem: throwing }) as unknown as Storage, RUBY_STORAGE_KEY, 'ruby', 'off')).not.toThrow();
+    expect(() => applySetting(root, () => ({ setItem: throwing }) as unknown as Storage, 'ruby', 'off')).not.toThrow();
     expect(root.attributes['data-ruby']).toBe('off');
   });
 });
