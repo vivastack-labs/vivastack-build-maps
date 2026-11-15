@@ -55,7 +55,7 @@ export function SourceList({ lang, access, specialties, spots }: Props) {
   const entries = entriesOf(lang, labels, { access, specialties, spots });
   if (entries.length === 0) return null;
   return (
-    <details data-card-sources className="mt-3">
+    <details data-card-sources data-sheet-detail className="mt-3">
       <summary className="cursor-pointer font-bold">
         <RubyText text={labels.sources} />
       </summary>

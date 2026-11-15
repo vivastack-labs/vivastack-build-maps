@@ -33,6 +33,8 @@ describe('MuniList', () => {
     expect(details?.querySelector('summary')?.textContent).toMatch(/（4）$/u);
     expect([...container.querySelectorAll('[data-muni-item]')].map(item => item.getAttribute('data-muni-item'))).toEqual(['20101', '20102', '20103', '20104']);
     expect(screen.getByText('市20101')).toBeInTheDocument();
+    // T3-06：パネルが一部だけ見える状態（768px 未満）では隠す
+    expect(details?.hasAttribute('data-sheet-detail')).toBe(true);
   });
 
   test('F-I18N-05: 英語のページの一覧はローマ字', async () => {

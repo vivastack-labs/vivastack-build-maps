@@ -178,6 +178,17 @@ describe('4.11.2 ハッシュからの復元（T3-07）', () => {
   });
 });
 
+describe('4.11.3 パネルを閉じる（T3-06）', () => {
+  test('4.11.3：closeCard は固定と最大化を解除する', () => {
+    expect(mapReducer(PINNED, { type: 'closeCard' })).toEqual({ ...PINNED, pinned: null });
+    expect(mapReducer(MAXIMIZED, { type: 'closeCard' })).toEqual({ ...MAXIMIZED, pinned: null, maximized: null });
+  });
+
+  test('closeCard は何も固定していなければ同じ状態を返す', () => {
+    expect(mapReducer(NORMAL, { type: 'closeCard' })).toBe(NORMAL);
+  });
+});
+
 const ALL_EVENTS: readonly MapEvent[] = [
   { type: 'hover', pref: A },
   { type: 'hoverEnd' },
@@ -189,7 +200,8 @@ const ALL_EVENTS: readonly MapEvent[] = [
   { type: 'escape' },
   { type: 'resetView' },
   { type: 'zoomStep' },
-  { type: 'restore', pref: B }
+  { type: 'restore', pref: B },
+  { type: 'closeCard' }
 ];
 
 describe('状態の同一性と不変性', () => {
@@ -225,7 +237,8 @@ describe('性質のテスト（fast-check）', () => {
     fc.constant<MapEvent>({ type: 'escape' }),
     fc.constant<MapEvent>({ type: 'resetView' }),
     fc.constant<MapEvent>({ type: 'zoomStep' }),
-    prefArb.map((pref): MapEvent => ({ type: 'restore', pref }))
+    prefArb.map((pref): MapEvent => ({ type: 'restore', pref })),
+    fc.constant<MapEvent>({ type: 'closeCard' })
   );
   const eventsArb = fc.array(eventArb, { minLength: 0, maxLength: 30 });
 

@@ -36,7 +36,7 @@ function Emoji({ emoji }: { readonly emoji: string }) {
 /** 東京からの行き方（F-CARD-04）。所要時間は目安であることを項目名に書く */
 function AccessSection({ lang, access, labels }: { readonly lang: Lang; readonly access: Drafted<Access>; readonly labels: Messages['card'] }) {
   return (
-    <section data-card-access className="mt-3">
+    <section data-card-access data-sheet-detail className="mt-3">
       <h3 className="font-bold">
         <RubyText text={labels.access} />
         {access.draft && <DraftMark label={labels.draft} />}
@@ -86,7 +86,7 @@ function ItemSection({
   readonly labels: Messages['card'];
 }) {
   return (
-    <section {...(kind === 'specialties' ? { 'data-card-specialties': '' } : { 'data-card-spots': '' })} className="mt-3">
+    <section {...(kind === 'specialties' ? { 'data-card-specialties': '' } : { 'data-card-spots': '' })} data-sheet-detail className="mt-3">
       <h3 className="font-bold">
         <RubyText text={labels[kind]} />
       </h3>
@@ -101,6 +101,8 @@ function ItemSection({
  * 本番で内容を出さない県（`pending`）は、行き方・名物・名所の代わりに「準備中」の文を出す（4.11.4）。
  * 最大化ボタンは JavaScript がないと動かないので `hidden` で出し、`CardSwitch` が外す。
  * 出典欄（`SourceList`。F-SRC-01。閉じた `<details>`）は最大化ボタンの後に置く（4.11.7）。JavaScript がなくても `:target` で開いたカードの中に入る。
+ * パネルが一部だけ見える状態（768px 未満。T3-06）で隠す部分（行き方・名物・名所・「準備中」の文・出典）には `data-sheet-detail` を付ける
+ * （カードの並びは変えず、CSS で隠す）。県名の `<h2>` は `tabIndex={-1}`（パネルを開いたとき、`CardSheet` がフォーカスを移す。4.11.6）。
  * 文字はすべて `RubyText` で描く（`dangerouslySetInnerHTML` は使わない）。
  */
 export function PrefCard({ lang, prefecture, distanceKm }: Props) {
@@ -112,7 +114,7 @@ export function PrefCard({ lang, prefecture, distanceKm }: Props) {
       <p data-card-region className="text-sm">
         <RubyText text={messages.regions[region]} />
       </p>
-      <h2 data-card-name className="text-xl font-bold">
+      <h2 data-card-name tabIndex={-1} className="text-xl font-bold">
         <RubyText text={name[lang]} />
       </h2>
       <p data-card-capital>
@@ -125,7 +127,7 @@ export function PrefCard({ lang, prefecture, distanceKm }: Props) {
         </p>
       )}
       {pending ? (
-        <p data-card-coming-soon className="mt-3">
+        <p data-card-coming-soon data-sheet-detail className="mt-3">
           <ModeText text={messages.comingSoon.card} />
         </p>
       ) : (

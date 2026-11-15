@@ -26,7 +26,9 @@ export type MapEvent =
   | { readonly type: 'escape' }
   | { readonly type: 'resetView' }
   | { readonly type: 'zoomStep' }
-  | { readonly type: 'restore'; readonly pref: PrefCode };
+  | { readonly type: 'restore'; readonly pref: PrefCode }
+  /** 下から出るパネルの「とじる」（4.11.3。T3-06）。固定と最大化をまとめて解く */
+  | { readonly type: 'closeCard' };
 
 /** ページを開いたときの状態。どの県もホバー・固定・最大化していない */
 export const INITIAL_MAP_STATE: MapState = { hovered: null, displayed: null, pinned: null, maximized: null };
@@ -66,6 +68,11 @@ function restore(state: MapState, pref: PrefCode): MapState {
   return update(state, { pinned: pref, maximized: null });
 }
 
+/** パネルを閉じる：固定も最大化も解除する（最大化は固定している県だけなので、固定を外すなら最大化も解く。4.11.1） */
+function closeCard(state: MapState): MapState {
+  return update(state, { pinned: null, maximized: null });
+}
+
 /**
  * 操作に応じて次の状態を返す（4.11.2 の表）。受け取った状態は変えない。
  * 状態が変わらない操作では、受け取った状態をそのまま返す（同じ参照）。
@@ -90,6 +97,8 @@ export function mapReducer(state: MapState, event: MapEvent): MapState {
       return state;
     case 'restore':
       return restore(state, event.pref);
+    case 'closeCard':
+      return closeCard(state);
   }
 }
 

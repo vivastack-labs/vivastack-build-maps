@@ -30,6 +30,34 @@ const text = (element: Element | null): string => textWithoutRuby(element as Ele
 const q = (root: ParentNode, selector: string): HTMLElement => root.querySelector(selector) as HTMLElement;
 
 describe('PrefCard', () => {
+  test('4.11.7（T3-06）：パネルが一部だけ見える状態で隠す部分（行き方・名物・名所・出典）に data-sheet-detail を付け、見出しと最大化ボタンには付けない', () => {
+    // Arrange・Act
+    const container = renderCard('ja', hokkaido);
+    const detailKeys = [...container.querySelectorAll('[data-sheet-detail]')].map(element => element.getAttributeNames().find(name => name.startsWith('data-card-')));
+
+    // Assert
+    expect(detailKeys).toEqual(['data-card-access', 'data-card-specialties', 'data-card-spots', 'data-card-sources']);
+    for (const selector of ['[data-card-region]', '[data-card-name]', '[data-card-capital]', '[data-card-distance]', '[data-card-maximize]']) {
+      expect(q(container, selector).hasAttribute('data-sheet-detail'), selector).toBe(false);
+    }
+  });
+
+  test('4.11.7（T3-06）：「準備中」の文にも data-sheet-detail を付ける', () => {
+    // Arrange・Act
+    const container = renderCard('ja', okinawaPending);
+
+    // Assert
+    expect(q(container, '[data-card-coming-soon]').hasAttribute('data-sheet-detail')).toBe(true);
+  });
+
+  test('4.11.6（T3-06）：県名の h2 は tabIndex=-1（パネルを開いたときにフォーカスを受ける）', () => {
+    // Arrange・Act
+    const container = renderCard('ja', hokkaido);
+
+    // Assert
+    expect(q(container, 'h2[data-card-name]').getAttribute('tabindex')).toBe('-1');
+  });
+
   test.each(LANGS)('F-CARD-02：見出しに地方名・県名・県庁所在地を出す（%s）', lang => {
     // Arrange・Act
     const container = renderCard(lang, hokkaido);
