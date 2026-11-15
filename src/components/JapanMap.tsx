@@ -1,9 +1,8 @@
 import type { ReactNode } from 'react';
 import { FIRST_PREF } from '@/features/map/keyboard';
-import { LABEL_FONT_SIZE, loadPrefPaths, type PrefPath } from '@/features/map/prefPaths';
+import { loadPrefPaths, type PrefPath } from '@/features/map/prefPaths';
 import { OKINAWA_FRAME, VIEWBOX } from '@/features/map/projection';
 import { PENDING_FILL_CLASS, PENDING_PATTERN_ID, REGION_FILL_CLASS } from '@/features/map/regions';
-import { zoomInvariant } from '@/features/map/zoomInvariant';
 import type { Lang } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
 import type { PublishedPrefecture } from '@/lib/publish';
@@ -17,8 +16,19 @@ type Props = {
   readonly children?: ReactNode;
 };
 
-/** 海域名の文字の大きさ（viewBox の単位） */
-const SEA_LABEL_FONT_SIZE = 24;
+/*
+ * 拡大しても画面の上の大きさが変わらない長さは、`calc(基準px / var(--zoom-k, 1))`（`--zoom-k` は `MapZoom` が層に書く倍率。ないときは基準のまま）。
+ * 値は style 属性ではなく Tailwind の任意のプロパティのクラスで書く（style-src 'self' は HTML の style 属性を止める。5.5・D39）。
+ * Tailwind が組み立てたクラス名を拾えないので、1つずつ全体を書く。基準の数は下の定数と同じにする（`JapanMap.test.tsx` が確かめる）。
+ */
+/** 海域名の文字の大きさ（viewBox の単位。24）のクラス */
+const SEA_LABEL_FONT_CLASS = '[font-size:calc(24px/var(--zoom-k,1))]';
+/** 県名ラベルの文字の大きさのクラス。言語ごとの基準は `LABEL_FONT_SIZE` */
+const PREF_LABEL_FONT_CLASS: Readonly<Record<Lang, string>> = {
+  ja: '[font-size:calc(16px/var(--zoom-k,1))]',
+  en: '[font-size:calc(13px/var(--zoom-k,1))]',
+  zh: '[font-size:calc(16px/var(--zoom-k,1))]'
+};
 /**
  * 県のパスの操作の見た目（D26）。マウスをのせると少し薄く（Tailwind の hover: は (hover: hover) のときだけ効くので、タッチで色が残らない）、
  * 固定中・最大化中は aria-pressed で塗りを変える。状態の属性は `MapInteraction` が書き換える
@@ -26,7 +36,7 @@ const SEA_LABEL_FONT_SIZE = 24;
 const PREF_INTERACTION_CLASS = 'cursor-pointer hover:opacity-80 aria-pressed:fill-map-selected';
 /**
  * 2.4.7：キーボードのフォーカス（`:focus-visible`）の枠。さくいんと同じ色。SVG の中の outline の太さは viewBox と拡大の倍率で変わるので、
- * 倍率（`--zoom-k`。層に書かれる）で割って、画面の上で一定に近づける（`zoomInvariant` と同じ考え方）
+ * 倍率（`--zoom-k`。層に書かれる）で割って、画面の上で一定に近づける（下の `*_FONT_CLASS`・`*_WIDTH_CLASS` と同じ考え方）
  */
 const PREF_FOCUS_CLASS = 'focus-visible:outline-solid focus-visible:outline-[length:calc(4px/var(--zoom-k,1))] focus-visible:outline-slate-900 dark:focus-visible:outline-slate-50';
 /** F-MUNI-04：県を最大化している間は、最大化した県以外を薄くする（`MapInteraction` の `group/map` に `data-map-maximized` が付く） */
@@ -34,9 +44,9 @@ const PREF_DIMMED_CLASS = 'group-data-[map-maximized]/map:not-data-[state=maximi
 /** 「準備中」の斜線の間隔・太さ（viewBox の単位。倍率1のとき） */
 const PENDING_HATCH_PITCH = 7;
 const PENDING_HATCH_STROKE = 2;
-/** 県境の線・沖縄の枠の線の太さ（viewBox の単位。倍率1のとき） */
-const BORDER_WIDTH = 0.8;
-const FRAME_WIDTH = 1.5;
+/** 県境の線・沖縄の枠の線の太さ（viewBox の単位。倍率1のとき）のクラス */
+const BORDER_WIDTH_CLASS = '[stroke-width:calc(0.8px/var(--zoom-k,1))]';
+const FRAME_WIDTH_CLASS = '[stroke-width:calc(1.5px/var(--zoom-k,1))]';
 /** 海域名の位置（viewBox の座標。文字の中心） */
 const SEA_LABEL_POSITIONS = {
   japanSea: { x: 370, y: 470 },
@@ -105,21 +115,20 @@ export function JapanMap({ lang, prefectures, children }: Props) {
       <PendingPattern />
       <rect data-map-sea x={0} y={0} width={VIEWBOX.width} height={VIEWBOX.height} className="fill-map-sea" />
       <g data-map-layer>
-        <g className="stroke-map-border" style={{ strokeWidth: zoomInvariant(BORDER_WIDTH) }} strokeLinejoin="round">
+        <g className={`stroke-map-border ${BORDER_WIDTH_CLASS}`} strokeLinejoin="round">
           {prefectures.map(prefecture => (
             <PrefShape key={prefecture.code} lang={lang} prefecture={prefecture} d={pathOf(pathByCode, prefecture.code).d} />
           ))}
         </g>
-        <rect data-okinawa-frame {...OKINAWA_FRAME} fill="none" strokeDasharray="6 4" style={{ strokeWidth: zoomInvariant(FRAME_WIDTH) }} className="stroke-map-frame" />
+        <rect data-okinawa-frame {...OKINAWA_FRAME} fill="none" strokeDasharray="6 4" className={`stroke-map-frame ${FRAME_WIDTH_CLASS}`} />
         {(['japanSea', 'pacific'] as const).map(sea => (
           <text
             key={sea}
             data-sea-label
             {...SEA_LABEL_POSITIONS[sea]}
-            style={{ fontSize: zoomInvariant(SEA_LABEL_FONT_SIZE) }}
             textAnchor="middle"
             dominantBaseline="central"
-            className="pointer-events-none fill-map-sea-label select-none"
+            className={`pointer-events-none fill-map-sea-label select-none ${SEA_LABEL_FONT_CLASS}`}
           >
             {plainText(messages.seas[sea])}
           </text>
@@ -128,8 +137,7 @@ export function JapanMap({ lang, prefectures, children }: Props) {
         <g
           data-pref-labels
           aria-hidden="true"
-          className="pointer-events-none fill-map-label select-none max-map-label:hidden"
-          style={{ fontSize: zoomInvariant(LABEL_FONT_SIZE[lang]) }}
+          className={`pointer-events-none fill-map-label select-none max-map-label:hidden ${PREF_LABEL_FONT_CLASS[lang]}`}
           textAnchor="middle"
           dominantBaseline="central"
         >

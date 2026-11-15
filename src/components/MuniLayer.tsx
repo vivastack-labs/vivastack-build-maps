@@ -1,12 +1,11 @@
 'use client';
 
 import { useLayoutEffect, useMemo, useRef } from 'react';
-import { MUNI_LABEL_FONT_SIZE, muniLabelText, selectLabels, type LabelCandidate, type PlacedLabel } from '@/features/map/labels';
+import { muniLabelText, selectLabels, type LabelCandidate, type PlacedLabel } from '@/features/map/labels';
 import { applyLabelVisibility } from '@/features/map/mapDom';
 import type { MuniLoader } from '@/features/map/muniLoader';
 import type { MuniShape } from '@/features/map/muniShapes';
 import { MUNI_SHADE_CLASS } from '@/features/map/regions';
-import { zoomInvariant } from '@/features/map/zoomInvariant';
 import type { Lang } from '@/i18n/lang';
 import { useMapState } from './MapStateProvider';
 import { useMuniShapes } from './useMuniShapes';
@@ -17,9 +16,14 @@ type Props = {
   readonly loader?: MuniLoader;
 };
 
-/** 市区町村の境界線・県の外周の線の太さ（viewBox の単位。倍率1のとき） */
-const MUNI_BORDER_WIDTH = 0.5;
-const OUTLINE_WIDTH = 1.4;
+/*
+ * 拡大しても画面の上の大きさが変わらない長さは、`calc(基準px / var(--zoom-k, 1))`（`JapanMap` と同じ）。style 属性ではなくクラスで書く（5.5・D39）。
+ * クラス名は Tailwind が拾えるよう全体を書く。ラベルの 11 は `MUNI_LABEL_FONT_SIZE`（`MuniLayer.test.tsx` が確かめる）。
+ */
+/** 市区町村の境界線（0.5）・県の外周の線（1.4）の太さ（viewBox の単位。倍率1のとき） */
+const MUNI_BORDER_WIDTH_CLASS = '[stroke-width:calc(0.5px/var(--zoom-k,1))]';
+const OUTLINE_WIDTH_CLASS = '[stroke-width:calc(1.4px/var(--zoom-k,1))]';
+const MUNI_LABEL_FONT_CLASS = '[font-size:calc(11px/var(--zoom-k,1))]';
 /** 地図の層（`MapZoom` が倍率を書く）の、倍率の属性 */
 const ZOOM_SCALE_ATTRIBUTE = 'data-zoom-scale';
 
@@ -78,19 +82,13 @@ export function MuniLayer({ lang, loader }: Props) {
   if (loaded === null || labels === null || state.maximized === null) return null;
   return (
     <g ref={groupRef} data-muni-layer data-muni-pref={state.maximized} aria-hidden="true">
-      <g className="stroke-muni-border" style={{ strokeWidth: zoomInvariant(MUNI_BORDER_WIDTH) }} strokeLinejoin="round">
+      <g className={`stroke-muni-border ${MUNI_BORDER_WIDTH_CLASS}`} strokeLinejoin="round">
         {loaded.shapes.map(({ code, d, shade }) => (
           <path key={code} data-muni={code} data-shade={shade} d={d} className={MUNI_SHADE_CLASS[shade]} />
         ))}
       </g>
-      <path data-muni-outline d={loaded.outline} fill="none" strokeLinejoin="round" className="pointer-events-none stroke-map-border" style={{ strokeWidth: zoomInvariant(OUTLINE_WIDTH) }} />
-      <g
-        data-muni-labels
-        className="pointer-events-none fill-map-label select-none max-map-label:hidden"
-        style={{ fontSize: zoomInvariant(MUNI_LABEL_FONT_SIZE) }}
-        textAnchor="middle"
-        dominantBaseline="central"
-      >
+      <path data-muni-outline d={loaded.outline} fill="none" strokeLinejoin="round" className={`pointer-events-none stroke-map-border ${OUTLINE_WIDTH_CLASS}`} />
+      <g data-muni-labels className={`pointer-events-none fill-map-label select-none max-map-label:hidden ${MUNI_LABEL_FONT_CLASS}`} textAnchor="middle" dominantBaseline="central">
         {labels.map(({ code, text, x, y, minScale }) => (
           <text key={code} data-muni-label={code} data-min-scale={minScale} lang={lang === 'zh' ? 'ja' : undefined} x={x} y={y}>
             {text}

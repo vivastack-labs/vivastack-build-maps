@@ -156,16 +156,17 @@ describe('JapanMap のタッチ操作', () => {
 });
 
 describe('JapanMap の拡大しても変わらない大きさ（T2-06）', () => {
-  const pattern = (px: number) => new RegExp(`^calc\\(${px}px / var\\(--zoom-k, 1\\)\\)$`, 'u');
+  // style 属性は style-src 'self' で止まるので、Tailwind の任意のプロパティのクラスで書く（5.5）
+  const zoomClass = (property: string, px: number) => `[${property}:calc(${px}px/var(--zoom-k,1))]`;
 
   test('F-ZOOM-01：県名ラベル・海域名の文字の大きさは、言語ごとの基準を --zoom-k で割る（倍率1・JavaScript なしでは今と同じ）', () => {
     for (const lang of LANGS) {
       const { container } = render(<JapanMap lang={lang} prefectures={prefectures} />);
 
       const labels = container.querySelector('[data-pref-labels]') as SVGGElement;
-      expect(labels.style.fontSize).toMatch(pattern(LABEL_FONT_SIZE[lang]));
+      expect(labels.classList.contains(zoomClass('font-size', LABEL_FONT_SIZE[lang]))).toBe(true);
       for (const sea of container.querySelectorAll<SVGTextElement>('[data-sea-label]')) {
-        expect(sea.style.fontSize).toMatch(pattern(24));
+        expect(sea.classList.contains(zoomClass('font-size', 24))).toBe(true);
       }
       cleanup();
     }
@@ -175,8 +176,17 @@ describe('JapanMap の拡大しても変わらない大きさ（T2-06）', () =>
     const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
 
     const borders = container.querySelector('[data-map-layer] > g.stroke-map-border') as SVGGElement;
-    expect(borders.style.strokeWidth).toMatch(pattern(0.8));
-    expect((container.querySelector('[data-okinawa-frame]') as SVGRectElement).style.strokeWidth).toMatch(pattern(1.5));
+    expect(borders.classList.contains(zoomClass('stroke-width', 0.8))).toBe(true);
+    expect((container.querySelector('[data-okinawa-frame]') as SVGRectElement).classList.contains(zoomClass('stroke-width', 1.5))).toBe(true);
+  });
+
+  test("5.5：サーバーで描く地図に style 属性がない（style-src 'self' で止まるため）", () => {
+    for (const lang of LANGS) {
+      const { container } = render(<JapanMap lang={lang} prefectures={prefectures} />);
+
+      expect(container.querySelectorAll('[style]')).toHaveLength(0);
+      cleanup();
+    }
   });
 });
 
