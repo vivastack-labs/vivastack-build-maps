@@ -66,9 +66,11 @@ test.describe('F-I18N-03・4.11.2：言語を切り替えても、固定して�
 
     // Act：英語に切り替える
     await langLink(page, 'en').click();
+    await expect(page).toHaveURL(new RegExp(`/en/#pref-${HOKKAIDO}$`));
     await page.locator('[data-card-ready]').waitFor({ state: 'attached' });
 
-    // Assert：英語の内容（ふりがなの <ruby> がない）
+    // Assert：英語の内容（移ったあとの、英語の名物の名前。ふりがなの <ruby> がない）
+    await expect(cardOf(page, HOKKAIDO).locator('[data-card-specialties] [data-card-item]').first().locator('strong')).toHaveText('Potatoes');
     await expect(cardOf(page, HOKKAIDO).locator('[data-card-details="loaded"]')).toBeAttached();
     await expect(cardOf(page, HOKKAIDO).locator('[data-card-specialties] [data-card-item]')).toHaveCount(3);
     await expect(cardOf(page, HOKKAIDO).locator('[data-card-specialties] ruby')).toHaveCount(0);

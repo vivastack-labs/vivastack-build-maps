@@ -420,7 +420,7 @@ test.describe('D38：カードの内容は県ごとの JSON', () => {
     expect(count).toBe(1);
   });
 
-  /** ページの HTML を、`<script>` の外（本体）と中（RSC のデータ）に分けて返す */
+  /** ページの HTML（本体と、末尾の RSC のデータの `<script>` を含む全体）を返す */
   async function htmlOf(request: APIRequestContext, lang: string): Promise<string> {
     return (await request.get(`/${lang}/`)).text();
   }
