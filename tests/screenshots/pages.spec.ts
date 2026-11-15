@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 import { test, type Page } from '@playwright/test';
 import { LANGS } from '../../src/i18n/lang';
-import { settledPoint } from '../e2e/helpers';
+import { expandSheet, settledPoint } from '../e2e/helpers';
 
 // PRに載せるスクリーンショットの画面（playwright.screenshots.config.ts）。今の作業ツリーだけを撮る（before は撮らない）。
 // 画面が変わるタスクでは、変わった状態（例：県を選んでパネルを開いた状態）を SCENES に足す
@@ -67,6 +67,8 @@ async function pinHokkaidoAdultRubyOff(page: Page): Promise<void> {
 /** 北海道のカードを出し、その「出典」欄を開く（T3-04。出典のある項目〔行き方・じゃがいも〕と「出典なし」の項目が見える） */
 async function openHokkaidoSources(page: Page): Promise<void> {
   await pinHokkaidoFromIndex(page);
+  // 768px 未満（スマホ）では、一部だけ見えるパネルに出典欄がないので、全部見える状態にしてから開く（T3-06）
+  await expandSheet(page);
   await page.locator('[data-card-pref="01"] [data-card-sources] summary').click();
   await page.locator('[data-card-pref="01"] details[data-card-sources][open]').waitFor();
   // summary のクリックでページとカードの中が途中までスクロールするので、ページは先頭に戻し、
@@ -103,6 +105,8 @@ function maximizePref(code: string): (page: Page) => Promise<void> {
 /** 長野県を最大化し、カードの「市区町村の一覧」を開く（4.11.6） */
 async function maximizeWithList(page: Page): Promise<void> {
   await maximizePref('20')(page);
+  // 768px 未満（スマホ）では、一部だけ見えるパネルに市区町村の一覧がないので、全部見える状態にしてから開く（T3-06）
+  await expandSheet(page);
   await page.locator('details[data-muni-list] summary').click();
   await page.locator('details[data-muni-list][open]').waitFor();
 }
