@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { MODE_INIT_SCRIPT } from '@/features/mode/initScript';
 import {
   assembleDist,
@@ -16,6 +16,12 @@ import {
   unknownInlineScripts,
   writePageCsp
 } from '../../../scripts/postbuild';
+
+// rmSync は ふだんは本物を呼ぶ。後始末の失敗を作るテストだけ、1回ごとに差し替える
+vi.mock('node:fs', async importOriginal => {
+  const actual = await importOriginal<typeof import('node:fs')>();
+  return { ...actual, rmSync: vi.fn(actual.rmSync) };
+});
 
 // D35：専用のドメインで配信するので、out/ をそのままの構成で dist/ に組み立てる（6.4）
 describe('assembleDist', () => {
@@ -134,6 +140,22 @@ describe('unknownInlineScripts', () => {
     // Act & Assert
     expect(unknownInlineScripts(known)).toEqual([]);
     expect(KNOWN_EXACT_INLINE_SCRIPTS).toContain(MODE_INIT_SCRIPT);
+  });
+
+  test.each([
+    ['self.__next_f.push([1,"a<b"])'],
+    ['self.__next_f.push([1,"<!--"])'],
+    ['self.__next_f.push([1,"</script>"])'],
+    ['(globalThis["TURBOPACK"] || (globalThis["TURBOPACK"] = [])).push({"a":"<!--"});']
+  ])('5.5（L3）：知っている形でも < を含むインラインスクリプトは止める（script の解析がブラウザと食い違わないように）：%s', script => {
+    expect(unknownInlineScripts([script])).toEqual([script]);
+  });
+
+  test('5.5（L3）：MODE_INIT_SCRIPT と完全一致の文字列に < はない（< を止めても許可が減らない）', () => {
+    for (const script of KNOWN_EXACT_INLINE_SCRIPTS) {
+      expect(script).not.toContain('<');
+      expect(unknownInlineScripts([script])).toEqual([]);
+    }
   });
 
   test('5.5（M1・L1）：知っている形に続けて別のコードがある・形が少し違うものは止める（全体に一致させる）', () => {
@@ -397,6 +419,46 @@ describe('assembleDistWithCsp', () => {
 
     // Assert
     expect(readFileSync(join(root, 'dist/ja/index.html'), 'utf8')).toContain('Content-Security-Policy');
+  });
+
+  test('5.5（L2）：dist/ へのコピーが途中で失敗しても、中途半端な dist/ を残さずに、元の例外を投げ直す', () => {
+    // Arrange：読めないファイルがあると、コピーが途中で失敗する（root は権限を無視するので、このテストは動かさない）
+    if (process.getuid?.() === 0) return;
+    put('out/_redirects', 'x');
+    put('out/_headers', 'x');
+    put('out/ja/index.html', '<head><meta charSet="utf-8"/></head>');
+    put('out/ja/secret.txt', 'x');
+    chmodSync(join(root, 'out/ja/secret.txt'), 0o000);
+
+    // Act & Assert
+    expect(() => assembleDistWithCsp({ outDir: join(root, 'out'), distDir: join(root, 'dist') })).toThrow(/EACCES|permission/iu);
+    expect(existsSync(join(root, 'dist'))).toBe(false);
+  });
+
+  test('5.5（L2）：dist/ を消すのに失敗しても、元の例外を投げる（消す側の例外で元の原因を隠さない）', () => {
+    // Arrange：1回目（組み立ての前の掃除）は本物、2回目（失敗の後の後始末）は失敗にする
+    put('out/_redirects', 'x');
+    put('out/_headers', 'x');
+    put('out/ja/index.html', '<head><meta charSet="utf-8"/><script>alert(1)</script></head>');
+    const actual = vi.mocked(rmSync).getMockImplementation();
+    vi.mocked(rmSync)
+      .mockImplementationOnce((...args) => actual?.(...args))
+      .mockImplementationOnce(() => {
+        throw new Error('EBUSY：消せません');
+      });
+
+    // Act & Assert
+    expect(() => assembleDistWithCsp({ outDir: join(root, 'out'), distDir: join(root, 'dist') })).toThrow('知らない形');
+  });
+
+  test('R7：dist/ と out/ が重なるときは、assembleDist の例外を投げ、out/ を消さない', () => {
+    // Arrange
+    put('out/_redirects', 'x');
+    put('out/_headers', 'x');
+
+    // Act & Assert
+    expect(() => assembleDistWithCsp({ outDir: join(root, 'out'), distDir: join(root, 'out') })).toThrow('重なっています');
+    expect(existsSync(join(root, 'out/_redirects'))).toBe(true);
   });
 
   test('5.5：CSP を書けなかったときは、CSP のない dist/ を残さずに、元の例外を投げ直す', () => {

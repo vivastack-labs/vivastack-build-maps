@@ -125,10 +125,12 @@ const isJsonObject = (text: string): boolean => {
  * 出力に出てくることを知っている形のインラインスクリプトか（M1・L1）。ほかの形はハッシュを許可せずビルドを止める
  * （将来 `dangerouslySetInnerHTML` などで紛れ込んだスクリプトを、集めたハッシュで自動的に許可しないため）。
  * 形は、完全一致（`KNOWN_EXACT_INLINE_SCRIPTS`）・RSC のデータ（`self.__next_f.push`）・Turbopack の読み込み（JSON のオブジェクト）の3つ。
- * どれも全体に一致させる（知っている形の後ろに別のコードを続けたものは許さない）。
+ * どれも全体に一致させる（知っている形の後ろに別のコードを続けたものは許さない）。`<` を含むものは、どの形でも許さない。
  * Next.js・Turbopack の更新で書き出しが変わってビルドが止まったら、出力を確かめてからここを直す。
  */
 const isKnownInlineScript = (script: string): boolean => {
+  // < を含むものは、知っている形でも許さない（`<!--` などで、script の解析がブラウザと食い違うのを防ぐ。今の出力には、RSC のデータの `<` は `\u003c` で出るので、ない）
+  if (script.includes('<')) return false;
   if (KNOWN_EXACT_INLINE_SCRIPTS.includes(script)) return true;
   const push = NEXT_F_PUSH.exec(script);
   if (push !== null) return push[1] === undefined || push[1] === 'null' || isJsonString(push[1]);
@@ -245,16 +247,28 @@ export const writePageCsp = (distDir: string): number => {
   return files.length;
 };
 
+// dist/ を消す。消すのに失敗しても例外にしない（呼ぶ側が、元の失敗の原因を投げ直すので、それを隠さない）
+const removeDist = ({ outDir, distDir }: AssembleOptions): void => {
+  // out/ と重なる dist/ を渡されたとき（assembleDist が拒否する）は、out/ を消さないよう何もしない
+  if (isSameOrInside(distDir, outDir) || isSameOrInside(outDir, distDir)) return;
+  try {
+    rmSync(distDir, { recursive: true, force: true });
+  } catch {
+    // 元の例外を優先する
+  }
+};
+
 /**
- * `out/` を `dist/` に組み立て、すべての HTML に CSP の `<meta>` を書く。CSP を書けなかったときは、CSP のない `dist/` を残さないよう
- * `dist/` を消して、元の例外を投げ直す（5.5）。
+ * `out/` を `dist/` に組み立て、すべての HTML に CSP の `<meta>` を書く。組み立て（コピー）か CSP の書き込みに失敗したときは、
+ * 中途半端な・CSP のない `dist/` を残さないよう `dist/` を消して、元の例外を投げ直す（5.5）。
+ * `dist/` を消すのに失敗しても、元の例外を隠さない。
  */
 export const assembleDistWithCsp = (options: AssembleOptions): void => {
-  assembleDist(options);
   try {
+    assembleDist(options);
     writePageCsp(options.distDir);
   } catch (error) {
-    rmSync(options.distDir, { recursive: true, force: true });
+    removeDist(options);
     throw error;
   }
 };
