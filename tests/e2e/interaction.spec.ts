@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { loadContent } from '../../src/lib/content';
 import { plainText } from '../../src/lib/ruby';
-import { clickAtCenter, dblclickAtCenter, settle } from './helpers';
+import { clickAtCenter, dblclickAtCenter, expectShown, settle } from './helpers';
 
 // F-CARD-01・07、F-ZOOM-04、4.11.1〜4.11.3：ホバー・固定・最大化の結線（T2-05）。
 // 県の要素の扱い（PrefTarget）を引数に取る形にしてあり、地図の県のパスと、さくいん（F-IDX-02。T2-10）の項目の両方で同じテストを回す。
@@ -79,7 +79,7 @@ async function expectCard(page: Page, code: string | null): Promise<void> {
   const shown = page.locator('[data-card-pref]:not([hidden])');
   if (code === null) {
     await expect(shown).toHaveCount(0);
-    await expect(page.locator('[data-card-guide]')).toBeVisible();
+    await expectShown(page, page.locator('[data-card-guide]'), true);
     return;
   }
   await expect(shown).toHaveCount(1);

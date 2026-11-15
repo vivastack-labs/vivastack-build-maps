@@ -105,3 +105,30 @@ export const textWithoutRt = (locator: Locator): Promise<string> =>
     copy.querySelectorAll('rt').forEach(rt => rt.remove());
     return copy.textContent ?? '';
   });
+
+/** 768px 未満か（カードが下から出るパネルになる幅。T3-06、4.11.7）。この幅では、閉じたパネルの中の案内文は見えない */
+export const isSheetWidth = (page: Page): Promise<boolean> => page.evaluate(() => window.matchMedia('(width < 48rem)').matches);
+
+/**
+ * パネルになる幅（768px 未満）で、固定したカードを全部見える状態にする（「くわしく」）。
+ * 一部だけ見える状態では、行き方・名物・名所・出典が隠れるので、内容を確かめるテストが呼ぶ。パネルにならない幅では何もしない
+ */
+export async function expandSheet(page: Page): Promise<void> {
+  if (!(await isSheetWidth(page))) return;
+  const toggle = page.locator('[data-sheet-toggle]');
+  await expect(toggle).toBeVisible();
+  if ((await toggle.getAttribute('aria-expanded')) === 'false') await toggle.click();
+  await expect(page.locator('[data-area="card"]')).toHaveAttribute('data-sheet', 'full');
+}
+
+/**
+ * 案内文（`[data-card-guide]` とその中の `.kids`・`.adult`）が出ているか（`shown`）を確かめる。
+ * パネルになる幅では、案内文は閉じたパネルの中にあって見えない（visibility: hidden）ので、`display` で確かめる
+ */
+export async function expectShown(page: Page, locator: Locator, shown: boolean): Promise<void> {
+  if (!(await isSheetWidth(page))) {
+    await (shown ? expect(locator).toBeVisible() : expect(locator).toBeHidden());
+    return;
+  }
+  await (shown ? expect(locator).not.toHaveCSS('display', 'none') : expect(locator).toHaveCSS('display', 'none'));
+}

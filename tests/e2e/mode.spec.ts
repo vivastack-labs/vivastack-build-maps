@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { getMessages } from '../../src/i18n/messages';
+import { expandSheet, expectShown } from './helpers';
 
 // F-MODE-01〜04、D23、4.11.5：モード（こども／おとな）とふりがなの切替（T3-05）。本番用のビルド。
 // コンテンツは tests/fixtures/content/（北海道は名物3つ・名所3つ。全部 reviewed）。
@@ -19,13 +20,13 @@ async function open(page: Page, lang = 'ja'): Promise<void> {
   await page.locator('[data-card-ready]').waitFor({ state: 'attached' });
 }
 
-/** さくいんの北海道を固定して、カードを出す（card.spec.ts と同じ。先にホバーしてカードの高さの変化を待つ） */
+/** さくいんの北海道を固定して、カードを出す（card.spec.ts と同じ。768px 未満では、パネルを全部見える状態にする） */
 async function pinHokkaido(page: Page): Promise<void> {
   const item = page.locator(`a[data-pref="${HOKKAIDO}"]`);
-  await item.hover();
-  await expect(page.locator(CARD)).toBeVisible();
   await item.click();
   await expect(item).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator(CARD)).toBeVisible();
+  await expandSheet(page);
 }
 
 const header = (page: Page) => page.getByRole('banner');
@@ -41,15 +42,15 @@ test.describe('F-MODE-01：モードの切替', () => {
     await open(page);
     const guide = page.locator('[data-card-guide]');
     await expect(modeButton(page, ja.kids)).toHaveAttribute('aria-pressed', 'true');
-    await expect(guide.locator('.kids')).toBeVisible();
-    await expect(guide.locator('.adult')).toBeHidden();
+    await expectShown(page, guide.locator('.kids'), true);
+    await expectShown(page, guide.locator('.adult'), false);
 
     // Act・Assert：おとなに切り替える
     await modeButton(page, ja.adult).click();
     await expect(modeButton(page, ja.adult)).toHaveAttribute('aria-pressed', 'true');
     await expect(modeButton(page, ja.kids)).toHaveAttribute('aria-pressed', 'false');
-    await expect(guide.locator('.adult')).toBeVisible();
-    await expect(guide.locator('.kids')).toBeHidden();
+    await expectShown(page, guide.locator('.adult'), true);
+    await expectShown(page, guide.locator('.kids'), false);
     await pinHokkaido(page);
     await expect(firstItem(page).locator('.adult')).toBeVisible();
     await expect(firstItem(page).locator('.kids')).toBeHidden();
@@ -115,8 +116,8 @@ test.describe('F-MODE-02：ふりがなの切替', () => {
       await expect(page.locator('[data-mode-button]')).toHaveCount(2);
       // 既定はおとな向け（D37）
       await expect(page.locator('[data-mode-button="adult"]')).toHaveAttribute('aria-pressed', 'true');
-      await expect(page.locator('[data-card-guide] .adult')).toBeVisible();
-      await expect(page.locator('[data-card-guide] .kids')).toBeHidden();
+      await expectShown(page, page.locator('[data-card-guide] .adult'), true);
+      await expectShown(page, page.locator('[data-card-guide] .kids'), false);
     });
   }
 });
@@ -149,7 +150,7 @@ test.describe('F-MODE-03・D23：設定の保存', () => {
     expect(await page.evaluate(() => (window as unknown as { __atBody: unknown }).__atBody)).toEqual({ mode: 'adult', ruby: 'off' });
     await expect(modeButton(page, ja.adult)).toHaveAttribute('aria-pressed', 'true');
     await expect(rubyButton(page)).toHaveAttribute('aria-pressed', 'false');
-    await expect(page.locator('[data-card-guide] .adult')).toBeVisible();
+    await expectShown(page, page.locator('[data-card-guide] .adult'), true);
     await expect(header(page).locator('h1 rt').first()).toBeHidden();
   });
 
@@ -166,8 +167,8 @@ test.describe('F-MODE-03・D23：設定の保存', () => {
     // Assert：en の既定（adult）ではなく、保存した kids になる
     await expect(page.locator('html')).toHaveAttribute('data-mode', 'kids');
     await expect(page.locator('[data-mode-button="kids"]')).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.locator('[data-card-guide] .kids')).toBeVisible();
-    await expect(page.locator('[data-card-guide] .adult')).toBeHidden();
+    await expectShown(page, page.locator('[data-card-guide] .kids'), true);
+    await expectShown(page, page.locator('[data-card-guide] .adult'), false);
   });
 
   test('D23：保存した値が正しくなければ、既定値のままにする', async ({ page }) => {
@@ -222,12 +223,12 @@ test.describe('4.11.5：localStorage が使えないとき', () => {
 
     // Assert：既定値（こども向け）で表示される
     await expect(page.locator('html')).toHaveAttribute('data-mode', 'kids');
-    await expect(page.locator('[data-card-guide] .kids')).toBeVisible();
+    await expectShown(page, page.locator('[data-card-guide] .kids'), true);
 
     // Act・Assert：切り替えると、保存はできなくても、そのページの中では効く
     await modeButton(page, ja.adult).click();
-    await expect(page.locator('[data-card-guide] .adult')).toBeVisible();
-    await expect(page.locator('[data-card-guide] .kids')).toBeHidden();
+    await expectShown(page, page.locator('[data-card-guide] .adult'), true);
+    await expectShown(page, page.locator('[data-card-guide] .kids'), false);
     await rubyButton(page).click();
     await expect(header(page).locator('h1 rt').first()).toBeHidden();
     expect(errors).toEqual([]);

@@ -103,12 +103,25 @@ test.describe('幅を指定する（PC のプロジェクト）', () => {
 });
 
 // 端末の既定の幅（スマホ・タブレットを含む全プロジェクト）。幅は変えない
-test('4.11.7・F-MAP-05：端末の幅が1024px以上なら横に並び、未満なら地図の下にカードがある', async ({ page }) => {
+test('4.11.7・F-MAP-05：端末の幅が1024px以上なら横に並び、768px以上なら地図の下にカードがあり、768px 未満なら下から出るパネルで閉じている', async ({ page }) => {
   await page.goto('/ja/');
+  await page.locator('[data-area="card"][data-sheet]').waitFor({ state: 'attached' });
 
   const width = await page.evaluate(() => window.innerWidth);
-  if (width >= 1024) await expectSideBySide(page);
-  else await expectStacked(page);
+  if (width >= 1024) {
+    await expectSideBySide(page);
+  } else if (width >= 768) {
+    await expectStacked(page);
+  } else {
+    // T3-06：カードは画面の下に固定のパネルで、固定するまで閉じている（見えない）。地図とさくいんは流れの中に並ぶ
+    const card = page.locator('[data-area="card"]');
+    await expect(card).toHaveAttribute('data-sheet', 'closed');
+    await expect(card).toBeHidden();
+    expect(await card.evaluate(element => getComputedStyle(element).position)).toBe('fixed');
+    const map = await box(page, 'map');
+    const index = await box(page, 'index');
+    expect(index.y).toBeGreaterThanOrEqual(map.y + map.height);
+  }
 });
 
 for (const lang of LANGS) {

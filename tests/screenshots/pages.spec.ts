@@ -11,6 +11,8 @@ type Scene = {
   readonly prepare?: (page: Page) => Promise<void>;
   /** PC だけで撮る（マウスの操作で出る画面。スマホ（タッチ）では出ないので撮らない） */
   readonly pcOnly?: boolean;
+  /** スマホ（sp。幅360px）だけで撮る（768px 未満の下から出るパネル。T3-06） */
+  readonly spOnly?: boolean;
 };
 
 /** ハイドレーションが終わってから県をクリックして固定し、マウスを地図から外す（ホバーの見た目を写さない） */
@@ -42,6 +44,14 @@ async function pinHokkaidoFromIndex(page: Page): Promise<void> {
   await page.locator('[data-index-ready]').waitFor({ state: 'attached' });
   await page.locator('a[data-pref="01"]').click();
   await page.locator('a[data-pref="01"][aria-pressed="true"]').waitFor();
+  await page.mouse.move(0, 0);
+}
+
+/** 北海道を固定して、パネルを全部見える状態にする（T3-06。768px 未満の下から出るパネル。「くわしく」を押す） */
+async function expandSheetAfterPin(page: Page): Promise<void> {
+  await pinHokkaidoFromIndex(page);
+  await page.locator('[data-sheet-toggle]').click();
+  await page.locator('[data-area="card"][data-sheet="full"]').waitFor();
   await page.mouse.move(0, 0);
 }
 
@@ -154,6 +164,9 @@ const SCENES: readonly Scene[] = [
   { name: 'ja-pending-pinned', path: '/ja/', prepare: pinPendingFromIndex },
   // T3-03：県のカード。内容のある県（北海道。見出し・距離・行き方・名物3つ・名所3つ・最大化ボタン）を3言語で。解説文は既定のモードの1つ（ja はこども向け、en・zh はおとな向け。T3-05）。準備中の県のカードは ja-pending-pinned
   ...LANGS.map(lang => ({ name: `${lang}-card`, path: `/${lang}/`, prepare: pinHokkaidoFromIndex })),
+  // T3-06：スマホの下から出るパネル。北海道を固定した「一部だけ見える」状態（見出しと最大化ボタン）と、「くわしく」を押した「全部見える」状態（画面の高さの約85%）
+  { name: 'ja-sheet-peek', path: '/ja/', prepare: pinHokkaidoFromIndex, spOnly: true },
+  { name: 'ja-sheet-full', path: '/ja/', prepare: expandSheetAfterPin, spOnly: true },
   // T3-05：モードを「おとな」、ふりがなを OFF にした状態（解説文がおとな向けになり、ふりがなが消える。切替のボタンの押した状態）
   { name: 'ja-card-adult-ruby-off', path: '/ja/', prepare: pinHokkaidoAdultRubyOff },
   // T3-04：カードの「出典」欄を開いた状態（北海道。出典のある項目と「出典なし」の項目）。フッターの出典は、各言語の top の全体の画像に入る
@@ -181,6 +194,7 @@ const OUT_DIR = process.env.SCREENSHOT_OUT ?? '';
 for (const scene of SCENES) {
   test(scene.name, async ({ page }, testInfo) => {
     test.skip(scene.pcOnly === true && testInfo.project.name !== 'pc', 'マウスの操作で出る画面は PC だけで撮る');
+    test.skip(scene.spOnly === true && testInfo.project.name !== 'sp', '下から出るパネルはスマホだけで撮る');
     await page.goto(scene.path);
     // フォントの読み込みが終わる前に撮ると、文字が別のフォントで写る
     await page.evaluate(() => document.fonts.ready);
