@@ -171,13 +171,13 @@ E2E の内容の文字は、フィクスチャ（`tests/fixtures/content`）の�
 
 ## 承認後に変えたこと
 
-- `applySetting`：`root.dataset[attr] = value` → `root.setAttribute('data-' + attr, value)`（ESLint の `no-param-reassign`。結果は同じ）。
-- `DisplayToggle`：`MutationObserver` だけで購読する → ボタンを押した直後に購読者へ直接知らせる `notify()` も足す（`MutationObserver` は非同期で、押した直後の `aria-pressed` が1拍遅れるため。外からの変更は `MutationObserver` で受ける）。
-- E2E「再試行」のボタンの名前：`もう一度` → `/^もう\s*一度/`（ふりがなが ON のとき、読み `いちど` も名前に入る。「もう片方の文が入らない」ことは変わらず確かめる）。
-- 追加の E2E：言語をまたいで設定が使われること、正しくない値は無視すること（計画の表に加えた）。
-- ドキュメント：開発計画 5章 U1 も取り消し線にして D37 を書いた（開発概要書と同じ扱い）。
-- レビューの指摘（MEDIUM・LOW）で変えたこと：
-  - `app/globals.css`：カードの `:has()` の規則を `@supports selector(:has(*))` で包んだ（ビルド後の CSS で、モード・ふりがなの規則と1つのセレクター一覧にまとめられ、`:has()` 非対応のブラウザで規則ごと捨てられるのを防ぐ）。`@source not "../tests"` を足し（Playwright のセレクターの `.kids:visible` から `.kids\:visible` などの不要なユーティリティが出ていた）、コメントの「常に強い」を「`!important` のユーティリティを除き」にした。
-  - `applySetting`：`(root, storage, key, attr, value)` → `(root, storage, attr, value)`。保存のキーは `attr` から引き、値の型も `attr` で決まる（ジェネリクス）。
-  - `DisplayToggle`：ふりがなのボタンは、描いた時点の値ではなく、押した時点の `<html>` の属性から次の値を決める。誤ったコメント（別のタブ）を消した。
-  - テスト：アンマウントで購読が外れる単体テストと、押した時点の属性から決める単体テストを足した。言語をまたぐ E2E は、ja で「こども」を保存して en で kids になることを確かめる形にした。
+| 項目 | 承認したとき | 実際 | 理由 |
+|---|---|---|---|
+| `applySetting` の引数 | `(root, storage, key, attr, value)`、`root.dataset[attr] = value` | `(root, storage, attr, value)`。キーは `attr` から引き、値の型も `attr` で決まる（ジェネリクス）。`setAttribute('data-' + attr, value)` で書く | キー・属性・値の食い違いを型で防ぐ（レビューの LOW）。`dataset` への代入は ESLint の `no-param-reassign` に当たる |
+| `DisplayToggle` の購読 | `MutationObserver` だけ | ボタンを押したときは `notify()` で購読者へ直接知らせる。外からの変更は `MutationObserver` | `MutationObserver` は非同期で、押した直後の `aria-pressed` が1拍遅れる |
+| ふりがなのボタンの次の値 | 描いた時点の `ruby` から決める | 押した時点の `<html>` の `data-ruby` から決める | ハイドレーション直後（読み直す前）に押すと、保存した値が `off` でも変わらない（レビューの LOW） |
+| カードの `:has()` の規則（`app/globals.css`） | 変えない | `@supports selector(:has(*))` で包む | 圧縮でモード・ふりがなの規則と1つのセレクター一覧にまとめられ、`:has()` を解釈できないブラウザでは規則ごと捨てられて F-MODE-04 が崩れる（レビューの MEDIUM） |
+| Tailwind のクラス名の検出 | 変えない | `@source not "../tests"`・`@source not "../.claude"` | E2E のセレクター `.kids:visible` と、それを書いた計画の文書から、使わない `.kids\:visible` などのユーティリティが本番の CSS に出ていた |
+| E2E の「再試行」のボタンの名前 | `もう一度` | `/^もう\s*一度/` | ふりがなが ON のとき、読み `いちど` も名前に入る（もう片方の文が入らないことは変わらず確かめる） |
+| E2E の追加 | 計画の表の8本 | 言語をまたいで設定が使われること（ja で「こども」を保存 → en で kids）、正しくない保存値は無視すること、を足した | 判断 2（言語で分けない）と、初期化スクリプトの値の検査を E2E でも確かめる |
+| 開発計画 5章の U1 | 書いていない | 取り消し線にして D37 を書いた | 開発概要書の第16章と同じ扱いにする |
