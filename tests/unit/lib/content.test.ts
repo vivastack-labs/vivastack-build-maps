@@ -403,7 +403,8 @@ describe('validateContent：文字数と出典', () => {
     const { warnings } = validateContent(dir);
 
     const paths = warnings.filter(issue => issue.file === HOKKAIDO && issue.message.includes('出典')).map(issue => issue.path);
-    expect(paths).toEqual(['access.sources', 'specialties[0].sources', 'specialties[1].sources', 'specialties[2].sources', 'spots[0].sources', 'spots[1].sources', 'spots[2].sources']);
+    // 北海道の行き方とじゃがいもには出典がある（T3-04）。ほかは sources: []
+    expect(paths).toEqual(['specialties[1].sources', 'specialties[2].sources', 'spots[0].sources', 'spots[1].sources', 'spots[2].sources']);
   });
 
   test('7.1：フィクスチャには、出典が空のほかの警告がない', () => {

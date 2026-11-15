@@ -129,6 +129,11 @@
 - 外部へのリンクには `rel="noopener noreferrer"` を付ける。
 - フッター（T2-03 の `Footer`。中身は空）：地図データの出典（8.3 の文。3言語）、「AIで作成し、人が確認しています」。「このサイトについて」・プライバシーポリシーへのリンクは T4-05 で加える。
 
+- T3-04 で決めたこと（実装の結果）：
+  - 出典欄は `PrefCard` の中、最大化ボタンの後に置いた（`SourceList`）。「市区町村の一覧」はカードの外のまま。並びは「最大化ボタン → 出典 → 市区町村の一覧」になったので、開発概要書 4.11.7 を直した（JavaScript がないときも、`:target` で開いたカードに出典が入る）。
+  - 確認日は `formatDate`（`src/i18n/format.ts`。UTC の暦。形が誤っていれば例外）。外部リンクは `target="_blank" rel="noopener noreferrer"`（選んだ県の状態を保つ）。
+  - フッターには、地図データの出典（国土数値情報）と AI の明記だけを載せた。読みがな（総務省）・県庁の位置（地理院地図）の出典は、T4-05 の「このサイトについて」に載せる。
+
 ### 完了条件
 
 - 出典のある項目・ない項目の両方が、正しく表示される。
@@ -140,6 +145,7 @@
   - `sources: []` の項目は「出典なし」と表示する（F-SRC-03）。
   - 「出典」欄は、最初は閉じている（F-SRC-01）。
 - E2E：フッターに、国土数値情報の出典と「AIで作成し、人が確認しています」が、3言語のページそれぞれにある（F-SRC-04）。
+- 実装したテスト：`tests/unit/components/SourceList.test.tsx`・`PrefCard.test.tsx`・`Footer.test.tsx`・`tests/unit/i18n/format.test.ts`（`formatDate`）。E2E は `tests/e2e/card.spec.ts`（出典欄を開く。JavaScript なしでも開ける）と `tests/e2e/footer.spec.ts`。フィクスチャの北海道の行き方（2件）とじゃがいも（1件）に、`example.com` のダミーの出典を入れた。
 
 ---
 

@@ -121,4 +121,7 @@
 
 ## 承認後に変えたこと
 
-（実装の後に書く）
+- `LABEL_SEPARATOR`：`PrefCard.tsx` の中 → `src/i18n/cardText.ts` に移して export（`SourceList` の「確認日：…」でも使うため）。
+- 出典欄の項目の見出しに `data-source-item-name` を付けた（テスト・E2E が項目の名前を引くため）。
+- フィクスチャの北海道に出典を足したので、警告の件数を数える既存の単体テスト（`tests/unit/lib/content.test.ts`・`tests/unit/scripts/validate-content.test.ts`）の数を直した（警告 14 → 12 など）。
+- ほかに計画から変えたことはない。
