@@ -81,6 +81,12 @@ export const en: Messages = {
     },
     ai: 'Created with AI and checked by people'
   },
+  display: {
+    label: 'Mode',
+    kids: 'Kids',
+    adult: 'Adults',
+    ruby: 'Furigana'
+  },
   index: {
     heading: 'Prefecture index'
   },

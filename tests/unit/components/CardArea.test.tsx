@@ -63,14 +63,15 @@ describe('CardArea', () => {
   });
 
   for (const lang of LANGS) {
-    test(`4.11.1：CardArea は県を選ぶ前の案内文（${lang}、おとな向け）を出す`, () => {
+    test(`4.11.1・F-MODE-04：CardArea は県を選ぶ前の案内文（${lang}）を、こども向け・おとな向けの両方で kids・adult のクラスをつけて出す`, () => {
       // Arrange・Act
       const { container } = renderCard(lang);
 
       // Assert
       const guide = container.querySelector('[data-card-guide]') as HTMLElement;
       expect(guide.hidden).toBe(false);
-      expect(textWithoutRuby(guide)).toBe(plainText(getMessages(lang).card.guide.adult));
+      expect(textWithoutRuby(guide.querySelector('.kids') as HTMLElement)).toBe(plainText(getMessages(lang).card.guide.kids));
+      expect(textWithoutRuby(guide.querySelector('.adult') as HTMLElement)).toBe(plainText(getMessages(lang).card.guide.adult));
     });
 
     test(`F-CARD-01：47県の県名が hidden で出る（${lang}）`, () => {

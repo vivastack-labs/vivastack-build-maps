@@ -129,3 +129,23 @@
 [data-card-switch]:not([data-card-ready]):has([data-card-pref]:target) [data-card-guide] {
   display: none;
 }
+
+/*
+ * T3-05：モード・ふりがなの切替（F-MODE-01・02・04、6.6 (3)、D26）。<html data-mode data-ruby> は、ビルド時に言語ごとの既定値を書き、
+ * <head> の初期化スクリプト（src/features/mode/initScript.ts）が最初の描画の前に、localStorage の保存した値で上書きする。
+ * 隠すのは display: none（読み上げ・aria-live・ボタンの名前からも除く。visibility・opacity は使わない）。
+ * レイヤーの外に書くので、Tailwind のユーティリティ（@layer utilities）より常に強い（.kids・.adult の要素に display が付いても隠れる）。
+ */
+:root[data-mode='kids'] .adult,
+:root[data-mode='adult'] .kids {
+  display: none;
+}
+
+:root[data-ruby='off'] rt {
+  display: none;
+}
+
+/* 切替のボタンの「押している」見た目を、<html> の属性から付ける（aria-pressed を待たず、ハイドレーションの前から正しい） */
+@custom-variant kids (&:where([data-mode='kids'], [data-mode='kids'] *));
+@custom-variant adult (&:where([data-mode='adult'], [data-mode='adult'] *));
+@custom-variant ruby-off (&:where([data-ruby='off'], [data-ruby='off'] *));
