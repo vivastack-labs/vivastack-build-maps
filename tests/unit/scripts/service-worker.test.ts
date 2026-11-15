@@ -58,13 +58,13 @@ describe('writeServiceWorker', () => {
       '_next/static/build-id/_buildManifest.js',
       '_next/static/chunks/0abc.css',
       '_next/static/chunks/0abc.js',
+      'en/',
       'en/app.webmanifest',
-      'en/index.html',
       'icons/icon-192.png',
+      'ja/',
       'ja/app.webmanifest',
-      'ja/index.html',
-      'zh/app.webmanifest',
-      'zh/index.html'
+      'zh/',
+      'zh/app.webmanifest'
     ]);
   });
 
@@ -96,6 +96,30 @@ describe('writeServiceWorker', () => {
     expect(precacheUrls().some(url => url.startsWith('cards/') || url.startsWith('geo/'))).toBe(false);
   });
 
+  test('5.4：市区町村とカードの NetworkFirst は、つながっているのに通信が進まないとき、4秒でキャッシュに切り替える（networkTimeoutSeconds）', async () => {
+    // Arrange
+    putFixtureDist();
+
+    // Act
+    await writeServiceWorker(dist);
+
+    // Assert：2つの実行時のキャッシュのルートそれぞれに、同じ待ち時間が入る（キャッシュがなければ、時間が切れてもネットワークを待ち続ける）
+    const sw = readFileSync(join(dist, 'sw.js'), 'utf8');
+    expect([...sw.matchAll(/cacheName:"maps-(?:muni|cards)",networkTimeoutSeconds:4,/gu)]).toHaveLength(2);
+  });
+
+  test('U13：プリキャッシュの URL は、配信の既定（auto-trailing-slash）で転送されない /{lang}/ の形にする（ナビゲーションの URL とキャッシュのキーを合わせる）', async () => {
+    // Arrange
+    putFixtureDist();
+
+    // Act
+    await writeServiceWorker(dist);
+
+    // Assert
+    expect(precacheUrls().filter(url => url.endsWith('index.html'))).toEqual([]);
+    expect(precacheUrls()).toEqual(expect.arrayContaining(['ja/', 'en/', 'zh/']));
+  });
+
   test('D40：新しい Service Worker はすぐ有効になる（skipWaiting・clientsClaim）', async () => {
     // Arrange
     putFixtureDist();
@@ -119,7 +143,7 @@ describe('writeServiceWorker', () => {
 
     // Assert
     const sw = readFileSync(join(dist, 'sw.js'), 'utf8');
-    expect(sw).toContain(`{url:"ja/index.html",revision:"${createHash('md5').update(html).digest('hex')}"}`);
+    expect(sw).toContain(`{url:"ja/",revision:"${createHash('md5').update(html).digest('hex')}"}`);
     expect(sw).toContain('{url:"_next/static/chunks/0abc.js",revision:null}');
   });
 

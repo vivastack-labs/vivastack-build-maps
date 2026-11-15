@@ -124,3 +124,8 @@
 - `workbox-build` は `7.4.1` に固定（ほかの依存と同じ）。インストールスクリプトはなく、`allowBuilds` は変えていない。
 - アイコンの SVG は小数0桁のパス（約 38KB）。
 - 文書：開発計画の T4-02 の「状態」は変えていない（前のタスクと同じく、マージの後に更新する）。T4-05・T4-06 のタスクの定義に、オフラインで開くページの扱いと実機確認の項目を足した。
+- レビューの指摘で足した：
+  - `networkTimeoutSeconds: 4`（`scripts/service-worker.ts` の `NETWORK_TIMEOUT_SECONDS`。市区町村・カードの NetworkFirst）。つながっているのに通信が進まないとき、15秒の打ち切りより先にキャッシュへ切り替える。キャッシュがなければ待ち続ける。
+  - `manifestTransforms`：プリキャッシュの URL を `xx/index.html` から `xx/` にした（Workers の静的配信は `/xx/index.html` を `/xx/` へ転送するため。ナビゲーションの URL とキーを合わせる）。
+  - E2E：オフラインにする前に CDP の `Network.clearBrowserCache` で HTTP キャッシュを消す（`/geo/*` の max-age・`_next/static` の immutable で、SW のキャッシュがなくても通るのを防ぐ）。オフラインの市区町村の応答が `fromServiceWorker()` であることと、プリキャッシュのキーが `/{lang}/` であることも確かめる。SW の設定を壊して（市区町村・カードの URL の規則と `_next/static` のパターンを変えて）テストが落ちることを確認した。
+  - 文書：5.4 の「裏で読む量」を実測（約 0.3MB）に直した。ダークモードの起動画面が白であること、T4-06 の実機確認の項目（2言語以上をホーム画面に追加したとき）を足した。

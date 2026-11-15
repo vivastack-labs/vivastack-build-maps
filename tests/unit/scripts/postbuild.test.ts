@@ -446,7 +446,7 @@ describe('assembleDistWithCsp', () => {
     const dist = readFileSync(join(root, 'dist/ja/index.html'));
     const out = readFileSync(join(root, 'out/ja/index.html'));
     const sw = readFileSync(join(root, 'dist/sw.js'), 'utf8');
-    expect(sw).toContain(`{url:"ja/index.html",revision:"${createHash('md5').update(dist).digest('hex')}"}`);
+    expect(sw).toContain(`{url:"ja/",revision:"${createHash('md5').update(dist).digest('hex')}"}`);
     expect(sw).not.toContain(createHash('md5').update(out).digest('hex'));
   });
 

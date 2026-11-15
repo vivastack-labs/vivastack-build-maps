@@ -39,9 +39,21 @@ async function expectCached(page: Page, cacheName: string, pathname: string): Pr
     .toContain(pathname);
 }
 
+/**
+ * オフラインにする。その前に、ブラウザの HTTP キャッシュを消す（CDP の `Network.clearBrowserCache`。ブラウザ全体のキャッシュなので Service Worker の fetch にも効く）。
+ * 消さないと、`/geo/*`（max-age=86400）・`_next/static`（immutable）が HTTP キャッシュから返り、Service Worker のキャッシュがなくてもテストが通ってしまう。
+ * Service Worker のキャッシュ（Cache Storage）は消えない。
+ */
+async function goOffline(context: BrowserContext, page: Page): Promise<void> {
+  const session = await context.newCDPSession(page);
+  await session.send('Network.clearBrowserCache');
+  await session.detach();
+  await context.setOffline(true);
+}
+
 /** オフラインにして再読み込みし、ハイドレーションが終わるのを待つ */
 async function reloadOffline(context: BrowserContext, page: Page): Promise<void> {
-  await context.setOffline(true);
+  await goOffline(context, page);
   await page.reload();
   await page.locator('[data-map-ready]').waitFor({ state: 'attached' });
 }
@@ -82,12 +94,28 @@ test.describe('5.4：Service Worker', () => {
     await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-item]`).first()).toBeVisible();
   });
 
+  test('U13：プリキャッシュのキーは /{lang}/ の形（/{lang}/index.html は転送されるので、キーにしない）', async ({ page }) => {
+    // Arrange
+    await openControlled(page);
+
+    // Act
+    const keys = await page.evaluate(async () => {
+      const names = (await caches.keys()).filter(name => name.includes('precache'));
+      const lists = await Promise.all(names.map(async name => (await (await caches.open(name)).keys()).map(request => new URL(request.url).pathname)));
+      return lists.flat();
+    });
+
+    // Assert
+    expect(keys).toEqual(expect.arrayContaining(['/ja/', '/en/', '/zh/']));
+    expect(keys.filter(path => path.endsWith('/index.html'))).toEqual([]);
+  });
+
   test('5.4：オフラインでも、ほかの言語のページ（プリキャッシュ済み）を開ける', async ({ page, context }) => {
     // Arrange
     await openControlled(page);
 
     // Act：オフラインで言語の切替（全体の読み込み）
-    await context.setOffline(true);
+    await goOffline(context, page);
     await page.locator('a[data-lang-link="en"]').click();
 
     // Assert
@@ -103,9 +131,11 @@ test.describe('5.4：Service Worker', () => {
     await expect(page.locator('[data-muni-status="loaded"]')).toBeAttached();
     await expectCached(page, 'maps-muni', `/geo/muni/${NAGANO}.topo.json`);
 
-    // Act・Assert：オフラインで再読み込みしても、長野県の市区町村は出る
+    // Act・Assert：オフラインで再読み込みしても、長野県の市区町村は出る（応答は Service Worker のキャッシュから）
     await reloadOffline(context, page);
+    const muniResponse = page.waitForResponse(response => new URL(response.url()).pathname === `/geo/muni/${NAGANO}.topo.json`);
     await prefPath(page, NAGANO).dblclick();
+    expect((await muniResponse).fromServiceWorker()).toBe(true);
     await expect(page.locator('[data-muni-status="loaded"]')).toBeAttached();
     await expect(page.locator(`[data-muni-pref="${NAGANO}"] path[data-muni]`).first()).toBeAttached();
 

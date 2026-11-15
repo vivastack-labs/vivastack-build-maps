@@ -4,6 +4,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import workboxBuild from 'workbox-build';
+import type { ManifestTransform } from 'workbox-build';
 import { LANGS } from '../src/i18n/lang.ts';
 
 /** 市区町村データ（`/geo/muni/NN.topo.json`。T2-07）の実行時のキャッシュの名前と、持つ数の上限（47都道府県） */
@@ -13,6 +14,12 @@ const CARD_CACHE = { name: 'maps-cards', maxEntries: 141 } as const;
 
 /** プリキャッシュする、`dist/` の中のファイル（アプリの枠組み。D40）。RSC の `*.txt`・404・`cards/`・`geo/`・`_headers`・`_redirects`・ソースマップは入れない */
 const PRECACHE_PATTERNS: readonly string[] = [`{${LANGS.join(',')}}/index.html`, `{${LANGS.join(',')}}/app.webmanifest`, '_next/static/**/*.{js,css}', 'icons/*'];
+
+/**
+ * NetworkFirst がキャッシュに切り替えるまでの待ち時間（秒）。つながっているのに通信が進まないとき（`navigator.onLine` は true）に、
+ * 読み込みの打ち切り（`FETCH_TIMEOUT_MS` の15秒）より先にキャッシュを返すため。キャッシュがなければ、時間が切れてもネットワークを待ち続ける（初回の読み込み・大きいデータは失敗しない）。
+ */
+const NETWORK_TIMEOUT_SECONDS = 4;
 
 /** `_next/static/` のファイルは名前に内容のハッシュ（ビルド ID）が入っているので、版（revision）を付けない */
 const HASHED_FILES = /^_next\/static\//u;
@@ -27,6 +34,14 @@ const assertLanguagePages = (distDir: string): void => {
     throw new Error(`${distDir} に ${missing.join('・')} がありません（オフラインで開けなくなるので、sw.js を作りません）`);
   }
 };
+
+/**
+ * プリキャッシュの URL の `xx/index.html` を `xx/` にする。Workers の静的配信（既定の auto-trailing-slash）では `/ja/index.html` は `/ja/` へ転送されるので、
+ * ナビゲーションの URL（`/ja/`）とキャッシュのキーを合わせる（転送の応答はプリキャッシュに入らない）。版（revision）はファイルの内容のハッシュのまま。
+ */
+const toDirectoryUrl: ManifestTransform = entries => ({
+  manifest: entries.map(entry => (entry.url.endsWith('/index.html') ? { ...entry, url: entry.url.slice(0, -'index.html'.length) } : entry))
+});
 
 /**
  * `dist/sw.js`（1ファイル。`workbox-*.js` を別に置かない）を作る。
@@ -48,17 +63,18 @@ export const writeServiceWorker = async (distDir: string): Promise<ServiceWorker
     skipWaiting: true,
     clientsClaim: true,
     cleanupOutdatedCaches: true,
+    manifestTransforms: [toDirectoryUrl],
     runtimeCaching: [
       {
         // 同じオリジンだけ（RegExp は、別のオリジンでは URL の先頭から一致するものだけを受ける）
         urlPattern: /\/geo\/muni\/\d{2}\.topo\.json$/u,
         handler: 'NetworkFirst',
-        options: { cacheName: MUNI_CACHE.name, expiration: { maxEntries: MUNI_CACHE.maxEntries }, cacheableResponse: { statuses: [200] } }
+        options: { cacheName: MUNI_CACHE.name, networkTimeoutSeconds: NETWORK_TIMEOUT_SECONDS, expiration: { maxEntries: MUNI_CACHE.maxEntries }, cacheableResponse: { statuses: [200] } }
       },
       {
         urlPattern: new RegExp(`/cards/(${LANGS.join('|')})/\\d{2}\\.json$`, 'u'),
         handler: 'NetworkFirst',
-        options: { cacheName: CARD_CACHE.name, expiration: { maxEntries: CARD_CACHE.maxEntries }, cacheableResponse: { statuses: [200] } }
+        options: { cacheName: CARD_CACHE.name, networkTimeoutSeconds: NETWORK_TIMEOUT_SECONDS, expiration: { maxEntries: CARD_CACHE.maxEntries }, cacheableResponse: { statuses: [200] } }
       }
     ]
   });
