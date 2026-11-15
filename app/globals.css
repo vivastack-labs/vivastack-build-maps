@@ -155,3 +155,22 @@
 @custom-variant kids (&:where([data-mode='kids'], [data-mode='kids'] *));
 @custom-variant adult (&:where([data-mode='adult'], [data-mode='adult'] *));
 @custom-variant ruby-off (&:where([data-ruby='off'], [data-ruby='off'] *));
+
+/*
+ * T3-06：768px 未満の下から出るパネル（F-MAP-05、4.11.7）。sheet: は、幅が 768px（Tailwind の md）未満で、`CardSheet` がマウントして `data-sheet` を書いたときだけ効く。
+ * JavaScript がないとき（`data-sheet` がないとき）はパネルにならず、1列の配置のまま :target でカードが読める。
+ */
+@custom-variant sheet {
+  @media (width < 48rem) {
+    &[data-sheet] {
+      @slot;
+    }
+  }
+}
+
+/* 一部だけ見える状態は、見出しと最大化ボタンだけにする。カードの並びは変えず、残りを隠す（`data-sheet-detail`。PrefCard・SourceList・MuniList） */
+@media (width < 48rem) {
+  [data-sheet='peek'] [data-sheet-detail] {
+    display: none;
+  }
+}
