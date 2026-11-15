@@ -92,6 +92,10 @@ export const zh: Messages = {
     adult: '成人',
     ruby: '注音假名'
   },
+  // T3-07：言語切替のリストの名前（言語の名前そのものは `LANG_NAMES`）
+  langSwitch: {
+    label: '语言'
+  },
   index: {
     heading: '都道府县索引'
   },

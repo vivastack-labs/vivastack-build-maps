@@ -41,4 +41,13 @@ describe('Header', () => {
     expect(within(screen.getByRole('banner')).getByRole('button', { name: 'Kids' })).toBeInTheDocument();
     expect(en.container.querySelector('[data-ruby-button]')).toBeNull();
   });
+
+  test.each(LANGS)('F-I18N-03：Header に言語切替がある（%s。T3-07）', lang => {
+    // Arrange・Act
+    const { container } = render(<Header lang={lang} />);
+
+    // Assert
+    expect(container.querySelector('header [data-lang-switch]')).not.toBeNull();
+    expect(container.querySelectorAll('[data-lang-link]')).toHaveLength(3);
+  });
 });

@@ -9,6 +9,7 @@ import { DEFAULT_DISPLAY } from '@/features/mode/settings';
 import { getMessages } from '@/i18n/messages';
 import { buildTarget } from '@/lib/publish';
 import { plainText } from '@/lib/ruby';
+import { alternateUrls } from '@/lib/site';
 import '../globals.css';
 
 // F-I18N-01・D28：ja・en・zh だけを静的に生成し、それ以外のパスは作らない
@@ -24,12 +25,18 @@ type Props = {
 };
 
 // 5.2：<title> は言語ごとのサイト名（ふりがなの記法を除く）。
+// F-I18N-03：`alternates` で `<link rel="canonical">` と `<link rel="alternate" hreflang>` を出す。
 // 11.4 (5)・R4：プレビュー用のビルドは <meta name="robots" content="noindex"> を付ける（下書きを検索に出さない）。本番には付けない
 export async function generateMetadata({ params }: Pick<Props, 'params'>): Promise<Metadata> {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
 
-  return { title: plainText(getMessages(lang).siteName), ...(buildTarget() === 'preview' ? { robots: { index: false } } : {}) };
+  return {
+    title: plainText(getMessages(lang).siteName),
+    // F-I18N-03・D8：canonical はそのページ、hreflang は ja・en・zh-Hans・x-default（→ ja）。URL はサイトの絶対 URL
+    alternates: alternateUrls(lang),
+    ...(buildTarget() === 'preview' ? { robots: { index: false } } : {})
+  };
 }
 
 // D28：app/[lang]/layout.tsx をルートレイアウトにして <html lang> を出力する（6.2 D27）。

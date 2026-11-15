@@ -25,3 +25,13 @@ export function htmlLang(lang: Lang): string {
 export function langStaticParams(): { lang: Lang }[] {
   return LANGS.map(lang => ({ lang }));
 }
+
+/**
+ * 言語切替のリンクに書く、言語の名前（F-I18N-03）。その言語で書き、どのページでも同じ文字にする
+ * （読めない言語のページに来た人が、自分の言語を見つけられるように）。辞書には入れない。
+ */
+export const LANG_NAMES: Readonly<Record<Lang, string>> = {
+  ja: '日本語',
+  en: 'English',
+  zh: '中文'
+};

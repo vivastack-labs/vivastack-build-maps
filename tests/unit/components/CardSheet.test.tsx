@@ -5,6 +5,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 
 import { CardSheet } from '@/components/CardSheet';
 import { CardSwitch } from '@/components/CardSwitch';
+import { HashSync } from '@/components/HashSync';
 import { MapStateProvider, useMapState } from '@/components/MapStateProvider';
 import { SHEET_QUERY } from '@/features/map/sheet';
 import { getMessages } from '@/i18n/messages';
@@ -395,5 +396,65 @@ describe('CardSheet', () => {
     expect(document.documentElement.style.getPropertyValue('--sheet-h')).toBe('180px');
     unmount();
     expect(document.documentElement.style.getPropertyValue('--sheet-h')).toBe('');
+  });
+
+  test('T3-07・WCAG 3.2.1：ハッシュの復元で開いたときは、パネルを開くがフォーカスを移さない', () => {
+    // Arrange：768px 未満で、ハッシュつきの URL を開く（利用者の操作はまだない）
+    stubSheetWidth(true);
+    window.history.replaceState(null, '', '/en/#pref-13');
+    const before = document.activeElement;
+
+    // Act
+    const { container } = render(
+      <MapStateProvider>
+        <HashSync />
+        <CardSheet labels={getMessages('en').sheet}>
+          <CardSwitch>
+            <article data-card-pref="13" hidden>
+              <h2 data-card-name tabIndex={-1}>
+                東京都
+              </h2>
+            </article>
+          </CardSwitch>
+        </CardSheet>
+      </MapStateProvider>
+    );
+
+    // Assert
+    expect(panel(container).getAttribute('data-sheet')).toBe('peek');
+    expect(document.activeElement).toBe(before);
+    expect(document.activeElement).toBe(document.body);
+    window.history.replaceState(null, '', '/');
+  });
+
+  test('T3-07：復元で開いたあと、利用者が閉じて固定し直したときは、フォーカスを移す', () => {
+    // Arrange：ハッシュで復元して開いている
+    stubSheetWidth(true);
+    window.history.replaceState(null, '', '/en/#pref-13');
+    const { container } = render(
+      <MapStateProvider>
+        <HashSync />
+        <CardSheet labels={getMessages('en').sheet}>
+          <CardSwitch>
+            <article data-card-pref="13" hidden>
+              <h2 data-card-name tabIndex={-1}>
+                東京都
+              </h2>
+            </article>
+          </CardSwitch>
+        </CardSheet>
+        <Probe />
+      </MapStateProvider>
+    );
+    expect(panel(container).getAttribute('data-sheet')).toBe('peek');
+
+    // Act：利用者の操作で閉じ、また固定する
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+    expect(panel(container).getAttribute('data-sheet')).toBe('closed');
+    pin();
+
+    // Assert
+    expect(document.activeElement).toBe(document.querySelector('[data-card-pref="13"] h2'));
+    window.history.replaceState(null, '', '/');
   });
 });
