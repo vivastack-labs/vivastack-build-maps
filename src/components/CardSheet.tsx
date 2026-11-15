@@ -50,6 +50,24 @@ function returnTarget(remembered: HTMLElement | SVGElement | null, lastPinned: s
   return path instanceof SVGElement ? path : null;
 }
 
+/** 利用者の操作とみなすイベント（`document` の捕捉の段階で受ける。キーボード・ポインター・支援技術の click） */
+const USER_EVENTS = ['pointerdown', 'keydown', 'click'] as const;
+
+/**
+ * 利用者が、このページを開いてから何か操作したか（T3-07）。ハッシュからの復元（`HashSync`。利用者の操作の前）で開いたパネルを、
+ * 全部見える状態にし、フォーカスを移さないための見分け。読み込み直後にフォーカスが動くのは、読み上げ・キーボードの利用者には予想外のため（WCAG 3.2.1）。
+ * 状態で持つ（描画の中で読む）。操作を受けたときの更新は、同じイベントの `dispatch` と一緒に1回の描画にまとまる。
+ */
+function useHasInteracted(): boolean {
+  const [hasInteracted, setHasInteracted] = useState(false);
+  useEffect(() => {
+    const mark = () => setHasInteracted(true);
+    USER_EVENTS.forEach(type => document.addEventListener(type, mark, { capture: true }));
+    return () => USER_EVENTS.forEach(type => document.removeEventListener(type, mark, { capture: true }));
+  }, []);
+  return hasInteracted;
+}
+
 /** ページの下側に、パネルの高さぶんの余白を足す CSS 変数（`app/globals.css`。パネルが開いている間、末尾がパネルに隠れないようにする） */
 const SHEET_HEIGHT_VAR = '--sheet-h';
 
@@ -57,15 +75,14 @@ const SHEET_HEIGHT_VAR = '--sheet-h';
  * パネルの DOM への結線。マウントしたらバーの `hidden` を外し、2フレーム後に `data-sheet-motion` を付ける。
  * パネルの高さを、`<html>` の `--sheet-h` に書く（`ResizeObserver`。ない環境では書かない）。
  * `sheet` が変わるたびにフォーカスを動かす（768px 未満のときだけ）：
- * 閉じている状態から開いたら県名の見出しへ、閉じたら（パネルの中にフォーカスがあったときだけ）開く前の県の要素へ戻す（4.11.6）。
+ * 閉じている状態から開いたら県名の見出しへ（ハッシュからの復元で、利用者の操作の前に開いたときは動かさない。全部見える状態で開く。T3-07）、閉じたら（パネルの中にフォーカスがあったときだけ）開く前の県の要素へ戻す（4.11.6）。
  * 開いたまま別の県に固定を移したときは、パネルの外の県の要素にフォーカスがあれば、戻り先をそれに更新する（直前の県に戻る）。
  * `data-sheet` は React が描く（サーバーの HTML にも出る。ハイドレーションで食い違わない）。
  */
-function useSheetDom(ref: RefObject<HTMLElement | null>, barRef: RefObject<HTMLElement | null>, sheet: SheetState, pinned: string | null): void {
+function useSheetDom(ref: RefObject<HTMLElement | null>, barRef: RefObject<HTMLElement | null>, sheet: SheetState, pinned: string | null, hasInteracted: boolean): void {
   const previousSheet = useRef<SheetState>('closed');
   const remembered = useRef<HTMLElement | SVGElement | null>(null);
   const lastPinned = useRef<string | null>(null);
-
   useEffect(() => {
     const bar = barRef.current;
     if (bar) bar.hidden = false;
@@ -101,7 +118,9 @@ function useSheetDom(ref: RefObject<HTMLElement | null>, barRef: RefObject<HTMLE
     if (pinned !== null) lastPinned.current = pinned;
     if (!isSheetLayout()) return;
     if (before === 'closed' && sheet !== 'closed') {
-      // 開く：直前にフォーカスのあった県の要素を覚え、表示中のカードの県名へフォーカスを移す（パネルが見えてから）
+      // 開く：直前にフォーカスのあった県の要素を覚え、表示中のカードの県名へフォーカスを移す（パネルが見えてから）。
+      // 利用者の操作の前（ハッシュからの復元）で開いたときは、フォーカスを移さない（T3-07）
+      if (!hasInteracted) return;
       remembered.current = prefElementOf(document.activeElement);
       root.querySelector<HTMLElement>('[data-card-pref]:not([hidden]) [data-card-name]')?.focus({ preventScroll: true });
     } else if (before !== 'closed' && sheet === 'closed' && root.contains(document.activeElement)) {
@@ -112,7 +131,7 @@ function useSheetDom(ref: RefObject<HTMLElement | null>, barRef: RefObject<HTMLE
       const active = prefElementOf(document.activeElement);
       if (active && !root.contains(active)) remembered.current = active;
     }
-  }, [ref, sheet, pinned]);
+  }, [ref, sheet, pinned, hasInteracted]);
 }
 
 /** パネルの中の Esc（修飾キーなし・繰り返しでない）は、地図・さくいんと同じ `escape`（固定を解除。最大化中は最大化だけを解く。4.11.2）を送る。パネルのときだけ */
@@ -134,20 +153,23 @@ function closeOnEscape(event: KeyboardEvent, sheet: SheetState, dispatch: Dispat
  * パネルの中の Esc は `escape` を送る。
  * バー（`[data-sheet-bar]`。「くわしく／たたむ」と「とじる」）は JavaScript がないと動かないので `hidden` で出力し、マウントしたら外す。768px 以上では出さない（`md:hidden`）。
  * 「とじる」は `closeCard`（固定も最大化も解除する）を送る。
- * フォーカス（768px 未満のときだけ）：閉じている状態から開いたら県名の見出しへ移し、閉じたら（パネルの中にフォーカスがあったときだけ）開く前の県の要素へ戻す。
+ * フォーカス（768px 未満のときだけ）：閉じている状態から開いたら県名の見出しへ移し（ハッシュからの復元で、利用者の操作の前に開いたときは移さない。T3-07）、閉じたら（パネルの中にフォーカスがあったときだけ）開く前の県の要素へ戻す。
  * モーダルにはしない（`role="dialog"` やフォーカスの閉じ込めはない）。一部だけ見える状態でも地図を操作し続けるため。
  * `MapStateProvider` の中に置く。
  */
 export function CardSheet({ labels, children }: Props) {
   const { state, dispatch } = useMapState();
   const [expanded, setExpanded] = useState(false);
+  const hasInteracted = useHasInteracted();
   // 閉じたら「くわしく」を戻す（次に開いたときは一部だけ見える）。描画の中で状態を直す（effect を使わない）
   if (state.pinned === null && expanded) setExpanded(false);
+  // 利用者の操作の前に開いた（ハッシュの復元。768px 未満）ときは、全部見える状態で始める（T3-07。JavaScript の前の `:target` の見た目と同じで、縮まない）
+  if (state.pinned !== null && !hasInteracted && !expanded && isSheetLayout()) setExpanded(true);
   const sheet = sheetState({ pinned: state.pinned, expanded });
 
   const ref = useRef<HTMLElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
-  useSheetDom(ref, barRef, sheet, state.pinned);
+  useSheetDom(ref, barRef, sheet, state.pinned, hasInteracted);
 
   return (
     <section ref={ref} data-area="card" data-sheet={sheet} className={SECTION_CLASS} onKeyDown={event => closeOnEscape(event, sheet, dispatch)}>

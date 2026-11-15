@@ -112,6 +112,10 @@ const jaSource = {
     adult: 'おとな',
     ruby: 'ふりがな'
   },
+  // T3-07：言語切替のリストの名前（言語の名前そのものは `LANG_NAMES`）
+  langSwitch: {
+    label: '{言語|げんご}'
+  },
   index: {
     heading: '{県名|けんめい}さくいん'
   },

@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { CardArea } from '@/components/CardArea';
+import { HashSync } from '@/components/HashSync';
 import { IndexArea } from '@/components/IndexArea';
 import { MapArea } from '@/components/MapArea';
 import { MapStateProvider } from '@/components/MapStateProvider';
@@ -27,6 +28,8 @@ export default async function Page({ params }: Props) {
     // T2-05：地図とカードが同じ状態を見る。MapStateProvider は DOM の要素を出さないので、grid の子は変わらない
     <main className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-3">
       <MapStateProvider>
+        {/* T3-07：ハッシュ（#pref-NN）と固定している県を合わせる。DOM は出さない */}
+        <HashSync />
         <div className="min-w-0 lg:col-span-2">
           <MapArea lang={lang} prefectures={prefectures} />
         </div>

@@ -4,7 +4,7 @@ import { formatDate } from '../../src/i18n/format';
 import { getMessages } from '../../src/i18n/messages';
 import { loadContent } from '../../src/lib/content';
 import { distancesFromTokyo } from '../../src/lib/distance';
-import { expandSheet, expectShown } from './helpers';
+import { expandSheet } from './helpers';
 
 // F-CARD-02〜06・08、4.11.4、6.6 (2)、D24：県のカード（T3-03）。本番用のビルド。コンテンツは tests/fixtures/content/（playwright.config.ts の CONTENT_DIR）。
 // 北海道は全部 reviewed（内容を出す）、東京都は reviewed・verified・draft が混在、沖縄県は未作成。本番で内容を出すのは北海道だけで、残りの46県は「準備中」。
@@ -226,14 +226,15 @@ test.describe('6.6 (2)：JavaScript がないとき', () => {
 });
 
 test.describe('6.6 (2)：JavaScript があるとき、:target の規則は止まる', () => {
-  test('/en/#pref-13 を開いても、ハイドレーションの後は案内文だけが見え、固定するとその県のカードだけが見える', async ({ page }) => {
+  test('/en/#pref-13 を開くと、ハイドレーションの後は状態（固定）で東京都のカードだけが見え、別の県を固定するとその県のカードだけが見える', async ({ page }) => {
     // Arrange・Act：ハッシュで開き、`CardSwitch` のマウント（data-card-ready）を待つ
     await page.goto(`/en/#pref-${TOKYO}`);
     await page.locator('[data-card-ready]').waitFor({ state: 'attached' });
 
-    // Assert：状態が空なので、ハッシュのカードは見えず（:target の規則が止まる）、案内文が見える
-    await expectShown(page, page.locator('[data-card-guide]'), true);
-    await expect(page.locator('[data-card-pref]:visible')).toHaveCount(0);
+    // Assert：ハッシュの県が固定されている（T3-07）ので、:target の規則ではなく状態で、東京都のカードだけが見える。案内文は出ない
+    await expect(page.locator(`[data-card-pref="${TOKYO}"]`)).toBeVisible();
+    await expect(page.locator('[data-card-pref]:visible')).toHaveCount(1);
+    await expect(page.locator('[data-card-guide]')).toBeHidden();
 
     // Act：さくいんから北海道を固定する
     await page.locator('[data-index-ready]').waitFor({ state: 'attached' });

@@ -77,6 +77,7 @@ test.describe('F-IDX-03：キーボード', () => {
 
   test('4.11.2：Enter・Space で固定と解除、Shift + Enter で最大化する', async ({ page }) => {
     await open(page);
+    const historyLength = await page.evaluate(() => window.history.length);
     const item = page.locator('a[data-pref="20"]');
     await item.focus();
 
@@ -88,8 +89,9 @@ test.describe('F-IDX-03：キーボード', () => {
     await page.keyboard.press('Shift+Enter');
     await expect(item).toHaveAttribute('data-state', 'maximized');
     await expect(page.locator('path[data-pref="20"]')).toHaveAttribute('data-state', 'maximized');
-    // Enter でリンクが移動していない（ハッシュが付かない）
-    expect(new URL(page.url()).hash).toBe('');
+    // Enter でリンクが移動していない（履歴が増えない）。固定した県のハッシュは、`replaceState` で付く（T3-07）
+    expect(await page.evaluate(() => window.history.length)).toBe(historyLength);
+    expect(new URL(page.url()).hash).toBe('#pref-20');
   });
 });
 

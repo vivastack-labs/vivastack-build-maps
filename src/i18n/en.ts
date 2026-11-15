@@ -92,6 +92,10 @@ export const en: Messages = {
     adult: 'Adults',
     ruby: 'Furigana'
   },
+  // T3-07：言語切替のリストの名前（言語の名前そのものは `LANG_NAMES`）
+  langSwitch: {
+    label: 'Language'
+  },
   index: {
     heading: 'Prefecture index'
   },

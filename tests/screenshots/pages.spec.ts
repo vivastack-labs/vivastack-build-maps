@@ -153,6 +153,17 @@ async function focusPrefByKeyboard(page: Page): Promise<void> {
   await page.locator('path[data-pref="02"]:focus-visible').waitFor();
 }
 
+/** ja で長野県を固定してから、ヘッダーの「English」で英語のページに移る（T3-07。固定がハッシュで引き継がれ、英語のページで長野県が固定されている） */
+async function switchToEnglishPinned(page: Page): Promise<void> {
+  await pinPref(page);
+  await page.locator('a[data-lang-link="en"]').click();
+  await page.waitForURL('**/en/#pref-20');
+  await page.locator('[data-map-ready]').waitFor({ state: 'attached' });
+  await page.locator('path[data-pref="20"][aria-pressed="true"]').waitFor();
+  await page.evaluate(() => document.fonts.ready);
+  await page.mouse.move(0, 0);
+}
+
 const SCENES: readonly Scene[] = [
   ...LANGS.map(lang => ({ name: `${lang}-top`, path: `/${lang}/` })),
   // F-MAP-04：端末の設定がダークのときの色
@@ -162,6 +173,8 @@ const SCENES: readonly Scene[] = [
   // T3-01：東京からの距離。固定した県（長野県）のカードに「東京から約 … km」が出る。en・zh で、3言語の文言を確かめる（桁区切りは単体テストで確かめる）
   { name: 'en-pinned', path: '/en/', prepare: pinPref },
   { name: 'zh-pinned', path: '/zh/', prepare: pinPref },
+  // T3-07：言語切替。ja で長野県を固定してから「English」を押した状態（英語のページで、同じ県が固定されている）。ヘッダーの言語切替は、各画面の上に写る
+  { name: 'en-from-ja-pinned', path: '/ja/', prepare: switchToEnglishPinned },
   // T2-10：県名さくいん。さくいんの長野県を固定した状態（8地方の県名の一覧は、各言語の top の全体の画像に入る）（項目の固定中の色と、地図・カードが連動する）
   { name: 'ja-index-pinned', path: '/ja/', prepare: pinFromIndex },
   // T3-02：準備中の県（沖縄県）を固定した状態。トップの画面にも、斜線の県・凡例の「準備中」・さくいんの「（準備中）」が出る（フィクスチャは北海道だけが内容を出す）
