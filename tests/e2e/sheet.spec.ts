@@ -478,7 +478,7 @@ test.describe('768px 以上・JavaScript なし・1024px 未満のさくいん',
     await page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-details="loaded"]`).waitFor({ state: 'attached' });
     const body = page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-body]`);
 
-    // Assert：画面の高さぶん（100dvh）を取っている
+    // Assert：画面の高さぶん（100svh）を取っている
     expect(((await body.boundingBox())?.height ?? 0) / 900).toBeGreaterThanOrEqual(0.99);
 
     // Act：利用者が操作する（さくいんの別の県を押して固定する）

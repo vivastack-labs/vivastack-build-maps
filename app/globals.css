@@ -146,7 +146,7 @@
 @media (scripting: enabled) and (48rem <= width < 64rem) {
   [data-card-switch]:not([data-card-ready]) [data-card-pref]:target [data-card-body],
   [data-card-body][data-card-reserve] {
-    min-height: 100dvh;
+    min-height: 100svh;
   }
 }
 
