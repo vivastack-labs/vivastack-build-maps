@@ -71,6 +71,8 @@ Next.js のインラインスクリプトと初期化スクリプト（`MODE_INI
 | `tests/unit/components/JapanMap.test.tsx` ほか | `5.5：サーバーで描く地図に style 属性がない`（`MapArea` も） |
 | `tests/e2e/csp.spec.ts` | `R9：3言語のページで、地図の操作・カード・最大化・切替の間に CSP 違反が出ない`、`R9：404 のページで CSP 違反が出ない`、`5.5：CSP の meta がすべての script より前にあり、_headers の CSP に frame-ancestors 'none' がある` |
 
+実際には、`postbuild.test.ts` に上のテストに加えて、知っている形の全体一致・`<` を含むスクリプト・`htmlProblems`（`style` 属性・`<style>`・`<meta charset>` より前の要素・type）・`assembleDistWithCsp`（失敗したら `dist/` を消す）のテストを足した（計 48 件）。`csp.spec.ts` は、3言語の操作中の CSP 違反 0 件、404、知らないインラインスクリプトが止まること、`<meta>` の位置と `_headers`、クラスが既定値と違う値で効いていることを確かめる（4プロジェクトで 9 件）。
+
 ## 作る・変えるファイル（順番）
 
 1. `scripts/postbuild.ts` と単体テスト
@@ -99,3 +101,20 @@ Next.js のインラインスクリプトと初期化スクリプト（`MODE_INI
 | 4 | 足す指令 | 定義の指令に `img-src 'self'`・`form-action 'self'` を足す（`default-src` と同じ値だが明示） | フォームはないが、注入されたフォームの送信先を縛れる。`upgrade-insecure-requests` は HSTS があるので足さない |
 | 5 | CSP 違反を確かめる E2E の範囲 | 新しい `csp.spec.ts` で主な操作をまとめて確かめる（既存の全テストに監視を足すのはしない） | 既存の spec すべての `import` を変える大きな変更になる。主な操作（市区町村・カード・パネル・切替）を1つにまとめれば、スクリプトとスタイルの出どころはほぼ網羅できる |
 | 6 | サイズへの影響 | 受け入れる（`<meta>` で ja 約 7KB、gzip 後 約 5KB 増える見込み。T3-09 の余裕は ja 30KB） | ハッシュはランダムな文字列で圧縮が効かない。上限のコンテンツで測って PR に書く |
+
+## 承認後に変えたこと
+
+オーナーの判断が要らない、細かな違いと、レビューの指摘で足したもの。
+
+| 項目 | 承認したとき | 実際 | 理由 |
+|---|---|---|---|
+| 許可するインラインスクリプト | HTML にあるものを全部ハッシュに入れる | 知っている形だけを許可し、合わないものがあればファイル名つきでビルドを止める。`MODE_INIT_SCRIPT` と `(self.__next_f=self.__next_f\|\|[]).push([0])` は完全一致（`KNOWN_EXACT_INLINE_SCRIPTS`）、`self.__next_f.push([数字(,JSON の文字列\|null)?])` は全体一致の正規表現＋`JSON.parse`、Turbopack は先頭と末尾の間が JSON のオブジェクト。`<` を含むものは止める | セキュリティレビュー（M1・L1・L3）。将来 `dangerouslySetInnerHTML` などで紛れ込んだスクリプトを自動で許可しないため。接頭辞だけだと `push([1,"x"]);alert(1)` も通るため |
+| HTML の形の検査 | なし（E2E だけ） | `htmlProblems`：`<script>` の中身を除いた HTML に `style` 属性・`<style>` がない、`<meta charset>` より前に `<script>`・`<link>` がない、script の `type` が JavaScript か JSON だけ（importmap・speculationrules などは止める）。合わなければビルドを止める | コードレビュー MEDIUM-2。E2E は PR ごとに動かない（D30）ので、PR ごとの `pnpm build` で止めるため |
+| ハッシュの前の改行 | なし | `\r\n`・`\r` を `\n` に直してから取る | HTML のパーサーと同じ（セキュリティレビュー L3） |
+| CSP の文字列の検査 | なし | `"`・`&`・`<`・`>` があれば例外 | 属性の値を壊さないため（セキュリティレビュー L7） |
+| 失敗したときの `dist/` | 決めていない | `assembleDistWithCsp`：組み立てか CSP の書き込みで失敗したら `dist/` を消して、元の例外を投げ直す（`out/` と重なるときは消さない） | CSP のない `dist/` を `wrangler dev`・`pnpm size` で使わないため（コードレビュー LOW-3、セキュリティレビュー L2） |
+| `zoomInvariant` | 残す | 削除（`style` 属性をクラスにして使い道がなくなった）。`LABEL_FONT_SIZE` は `JapanMap` のクラスの基準値として残し、JSDoc に両方を直すことを書いた | なし |
+| `MuniLayer` の `style` | クラスにそろえる | 同じ（3つ） | なし |
+| Tailwind の読み込み | なし | `globals.css` の `@source not` に `AGENTS.md`・`CLAUDE.md`・`docs` を足した | 文書の中のクラスの例から、無効な CSS の規則ができていた（コードレビュー LOW-5） |
+| E2E の `addStyleTag` | なし | `sheet.spec.ts` は CSSOM（`style.overflowAnchor`）で書く | `style-src 'self'` で `<style>` の追加が止まるため |
+| `csp.spec.ts` の確かめ方 | CSP 違反が 0 件 | それに加えて、クラスが効いていることを既定値と違う値で確かめる（海域名 24px・県境 0.8px・沖縄の枠 1.5px・en の県名 13px、最大化後は基準 ÷ 倍率）。ツールチップは札幌市中央区の内側の点で出ることを確かめる | コードレビュー MEDIUM-1・LOW-4 |
