@@ -113,6 +113,13 @@ describe('UI文言の辞書', () => {
     expect(getMessages(lang).muni.listSummary).toContain('%n');
   });
 
+  test.each(LANGS)('5.4：pwa.shortName は空でなく、ふりがなの記法として正しい（%s）', lang => {
+    const { shortName } = getMessages(lang).pwa;
+
+    expect(shortName.trim()).not.toBe('');
+    expect(checkRuby(shortName).errors).toEqual([]);
+  });
+
   test('D28：fillCount は %n に、言語の書式の件数を入れる', () => {
     expect(fillCount('en', 'List (%n)', 1234)).toBe('List (1,234)');
     expect(fillCount('ja', '一覧（%n）', 77)).toBe('一覧（77）');

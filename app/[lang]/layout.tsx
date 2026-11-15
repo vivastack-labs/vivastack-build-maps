@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { htmlLang, isLang, langStaticParams } from '@/i18n/lang';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
+import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
 import { MODE_INIT_SCRIPT } from '@/features/mode/initScript';
 import { DEFAULT_DISPLAY } from '@/features/mode/settings';
 import { getMessages } from '@/i18n/messages';
@@ -35,6 +36,9 @@ export async function generateMetadata({ params }: Pick<Props, 'params'>): Promi
     title: plainText(getMessages(lang).siteName),
     // F-I18N-03・D8：canonical はそのページ、hreflang は ja・en・zh-Hans・x-default（→ ja）。URL はサイトの絶対 URL
     alternates: alternateUrls(lang),
+    // T4-02、D40：言語ごとの Web App Manifest と、アイコン（ファビコンの SVG・iOS のホーム画面用の PNG）。どれも同じオリジン（CSP の default-src 'self'・img-src 'self'。5.5）
+    manifest: `/${lang}/app.webmanifest`,
+    icons: { icon: '/icons/icon.svg', apple: '/icons/apple-touch-icon.png' },
     ...(buildTarget() === 'preview' ? { robots: { index: false } } : {})
   };
 }
@@ -56,6 +60,7 @@ export default async function RootLayout({ children, params }: Props) {
         <Header lang={lang} />
         {children}
         <Footer lang={lang} />
+        <ServiceWorkerRegistration />
       </body>
     </html>
   );

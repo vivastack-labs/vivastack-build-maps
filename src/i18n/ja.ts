@@ -118,6 +118,10 @@ const jaSource = {
     },
     ai: 'AIで{作成|さくせい}し、{人|ひと}が{確認|かくにん}しています'
   },
+  // T4-02：ホーム画面に出す短い名前（Web App Manifest の short_name。5.4）
+  pwa: {
+    shortName: 'めいぶつ{地図|ちず}'
+  },
   // T3-06：768px 未満の下から出るパネルのボタン（4.11.7）
   sheet: {
     expand: 'くわしく',

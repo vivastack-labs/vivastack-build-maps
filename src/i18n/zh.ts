@@ -98,6 +98,9 @@ export const zh: Messages = {
     },
     ai: '由 AI 制作，并经人工确认'
   },
+  pwa: {
+    shortName: '名产地图'
+  },
   sheet: {
     expand: '展开',
     collapse: '收起',
