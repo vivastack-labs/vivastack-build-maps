@@ -129,4 +129,14 @@ describe('SourceList', () => {
     expect(container.querySelector('[data-source-item="access"]')).toBeNull();
     expect(container.querySelectorAll('[data-source-item]')).toHaveLength(3);
   });
+
+  test.each(['en', 'zh'] as const)('ja 以外のページでは、出典のタイトルのふりがなの記法を読みなしの文字にする（%s）', lang => {
+    // Arrange・Act：行き方の1件目のタイトルは「{空|そら}の{旅|たび}のガイド（テスト用）」
+    const container = renderSources(lang);
+
+    // Assert
+    const link = q(itemOf(container, 'access'), 'a');
+    expect(link.textContent).toBe('空の旅のガイド（テスト用）');
+    expect(container.querySelector('ruby, rt')).toBeNull();
+  });
 });

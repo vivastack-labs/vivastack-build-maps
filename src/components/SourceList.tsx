@@ -4,6 +4,7 @@ import type { Lang } from '@/i18n/lang';
 import { getMessages, type Messages } from '@/i18n/messages';
 import type { Source, Specialty, Spot } from '@/lib/content-schema.generated';
 import type { Access } from '@/lib/publish';
+import { plainText } from '@/lib/ruby';
 import { RubyText } from './RubyText';
 
 type Props = {
@@ -26,12 +27,12 @@ function entriesOf(lang: Lang, labels: Messages['card'], { access, specialties, 
   ];
 }
 
-/** 出典1件：タイトルのリンク、URL の文字、確認日（F-SRC-02）。外部のサイトは新しいタブで開く（選んだ県の状態を保つため） */
+/** 出典1件：タイトルのリンク、URL の文字、確認日（F-SRC-02）。タイトルのふりがなは日本語のページだけに出す（ほかの言語の文は記法を使わない）。外部のサイトは新しいタブで開く（選んだ県の状態を保つため） */
 function SourceItem({ lang, source, labels }: { readonly lang: Lang; readonly source: Source; readonly labels: Messages['card'] }) {
   return (
     <li data-source className="break-words">
       <a href={source.url} target="_blank" rel="noopener noreferrer" className="underline">
-        <RubyText text={source.title} />
+        <RubyText text={lang === 'ja' ? source.title : plainText(source.title)} />
       </a>{' '}
       <span data-source-url className="text-xs">
         {source.url}
