@@ -68,11 +68,10 @@ function toItem(lang: Lang, item: Drafted<{ id: string; emoji?: string; name: Re
 
 /**
  * 絞り込みの後（`publish()` の結果）の県から、その言語のカードの内容を作る（D38）。
- * 「準備中」の県は内容を持たず JSON も作らないので、渡したら例外にする（ビルドを止める）。
+ * 「準備中」の県は、`publish()` が内容を外している（行き方なし・名物・名所は空）ので、空の内容になる（クライアントは読み込まない）。
  * 確認日の形が誤っていれば `formatDate` が例外にする。
  */
 export function cardData(prefecture: PublishedPrefecture, lang: Lang): CardData {
-  if (prefecture.pending) throw new Error(`県 ${prefecture.code} は準備中なので、カードの JSON を作れません`);
   const { code, access, specialties, spots } = prefecture;
   return {
     code,

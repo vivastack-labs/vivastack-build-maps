@@ -96,7 +96,7 @@ describe('cardData', () => {
     expect(data).toEqual({ code: '47', specialties: [], spots: [] });
   });
 
-  test('D38：準備中の県（本番）は内容を持たないので、例外にする（JSON を作らない県）', () => {
-    expect(() => cardData(okinawaProduction, 'ja')).toThrow(/準備中/u);
+  test('D38：準備中の県（本番）は内容を持たないので、空の JSON になる（未確認の内容は publish() が外している）', () => {
+    expect(cardData(okinawaProduction, 'ja')).toEqual({ code: '47', specialties: [], spots: [] });
   });
 });
