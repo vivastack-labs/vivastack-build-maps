@@ -50,6 +50,13 @@ async function openHokkaidoSources(page: Page): Promise<void> {
   await pinHokkaidoFromIndex(page);
   await page.locator('[data-card-pref="01"] [data-card-sources] summary').click();
   await page.locator('[data-card-pref="01"] details[data-card-sources][open]').waitFor();
+  // summary のクリックでページとカードの中が途中までスクロールするので、ページは先頭に戻し、
+  // カードの中（1024px以上で高さが画面までのスクロール領域）は最後までスクロールして、開いた出典欄を写す
+  await page.evaluate(() => {
+    const card = document.querySelector('[data-area="card"]');
+    if (card) card.scrollTop = card.scrollHeight;
+    window.scrollTo(0, 0);
+  });
   await page.mouse.move(0, 0);
 }
 
