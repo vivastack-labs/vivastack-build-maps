@@ -22,7 +22,8 @@
     "screenshots": "node scripts/pr-screenshots.ts",
     "geo:build": "node geo/scripts/build-geo.ts",
     "content:types": "node scripts/content-types.ts",
-    "content:validate": "node scripts/validate-content.ts"
+    "content:validate": "node scripts/validate-content.ts",
+    "size": "node scripts/measure-size.ts"
   },
   "browserslist": [
     "last 2 Chrome major versions",
