@@ -143,7 +143,7 @@ flowchart LR
 | T3-06 | feat | スマホの下から出るパネル | 完了 |
 | T3-07 | feat | 言語の切替 | 完了 |
 | T3-08 | perf | 最初の読み込みのサイズの実測 | 完了 |
-| T3-09 | perf | 最初の読み込みのサイズを基準値に収める | 作業中 |
+| T3-09 | perf | 最初の読み込みのサイズを基準値に収める | 完了 |
 
 ### 3.5 M4 PWA・品質（[tasks/m4-pwa-quality.md](tasks/m4-pwa-quality.md)）
 
@@ -151,7 +151,7 @@ flowchart LR
 
 | ID | 種別 | タスク | 状態 |
 |---|---|---|---|
-| T4-01 | feat | CSP | 未着手 |
+| T4-01 | feat | CSP | 作業中 |
 | T4-02 | feat | PWA | 未着手 |
 | T4-03 | test | アクセシビリティ | 未着手 |
 | T4-04 | ci | Lighthouse CI | 未着手 |
