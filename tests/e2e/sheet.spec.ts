@@ -62,6 +62,9 @@ test.describe('スマホ（768px 未満）の下から出るパネル', () => {
     // Assert
     await expect(panel(page)).toHaveAttribute('data-sheet', 'peek');
     const card = page.locator(`[data-card-pref="${HOKKAIDO}"]`);
+    // 内容を読み込んで差し込み先に描いたうえで、隠れていることを確かめる（描かれていないだけの「隠れている」にしない。T3-09）
+    await expect(card.locator('[data-card-details="loaded"]')).toBeAttached();
+    await expect(card.locator('[data-card-specialties]')).toHaveCount(1);
     await expect(card.locator('h2[data-card-name]')).toBeVisible();
     await expect(card.locator('[data-card-capital]')).toBeVisible();
     await expect(card.locator('[data-card-maximize]')).toBeVisible();
@@ -308,7 +311,9 @@ test.describe('スマホ（768px 未満）の下から出るパネル', () => {
     // Assert：ハイドレーションしていない（data-card-ready がない）が、カードが見え、パネルの高さは画面の約85%
     await expect(page.locator('[data-card-ready]')).toHaveCount(0);
     await expect(page.locator(`[data-card-pref="${HOKKAIDO}"]`)).toBeVisible();
-    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-specialties]`)).toBeVisible();
+    // 内容は JSON から描くので、JavaScript が動かないときは「JavaScript を有効にすると読めます」の文が見える（T3-09、5.2）
+    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-needs-script]`)).toBeVisible();
+    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-specialties]`)).toHaveCount(0);
     const height = await page.evaluate(() => window.innerHeight);
     expect(((await panel(page).boundingBox())?.height ?? 0) / height).toBeGreaterThanOrEqual(0.8);
     await expect(page.locator('[data-sheet-guide]')).toBeHidden();
@@ -405,7 +410,7 @@ test.describe('768px 以上・JavaScript なし・1024px 未満のさくいん',
     // Assert
     expect(await panel(page).evaluate(element => getComputedStyle(element).position)).toBe('static');
     await expect(page.locator(`[data-card-pref="${HOKKAIDO}"]`)).toBeVisible();
-    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-specialties]`)).toBeVisible();
+    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-needs-script]`)).toBeVisible();
     await expect(page.locator('[data-sheet-bar]')).toBeHidden();
     // 地図の下の案内文も出さない（カードの案内文と重複させない）
     await expect(page.locator('[data-sheet-guide]')).toBeHidden();

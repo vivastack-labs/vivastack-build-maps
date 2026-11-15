@@ -188,18 +188,19 @@ test.describe('F-MODE-03・D23：設定の保存', () => {
 test.describe('F-MODE-04：JavaScript がないとき', () => {
   test.use({ javaScriptEnabled: false });
 
-  test('F-MODE-04：JavaScript を無効にすると、ja はこども向け、en はおとな向けだけが見える。切替のボタンは見えない', async ({ page }) => {
-    // Arrange・Act・Assert：北海道のカードは :target で開く
+  test('F-MODE-04：JavaScript を無効にすると、ja はこども向け、en はおとな向けだけが見える（カードの内容の代わりの文も）。切替のボタンは見えない', async ({ page }) => {
+    // Arrange・Act・Assert：北海道のカードは :target で開く。内容は JSON から描くので、JavaScript がないときは「JavaScript を有効に」の文（T3-09）
+    const needsScript = page.locator(`${CARD} [data-card-needs-script]`);
     await page.goto(`/ja/#pref-${HOKKAIDO}`);
     await expect(page.locator(CARD)).toBeVisible();
-    await expect(firstItem(page).locator('.kids')).toBeVisible();
-    await expect(firstItem(page).locator('.adult')).toBeHidden();
+    await expect(needsScript.locator('.kids')).toBeVisible();
+    await expect(needsScript.locator('.adult')).toBeHidden();
     await expect(page.locator('[data-display-toggle]')).toBeHidden();
 
     await page.goto(`/en/#pref-${HOKKAIDO}`);
     await expect(page.locator(CARD)).toBeVisible();
-    await expect(firstItem(page).locator('.adult')).toBeVisible();
-    await expect(firstItem(page).locator('.kids')).toBeHidden();
+    await expect(needsScript.locator('.adult')).toBeVisible();
+    await expect(needsScript.locator('.kids')).toBeHidden();
     await expect(page.locator('[data-display-toggle]')).toBeHidden();
   });
 });

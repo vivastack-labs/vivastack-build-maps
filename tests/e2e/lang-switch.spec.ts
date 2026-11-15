@@ -53,6 +53,27 @@ test.describe('F-I18N-03・4.11.2：言語を切り替えても、固定して�
     await expect(cardOf(page, NAGANO).locator('[data-card-name]')).toHaveText('Nagano');
   });
 
+  test('D38：ハッシュから復元した県のカードの内容（JSON）が出る。言語を切り替えると、その言語の内容になる', async ({ page }) => {
+    // Act：ハッシュつきで開く
+    await open(page, `/ja/#pref-${HOKKAIDO}`);
+
+    // Assert：固定した県の JSON を読み込んで、名物・名所・出典が出る
+    const loaded = cardOf(page, HOKKAIDO).locator('[data-card-details="loaded"]');
+    await expect(loaded).toBeAttached();
+    await expect(cardOf(page, HOKKAIDO).locator('[data-card-specialties] [data-card-item]')).toHaveCount(3);
+    await expect(cardOf(page, HOKKAIDO).locator('[data-card-sources-slot] [data-card-sources]')).toBeAttached();
+    await expect(cardOf(page, HOKKAIDO).locator('[data-card-specialties] [data-card-item]').first().locator('strong')).toContainText('じゃがいも');
+
+    // Act：英語に切り替える
+    await langLink(page, 'en').click();
+    await page.locator('[data-card-ready]').waitFor({ state: 'attached' });
+
+    // Assert：英語の内容（ふりがなの <ruby> がない）
+    await expect(cardOf(page, HOKKAIDO).locator('[data-card-details="loaded"]')).toBeAttached();
+    await expect(cardOf(page, HOKKAIDO).locator('[data-card-specialties] [data-card-item]')).toHaveCount(3);
+    await expect(cardOf(page, HOKKAIDO).locator('[data-card-specialties] ruby')).toHaveCount(0);
+  });
+
   test('4.11.2：/en/#pref-13 を開くと、東京都が固定されている（最大化はしない）', async ({ page }) => {
     // Act
     await open(page, `/en/#pref-${TOKYO}`);
