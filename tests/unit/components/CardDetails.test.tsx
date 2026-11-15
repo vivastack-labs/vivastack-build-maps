@@ -175,7 +175,12 @@ describe('CardDetails', () => {
     // Act・Assert
     click('pin-01');
     expect(slot('01').querySelector('[data-card-details="loading"]')?.textContent).toBe('');
+    // aria-live の領域は、読み込み中から最初に DOM に置く（あとから足すと読み上げられないことがある）。中身だけを切り替える
+    const liveRegion = slot('01').querySelector('[data-card-details="loading"] [role="status"]');
+    expect(liveRegion?.getAttribute('aria-live')).toBe('polite');
+    expect(liveRegion?.textContent).toBe('');
     await act(async () => calls[0]?.notify({ kind: 'slow' }));
+    expect(slot('01').querySelector('[data-card-details="slow"] [role="status"]')).toBe(liveRegion);
     const status = slot('01').querySelector('[data-card-details="slow"] [role="status"]');
     expect(text(status)).toBe('読み込み中');
     expect(status?.getAttribute('aria-live')).toBe('polite');
@@ -193,6 +198,7 @@ describe('CardDetails', () => {
 
     // Assert
     const failed = slot('01').querySelector('[data-card-details="failed"]') as HTMLElement;
+    expect(failed.querySelectorAll('[role="status"]')).toHaveLength(1);
     const messages = getMessages('ja').card.loadFailed;
     expect(text(failed.querySelector('.kids'))).toBe(plainText(messages.kids));
     expect(text(failed.querySelector('.adult'))).toBe(plainText(messages.adult));

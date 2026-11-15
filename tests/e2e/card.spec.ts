@@ -202,7 +202,7 @@ test.describe('6.6 (2)：JavaScript がないとき', () => {
     });
   }
 
-  test('5.2：JavaScript がないとき、:target のカードに見出しと「JavaScript を有効にすると読めます」の文が出て、内容と出典欄は出ない（D38）', async ({ page }) => {
+  test('5.3：JavaScript がないとき、:target のカードに見出しと「JavaScript を有効にすると読めます」の文が出て、内容と出典欄は出ない（D38）', async ({ page }) => {
     // Arrange・Act
     await page.goto(`/en/#pref-${HOKKAIDO}`);
 
@@ -229,6 +229,22 @@ test.describe('6.6 (2)：JavaScript がないとき', () => {
 });
 
 test.describe('6.6 (2)：JavaScript があるとき、:target の規則は止まる', () => {
+  test('5.3：JavaScript が有効なら（scripting: enabled）、ハイドレーションの前（JavaScript を読み込む前）も「JavaScript を有効にすると読めます」の文は見えない', async ({ browser }) => {
+    // Arrange：JavaScript は有効のまま、読み込みだけを止める（ハイドレーションの前の状態）
+    const context = await browser.newContext({ javaScriptEnabled: true });
+    const page = await context.newPage();
+    await page.route('**/*.js', route => route.abort());
+
+    // Act
+    await page.goto(`/en/#pref-${HOKKAIDO}`);
+
+    // Assert：カードの見出しは読める。内容の代わりの文は出さない
+    await expect(page.locator('[data-card-ready]')).toHaveCount(0);
+    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-name]`)).toBeVisible();
+    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-needs-script]`)).toBeHidden();
+    await context.close();
+  });
+
   test('/en/#pref-13 を開くと、ハイドレーションの後は状態（固定）で東京都のカードだけが見え、別の県を固定するとその県のカードだけが見える', async ({ page }) => {
     // Arrange・Act：ハッシュで開き、`CardSwitch` のマウント（data-card-ready）を待つ
     await page.goto(`/en/#pref-${TOKYO}`);

@@ -153,7 +153,7 @@ describe('PrefCard', () => {
     expect(order).toEqual(['data-card-region', 'data-card-name', 'data-card-capital', 'data-card-distance', 'data-card-body', 'data-card-maximize', 'data-card-sources-slot']);
   });
 
-  test.each(LANGS)('5.2：JavaScript がないときのために、内容の差し込み先に「JavaScript を有効にすると読めます」の文を出す（こども向け・おとな向け。%s）', lang => {
+  test.each(LANGS)('5.3：JavaScript がないときのために、内容の差し込み先に「JavaScript を有効にすると読めます」の文を出す（こども向け・おとな向け。%s）', lang => {
     // Arrange・Act
     const container = renderCard(lang, hokkaido);
 
@@ -162,6 +162,16 @@ describe('PrefCard', () => {
     const { needsScript } = getMessages(lang).card;
     expect(text(q(message, '.kids'))).toBe(plainText(needsScript.kids));
     expect(text(q(message, '.adult'))).toBe(plainText(needsScript.adult));
+  });
+
+  test('5.3：「JavaScript を有効にすると読めます」の文は、JavaScript が無効のとき（scripting: none）だけ見せる（noscript: のバリアント。JavaScript が有効な人にハイドレーション前に見せない）', () => {
+    // Arrange・Act
+    const container = renderCard('ja', hokkaido);
+
+    // Assert：ふだんは hidden、noscript のときだけ block
+    const classes = q(container, '[data-card-needs-script]').className.split(' ');
+    expect(classes).toContain('hidden');
+    expect(classes).toContain('noscript:block');
   });
 
   test('4.11.4：準備中の県には差し込み先を出さない（読み込まない）', () => {

@@ -345,8 +345,9 @@ test.describe('スマホ（768px 未満）の下から出るパネル', () => {
     // Assert：ハイドレーションしていない（data-card-ready がない）が、カードが見え、パネルの高さは画面の約85%
     await expect(page.locator('[data-card-ready]')).toHaveCount(0);
     await expect(page.locator(`[data-card-pref="${HOKKAIDO}"]`)).toBeVisible();
-    // 内容は JSON から描くので、JavaScript が動かないときは「JavaScript を有効にすると読めます」の文が見える（T3-09、5.2）
-    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-needs-script]`)).toBeVisible();
+    // JavaScript が有効（scripting: enabled）なら、「JavaScript を有効にすると読めます」の文は出さない（見出しは読める。T3-09、5.3）
+    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-needs-script]`)).toBeHidden();
+    await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-name]`)).toBeVisible();
     await expect(page.locator(`[data-card-pref="${HOKKAIDO}"] [data-card-specialties]`)).toHaveCount(0);
     const height = await page.evaluate(() => window.innerHeight);
     expect(((await panel(page).boundingBox())?.height ?? 0) / height).toBeGreaterThanOrEqual(0.8);

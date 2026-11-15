@@ -114,16 +114,11 @@ function LoadStatus({
   const hasProblem = kind === 'failed' || kind === 'offline';
   return (
     <>
-      {kind === 'slow' && (
-        <p role="status" aria-live="polite" className="mt-3">
-          <RubyText text={labels.loading} />
-        </p>
-      )}
-      {hasProblem && (
-        <p role="status" aria-live="polite" className="mt-3">
-          <ModeText text={kind === 'failed' ? labels.loadFailed : labels.offline} />
-        </p>
-      )}
+      {/* aria-live の領域は、読み込み中から常に1つ置き、中身だけを切り替える（あとから足した領域は、読み上げられないことがある。`MuniStatus` と同じ） */}
+      <p role="status" aria-live="polite" className="mt-3 empty:mt-0">
+        {kind === 'slow' && <RubyText text={labels.loading} />}
+        {hasProblem && <ModeText text={kind === 'failed' ? labels.loadFailed : labels.offline} />}
+      </p>
       {(hasProblem || isRetrying) && (
         <button type="button" data-card-retry aria-disabled={isRetrying ? 'true' : undefined} className={RETRY_BUTTON_CLASS} onClick={isRetrying ? undefined : onRetry}>
           <ModeText text={labels.retry} />

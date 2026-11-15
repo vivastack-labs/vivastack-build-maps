@@ -80,7 +80,7 @@ const jaSource = {
       kids: 'もう{一度|いちど}',
       adult: '{再試行|さいしこう}'
     } satisfies ModeTextValue,
-    // JavaScript が使えない・読み込めなかったときの、カードの内容の代わりの文（5.2）
+    // JavaScript が無効のとき（scripting: none）の、カードの内容の代わりの文（5.3）
     needsScript: {
       kids: 'くわしい{内容|ないよう}は、JavaScript を{有効|ゆうこう}にすると{読|よ}めるよ',
       adult: 'くわしい{内容|ないよう}は、JavaScript を{有効|ゆうこう}にすると{読|よ}めます'

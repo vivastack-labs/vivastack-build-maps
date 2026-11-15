@@ -20,7 +20,7 @@ type Props = {
  * 上限の量のコンテンツでも最初の読み込みを 5.1 の基準値に収めるため）。出典の差し込み先は最大化ボタンの後に置く（4.11.7）。
  * 表示する県の切り替えと最大化ボタンの文言の切り替えは、`CardSwitch` が属性だけで行う。
  * 本番で内容を出さない県（`pending`）は、差し込み先の代わりに「準備中」の文を出す（4.11.4。JSON は読み込まない）。
- * JavaScript がないとき・読み込めなかったとき（`data-card-ready` がない）は、差し込み先の `[data-card-needs-script]` が見える（`app/globals.css`。5.2）。
+ * JavaScript が無効のとき（`scripting: none`）だけ、差し込み先の `[data-card-needs-script]` が見える（`noscript:` のバリアント。5.3）。JavaScript が有効なら、ハイドレーションの前も出さない（JavaScript が有効なのに読み込めなかったときも、見出しは読める）。
  * 最大化ボタンは JavaScript がないと動かないので `hidden` で出し、`CardSwitch` が外す。
  * パネルが一部だけ見える状態（768px 未満。T3-06）で隠す部分（差し込み先・「準備中」の文）には `data-sheet-detail` を付ける
  * （カードの並びは変えず、CSS で隠す）。県名の `<h2>` は `tabIndex={-1}`（パネルを開いたとき、`CardSheet` がフォーカスを移す。4.11.6）。
@@ -53,7 +53,7 @@ export function PrefCard({ lang, prefecture, distanceKm }: Props) {
         </p>
       ) : (
         <div data-card-body={code} data-sheet-detail>
-          <p data-card-needs-script className="mt-3">
+          <p data-card-needs-script className="mt-3 hidden noscript:block">
             <ModeText text={labels.needsScript} />
           </p>
         </div>

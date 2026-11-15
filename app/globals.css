@@ -137,16 +137,6 @@
 }
 
 /*
- * T3-09：カードの内容（行き方・名物・名所・出典）は、JavaScript が県ごとの JSON から読み込んで差し込み先に描く（D38、5.2）。
- * JavaScript がないとき、と、JavaScript が有効でも読み込めなかったとき（`data-card-ready` がない）は、差し込み先の
- * 「JavaScript を有効にすると読めます」の文（`[data-card-needs-script]`）が、`:target` で開いたカードの見出しの下に見える。
- * `CardSwitch` がマウントすると `data-card-ready` が付き、この文は隠れる（JSON が読み込めなかったときの文言と「再試行」は `CardDetails` が出す）。
- */
-[data-card-ready] [data-card-needs-script] {
-  display: none;
-}
-
-/*
  * T3-09（CLS）：1列の配置（768px 以上 1024px 未満。カードがさくいんの上にある）で、ハッシュ（#pref-NN）つきで開いたとき、
  * カードの内容（JSON）が入ると下のさくいんが押し出される。内容が入る前から、表示する県の差し込み先に画面の高さぶんの高さを取っておく。
  * ハイドレーションの前は `:target` のカード（JavaScript が有効なときだけ。無効なら内容は読み込まれない）、ハイドレーションの後は

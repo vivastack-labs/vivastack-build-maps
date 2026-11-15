@@ -2,7 +2,7 @@
 
 - タスクの定義：`docs/tasks/m3-card-i18n-mode.md` の T3-09
 - ブランチ：`perf/T3-09-first-load-budget`
-- 参照仕様：開発概要書 5.1、5.2、6.6 (2)、D24、F-MODE-04、4.11.1〜4.11.4・4.11.7、F-SRC-01〜03
+- 参照仕様：開発概要書 5.1、5.3、6.6 (2)、D24、F-MODE-04、4.11.1〜4.11.4・4.11.7、F-SRC-01〜03
 
 ## 目的
 
@@ -79,11 +79,11 @@
 ### 4. JavaScript がないとき
 
 - `:target` で開いたカードには、見出し（県名・県庁所在地・距離）だけが出る。差し込み先に「くわしい内容は JavaScript を有効にすると読めます」（辞書の `card.needsScript`。`noscript:block`、ふだんは `hidden`）を出す。JavaScript が有効なのに読み込めなかったとき（`data-card-ready` がない）も同じ文を出す（`globals.css`）。
-- 5.2 の「JavaScript が使えない環境でも…県名さくいんから県のカードを開ける」と F-MODE-04 は、「カードの見出しまで」に書き直す（判断 2）。
+- 5.3 の「JavaScript が使えない環境でも…県名さくいんから県のカードを開ける」と F-MODE-04 は、「カードの見出しまで」に書き直す（判断 2）。
 
 ### 5. 文書
 
-- 開発概要書：5.1（表の「カードの内容は HTML に含む」）、5.2、6.6 (2)（方式・結果・調査）、F-MODE-04、D24 の書き直しと、新しい決定事項 D38（カードの内容は県ごとの JSON）。
+- 開発概要書：5.1（表の「カードの内容は HTML に含む」）、5.3、6.6 (2)（方式・結果・調査）、F-MODE-04、D24 の書き直しと、新しい決定事項 D38（カードの内容は県ごとの JSON）。
 - 開発計画：5章の T3-09 の行を決定済みにする。T4-01（CSP の `connect-src 'self'`）、T4-04（Lighthouse CI は上限のコンテンツでも測るか）、U13（Service Worker のキャッシュの対象に `/cards/`）の定義に書き足す。
 - `AGENTS.md`：アーキテクチャ（県のカード・出典の節）。
 
@@ -102,7 +102,7 @@
 | `tests/unit/scripts/measure-size.test.ts` | 変えない |
 | `tests/e2e/card.spec.ts` | 今のテストを JSON から描く形に直す。`D38：/cards/ja/01.json を読み込んでカードの内容を出す`、`D38：読み込み中・失敗（再試行で出る）・オフラインの表示`（`page.route`）、`D38：HTML にカードの解説文が入らない`（今の「D24 の出現回数」を置き換える） |
 | `tests/e2e/lang-switch.spec.ts` | `D38：ハッシュから復元した県のカードの内容が出る` |
-| `tests/e2e/card.spec.ts`（JavaScript なし） | `5.2：JavaScript がないとき、:target のカードに見出しと「JavaScript を有効に」の文が出る` |
+| `tests/e2e/card.spec.ts`（JavaScript なし） | `5.3：JavaScript がないとき、:target のカードに見出しと「JavaScript を有効に」の文が出る` |
 
 既存の E2E（`mode.spec.ts`・`sheet.spec.ts`・`pending.spec.ts`・`e2e-preview/preview.spec.ts` など）でカードの内容を見ているものは、JSON が届くのを待つ形に直す。
 
@@ -132,7 +132,7 @@
 | # | 点 | 推奨 | 理由 |
 |---|---|---|---|
 | 1 | 方式 | **(a)**：カードの内容（行き方・名物・名所・出典）を JSON にして後から読み込む | (b) は上の調査で、どの言語も基準値に届かない（ja 約 384KB）。(c) は ja の LCP も緩めることになる。(a) は最初の読み込みが今の本物とほぼ同じ（255〜261KB＋数 KB）になる |
-| 2 | JavaScript がないときの扱い | カードの見出し（県名・県庁所在地・距離）までを `:target` で出し、内容は「JavaScript を有効に」の文にする。5.2・F-MODE-04 をそのように書き直す | 内容を HTML に残すと (a) にならない。見出しまでは今の HTML にあり、サイズは増えない。学校の端末は JavaScript が動くので、影響は小さい |
+| 2 | JavaScript がないときの扱い | カードの見出し（県名・県庁所在地・距離）までを `:target` で出し、内容は「JavaScript を有効に」の文にする。5.3・F-MODE-04 をそのように書き直す | 内容を HTML に残すと (a) にならない。見出しまでは今の HTML にあり、サイズは増えない。学校の端末は JavaScript が動くので、影響は小さい |
 | 3 | JSON の分け方 | 1県×1言語ずつ（`/cards/ja/01.json`、約 3KB） | 市区町村（`/geo/muni/NN.topo.json`）と同じ形で、読み込みの部品と状態の表示を共通にできる。ハッシュの復元・スマホのタップでは 3KB だけで済む。全県を1ファイル（約 100KB）にすると、遅い回線で最初のタップが待たされる |
 | 4 | JSON の作り方 | Route Handler（`force-static`）でビルド時に出す | `publish()`・`BUILD_TARGET`・`CONTENT_DIR` をページと同じ流れで使え、別のスクリプトで絞り込みを書き直さずに済む（静的出力で使える。`node_modules/next/dist/docs/01-app/02-guides/static-exports.md`）。`[file]` に `01.json` のような値が使えるかを最初に確かめ、だめなら `postbuild.ts` で出す |
 | 5 | JavaScript を減らす（市区町村の描画を後から読み込む） | このタスクではしない | 減るのは約 14KB で、(a) だけで基準値に収まる見込み。収まらなかったときだけ足す |
