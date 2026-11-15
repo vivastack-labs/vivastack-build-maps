@@ -11,7 +11,7 @@ import { CardSources } from './CardSources';
 import { useMapState } from './MapStateProvider';
 import { ModeText } from './ModeText';
 import { RubyText } from './RubyText';
-import { useHasInteracted } from './useHasInteracted';
+import { useHasInteracted, type UserEvent } from './useHasInteracted';
 import { useResourceData } from './useResourceData';
 
 type Props = {
@@ -51,6 +51,12 @@ function useCardSlots(pref: PrefCode | null): Slots | null {
   return { pref, body, sources: body.closest('article')?.querySelector<HTMLElement>('[data-card-sources-slot]') ?? null };
 }
 
+/**
+ * 予約を外すきっかけにする操作。押した瞬間（pointerdown）にしない：外すと下のさくいんが動き、離すまでの間に押した県の要素がなくなって、
+ * click が共通の親に落ちて失われる（スクロールアンカリングのない Safari、ページの下端に近いときなど）。click（離したあと）・keydown なら、押し終えている。
+ */
+const RESERVE_RELEASE_EVENTS: readonly UserEvent[] = ['click', 'keydown'];
+
 /** 差し込み先に付ける印。1列の配置（768px 以上 1024px 未満）で、画面の高さぶんの高さを取っておく（`app/globals.css`） */
 const RESERVE_ATTRIBUTE = 'data-card-reserve';
 
@@ -72,6 +78,20 @@ function useReserveWhileRestoring(body: HTMLElement | null, isRestoring: boolean
     body.setAttribute(RESERVE_ATTRIBUTE, '');
     return () => body.removeAttribute(RESERVE_ATTRIBUTE);
   }, [body, isRestoring]);
+}
+
+/**
+ * 内容が入ったとき、予約を外しても画面の外の要素しか動かない（差し込み先の上端＋内容の高さ ≧ 画面の下端。外すと動くのは、内容より下 ＝ 画面の外）なら、
+ * 利用者の操作を待たずに、すぐに外す（予約の余白を残さない）。内容が画面の下端に届かないうちは、外すと画面の中のさくいんが動くので、外さない。
+ * DOM の属性を直接外す（外した後は、`useReserveWhileRestoring` は差し込み先か復元の状態が変わるまで付け直さない）。
+ */
+function useReleaseWhenBelowFold(body: HTMLElement | null, isLoaded: boolean): void {
+  useLayoutEffect(() => {
+    if (body === null || !isLoaded || !body.hasAttribute(RESERVE_ATTRIBUTE)) return;
+    const content = body.querySelector('[data-card-details]');
+    if (content === null) return;
+    if (body.getBoundingClientRect().top + content.getBoundingClientRect().height >= window.innerHeight) body.removeAttribute(RESERVE_ATTRIBUTE);
+  }, [body, isLoaded]);
 }
 
 /**
@@ -140,9 +160,11 @@ export function CardDetails({ lang, labels, loader }: Props) {
   const { state } = useMapState();
   const pref = cardPref(state);
   const slots = useCardSlots(pref);
-  const hasInteracted = useHasInteracted();
-  useReserveWhileRestoring(slots?.body ?? null, state.pinned !== null && !hasInteracted);
+  const hasInteracted = useHasInteracted(RESERVE_RELEASE_EVENTS);
+  const body = slots?.body ?? null;
+  useReserveWhileRestoring(body, state.pinned !== null && !hasInteracted);
   const { status, isRetrying, retry } = useResourceData(slots === null ? null : pref, loader ?? browserCardLoader(lang));
+  useReleaseWhenBelowFold(body, status?.kind === 'loaded');
   const rememberFocus = useRestoreFocusAfterRetry(slots?.body ?? null, status?.kind);
   if (slots === null || status === null) return null;
 
@@ -153,7 +175,7 @@ export function CardDetails({ lang, labels, loader }: Props) {
   return (
     <>
       {createPortal(
-        <div data-card-details={status.kind}>
+        <div data-card-details={status.kind} className="flow-root">
           {status.kind === 'loaded' ? <CardBody data={status.data} labels={labels} /> : <LoadStatus kind={status.kind} isRetrying={isRetrying} labels={labels} onRetry={onRetry} />}
         </div>,
         slots.body

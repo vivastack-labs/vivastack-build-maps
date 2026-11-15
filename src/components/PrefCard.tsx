@@ -52,7 +52,7 @@ export function PrefCard({ lang, prefecture, distanceKm }: Props) {
           <ModeText text={messages.comingSoon.card} />
         </p>
       ) : (
-        <div data-card-body={code} data-sheet-detail>
+        <div data-card-body={code} data-sheet-detail className="flow-root">
           <p data-card-needs-script className="mt-3 hidden noscript:block">
             <ModeText text={labels.needsScript} />
           </p>

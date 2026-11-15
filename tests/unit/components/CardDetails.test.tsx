@@ -312,7 +312,31 @@ describe('CardDetails', () => {
       expect(slot('01').hasAttribute('data-card-reserve')).toBe(true);
     });
 
-    test('利用者が操作したら（pointerdown）外す', async () => {
+    test('利用者が click・keydown したら外す', async () => {
+      // Arrange
+      const { loader } = instantLoader({ '01': dataOf(hokkaido) });
+      render(<Fixture loader={loader} />);
+      await act(async () => dispatchFromTest({ type: 'restore', pref: '01' }));
+
+      // Act・Assert：click
+      fireEvent.click(document.body);
+      expect(slot('01').hasAttribute('data-card-reserve')).toBe(false);
+    });
+
+    test('keydown でも外す', async () => {
+      // Arrange
+      const { loader } = instantLoader({ '01': dataOf(hokkaido) });
+      render(<Fixture loader={loader} />);
+      await act(async () => dispatchFromTest({ type: 'restore', pref: '01' }));
+
+      // Act
+      fireEvent.keyDown(document.body, { key: 'Tab' });
+
+      // Assert
+      expect(slot('01').hasAttribute('data-card-reserve')).toBe(false);
+    });
+
+    test('pointerdown では外さない（押してから離すまでの間に要素が動くと、click が共通の親に落ちて失われる）', async () => {
       // Arrange
       const { loader } = instantLoader({ '01': dataOf(hokkaido) });
       render(<Fixture loader={loader} />);
@@ -322,7 +346,50 @@ describe('CardDetails', () => {
       fireEvent.pointerDown(document.body);
 
       // Assert
-      expect(slot('01').hasAttribute('data-card-reserve')).toBe(false);
+      expect(slot('01').hasAttribute('data-card-reserve')).toBe(true);
+    });
+
+    test('内容が入ったとき、外しても画面の外の要素しか動かない（差し込み先の上端＋内容の高さ ≧ 画面の下端）なら、すぐに外す', async () => {
+      // Arrange：jsdom にはレイアウトがないので、差し込み先の上端と内容の高さを差し替える
+      const spy = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+        const top = this.hasAttribute('data-card-body') ? 100 : 0;
+        const height = this.hasAttribute('data-card-details') ? window.innerHeight : 0;
+        return { x: 0, y: top, top, left: 0, right: 0, bottom: top + height, width: 0, height, toJSON: () => ({}) };
+      });
+      const { loader } = instantLoader({ '01': dataOf(hokkaido) });
+      render(<Fixture loader={loader} />);
+
+      try {
+        // Act：復元（利用者の操作の前）
+        await act(async () => dispatchFromTest({ type: 'restore', pref: '01' }));
+
+        // Assert：内容が入った時点で、操作の前でも外れている
+        expect(slot('01').querySelector('[data-card-details="loaded"]')).not.toBeNull();
+        expect(slot('01').hasAttribute('data-card-reserve')).toBe(false);
+      } finally {
+        spy.mockRestore();
+      }
+    });
+
+    test('内容が画面の下端に届かないうちは、操作の前なら外さない（外すと、画面の中のさくいんが動く）', async () => {
+      // Arrange
+      const spy = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+        const top = this.hasAttribute('data-card-body') ? 100 : 0;
+        const height = this.hasAttribute('data-card-details') ? window.innerHeight - 200 : 0;
+        return { x: 0, y: top, top, left: 0, right: 0, bottom: top + height, width: 0, height, toJSON: () => ({}) };
+      });
+      const { loader } = instantLoader({ '01': dataOf(hokkaido) });
+      render(<Fixture loader={loader} />);
+
+      try {
+        // Act
+        await act(async () => dispatchFromTest({ type: 'restore', pref: '01' }));
+
+        // Assert
+        expect(slot('01').hasAttribute('data-card-reserve')).toBe(true);
+      } finally {
+        spy.mockRestore();
+      }
     });
 
     test('操作の後に固定した県には付けない。別の県に切り替えたら、前の県の差し込み先から外す', async () => {
