@@ -36,11 +36,11 @@ function AccessSection({ access, labels }: { readonly access: NonNullable<CardDa
         <RubyText text={labels.access} />
         {access.draft && <DraftMark label={labels.draft} />}
       </h3>
-      <p>
+      <p className="break-words">
         <Emoji emoji={access.emoji} />
         <RubyText text={access.mode} /> <RubyText text={access.route} />
       </p>
-      <p data-card-duration>
+      <p data-card-duration className="break-words">
         <RubyText text={labels.durationLabel} />
         <RubyText text={access.durationText} />
       </p>
