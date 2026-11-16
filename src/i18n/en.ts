@@ -157,7 +157,9 @@ export const en: Messages = {
     },
     delivery: {
       heading: 'Delivery',
-      body: 'This site is delivered using Cloudflare services.'
+      body: 'This site is delivered using Cloudflare services.',
+      processing: "To deliver the site, Cloudflare handles connection information such as the visitor's IP address.",
+      detail: { before: 'For details, see the Cloudflare privacy policy (', after: ').' }
     },
     external: {
       heading: 'External sites',

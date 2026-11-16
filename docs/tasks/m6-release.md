@@ -17,6 +17,7 @@
 
 - `docs/device-checklist.md`（T4-06）のとおりに、学校の端末（1つ前の iPadOS を含む）・スマホ・タブレットで確かめる。
 - 結果（端末、OSの版、日付、問題）をチェックリストに書く。問題は修正のタスクにする。
+- 公開の前に、プライバシーポリシー（`/{lang}/privacy/`。辞書の `privacy`）に載せる運営者の名前と問い合わせ先を、オーナーが決める（T4-05 では、設計書に決まっていないので載せなかった）。決めたら辞書の `privacy`（3言語）と `PRIVACY_REVISED_DATE`（改定日）を直す。
 
 ### 完了条件
 
@@ -38,6 +39,7 @@
 ### 実装内容
 
 - Cloudflare Web Analytics に `maps.vivastack-dev.workers.dev` を登録する（11.1）。workers.dev では自動設定が使えない見込みなので、ダッシュボードで確かめ、使えなければ計測用のJSスニペット（トークン入り）をHTMLに埋め込む（D35。CSP は T4-01 で Web Analytics のドメインを許可済み。スニペットは外部の `src` なので、ハッシュは要らない。インラインで書くと、T4-01 の検査でビルドが止まる。`next/script` の `beforeInteractive` は使わない〔`(self.__next_s=…)` のインラインが出てビルドが止まる〕。レイアウトにふつうの `<script defer src=… data-cf-beacon=…>` を書く）。結果を開発概要書 11.1 に書く。
+- プライバシーポリシー（辞書の `privacy`。T4-05）は、Web Analytics を使う前提で書いてある（Cookie を使わない・集計する項目は Cloudflare の公式の文書のとおり）。スニペットを入れない、または集める項目が違うときは、公開の前に `privacy`（3言語）と `PRIVACY_REVISED_DATE` を直す。
 - `CHANGELOG.md` に v1.0.0 を書き、`main` に merge して本番にデプロイする。
 - 本番のURLに対する確認用の E2E（読むだけの操作）を用意し、デプロイの後に実行する。
 

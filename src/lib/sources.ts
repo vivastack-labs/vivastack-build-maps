@@ -7,5 +7,8 @@ export const SOUMU_CODE_URL = 'https://www.soumu.go.jp/denshijiti/code.html';
 /** 地理院地図（国土地理院）。県庁の位置の出典の URL として文に入れる（8.1・8.3） */
 export const GSI_MAPS_URL = 'https://maps.gsi.go.jp/';
 
+/** Cloudflare のプライバシーポリシー。配信（接続元の IP アドレスなどの通信の情報を扱うこと）の説明からリンクする（5.6） */
+export const CLOUDFLARE_PRIVACY_URL = 'https://www.cloudflare.com/privacypolicy/';
+
 /** Cloudflare Web Analytics の説明（Cookie を使わないこと・集める項目）。プライバシーポリシーからリンクする（5.6） */
 export const CLOUDFLARE_ANALYTICS_URL = 'https://developers.cloudflare.com/web-analytics/about/';

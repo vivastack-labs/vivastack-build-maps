@@ -1,5 +1,5 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
-import { LANGS } from '../../src/i18n/lang';
+import { LANGS, langPath } from '../../src/i18n/lang';
 import { getMessages } from '../../src/i18n/messages';
 import { plainText } from '../../src/lib/ruby';
 import { dblclickAtCenter } from './helpers';
@@ -122,6 +122,41 @@ test.describe('5.4：Service Worker', () => {
     await expect(page).toHaveURL(/\/en\/$/u);
     await page.locator('[data-map-ready]').waitFor({ state: 'attached' });
     await expect(page.locator('h1')).toHaveText(plainText(getMessages('en').siteName));
+  });
+
+  test('D40：オフラインのトップのフッターから、「このサイトについて」・プライバシーポリシー（プリキャッシュ済み）を開ける（T4-05）', async ({ page, context }) => {
+    // Arrange
+    await openControlled(page);
+
+    // Act：オフラインにして、フッターのリンクを押す（全体の読み込み）
+    await goOffline(context, page);
+    await page.getByRole('contentinfo').locator('a[data-footer-link="about"]').click();
+
+    // Assert
+    await expect(page).toHaveURL(/\/ja\/about\/$/u);
+    await expect(page.locator('main h1')).toHaveText(plainText(getMessages('ja').about.title));
+    await expect(page.locator('[data-about-source="map"] a')).toBeVisible();
+
+    // Act・Assert：プライバシーポリシーも開ける
+    await page.getByRole('contentinfo').locator('a[data-footer-link="privacy"]').click();
+    await expect(page).toHaveURL(/\/ja\/privacy\/$/u);
+    await expect(page.locator('[data-privacy-section="cookies"]')).toBeVisible();
+  });
+
+  test('U13：プリキャッシュのキーに、3言語の about・privacy が入る（T4-05）', async ({ page }) => {
+    // Arrange
+    await openControlled(page);
+
+    // Act
+    const keys = await page.evaluate(async () => {
+      const names = (await caches.keys()).filter(name => name.includes('precache'));
+      const lists = await Promise.all(names.map(async name => (await (await caches.open(name)).keys()).map(request => new URL(request.url).pathname)));
+      return lists.flat();
+    });
+
+    // Assert
+    const pages = LANGS.flatMap(lang => [langPath(lang, 'about'), langPath(lang, 'privacy')]);
+    expect(keys).toEqual(expect.arrayContaining(pages));
   });
 
   test('4.11.5：オフラインでは、一度見た県の市区町村だけが表示される（見ていない県は「オフラインのため表示できません」）', async ({ page, context }) => {

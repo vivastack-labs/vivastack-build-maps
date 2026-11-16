@@ -107,4 +107,10 @@
 
 ## 承認後に変えたこと
 
-（実装後に書く）
+- フッターも各ページに移した：計画は `Header` だけをレイアウトから外す書き方だったが、フッターの `aria-current`（今のページ）もレイアウトでは決められないので、`PageFrame`（Header・本体・Footer を並べる共通の枠）を作り、3ページが `page` を渡す形にした。
+- `PAGES`（`src/i18n/lang.ts`）を追加した：ページ名の許可リスト。`langPath`・`alternateUrls`・プリキャッシュ（`scripts/service-worker.ts` の `PAGE_HTML_FILES`）が同じ一覧から作る。プリキャッシュは `{ja,en,zh}/index.html` のパターンをやめて、3言語×3ページの HTML の名前を並べる形にした（どれかがなければビルドを止める）。
+- `LinkedSentence`（前の文＋リンク＋後の文）と `ContentSection`（`PageTitle`・`Paragraph`・`BulletList` を含む）を足した：lint の関数の長さ（50行）を守るため。`Footer` の出典の文も `LinkedSentence` を使う。辞書に `footer.linksLabel`（フッターのリンクの一覧の名前）を足した。
+- レビューの指摘（LOW）を直した：`privacy.delivery` に「配信のために、Cloudflare が接続元の IP アドレスなどの通信の情報を扱う」の1文と Cloudflare のプライバシーポリシーへのリンク（`CLOUDFLARE_PRIVACY_URL`）を足した（保存期間など、確かめていないことは書かない）。`PAGES` の JSDoc に、足したページは自動でプリキャッシュ・hreflang の対象になるので管理用・下書き用を入れないことを書いた。
+- Web Analytics の記述（MEDIUM）は文のまま。T6-02 のタスクの定義に、入れない・集める項目が違うときは公開の前に直すことを書いた。運営者の名前・問い合わせ先は T6-01 の定義と開発計画 5章に書いた。
+- 開発概要書に決定 D43 を足した（ページの構成とヘッダー・フッターの置き場所）。
+- 計画の「Lighthouse の対象を足さない」は計画のまま（足していない）。

@@ -231,6 +231,10 @@ const SCENES: readonly Scene[] = [
   { name: 'ja-maximized-muni-failed', path: '/ja/', prepare: maximizeWithMuniFailure },
   // T2-11：キーボードで地図の県（青森県）にフォーカスした状態。フォーカスの枠が見え、カードが青森県になる
   { name: 'ja-keyboard-focus', path: '/ja/', prepare: focusPrefByKeyboard, pcOnly: true },
+  // T4-05：「このサイトについて」（3つの出典の文・加工したこと・境界が暫定の地域）とプライバシーポリシー（ja）、英語の「このサイトについて」。ヘッダー・フッターのリンクも写る
+  { name: 'ja-about', path: '/ja/about/' },
+  { name: 'ja-privacy', path: '/ja/privacy/' },
+  { name: 'en-about', path: '/en/about/' },
   // 存在しないパスの404（app/global-not-found.tsx）。404のステータスでも、page.goto は例外にならずに撮れる
   { name: 'ja-not-found', path: '/ja/no-such-page/' }
 ];

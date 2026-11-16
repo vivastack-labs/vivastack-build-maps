@@ -39,7 +39,10 @@ export const LANG_NAMES: Readonly<Record<Lang, string>> = {
 /** 言語切替のリンク（`LangSwitch`）に付ける属性の名前。値は言語のコード。`HashSync` がこの属性でリンクを探す */
 export const LANG_LINK_ATTRIBUTE = 'data-lang-link';
 
-/** サイトのページ（T4-05）。トップ・「このサイトについて」・プライバシーポリシー。URL のパスはここの名前から作る（自由な文字列を入れない） */
+/**
+ * サイトのページ（T4-05）。トップ・「このサイトについて」・プライバシーポリシー。URL のパスはここの名前から作る（自由な文字列を入れない）。
+ * ここに足したページは、自動でプリキャッシュ（`scripts/service-worker.ts`）と `hreflang`（`alternateUrls`）の対象になる。管理用・下書き用のページは入れない。
+ */
 export const PAGES = ['home', 'about', 'privacy'] as const;
 
 /** サイトのページの名前 */

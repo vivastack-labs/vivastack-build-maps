@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { MUNI_LABEL_FONT_SIZE } from '../../src/features/map/labels';
 import { LABEL_FONT_SIZE } from '../../src/features/map/prefPaths';
-import { LANGS } from '../../src/i18n/lang';
+import { LANGS, langPath } from '../../src/i18n/lang';
 import { getMessages } from '../../src/i18n/messages';
 import { expandSheet, settledPoint } from './helpers';
 
@@ -155,6 +155,32 @@ test.describe('R9：CSP の下で、主な操作の間に CSP 違反が出ない
     });
   }
 
+  for (const lang of LANGS) {
+    test(`R9：${lang} の「このサイトについて」・プライバシーポリシーで、フッターのリンクで行き来しても CSP 違反が出ない（T4-05）`, async ({ page }) => {
+      // Arrange
+      const violations = await collectViolations(page);
+
+      // Act：トップ → 「このサイトについて」→ プライバシーポリシー → ふりがな・モードの切替 → 言語の切替 → トップ
+      await open(page, `/${lang}/`);
+      const footer = page.getByRole('contentinfo');
+      await footer.locator('a[data-footer-link="about"]').click();
+      await expect(page).toHaveURL(new RegExp(`${langPath(lang, 'about')}$`, 'u'));
+      await footer.locator('a[data-footer-link="privacy"]').click();
+      await expect(page).toHaveURL(new RegExp(`${langPath(lang, 'privacy')}$`, 'u'));
+      const display = getMessages(lang).display;
+      await page.getByRole('banner').getByRole('button', { name: display.adult, exact: true }).click();
+      await expect(page.locator('html')).toHaveAttribute('data-mode', 'adult');
+      const other = LANGS.find(candidate => candidate !== lang) ?? 'ja';
+      await page.getByRole('banner').locator(`a[data-lang-link="${other}"]`).click();
+      await expect(page).toHaveURL(new RegExp(`${langPath(other, 'privacy')}$`, 'u'));
+      await page.getByRole('banner').locator('a[data-site-name-link]').click();
+      await expect(page).toHaveURL(new RegExp(`${langPath(other)}$`, 'u'));
+
+      // Assert
+      expect(violations).toEqual([]);
+    });
+  }
+
   test('R9：404 のページで CSP 違反が出ない', async ({ page }) => {
     // Arrange
     const violations = await collectViolations(page);
@@ -188,7 +214,7 @@ test.describe('R9：CSP の下で、主な操作の間に CSP 違反が出ない
 });
 
 test.describe('5.5：CSP の置き場所', () => {
-  for (const path of ['/ja/', '/en/', '/zh/', '/no-such-page/']) {
+  for (const path of ['/ja/', '/en/', '/zh/', '/ja/about/', '/en/privacy/', '/no-such-page/']) {
     test(`5.5：${path} は CSP の meta が <meta charset> の直後で、すべての script・link より前にあり、_headers の CSP に frame-ancestors 'none' がある`, async ({ page }) => {
       // Act
       const response = await page.goto(path);

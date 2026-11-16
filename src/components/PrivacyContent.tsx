@@ -2,7 +2,7 @@ import { LABEL_SEPARATOR } from '@/i18n/cardText';
 import { formatDate } from '@/i18n/format';
 import type { Lang } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
-import { CLOUDFLARE_ANALYTICS_URL } from '@/lib/sources';
+import { CLOUDFLARE_ANALYTICS_URL, CLOUDFLARE_PRIVACY_URL } from '@/lib/sources';
 import { BulletList, ContentSection, PageTitle, Paragraph } from './ContentSection';
 import { LinkedSentence } from './LinkedSentence';
 import { RubyText } from './RubyText';
@@ -52,6 +52,10 @@ export function PrivacyContent({ lang }: { readonly lang: Lang }) {
       <StorageSection lang={lang} />
       <ContentSection heading={delivery.heading} marker={['data-privacy-section', 'delivery']}>
         <Paragraph text={delivery.body} />
+        <Paragraph text={delivery.processing} />
+        <p className="break-words">
+          <LinkedSentence text={delivery.detail} url={CLOUDFLARE_PRIVACY_URL} />
+        </p>
       </ContentSection>
       <ContentSection heading={external.heading} marker={['data-privacy-section', 'external']}>
         <Paragraph text={external.body} />

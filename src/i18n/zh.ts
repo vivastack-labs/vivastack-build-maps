@@ -153,7 +153,9 @@ export const zh: Messages = {
     },
     delivery: {
       heading: '网站的发布',
-      body: '本网站通过 Cloudflare 的服务发布。'
+      body: '本网站通过 Cloudflare 的服务发布。',
+      processing: '为了发布网站，Cloudflare 会处理访问者的 IP 地址等连接信息。',
+      detail: { before: '详情请参阅 Cloudflare 的隐私政策（', after: '）。' }
     },
     external: {
       heading: '外部网站',

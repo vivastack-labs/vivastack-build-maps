@@ -7,7 +7,7 @@ import { LANGS } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
 import { LABEL_SEPARATOR } from '@/i18n/cardText';
 import { plainText } from '@/lib/ruby';
-import { CLOUDFLARE_ANALYTICS_URL } from '@/lib/sources';
+import { CLOUDFLARE_ANALYTICS_URL, CLOUDFLARE_PRIVACY_URL } from '@/lib/sources';
 import { textWithoutRuby } from './base-text';
 
 describe('PrivacyContent', () => {
@@ -48,7 +48,14 @@ describe('PrivacyContent', () => {
 
     // Assert
     const { delivery, external, revised } = getMessages(lang).privacy;
-    expect(textWithoutRuby(container.querySelector('[data-privacy-section="delivery"]') as HTMLElement)).toContain(plainText(delivery.body));
+    const deliverySection = container.querySelector('[data-privacy-section="delivery"]') as HTMLElement;
+    expect(textWithoutRuby(deliverySection)).toContain(plainText(delivery.body));
+    // 配信のために Cloudflare が IP アドレスなどの通信の情報を扱うこと（保存期間など、確かめていないことは書かない）と、Cloudflare のプライバシーポリシーへのリンク
+    expect(textWithoutRuby(deliverySection)).toContain(plainText(delivery.processing));
+    expect(textWithoutRuby(deliverySection)).toContain(plainText(delivery.detail.before) + CLOUDFLARE_PRIVACY_URL + plainText(delivery.detail.after));
+    const privacyLink = deliverySection.querySelector('a') as HTMLAnchorElement;
+    expect(privacyLink.getAttribute('href')).toBe(CLOUDFLARE_PRIVACY_URL);
+    expect(privacyLink.getAttribute('rel')).toBe('noopener noreferrer');
     expect(textWithoutRuby(container.querySelector('[data-privacy-section="external"]') as HTMLElement)).toContain(plainText(external.body));
     expect(textWithoutRuby(container.querySelector('[data-privacy-revised]') as HTMLElement)).toBe(plainText(revised) + LABEL_SEPARATOR[lang] + formatDate(lang, '2026-11-16'));
   });

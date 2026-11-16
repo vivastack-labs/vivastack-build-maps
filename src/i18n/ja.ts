@@ -184,7 +184,9 @@ const jaSource = {
     },
     delivery: {
       heading: '{配信|はいしん}',
-      body: 'このサイトは、Cloudflare のサービスを{使|つか}って{配信|はいしん}しています。'
+      body: 'このサイトは、Cloudflare のサービスを{使|つか}って{配信|はいしん}しています。',
+      processing: '{配信|はいしん}のために、Cloudflare が{接続元|せつぞくもと}の IP アドレスなどの{通信|つうしん}の{情報|じょうほう}を{扱|あつか}います。',
+      detail: { before: '{詳|くわ}しくは、Cloudflare のプライバシーポリシー（', after: '）を{見|み}てください。' }
     },
     external: {
       heading: '{外部|がいぶ}のサイト',
