@@ -70,6 +70,17 @@ jobs:
       - name: Validate content
         if: steps.changes.outputs.docs_only != 'true'
         run: pnpm content:validate
+      # 5.1・6.6 (2)：最初の読み込み（HTML＋JS＋CSS）が gzip 後 300KB を超えたら失敗する。
+      # 本物のコンテンツは「準備中」の県が多く、増えた分が見えないので、上限の文字数で埋めたダミー（コミットしない）で測る。
+      # dist/ を作り直すので、本物の Build より前に置く（あとの手順が使う dist/ にダミーが残らないように）
+      - name: Size budget
+        if: steps.changes.outputs.docs_only != 'true'
+        env:
+          MAX_CONTENT_DIR: ${{ runner.temp }}/max-content
+        run: |
+          node scripts/make-max-content.ts --out "${MAX_CONTENT_DIR}"
+          CONTENT_DIR="${MAX_CONTENT_DIR}" pnpm build
+          pnpm size
       # E2E は開発中は PR ごとに実行せず、e2e.yml で手動で実行する（12.1。Actions の分数を抑えるため）
       - name: Build
         if: steps.changes.outputs.docs_only != 'true'
