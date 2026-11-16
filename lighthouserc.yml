@@ -17,8 +17,12 @@ ci:
   upload:
     # temporary-public-storage はレポートが公開の場所に上がるので使わない。ファイルに出して、CI では Artifact にする
     target: filesystem
-    outputDir: .lighthouseci
+    outputDir: .lighthouseci/reports
+    # /ja/ と /ja/#pref-01 のレポートを見分けられるよう、ハッシュをファイル名に入れる（既定は %%HOSTNAME%%-%%PATHNAME%%-%%DATETIME%%）
+    reportFilenamePattern: "%%PATHNAME%%-%%HASH%%-%%DATETIME%%.report.%%EXTENSION%%"
   assert:
+    # 注意：URL（collect の url、lighthouserc.tablet.yml の url）を変えたら、matchingUrlPattern も変える。
+    # どの URL にも一致しない基準は、黙って通る（確かめた URL がない）ので、検査していないことに気づけない
     assertMatrix:
       # 最初の表示（ハッシュなし）：5.1 の基準。INP は実機でしか測れないので、代わりに TBT（Total Blocking Time）を見る
       - matchingUrlPattern: ^http://[^/]+/(ja|en|zh)/$

@@ -55,6 +55,27 @@ describe('app/globals.css のハッシュの県の規則', () => {
     expect(split(reserve[0] ?? '')).toContain('[data-card-switch]:not([data-card-ready]) [data-card-pref]:target [data-card-body]');
   });
 
+  test('6.6 (2)（CLS）：県ごとのセレクターは、すべて `[data-card-switch]:not([data-card-ready])` の中（ハイドレーションの前だけ）に限っている', () => {
+    // Arrange・Act
+    const selectors = [...display, ...reserve].flatMap(list => list.split(',').map(selector => selector.trim())).filter(selector => selector.includes("[data-hash-pref='"));
+
+    // Assert：94個（47県 × 2つの規則）すべてに含まれる
+    expect(selectors).toHaveLength(94);
+    for (const selector of selectors) expect(selector, selector).toContain('[data-card-switch]:not([data-card-ready])');
+  });
+
+  test('6.6 (2)（CLS）：県によらない `:root[data-hash-pref]` の規則（案内文・パネルを全部見える状態・地図の下の案内文）がある', () => {
+    // Arrange・Act
+    const generic = selectorLists()
+      .flatMap(list => list.split(',').map(selector => selector.trim()))
+      .filter(selector => selector.startsWith(':root[data-hash-pref] '));
+
+    // Assert
+    expect(generic).toContain(':root[data-hash-pref] [data-card-switch]:not([data-card-ready]) [data-card-guide]');
+    expect(generic).toContain(":root[data-hash-pref] [data-area='card'][data-sheet]:has([data-card-switch]:not([data-card-ready]))");
+    expect(generic).toContain(':root[data-hash-pref] main:has([data-card-switch]:not([data-card-ready])) [data-sheet-guide]');
+  });
+
   test('6.6 (2)（CLS）：どの規則も、属性の県コードと #pref-NN の県コードが同じ', () => {
     // Arrange・Act
     const pairs = [...display, ...reserve].flatMap(pairsIn);

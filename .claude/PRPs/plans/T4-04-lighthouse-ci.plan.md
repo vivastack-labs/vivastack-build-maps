@@ -110,4 +110,11 @@ Lighthouse CI の設定は自動テストがない（タスクの定義）。
 
 ## 承認後に変えたこと
 
-（実装後に書く）
+- `lighthouserc.tablet.yml` の画面の設定（`settings`）：設定ファイル → `package.json` の `lhci` の引数。コマンドラインや環境変数で `settings.port` を足すと、設定ファイルの `settings` がオブジェクトごと置き換わって消えるため（手元の WSL で幅 800px の設定が効かなかった）。
+- `lighthouserc.yml` の `assert` の基準・`upload` の設定は計画のとおり。YAML の設定は `--config=lighthouserc.yml` で読めた。
+- 初期化スクリプトは、ほかのグローバルを増やさないよう関数で包んだ（380 バイト）。
+- 手元の WSL の手順は、AGENTS.md に環境変数 `LHCI_COLLECT__SETTINGS__PORT` で書いた（設定ファイルに書かない）。
+- 最初のコミットで、県ごとの規則と `[data-card-body][data-card-reserve]` の間のカンマが抜けて予約が効かなかった（E2E で分かった）。単体テストにカンマの確認を足した。
+- 最初の読み込みのサイズ（上限のコンテンツ、gzip）：ja 277.0 → 277.9KB、en 266.5 → 267.4KB、zh 268.3 → 269.3KB（約 +0.9KB。CSS 6.2 → 6.8KB）。ja の余裕は 23.0 → 22.1KB。
+- `lighthouserc.yml` の `upload`：`outputDir` を `.lighthouseci/reports`、`reportFilenamePattern` を `%%PATHNAME%%-%%HASH%%-%%DATETIME%%.report.%%EXTENSION%%` にした（`/ja/` と `/ja/#pref-01` のレポートを見分けるため。lhci 0.16.1 で使えることを、保存済みの結果で `lhci upload` して確かめた）。`assertMatrix` に、URL を変えたら `matchingUrlPattern` も変える注意を書いた。
+- レビューの指摘で、`data-hash-pref` はハイドレーションの前の CSS の規則と `CardDetails` のマウントだけが使い、後から読まない（`replaceState` は `hashchange` を起こさず、古い値のまま残る）ことを、`initScript.ts`・AGENTS.md に書いた。単体テストに、県ごとのセレクターが `:not([data-card-ready])` の中にあること、県によらない `:root[data-hash-pref]` の規則の存在、ハッシュの総当たり（00〜99・3桁・改行つき）を足した。

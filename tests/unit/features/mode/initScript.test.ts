@@ -111,6 +111,20 @@ describe('MODE_INIT_SCRIPT', () => {
       }
     });
 
+    test('6.6 (2)（CLS）：#pref-00〜#pref-99・3桁（#pref-000〜#pref-119）・末尾に改行つきの形を総当たりで、prefFromHash と同じ結果になる（有効なのは47件だけ）', () => {
+      // Arrange
+      const two = Array.from({ length: 100 }, (_, index) => String(index).padStart(2, '0'));
+      const three = Array.from({ length: 120 }, (_, index) => String(index).padStart(3, '0'));
+      const hashes = [...two, ...three, ...two.map(code => `${code}\n`), ...two.map(code => `${code}x`)].map(code => `#pref-${code}`);
+
+      // Act
+      const results = hashes.map(hash => [hash, setup(noStorage, {}, hash).dataset.hashPref] as const);
+
+      // Assert
+      for (const [hash, written] of results) expect(written, hash).toBe(prefFromHash(hash) ?? undefined);
+      expect(results.filter(([, written]) => written !== undefined)).toHaveLength(47);
+    });
+
     test('6.6 (2)（CLS）：hashchange でハッシュが変われば data-hash-pref を書き直し、県でなくなれば消す', () => {
       // Arrange
       const { dataset, fire } = setup(noStorage, {}, '#pref-01');
