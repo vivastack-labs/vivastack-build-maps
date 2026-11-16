@@ -34,7 +34,7 @@
   | `timeout` | タイムアウト | 要確認 |
   | `network-error` | DNS・TLS（証明書）・接続の失敗 | 要確認（理由を添える） |
 
-- `runChecks(links, { check, concurrency, hostIntervalMs, now, sleep })`：同時に確かめる数を `concurrency` までにし、同じホストへの送信の間隔を `hostIntervalMs` 以上あける。結果は入力と同じ順に返す。
+- `runChecks(links, { check, concurrency, hostIntervalMs, now, sleep, onResult })`：同時に確かめる数を `concurrency` までにする。同じホストへは同時に1件だけ送り、前の応答が終わってから `hostIntervalMs` 以上あける。今すぐ送れる URL を先に取る（同じホストの URL が続いても、ほかのホストは待たされない）。結果は入力と同じ順に返す。
 - `formatReport(results, meta)`：Markdown。見出し・実行日時・対象の県・件数のまとめ、リンク切れ・要確認の表（分類・HTTP ステータス・URL・最終の URL・使われている場所）。問題がなければ「問題なし」。
 
 ### 2. CLI：`scripts/check-links.ts`（`pnpm content:links`）
@@ -109,4 +109,13 @@
 
 ## 承認後に変えたこと
 
-（PR を出す前に書く）
+| 項目 | 承認したとき | 実際 | 理由 |
+|---|---|---|---|
+| `collectLinks` の県の指定 | `filter`（入力の文字列） | 県コードの配列。`parsePrefectureFilter` が、県コードか id を県コードにする | 入力の解釈と、URL を集める処理を分けて、それぞれを確かめやすくするため |
+| レポートの文字列 | URL などをそのまま表に入れる | URL・最終の URL・理由をコードスパンで囲み、理由は200字で切る。`\` は `%5C` にしてから `\|` にする | security-reviewer の指摘。リダイレクト先は相手のサーバーが決める文字列で、`$GITHUB_STEP_SUMMARY` でリンクや強調になりうる |
+| https でないリダイレクト先 | （考えていなかった） | 最終の URL が https でなければ、分類はそのまま、理由に⚠を添える（404・5xx でも） | security-reviewer の指摘（内部のアドレスへ飛ばされた可能性）。辿るのは判断4のまま。GitHub が用意するランナーだけで動かすことを、workflow と開発概要書 12.4 に書いた |
+| 同じホストへの間隔 | 送り始めの間隔を2秒以上あける | 同じホストへは同時に1件。前の応答が終わってから2秒以上あける。今すぐ送れる URL を先に取る | コードレビュー（Opus）の指摘。送り始めの間隔だけでは、応答の遅いホストに最大4件重なり、同じホストの URL が続くと、ほかのホストも止まった |
+| `checkLink`・`runChecks` の引数 | `{ fetch, timeoutMs }`、進み具合の通知なし | `userAgent` を受け取る。`onResult` で1件ごとに進み具合を標準エラーに出す | User-Agent（判断5）をテストで確かめるため。数百件の実行で、止まっていないことが分かるように |
+| 終了コード 2 | 引数・コンテンツの誤り | それに加えて、`--pref`・`--out` の値が `-` で始まるとき・`--out` が空のとき、レポートのファイルを書けないとき、思わぬ例外 | リンク切れの 1 と区別するため（security-reviewer・コードレビューの指摘）。workflow の案内（1：リンク切れ）と取り違えない |
+| 通信の失敗の理由 | （考えていなかった） | undici の `cause.code`（`ENOTFOUND`・`CERT_HAS_EXPIRED` など）、なければ `cause.message` | `fetch failed` だけでは、何が起きたか分からない |
+| workflow の段階 | install → 確かめる → 概要 → Artifact | 確かめる段階の終了コードを `GITHUB_OUTPUT` に取っておき、概要と Artifact（`if: always()`）の後の段階で失敗にする。`concurrency` で同時に2つ走らせない | リンク切れで実行が赤くなっても、レポートを残すため |
