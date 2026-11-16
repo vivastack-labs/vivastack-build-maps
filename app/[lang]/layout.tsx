@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: Pick<Props, 'params'>): Promi
 
 // D28：app/[lang]/layout.tsx をルートレイアウトにして <html lang> を出力する（6.2 D27）。
 // T3-05：<html data-mode data-ruby> に言語ごとの既定値（D37）を書く（JavaScript がなくても既定のモードで読める。F-MODE-04）。
-// <head> の初期化スクリプトが、最初の描画の前に localStorage の保存した値で上書きするので、<html> の属性は suppressHydrationWarning にする（D23）。
+// <head> の初期化スクリプトが、最初の描画の前に localStorage の保存した値で上書きし、URL のハッシュの県を data-hash-pref に書く（T4-04。CSS が :target の代わりに使う）ので、<html> の属性は suppressHydrationWarning にする（D23）。
 // dangerouslySetInnerHTML はここだけ。中身は固定の定数（利用者の入力が入らない）。
 export default async function RootLayout({ children, params }: Props) {
   const { lang } = await params;

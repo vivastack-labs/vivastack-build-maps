@@ -23,7 +23,8 @@
     "geo:build": "node geo/scripts/build-geo.ts",
     "content:types": "node scripts/content-types.ts",
     "content:validate": "node scripts/validate-content.ts",
-    "size": "node scripts/measure-size.ts"
+    "size": "node scripts/measure-size.ts",
+    "lhci": "lhci collect --config=lighthouserc.yml && lhci collect --config=lighthouserc.tablet.yml --additive --collect.settings.formFactor=mobile --collect.settings.screenEmulation.mobile --collect.settings.screenEmulation.width=800 --collect.settings.screenEmulation.height=1280 --collect.settings.screenEmulation.deviceScaleFactor=2 && lhci upload --config=lighthouserc.yml && lhci assert --config=lighthouserc.yml"
   },
   "browserslist": [
     "last 2 Chrome major versions",
@@ -49,6 +50,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
+    "@lhci/cli": "0.16.1",
     "@playwright/test": "1.65.0",
     "@tailwindcss/postcss": "4.3.5",
     "@testing-library/dom": "10.4.2",

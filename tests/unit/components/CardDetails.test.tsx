@@ -407,12 +407,9 @@ describe('CardDetails', () => {
       expect(slot('13').hasAttribute('data-card-reserve')).toBe(false);
     });
 
-    test('マウントの時点で、ハッシュの県（:target）の差し込み先に付ける（ハイドレーションの前の :target の規則から、隙間なく引き継ぐ）', () => {
-      // Arrange：jsdom は、あとから DOM に入れた要素を `:target` と判定しないので、`:target` の検索だけ、北海道の差し込み先を返すようにする
-      const original = document.querySelector.bind(document);
-      const spy = vi
-        .spyOn(document, 'querySelector')
-        .mockImplementation((selector: string) => (selector.includes(':target') ? original('[data-card-pref="01"] [data-card-body]') : original(selector)));
+    test('T3-09（CLS）：マウントの時点で、data-hash-pref の県の差し込み先に data-card-reserve を付ける（ハイドレーションの前の CSS の規則から、隙間なく引き継ぐ）', () => {
+      // Arrange：<head> の初期化スクリプトが最初の描画の前に書く属性
+      document.documentElement.dataset.hashPref = '01';
       const { loader } = instantLoader({ '01': dataOf(hokkaido) });
 
       try {
@@ -420,11 +417,29 @@ describe('CardDetails', () => {
         render(<Fixture loader={loader} />);
 
         // Assert：復元（dispatch）を待たずに付いている
-        expect(spy).toHaveBeenCalledWith('[data-card-pref]:target [data-card-body]');
         expect(slot('01').hasAttribute('data-card-reserve')).toBe(true);
         expect(slot('13').hasAttribute('data-card-reserve')).toBe(false);
       } finally {
-        spy.mockRestore();
+        delete document.documentElement.dataset.hashPref;
+      }
+    });
+
+    test('T3-09（CLS）：data-hash-pref がない・県コードの形でなければ、マウントの時点では付けない', () => {
+      // Arrange
+      const { loader } = instantLoader({ '01': dataOf(hokkaido) });
+
+      // Act・Assert：属性なし
+      const first = render(<Fixture loader={loader} />);
+      expect(slot('01').hasAttribute('data-card-reserve')).toBe(false);
+      first.unmount();
+
+      // Act・Assert：形が違う値（セレクターに入れない）
+      document.documentElement.dataset.hashPref = '"]x';
+      try {
+        render(<Fixture loader={loader} />);
+        expect(slot('01').hasAttribute('data-card-reserve')).toBe(false);
+      } finally {
+        delete document.documentElement.dataset.hashPref;
       }
     });
 

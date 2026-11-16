@@ -1,0 +1,13 @@
+---
+# 5.1・12.2（T4-04）：1列の配置（768px 以上 1024px 未満）で、ハッシュつきで開いたときの設定。
+# 画面の設定（formFactor: mobile・幅 800px・高さ 1280px・deviceScaleFactor 2）は、package.json の `lhci` のコマンドラインの引数に書く。
+# 設定ファイルの `settings` は、コマンドラインや環境変数（手元の WSL の `LHCI_COLLECT__SETTINGS__PORT`。AGENTS.md）で `settings.port` などを足すと、
+# オブジェクトごと置き換わって消える（lhci の仕様）が、コマンドラインの引数どうしは合わさる。
+# 結果は lighthouserc.yml の結果に足し（`pnpm lhci` が `--additive` で動かす）、基準は lighthouserc.yml の assert に書く。
+# 言語の切替で毎回使う URL で、最初のレイアウトの後に :target が決まって、カードの表示でさくいんが押される（CLS 0.6〜0.9）ことを止める。
+ci:
+  collect:
+    staticDistDir: ./dist
+    url:
+      - /ja/#pref-01
+    numberOfRuns: 3

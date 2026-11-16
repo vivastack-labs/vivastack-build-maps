@@ -72,7 +72,7 @@ jobs:
         run: pnpm content:validate
       # 5.1・6.6 (2)：最初の読み込み（HTML＋JS＋CSS）が gzip 後 300KB を超えたら失敗する。
       # 本物のコンテンツは「準備中」の県が多く、増えた分が見えないので、上限の文字数で埋めたダミー（コミットしない）で測る。
-      # dist/ を作り直すので、本物の Build より前に置く（あとの手順が使う dist/ にダミーが残らないように）
+      # dist/ を作り直すので、本物の Build より前に置く（あとの手順が使う dist/ にダミーが残らないように）。Lighthouse CI も、この dist/ を測る
       - name: Size budget
         if: steps.changes.outputs.docs_only != 'true'
         env:
@@ -81,6 +81,24 @@ jobs:
           node scripts/make-max-content.ts --out "${MAX_CONTENT_DIR}"
           CONTENT_DIR="${MAX_CONTENT_DIR}" pnpm build
           pnpm size
+      # 5.1・12.2：Lighthouse CI。上の手順で作った上限のコンテンツの dist/ を、スマホの設定で3回ずつ測り（/ja/・/en/・/zh/）、
+      # 中央値が基準値（Performance 0.9 以上・LCP 2.5秒以下・CLS 0.1 以下・TBT 200ms 以下）を下回ったら失敗する。
+      # 1列の配置（幅 800px）でハッシュつきで開いたときの CLS も測る（lighthouserc.yml・lighthouserc.tablet.yml）。
+      # 本物の Build より前に置く（dist/ にダミーが残るため）
+      - name: Lighthouse CI
+        if: steps.changes.outputs.docs_only != 'true'
+        run: pnpm lhci
+      # 結果（HTML・JSON のレポート）を残す。失敗したときも、原因を見られるようにする。公開の場所にはアップロードしない
+      - name: Upload Lighthouse report
+        if: ${{ !cancelled() && steps.changes.outputs.docs_only != 'true' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: lighthouse-report
+          path: .lighthouseci/
+          # upload-artifact は . で始まるディレクトリを既定で除くので、明示する（中身は Lighthouse のレポートだけ）
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
       # E2E は開発中は PR ごとに実行せず、e2e.yml で手動で実行する（12.1。Actions の分数を抑えるため）
       - name: Build
         if: steps.changes.outputs.docs_only != 'true'

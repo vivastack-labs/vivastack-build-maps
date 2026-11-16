@@ -132,14 +132,65 @@
 }
 
 /*
- * T3-03：JavaScript がないとき、URL のハッシュ（#pref-NN）の県のカードを見せる（6.6 (2)）。
+ * T3-03・T4-04：URL のハッシュ（#pref-NN）の県のカードを、最初のレイアウトから見せる（6.6 (2)）。
  * カードは `hidden` で出力されるので、Tailwind の preflight（`@layer base`）の `[hidden] { display: none !important }` に勝つ必要がある。
  * !important の宣言は、レイヤーでは先に並べたものが勝つ（詳細度より前に決まる）ので、先頭で宣言した `card-target` に入れて `!important` を付ける。
  * `CardSwitch` がマウントすると `data-card-ready` が付き、この規則は止まる（JavaScript があるときは、状態で選んだカードだけが見える）。
+ * - `:target`：JavaScript がないとき（初期化スクリプトが動かない）。ただし、ブラウザは最初のレイアウトの後で `:target` を決めるので、JavaScript があるときにこれだけだと、
+ *   カードが後から表示されて下のさくいんが押される（CLS）。
+ * - `:root[data-hash-pref='NN']`：<head> の初期化スクリプト（`src/features/mode/initScript.ts`）が最初の描画の前に書く、ハッシュの県のコード。最初のレイアウトから見える。
+ *   CSS は属性の値を別の要素の `id` と比べられないので、県ごとに書く（47県。`tests/unit/styles/hash-pref-rules.test.ts` が書き漏れを確かめる）。
  * カードが見えるときは案内文を隠す。
  */
 @layer card-target {
-  [data-card-switch]:not([data-card-ready]) [data-card-pref]:target {
+  [data-card-switch]:not([data-card-ready]) [data-card-pref]:target,
+  :root[data-hash-pref='01'] [data-card-switch]:not([data-card-ready]) #pref-01,
+  :root[data-hash-pref='02'] [data-card-switch]:not([data-card-ready]) #pref-02,
+  :root[data-hash-pref='03'] [data-card-switch]:not([data-card-ready]) #pref-03,
+  :root[data-hash-pref='04'] [data-card-switch]:not([data-card-ready]) #pref-04,
+  :root[data-hash-pref='05'] [data-card-switch]:not([data-card-ready]) #pref-05,
+  :root[data-hash-pref='06'] [data-card-switch]:not([data-card-ready]) #pref-06,
+  :root[data-hash-pref='07'] [data-card-switch]:not([data-card-ready]) #pref-07,
+  :root[data-hash-pref='08'] [data-card-switch]:not([data-card-ready]) #pref-08,
+  :root[data-hash-pref='09'] [data-card-switch]:not([data-card-ready]) #pref-09,
+  :root[data-hash-pref='10'] [data-card-switch]:not([data-card-ready]) #pref-10,
+  :root[data-hash-pref='11'] [data-card-switch]:not([data-card-ready]) #pref-11,
+  :root[data-hash-pref='12'] [data-card-switch]:not([data-card-ready]) #pref-12,
+  :root[data-hash-pref='13'] [data-card-switch]:not([data-card-ready]) #pref-13,
+  :root[data-hash-pref='14'] [data-card-switch]:not([data-card-ready]) #pref-14,
+  :root[data-hash-pref='15'] [data-card-switch]:not([data-card-ready]) #pref-15,
+  :root[data-hash-pref='16'] [data-card-switch]:not([data-card-ready]) #pref-16,
+  :root[data-hash-pref='17'] [data-card-switch]:not([data-card-ready]) #pref-17,
+  :root[data-hash-pref='18'] [data-card-switch]:not([data-card-ready]) #pref-18,
+  :root[data-hash-pref='19'] [data-card-switch]:not([data-card-ready]) #pref-19,
+  :root[data-hash-pref='20'] [data-card-switch]:not([data-card-ready]) #pref-20,
+  :root[data-hash-pref='21'] [data-card-switch]:not([data-card-ready]) #pref-21,
+  :root[data-hash-pref='22'] [data-card-switch]:not([data-card-ready]) #pref-22,
+  :root[data-hash-pref='23'] [data-card-switch]:not([data-card-ready]) #pref-23,
+  :root[data-hash-pref='24'] [data-card-switch]:not([data-card-ready]) #pref-24,
+  :root[data-hash-pref='25'] [data-card-switch]:not([data-card-ready]) #pref-25,
+  :root[data-hash-pref='26'] [data-card-switch]:not([data-card-ready]) #pref-26,
+  :root[data-hash-pref='27'] [data-card-switch]:not([data-card-ready]) #pref-27,
+  :root[data-hash-pref='28'] [data-card-switch]:not([data-card-ready]) #pref-28,
+  :root[data-hash-pref='29'] [data-card-switch]:not([data-card-ready]) #pref-29,
+  :root[data-hash-pref='30'] [data-card-switch]:not([data-card-ready]) #pref-30,
+  :root[data-hash-pref='31'] [data-card-switch]:not([data-card-ready]) #pref-31,
+  :root[data-hash-pref='32'] [data-card-switch]:not([data-card-ready]) #pref-32,
+  :root[data-hash-pref='33'] [data-card-switch]:not([data-card-ready]) #pref-33,
+  :root[data-hash-pref='34'] [data-card-switch]:not([data-card-ready]) #pref-34,
+  :root[data-hash-pref='35'] [data-card-switch]:not([data-card-ready]) #pref-35,
+  :root[data-hash-pref='36'] [data-card-switch]:not([data-card-ready]) #pref-36,
+  :root[data-hash-pref='37'] [data-card-switch]:not([data-card-ready]) #pref-37,
+  :root[data-hash-pref='38'] [data-card-switch]:not([data-card-ready]) #pref-38,
+  :root[data-hash-pref='39'] [data-card-switch]:not([data-card-ready]) #pref-39,
+  :root[data-hash-pref='40'] [data-card-switch]:not([data-card-ready]) #pref-40,
+  :root[data-hash-pref='41'] [data-card-switch]:not([data-card-ready]) #pref-41,
+  :root[data-hash-pref='42'] [data-card-switch]:not([data-card-ready]) #pref-42,
+  :root[data-hash-pref='43'] [data-card-switch]:not([data-card-ready]) #pref-43,
+  :root[data-hash-pref='44'] [data-card-switch]:not([data-card-ready]) #pref-44,
+  :root[data-hash-pref='45'] [data-card-switch]:not([data-card-ready]) #pref-45,
+  :root[data-hash-pref='46'] [data-card-switch]:not([data-card-ready]) #pref-46,
+  :root[data-hash-pref='47'] [data-card-switch]:not([data-card-ready]) #pref-47 {
     display: block !important;
   }
 }
@@ -149,16 +200,67 @@
     display: none;
   }
 }
+/* ハッシュの県があれば、案内文は県によらず隠す（:has は要らない。初期化スクリプトが書く属性は `<html>` にある） */
+:root[data-hash-pref] [data-card-switch]:not([data-card-ready]) [data-card-guide] {
+  display: none;
+}
 
 /*
  * T3-09（CLS）：1列の配置（768px 以上 1024px 未満。カードがさくいんの上にある）で、ハッシュ（#pref-NN）つきで開いたとき、
  * カードの内容（JSON）が入ると下のさくいんが押し出される。内容が入る前から、表示する県の差し込み先に画面の高さぶんの高さを取っておく。
- * ハイドレーションの前は `:target` のカード（JavaScript が有効なときだけ。無効なら内容は読み込まれない）、ハイドレーションの後は
+ * ハイドレーションの前は、ハッシュの県のカード（`:root[data-hash-pref]`。T4-04。`:target` は最初のレイアウトの後に決まるので、これだけだとずれる）、ハイドレーションの後は
  * `CardDetails` が付ける `data-card-reserve`（ハッシュから復元して、利用者が操作する前の間。内容が入った後も外さない。操作したら外す）。
  * 768px 未満はパネル（固定位置）、1024px 以上はカードが右の列なので、さくいんは動かない。
  */
 @media (scripting: enabled) and (48rem <= width < 64rem) {
   [data-card-switch]:not([data-card-ready]) [data-card-pref]:target [data-card-body],
+  :root[data-hash-pref='01'] [data-card-switch]:not([data-card-ready]) #pref-01 [data-card-body],
+  :root[data-hash-pref='02'] [data-card-switch]:not([data-card-ready]) #pref-02 [data-card-body],
+  :root[data-hash-pref='03'] [data-card-switch]:not([data-card-ready]) #pref-03 [data-card-body],
+  :root[data-hash-pref='04'] [data-card-switch]:not([data-card-ready]) #pref-04 [data-card-body],
+  :root[data-hash-pref='05'] [data-card-switch]:not([data-card-ready]) #pref-05 [data-card-body],
+  :root[data-hash-pref='06'] [data-card-switch]:not([data-card-ready]) #pref-06 [data-card-body],
+  :root[data-hash-pref='07'] [data-card-switch]:not([data-card-ready]) #pref-07 [data-card-body],
+  :root[data-hash-pref='08'] [data-card-switch]:not([data-card-ready]) #pref-08 [data-card-body],
+  :root[data-hash-pref='09'] [data-card-switch]:not([data-card-ready]) #pref-09 [data-card-body],
+  :root[data-hash-pref='10'] [data-card-switch]:not([data-card-ready]) #pref-10 [data-card-body],
+  :root[data-hash-pref='11'] [data-card-switch]:not([data-card-ready]) #pref-11 [data-card-body],
+  :root[data-hash-pref='12'] [data-card-switch]:not([data-card-ready]) #pref-12 [data-card-body],
+  :root[data-hash-pref='13'] [data-card-switch]:not([data-card-ready]) #pref-13 [data-card-body],
+  :root[data-hash-pref='14'] [data-card-switch]:not([data-card-ready]) #pref-14 [data-card-body],
+  :root[data-hash-pref='15'] [data-card-switch]:not([data-card-ready]) #pref-15 [data-card-body],
+  :root[data-hash-pref='16'] [data-card-switch]:not([data-card-ready]) #pref-16 [data-card-body],
+  :root[data-hash-pref='17'] [data-card-switch]:not([data-card-ready]) #pref-17 [data-card-body],
+  :root[data-hash-pref='18'] [data-card-switch]:not([data-card-ready]) #pref-18 [data-card-body],
+  :root[data-hash-pref='19'] [data-card-switch]:not([data-card-ready]) #pref-19 [data-card-body],
+  :root[data-hash-pref='20'] [data-card-switch]:not([data-card-ready]) #pref-20 [data-card-body],
+  :root[data-hash-pref='21'] [data-card-switch]:not([data-card-ready]) #pref-21 [data-card-body],
+  :root[data-hash-pref='22'] [data-card-switch]:not([data-card-ready]) #pref-22 [data-card-body],
+  :root[data-hash-pref='23'] [data-card-switch]:not([data-card-ready]) #pref-23 [data-card-body],
+  :root[data-hash-pref='24'] [data-card-switch]:not([data-card-ready]) #pref-24 [data-card-body],
+  :root[data-hash-pref='25'] [data-card-switch]:not([data-card-ready]) #pref-25 [data-card-body],
+  :root[data-hash-pref='26'] [data-card-switch]:not([data-card-ready]) #pref-26 [data-card-body],
+  :root[data-hash-pref='27'] [data-card-switch]:not([data-card-ready]) #pref-27 [data-card-body],
+  :root[data-hash-pref='28'] [data-card-switch]:not([data-card-ready]) #pref-28 [data-card-body],
+  :root[data-hash-pref='29'] [data-card-switch]:not([data-card-ready]) #pref-29 [data-card-body],
+  :root[data-hash-pref='30'] [data-card-switch]:not([data-card-ready]) #pref-30 [data-card-body],
+  :root[data-hash-pref='31'] [data-card-switch]:not([data-card-ready]) #pref-31 [data-card-body],
+  :root[data-hash-pref='32'] [data-card-switch]:not([data-card-ready]) #pref-32 [data-card-body],
+  :root[data-hash-pref='33'] [data-card-switch]:not([data-card-ready]) #pref-33 [data-card-body],
+  :root[data-hash-pref='34'] [data-card-switch]:not([data-card-ready]) #pref-34 [data-card-body],
+  :root[data-hash-pref='35'] [data-card-switch]:not([data-card-ready]) #pref-35 [data-card-body],
+  :root[data-hash-pref='36'] [data-card-switch]:not([data-card-ready]) #pref-36 [data-card-body],
+  :root[data-hash-pref='37'] [data-card-switch]:not([data-card-ready]) #pref-37 [data-card-body],
+  :root[data-hash-pref='38'] [data-card-switch]:not([data-card-ready]) #pref-38 [data-card-body],
+  :root[data-hash-pref='39'] [data-card-switch]:not([data-card-ready]) #pref-39 [data-card-body],
+  :root[data-hash-pref='40'] [data-card-switch]:not([data-card-ready]) #pref-40 [data-card-body],
+  :root[data-hash-pref='41'] [data-card-switch]:not([data-card-ready]) #pref-41 [data-card-body],
+  :root[data-hash-pref='42'] [data-card-switch]:not([data-card-ready]) #pref-42 [data-card-body],
+  :root[data-hash-pref='43'] [data-card-switch]:not([data-card-ready]) #pref-43 [data-card-body],
+  :root[data-hash-pref='44'] [data-card-switch]:not([data-card-ready]) #pref-44 [data-card-body],
+  :root[data-hash-pref='45'] [data-card-switch]:not([data-card-ready]) #pref-45 [data-card-body],
+  :root[data-hash-pref='46'] [data-card-switch]:not([data-card-ready]) #pref-46 [data-card-body],
+  :root[data-hash-pref='47'] [data-card-switch]:not([data-card-ready]) #pref-47 [data-card-body],
   [data-card-body][data-card-reserve] {
     min-height: 100svh;
   }
@@ -251,19 +353,21 @@
 }
 
 /*
- * JavaScript が有効なのに読み込めなかったとき（ハイドレーションしていない＝`data-card-ready` がない）、URL のハッシュ（#pref-NN）の県があれば、
- * パネルを全部見える状態の見た目にして、カードが読めるようにする（閉じたままだと、見えない）。`:target` のカードの表示は、上の `card-target` レイヤーの規則。
+ * JavaScript が有効なのに読み込めなかったとき（ハイドレーションしていない＝`data-card-ready` がない）、URL のハッシュ（#pref-NN。`:target`、または初期化スクリプトが書く `data-hash-pref`）の県があれば、
+ * パネルを全部見える状態の見た目にして、カードが読めるようにする（閉じたままだと、見えない）。ハッシュの県のカードの表示は、上の `card-target` レイヤーの規則。
  * レイヤーの外に書くので、Tailwind のユーティリティ（`invisible`・`translate-y-full`）より強い。地図の下の案内文も隠す。
  */
 @supports selector(:has(*)) {
   @media (scripting: enabled) and (width < 48rem) {
-    [data-area='card'][data-sheet]:has([data-card-switch]:not([data-card-ready]) [data-card-pref]:target) {
+    [data-area='card'][data-sheet]:has([data-card-switch]:not([data-card-ready]) [data-card-pref]:target),
+    :root[data-hash-pref] [data-area='card'][data-sheet]:has([data-card-switch]:not([data-card-ready])) {
       visibility: visible;
       translate: none;
       height: 85dvh;
     }
 
-    main:has([data-card-switch]:not([data-card-ready]) [data-card-pref]:target) [data-sheet-guide] {
+    main:has([data-card-switch]:not([data-card-ready]) [data-card-pref]:target) [data-sheet-guide],
+    :root[data-hash-pref] main:has([data-card-switch]:not([data-card-ready])) [data-sheet-guide] {
       display: none;
     }
   }

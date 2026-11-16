@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useSyncExternalStore, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { browserCardLoader, type CardLoader } from '@/features/card/cardLoader';
+import { PREF_CODE_PATTERN } from '@/features/map/projection';
 import { cardPref, type PrefCode } from '@/features/map/state';
 import type { CardDetailLabels } from '@/i18n/cardText';
 import type { Lang } from '@/i18n/lang';
@@ -63,15 +64,17 @@ const RESERVE_ATTRIBUTE = 'data-card-reserve';
 /**
  * ハッシュから復元して、利用者がまだ操作していない間（T3-07）は、表示中の県の差し込み先に `data-card-reserve` を付ける（T3-09、CLS）。
  * 1列の配置では、内容（JSON）が入ると下のさくいんが押し出される。入力の直後ではないので CLS に数えられる。
- * 予約はハイドレーションの前の `:target` の規則（`globals.css`）から続け、内容が入った後も外さない（内容が画面より短いと、外したときにさくいんが上がってくる）。
+ * 予約はハイドレーションの前の規則（`globals.css`。<head> の初期化スクリプトが書く `data-hash-pref` の県）から続け、内容が入った後も外さない（内容が画面より短いと、外したときにさくいんが上がってくる）。
  * 利用者が操作したら外す（その後の変化は、入力から 500ms 以内なら CLS に数えられない）。別の県に移ったときも外す。
  */
 function useReserveWhileRestoring(body: HTMLElement | null, isRestoring: boolean): void {
-  // マウント（ハイドレーションの最初のコミット）で、`:target` のカードの差し込み先に先に付ける。差し込み先は、ハイドレーションが終わった次の描画で見つかる
-  // （その間に `CardSwitch` が `data-card-ready` を付けて `:target` の規則が止まると、予約が一瞬外れ、画面の高さぶんのずれになる）。
-  // 付けたものは、次の effect が同じ差し込み先を扱い、外すとき（操作・別の県）に一緒に外す
+  // マウント（ハイドレーションの最初のコミット）で、`<html data-hash-pref>`（CSS の規則と同じ条件）の県の差し込み先に先に付ける。差し込み先は、ハイドレーションが終わった次の描画で見つかる
+  // （その間に `CardSwitch` が `data-card-ready` を付けて CSS の規則が止まると、予約が一瞬外れ、画面の高さぶんのずれになる）。
+  // 付けたものは、次の effect が同じ差し込み先を扱い、外すとき（操作・別の県）に一緒に外す。属性の値は外から来る値なので、県コードの形を確かめてからセレクターに入れる
   useLayoutEffect(() => {
-    document.querySelector(`[data-card-pref]:target [data-card-body]`)?.setAttribute(RESERVE_ATTRIBUTE, '');
+    const pref = document.documentElement.dataset.hashPref;
+    if (pref === undefined || !PREF_CODE_PATTERN.test(pref)) return;
+    document.querySelector(`[data-card-pref="${pref}"] [data-card-body]`)?.setAttribute(RESERVE_ATTRIBUTE, '');
   }, []);
   useLayoutEffect(() => {
     if (body === null || !isRestoring) return;
