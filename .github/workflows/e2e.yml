@@ -9,11 +9,21 @@ name: e2e
   workflow_dispatch:
     inputs:
       project:
-        description: 動かす Playwright のプロジェクト（all は7つすべて）
+        description: 動かす Playwright のプロジェクト（all は9つすべて）
         type: choice
         default: all
         # playwright.config.ts の projects と合わせる
-        options: [all, chromium, firefox, webkit, iphone, pixel, ipad-portrait, ipad-landscape]
+        options:
+          - all
+          - chromium
+          - firefox
+          - webkit
+          - chromebook
+          - iphone
+          - pixel
+          - ipad-portrait
+          - ipad-landscape
+          - android-tablet
 
 permissions:
   contents: read
@@ -34,7 +44,7 @@ env:
 jobs:
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       PROJECT: ${{ inputs.project }}
     steps:
@@ -54,7 +64,7 @@ jobs:
         run: |
           case "${PROJECT}" in
             all) browsers="chromium firefox webkit" ;;
-            chromium | pixel) browsers="chromium" ;;
+            chromium | chromebook | pixel | android-tablet) browsers="chromium" ;;
             firefox) browsers="firefox" ;;
             *) browsers="webkit" ;;
           esac

@@ -75,11 +75,7 @@ test.describe('ボタンでの拡大・縮小（全プロジェクト）', () =>
   });
 });
 
-test.describe('PC のマウス操作', () => {
-  test.beforeEach(({ hasTouch }) => {
-    test.skip(hasTouch, 'ホイール・ドラッグ・ダブルクリックはマウスの操作（4.11.3）');
-  });
-
+test.describe('PC のマウス操作', { tag: '@pc' }, () => {
   test('F-ZOOM-01：ホイールで倍率が変わる', async ({ page }) => {
     await open(page);
     await page.locator('[data-map-sea]').hover();

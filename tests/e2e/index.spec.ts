@@ -48,11 +48,7 @@ test.describe('F-IDX-01：8地方の見出しと、47の県名', () => {
   });
 });
 
-test.describe('F-IDX-03：キーボード', () => {
-  test.beforeEach(({ hasTouch }) => {
-    test.skip(hasTouch, 'キーボードを使う PC のプロジェクトだけで確かめる');
-  });
-
+test.describe('F-IDX-03：キーボード', { tag: '@pc' }, () => {
   test('Tab キーで47の県名を県コードの順にたどれる', async ({ page }) => {
     await open(page);
     await page.locator('a[data-pref="01"]').focus();
@@ -95,11 +91,7 @@ test.describe('F-IDX-03：キーボード', () => {
   });
 });
 
-test.describe('F-KB-05：さくいんの Esc', () => {
-  test.beforeEach(({ hasTouch }) => {
-    test.skip(hasTouch, 'キーボードを使う PC のプロジェクトだけで確かめる');
-  });
-
+test.describe('F-KB-05：さくいんの Esc', { tag: '@pc' }, () => {
   test('さくいんで Esc を押すと、最大化を解除し、もう1回で固定を解除する', async ({ page }) => {
     await open(page);
     const item = page.locator('a[data-pref="20"]');

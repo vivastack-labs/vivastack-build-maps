@@ -10,8 +10,8 @@ import { dblclickAtCenter } from './helpers';
 
 test.use({ serviceWorkers: 'allow' });
 
-test.beforeEach(({ browserName, hasTouch }) => {
-  test.skip(browserName !== 'chromium' || hasTouch, 'Chromium のデスクトップだけ（最大化はダブルクリック）');
+test.beforeEach(({}, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium', 'Chromium のデスクトップだけ（chromebook も同じ Chromium なので、くり返さない）');
 });
 
 const HOKKAIDO = '01';

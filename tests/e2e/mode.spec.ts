@@ -237,9 +237,9 @@ test.describe('4.11.5：localStorage が使えないとき', () => {
 });
 
 test.describe('4.11.5：ModeText のボタンの名前', () => {
-  test('4.11.5：「再試行」のボタンの名前は、今のモードの文だけ', async ({ page, hasTouch }) => {
-    // Arrange：市区町村データを 404 にして、長野県を最大化する（最大化はマウスのダブルクリック）
-    test.skip(hasTouch, '最大化のダブルクリックはマウスの操作（4.11.3）');
+  // 最大化はマウスのダブルクリック（4.11.3）なので PC のプロジェクトだけ
+  test('4.11.5：「再試行」のボタンの名前は、今のモードの文だけ', { tag: '@pc' }, async ({ page }) => {
+    // Arrange：市区町村データを 404 にして、長野県を最大化する
     await page.route('**/geo/muni/*.topo.json', route => route.fulfill({ status: 404, body: 'not found' }));
     await open(page);
 

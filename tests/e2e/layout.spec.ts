@@ -37,12 +37,8 @@ async function expectNoHorizontalScroll(page: Page) {
   expect(overflow).toBeLessThanOrEqual(0);
 }
 
-test.describe('幅を指定する（PC のプロジェクト）', () => {
-  // スマホ・タブレットのエミュレーション（isMobile）は meta viewport の扱いが PC と違うので、端末の幅での検査（下）に任せる
-  test.beforeEach(({ isMobile }) => {
-    test.skip(isMobile, 'isMobile のプロジェクトでは幅を指定しない');
-  });
-
+// スマホ・タブレットのエミュレーション（isMobile）は meta viewport の扱いが PC と違うので、端末の幅での検査（下）に任せる
+test.describe('幅を指定する（PC のプロジェクト）', { tag: '@pc' }, () => {
   test('4.11.7：幅1280pxで、地図とカードが同じ行で横に並び、地図が全体のおよそ2/3である', async ({ page }) => {
     // Arrange
     await page.setViewportSize({ width: 1280, height: 900 });

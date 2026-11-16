@@ -89,8 +89,8 @@ test.describe('4.11.4：準備中の県の表示', () => {
     await expect(page.locator(`path[data-pref="${HOKKAIDO}"]`)).toHaveAttribute('aria-label', '北海道');
   });
 
-  test('準備中の県のツールチップは、名物があるフィクスチャ（東京都）でも県名だけ', async ({ page, hasTouch }) => {
-    test.skip(hasTouch, 'タッチの端末にはマウスのホバーがない（4.11.3）');
+  // タッチの端末にはマウスのホバーがない（4.11.3）
+  test('準備中の県のツールチップは、名物があるフィクスチャ（東京都）でも県名だけ', { tag: '@pc' }, async ({ page }) => {
     await open(page);
     const path = page.locator(`path[data-pref="${TOKYO}"]`);
     await path.scrollIntoViewIfNeeded();
