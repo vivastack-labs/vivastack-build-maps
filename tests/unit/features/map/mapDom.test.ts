@@ -72,6 +72,17 @@ describe('applyPrefState', () => {
     expect(document.querySelector('[data-pref-label="13"]')?.hasAttribute('data-state')).toBe(false);
   });
 
+  test('5.2：固定中の県の県名ラベルに data-state="pinned" を書き、解除で消す（塗りに合わせた文字色にするため）', () => {
+    applyPrefState(document.body, { ...INITIAL_MAP_STATE, pinned: '01' });
+
+    expect(document.querySelector('[data-pref-label="01"]')?.getAttribute('data-state')).toBe('pinned');
+    expect(document.querySelector('[data-pref-label="13"]')?.hasAttribute('data-state')).toBe(false);
+
+    applyPrefState(document.body, INITIAL_MAP_STATE);
+
+    expect(document.querySelector('[data-pref-label="01"]')?.hasAttribute('data-state')).toBe(false);
+  });
+
   test('固定を解除すると aria-pressed が false に戻り、data-state がなくなる', () => {
     applyPrefState(document.body, { ...INITIAL_MAP_STATE, pinned: '13' });
 

@@ -221,6 +221,12 @@ describe('JapanMap の入力の確かめ', () => {
     expect(path.getAttribute('class')).toContain('opacity-40');
     expect(container.querySelector('[data-pref-label]')?.getAttribute('class')).toContain('data-[state=maximized]:hidden');
   });
+
+  test('5.2：固定中の県名ラベルは、塗りと 4.5:1 以上になる暗い色（fill-map-selected-label）にする', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
+
+    expect(container.querySelector('[data-pref-label]')?.getAttribute('class')).toContain('data-[state=pinned]:fill-map-selected-label');
+  });
 });
 
 describe('JapanMap の「準備中」の県（T3-02、4.11.4）', () => {

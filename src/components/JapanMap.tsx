@@ -144,8 +144,9 @@ export function JapanMap({ lang, prefectures, children }: Props) {
           {prefectures.map(({ code, name }) => {
             const label = pathOf(pathByCode, code).labels[lang];
             return (
-              // 最大化した県のラベルは、市区町村のラベルと重なるので隠す（`MapInteraction` が data-state を書く。T2-08）
-              <text key={code} data-pref-label={code} x={label.x} y={label.y} className="data-[state=maximized]:hidden">
+              // 最大化した県のラベルは、市区町村のラベルと重なるので隠す（`MapInteraction` が data-state を書く。T2-08）。
+              // 固定中の県のラベルは、塗り（--color-map-selected）と 4.5:1 以上になる暗い色にする（5.2、T4-03）
+              <text key={code} data-pref-label={code} x={label.x} y={label.y} className="data-[state=maximized]:hidden data-[state=pinned]:fill-map-selected-label">
                 {labelText(name[lang])}
               </text>
             );
