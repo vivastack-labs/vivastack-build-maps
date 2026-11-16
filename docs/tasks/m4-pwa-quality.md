@@ -179,6 +179,9 @@ T4-04 で作った（開発概要書 5.1、D42）。
 
 - Playwright のプロジェクトを 5.3 に合わせて整える：PC（Chromium・Firefox・WebKit）、スマホ（iPhone・Pixel）、タブレット（iPad の縦・横、Android タブレット）、画面幅（360px・768px・1024px・1366px）。
 - PC だけ・タッチだけのテストを、タグで分ける。
+  - 実際のプロジェクトは9つ：`chromium`・`firefox`・`webkit`（1280px）、`chromebook`（Chromium、1366×768）、`iphone`（402px）、`pixel`（360px）、`ipad-portrait`（768px）、`ipad-landscape`（1194px）、`android-tablet`（Galaxy Tab S9 の横、1024px）。
+  - タグは `@pc`（マウス・キーボード・幅の指定）と `@touch`（タップ）。プロジェクトの `grepInvert` で、PC は `@touch` を、タッチは `@pc` を除く（`playwright.config.ts` の `pcProject`・`touchProject`）。`test.skip(hasTouch…)` では書かない。「代表の1つで確かめる」ものは、同じ検査をくり返さないための別の理由なので、`project.name` の `test.skip` のまま。
+  - 設定の漏れ（タグ・`e2e.yml` の選択肢・`test.skip` の書き方）は `tests/unit/config/playwright-projects.test.ts` が止める。
 - `docs/device-checklist.md`：公開前の実機確認のチェックリスト（端末、OSの版、確認する操作。ピンチ、パネル、オフラインなど CI で確かめられないものを含む）。
   - T2-06 から引き継ぐ項目：Apple Pencil（`pointerType` が `pen`）のダブルタップで、最大化と Safari のダブルタップ拡大が重ならないこと（`touch-action: none` で解消する想定）。iPhone（WebKit は CDP が使えない）でのピンチ・スワイプによる拡大・移動。ピンチ（pixel の CDP）とスワイプは T2-06 の E2E で確かめている。
   - T4-02 から引き継ぐ項目：ホーム画面への追加（iPhone の Safari・Android の Chrome。アイコン・名前・`standalone` の表示）、一度開いた後の機内モードでの起動（地図・見たことのある県のカード・市区町村が出て、見ていない県は「オフラインのため表示できません」）、デプロイの後の更新（1〜2回の再読み込みで新しい内容になること）。Chrome の DevTools の Application で、Manifest にエラーがなく、インストールできるかも確かめる。

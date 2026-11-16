@@ -4,6 +4,12 @@ type DeviceDescriptor = (typeof devices)[string];
 
 // 10.2・5.3：PC・スマホ・タブレットで E2E を動かす。
 // サーバーは、本番の Workers と同じ動き（パス・リダイレクト・ヘッダー）を確かめるため、dist/ を配信する wrangler dev（T0-03）。
+// プロジェクト（9つ。T4-06）と 5.3 の対応：
+//   PC          chromium・firefox・webkit（Desktop 1280px）、chromebook（Desktop Chrome の 1366×768。学校の端末・画面幅 1366px）
+//   スマホ      iphone（iPhone 17、402px）、pixel（Pixel 10、360px。画面幅の下限）
+//   タブレット  ipad-portrait（iPad Mini の縦、768px）、ipad-landscape（iPad Pro 11 の横、1194px）、android-tablet（Galaxy Tab S9 の横、1024px）
+// PC だけ・タッチだけのテストは、テストに `@pc`・`@touch` のタグを付けて分ける（下の pcProject・touchProject）。
+// 実行例：`pnpm test:e2e --grep @touch`。CI で確かめられないものは docs/device-checklist.md（実機）
 // 古い dist/ を確かめないように毎回ビルドし、手元で動いているサーバーは使わない。
 // ポートは pnpm dev（3000番）とも、手で起動した wrangler dev（既定の 8787番）ともぶつからない 8788番
 const PORT = 8788;

@@ -357,16 +357,17 @@ Lighthouse CIでこの基準値を超えたら、CIを失敗させる（T4-04、
 
 | 区分 | 対象 | 確認のしかた |
 |---|---|---|
-| PC | Chrome / Edge / Firefox / Safari の最新版と、その1つ前の版 | CI（Playwright：Chromium、Firefox、WebKit） |
-| 学校の端末 | ChromeOS の Chrome、iPadOS の Safari、Windows の Edge（それぞれ最新版と1つ前の版） | CI＋公開前に実機で確認 |
-| スマホ | iOS Safari の最新版と1つ前の版、Android Chrome の最新版 | CI（端末のエミュレーション）＋公開前に実機で確認 |
-| タブレット | iPad（縦・横）、Androidタブレット | CI（画面幅768〜1366px）＋公開前に実機で確認 |
-| 画面幅 | 360px以上 | CI |
+| PC | Chrome / Edge / Firefox / Safari の最新版と、その1つ前の版 | CI（Playwright：`chromium`・`firefox`・`webkit`〔1280px〕。Edge は Chromium と同じエンジン）。1つ前の版と Edge は実機で確認（[device-checklist.md](device-checklist.md)） |
+| 学校の端末 | ChromeOS の Chrome、iPadOS の Safari、Windows の Edge（それぞれ最新版と1つ前の版） | CI（`chromebook`〔Chromium、1366×768〕・`ipad-portrait`・`ipad-landscape`）＋公開前に実機で確認（[device-checklist.md](device-checklist.md)） |
+| スマホ | iOS Safari の最新版と1つ前の版、Android Chrome の最新版 | CI（端末のエミュレーション：`iphone`〔402px〕・`pixel`〔360px〕）＋公開前に実機で確認（[device-checklist.md](device-checklist.md)） |
+| タブレット | iPad（縦・横）、Androidタブレット | CI（画面幅768〜1366px：`ipad-portrait`〔768px〕・`android-tablet`〔Galaxy Tab S9 の横。1024px〕・`ipad-landscape`〔1194px〕・`chromebook`〔1366px〕）＋公開前に実機で確認（[device-checklist.md](device-checklist.md)） |
+| 画面幅 | 360px以上 | CI（360px：`pixel`、768px：`ipad-portrait`、1024px：`android-tablet`、1366px：`chromebook`。すべてのページで横スクロールが出ないことを、端末の幅と、幅360pxの指定で確かめる） |
 | 動けばよい範囲 | LINE・WeChatなどのアプリ内ブラウザ、上記より古い版 | 確認しない。問題の報告があれば対応を検討する |
 | 対象外 | Internet Explorer、旧Edge（EdgeHTML）、Androidの標準ブラウザ | — |
 
 - 「最新版と1つ前の版」は、Safari・iOS・iPadOSでは**メジャーバージョン**で数える。
 - 同じ範囲を `package.json` の `browserslist` に書き、ビルドツールとlintで同じ基準を使う（例：`last 2 Chrome major versions`、`last 2 iOS major versions`）。
+- CI のプロジェクトは9つ（T4-06）。Playwright は同梱の1つの版のエンジンだけを動かすので、「1つ前の版」と Edge の実機は、公開前の確認（[device-checklist.md](device-checklist.md)）で見る。PC だけ・タッチだけのテストは `@pc`・`@touch` のタグで分け、プロジェクトの設定で除く。
 - 学校で管理されているiPadは、OSの更新が遅れることがある。M4の実機確認では、1つ前のiPadOSでも動くことを確かめる。
 - Tailwind CSS v4（6.2、D26）は Safari 16.4・Chrome 111・Firefox 128 以降を前提にしている。対象の範囲はこれより新しいので問題ない。これより古いブラウザでは、表示が崩れることがある。
 - JavaScriptが使えない環境でも、既定のモードで読めて、県名さくいんから県のカードの見出し（県名・県庁所在地・東京からの距離）まで開ける。行き方・名物・名所・出典は、カードの内容を県ごとのJSONから描くので読めず、代わりに「JavaScript を有効にすると読めます」の文を出す（F-MODE-04、6.6 (2)、D38）。
