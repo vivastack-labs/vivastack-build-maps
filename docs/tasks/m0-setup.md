@@ -183,6 +183,7 @@
 - `deploy.yml` の本番のビルド（`reviewed` のみ）の後に、`pnpm lhci`（T4-04）を加えるか決める。`ci.yml` では、上限のコンテンツの `dist/` を測っている（開発概要書 5.1、12.2）。本物のコンテンツのビルドを測る場合、`dist/` の作り方と、基準値が同じでよいかを決める。
 - `pnpm build:preview`：`BUILD_TARGET=preview` でビルドする（`next build` と `scripts/postbuild.ts`）。`noindex`（`<meta name="robots" content="noindex">`）と、コンテンツの絞り込み（すべての項目を出し、`reviewed` でない項目に `draft` の値を付ける。画面の「下書き」の印は T3-03）を加えたもの。T3-02 で作った（`package.json` の `build`・`build:preview`、`src/lib/publish.ts`、`app/[lang]/layout.tsx` の `generateMetadata`）。ここ（T0-06）では、`ci.yml` の `preview` job が使う `pnpm build:preview` の出力に `noindex` が付くことを確かめる。
 - プレビューURLの形式と、wrangler の出力から取り出す方法を開発概要書 12.3 に書く。
+- 決まったプレビューURLの形式と、Access のログインの手順（T0-05 で確かめた内容）を、`content/guidelines/review-checklist.md` の「プレビューの開き方」に反映する（T5-01 で、決まっていない点に「T0-06 で確定」と印を付けてある）。
 
 ### 完了条件
 
