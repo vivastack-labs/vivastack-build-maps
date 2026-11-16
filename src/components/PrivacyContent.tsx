@@ -2,13 +2,11 @@ import { LABEL_SEPARATOR } from '@/i18n/cardText';
 import { formatDate } from '@/i18n/format';
 import type { Lang } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
+import { PRIVACY_REVISED_DATE } from '@/lib/site';
 import { CLOUDFLARE_ANALYTICS_URL, CLOUDFLARE_PRIVACY_URL } from '@/lib/sources';
 import { BulletList, ContentSection, PageTitle, Paragraph } from './ContentSection';
 import { LinkedSentence } from './LinkedSentence';
 import { RubyText } from './RubyText';
-
-/** プライバシーポリシーの改定日（`YYYY-MM-DD`。言語の書式にして出す）。内容を変えたら更新する */
-export const PRIVACY_REVISED_DATE = '2026-11-16';
 
 /** アクセス解析の節：Cloudflare Web Analytics（Cookie を使わない。5.6）と、説明へのリンク */
 function AnalyticsSection({ lang }: { readonly lang: Lang }) {
@@ -38,7 +36,7 @@ function StorageSection({ lang }: { readonly lang: Lang }) {
 /**
  * プライバシーポリシーのページの中身（T4-05。5.6）。`<main>` の中に置く。題名が h1、節の見出しが h2。
  * アクセス解析（Cloudflare Web Analytics。Cookie を使わない）・Cookie・端末に保存するもの・配信・外部のサイト・改定日。
- * 運営者・問い合わせ先は載せない（T6-01 の前に決める）。こども向け・おとな向けの言い分けはしない。日本語はふりがなつき。
+ * 運営者・問い合わせ先は載せない（T6-02 の公開の前に決める）。こども向け・おとな向けの言い分けはしない。日本語はふりがなつき。
  */
 export function PrivacyContent({ lang }: { readonly lang: Lang }) {
   const { title, cookies, delivery, external, revised } = getMessages(lang).privacy;

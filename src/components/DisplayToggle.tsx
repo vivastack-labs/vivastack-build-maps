@@ -45,6 +45,18 @@ function useHtmlSetting<T extends Mode | Ruby>(attr: 'mode' | 'ruby', parse: (va
   );
 }
 
+/** 購読するものがない購読（マウントの印用） */
+const subscribeNothing = (): (() => void) => () => {};
+
+/** ハイドレーションが終わったら true（サーバーの出力・ハイドレーション中は false。ボタンの `onClick` がつながった後） */
+function useIsMounted(): boolean {
+  return useSyncExternalStore(
+    subscribeNothing,
+    () => true,
+    () => false
+  );
+}
+
 const BUTTON = 'min-h-11 min-w-11 cursor-pointer border border-slate-400 px-3 py-1 text-sm';
 /**
  * 押している状態の見た目。`aria-pressed` ではなく `<html>` の属性のバリアントで付ける（初期化スクリプトの後、ハイドレーションの前から正しい見た目になる）。
@@ -73,14 +85,16 @@ function toggleRuby(fallback: Ruby): void {
  * モード（こども／おとな。F-MODE-01）とふりがな（ON/OFF。F-MODE-02。日本語のページだけ）の切替ボタン（4.11.7、6.6 (3)）。
  * 状態は `<html data-mode data-ruby>` だけが持ち、押すと属性を書いて localStorage に保存する。文の出し分けは CSS（`app/globals.css`）。
  * JavaScript がないときは動かないので、`noscript:hidden` で隠す（レイアウトがずれない）。
+ * マウントしたら根に `data-display-ready` を付ける（E2E は、ハイドレーションの前に押して操作が失われないよう、これを待つ）。
  */
 export function DisplayToggle({ lang, labels }: Props) {
   const defaults = DEFAULT_DISPLAY[lang];
   const mode = useHtmlSetting('mode', parseMode, defaults.mode);
   const ruby = useHtmlSetting('ruby', parseRuby, defaults.ruby);
+  const isMounted = useIsMounted();
 
   return (
-    <div data-display-toggle className="flex flex-wrap items-center gap-2 noscript:hidden">
+    <div data-display-toggle data-display-ready={isMounted ? '' : undefined} className="flex flex-wrap items-center gap-2 noscript:hidden">
       <div role="group" aria-label={labels.label} className="inline-flex">
         <button type="button" data-mode-button="kids" aria-pressed={mode === 'kids'} onClick={() => saveMode('kids')} className={KIDS_BUTTON}>
           {labels.kids}

@@ -63,7 +63,7 @@ describe('Header', () => {
 
   test('4.11.7：page を省くとトップと同じ（サイト名が h1。リンクにしない）', () => {
     // Arrange・Act
-    const { container } = render(<Header lang="ja" page="home" />);
+    const { container } = render(<Header lang="ja" />);
 
     // Assert
     expect(container.querySelector('h1')).not.toBeNull();

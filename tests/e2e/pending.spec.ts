@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { LANGS } from '../../src/i18n/lang';
+import { LANGS, langPath, PAGES } from '../../src/i18n/lang';
 import { getMessages } from '../../src/i18n/messages';
 import { loadContent } from '../../src/lib/content';
 import { plainText } from '../../src/lib/ruby';
@@ -176,17 +176,22 @@ test.describe('R1：本番用のビルドに、reviewed でない項目の文が
 });
 
 test.describe('R4：本番用のビルドには noindex が付かない', () => {
+  // トップと、「このサイトについて」・プライバシーポリシー（T4-05）。ページは PAGES の全部
   for (const lang of LANGS) {
-    test(`/${lang}/ に robots の meta がない`, async ({ page }) => {
-      await page.goto(`/${lang}/`);
+    for (const sitePage of PAGES) {
+      const path = langPath(lang, sitePage);
 
-      await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
-    });
+      test(`${path} に robots の meta がない`, async ({ page }) => {
+        await page.goto(path);
 
-    test(`/${lang}/ の HTML に noindex がない`, async ({ request }, testInfo) => {
-      test.skip(testInfo.project.name !== 'chromium', CHROMIUM_ONLY);
+        await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
+      });
 
-      expect(await (await request.get(`/${lang}/`)).text()).not.toContain('noindex');
-    });
+      test(`${path} の HTML に noindex がない`, async ({ request }, testInfo) => {
+        test.skip(testInfo.project.name !== 'chromium', CHROMIUM_ONLY);
+
+        expect(await (await request.get(path)).text()).not.toContain('noindex');
+      });
+    }
   }
 });

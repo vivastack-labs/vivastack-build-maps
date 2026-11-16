@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import { alternateUrls, SITE_URL } from '@/lib/site';
+import { alternateUrls, PRIVACY_REVISED_DATE, SITE_URL } from '@/lib/site';
 
 // F-I18N-03・D8・D35：hreflang と canonical は、サイトの絶対 URL
 describe('alternateUrls', () => {
@@ -51,5 +51,12 @@ describe('alternateUrls', () => {
 
   test('D35：SITE_URL は末尾にスラッシュを付けない', () => {
     expect(SITE_URL.endsWith('/')).toBe(false);
+  });
+});
+
+describe('PRIVACY_REVISED_DATE', () => {
+  test('5.6：プライバシーポリシーの改定日は存在する日の YYYY-MM-DD（formatDate が例外にならない）', () => {
+    expect(PRIVACY_REVISED_DATE).toMatch(/^\d{4}-\d{2}-\d{2}$/u);
+    expect(Number.isNaN(Date.parse(PRIVACY_REVISED_DATE))).toBe(false);
   });
 });

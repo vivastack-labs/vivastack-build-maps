@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { DisplayToggle } from '@/components/DisplayToggle';
@@ -155,5 +156,15 @@ describe('DisplayToggle', () => {
       html.dataset.mode = 'adult';
     }).not.toThrow();
     disconnect.mockRestore();
+  });
+
+  test('T4-05：マウントしたら data-display-ready が付く（サーバーの出力にはない。E2E がハイドレーションの完了を待つ）', () => {
+    // Arrange・Act
+    const server = renderToString(<DisplayToggle lang="ja" labels={getMessages('ja').display} />);
+    const { container } = render(<DisplayToggle lang="ja" labels={getMessages('ja').display} />);
+
+    // Assert
+    expect(server).not.toContain('data-display-ready');
+    expect(container.querySelector('[data-display-toggle][data-display-ready]')).not.toBeNull();
   });
 });

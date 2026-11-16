@@ -167,9 +167,12 @@ test.describe('R9：CSP の下で、主な操作の間に CSP 違反が出ない
       await expect(page).toHaveURL(new RegExp(`${langPath(lang, 'about')}$`, 'u'));
       await footer.locator('a[data-footer-link="privacy"]').click();
       await expect(page).toHaveURL(new RegExp(`${langPath(lang, 'privacy')}$`, 'u'));
-      const display = getMessages(lang).display;
-      await page.getByRole('banner').getByRole('button', { name: display.adult, exact: true }).click();
-      await expect(page.locator('html')).toHaveAttribute('data-mode', 'adult');
+      // ハイドレーションが終わってから、今のモードと逆のボタンを押す（終わる前の操作は失われる。en・zh の既定は adult なので、kids を押して変わったことを確かめる）
+      await page.locator('[data-display-toggle][data-display-ready]').waitFor({ state: 'attached' });
+      const current = await page.locator('html').getAttribute('data-mode');
+      const opposite = current === 'kids' ? 'adult' : 'kids';
+      await page.getByRole('banner').locator(`[data-mode-button="${opposite}"]`).click();
+      await expect(page.locator('html')).toHaveAttribute('data-mode', opposite);
       const other = LANGS.find(candidate => candidate !== lang) ?? 'ja';
       await page.getByRole('banner').locator(`a[data-lang-link="${other}"]`).click();
       await expect(page).toHaveURL(new RegExp(`${langPath(other, 'privacy')}$`, 'u'));

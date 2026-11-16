@@ -181,6 +181,26 @@ test.describe('5.2：axe（説明のページ）', () => {
   }
 });
 
+// T4-05：スマホ（pixel。幅360px）でも、説明のページを ja で確かめる（文字の折り返し・リンクの大きさ）
+test.describe('5.2：axe（説明のページ・スマホ）', () => {
+  test.beforeEach(({}, testInfo) => {
+    test.skip(testInfo.project.name !== 'pixel', 'スマホは pixel だけで確かめる（同じ検査をくり返さない）');
+  });
+
+  for (const sub of ['about', 'privacy'] as const) {
+    for (const scheme of SCHEMES) {
+      test(`5.2：ja・${sub}・${scheme}・スマホで axe の違反が0件`, async ({ page }) => {
+        await page.emulateMedia({ colorScheme: scheme });
+        await page.goto(langPath('ja', sub));
+        await expect(page.locator('main h1')).toHaveCount(1);
+        expect(await page.evaluate(() => window.matchMedia('(prefers-color-scheme: dark)').matches), `配色が ${scheme} になっている`).toBe(scheme === 'dark');
+
+        await expectNoViolations(page);
+      });
+    }
+  }
+});
+
 // 固定中の県名ラベル：暗い文字に、塗りと同じ色の縁取りを付ける（県の形からはみ出しても、塗りと 4.5:1 以上。theme-contrast.test.ts）
 test.describe('5.2：固定中の県名ラベルの縁取り', () => {
   test.beforeEach(({}, testInfo) => {

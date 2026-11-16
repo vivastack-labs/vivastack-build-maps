@@ -1,7 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
+import { formatDate } from '../../src/i18n/format';
 import { LANGS, langPath, PAGES, type Lang, type SitePage } from '../../src/i18n/lang';
 import { getMessages } from '../../src/i18n/messages';
 import { plainText } from '../../src/lib/ruby';
+import { PRIVACY_REVISED_DATE, SITE_URL } from '../../src/lib/site';
 import { GSI_MAPS_URL, N03_SOURCE_URL, SOUMU_CODE_URL } from '../../src/lib/sources';
 import { textWithoutRt } from './helpers';
 
@@ -9,7 +11,6 @@ import { textWithoutRt } from './helpers';
 // F-SRC-04・8.3・5.6・F-I18N-03・D8。ページの文の中身は単体テスト（AboutContent・PrivacyContent）が辞書と突き合わせるので、ここでは、実際に配信されたページで、
 // フッターからたどれること・出典の文と URL・canonical と hreflang・言語の切替・h1 が1つであることを確かめる。
 
-const SITE_URL = 'https://maps.vivastack-dev.workers.dev';
 const SUB_PAGES = PAGES.filter((page): page is Exclude<SitePage, 'home'> => page !== 'home');
 
 const titleOf = (lang: Lang, page: Exclude<SitePage, 'home'>): string => plainText(getMessages(lang)[page].title);
@@ -85,7 +86,7 @@ for (const lang of LANGS) {
     expect(await textWithoutRt(page.locator('[data-privacy-section="cookies"]'))).toContain(plainText(privacy.cookies.body));
     await expect(page.locator('[data-privacy-section="storage"] li')).toHaveCount(privacy.storage.items.length);
     await expect(page.locator('[data-privacy-section="storage"]')).toContainText('localStorage');
-    await expect(page.locator('[data-privacy-revised]')).toContainText(/2026/u);
+    await expect(page.locator('[data-privacy-revised]')).toContainText(formatDate(lang, PRIVACY_REVISED_DATE));
   });
 }
 
@@ -138,6 +139,8 @@ test('F-MODE-04：ja のページでも、ふりがなの切替が効く（ふ�
   await page.goto(langPath('ja', 'about'));
   const rt = page.locator('main rt').first();
   await expect(rt).toBeVisible();
+  // ハイドレーションが終わってから押す（終わる前の操作は失われる）
+  await page.locator('[data-display-toggle][data-display-ready]').waitFor({ state: 'attached' });
 
   // Act
   await page.getByRole('banner').locator('[data-ruby-button]').click();

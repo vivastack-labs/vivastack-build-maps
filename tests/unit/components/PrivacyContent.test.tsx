@@ -7,6 +7,7 @@ import { LANGS } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
 import { LABEL_SEPARATOR } from '@/i18n/cardText';
 import { plainText } from '@/lib/ruby';
+import { PRIVACY_REVISED_DATE } from '@/lib/site';
 import { CLOUDFLARE_ANALYTICS_URL, CLOUDFLARE_PRIVACY_URL } from '@/lib/sources';
 import { textWithoutRuby } from './base-text';
 
@@ -57,7 +58,7 @@ describe('PrivacyContent', () => {
     expect(privacyLink.getAttribute('href')).toBe(CLOUDFLARE_PRIVACY_URL);
     expect(privacyLink.getAttribute('rel')).toBe('noopener noreferrer');
     expect(textWithoutRuby(container.querySelector('[data-privacy-section="external"]') as HTMLElement)).toContain(plainText(external.body));
-    expect(textWithoutRuby(container.querySelector('[data-privacy-revised]') as HTMLElement)).toBe(plainText(revised) + LABEL_SEPARATOR[lang] + formatDate(lang, '2026-11-16'));
+    expect(textWithoutRuby(container.querySelector('[data-privacy-revised]') as HTMLElement)).toBe(plainText(revised) + LABEL_SEPARATOR[lang] + formatDate(lang, PRIVACY_REVISED_DATE));
   });
 
   test.each(LANGS)('4.11.7：題名が h1 で、節の見出しが h2（h1 は1つ。%s）', lang => {
