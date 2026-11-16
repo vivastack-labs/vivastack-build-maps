@@ -133,4 +133,4 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
 - 1県＝1 YAML。`status` は `draft` → `verified` → `reviewed`。本番には `reviewed` だけを出す。
 - ふりがなは `{漢字|よみ}` で書く。
 - 出典は、実際に開いて内容を確認できた URL だけを残す。確認できなければ `sources: []`。
-- 執筆ルールと文字数は設計書の 7.2・7.3・9.3 章に従う。
+- 執筆ルールと文字数は設計書の 7.2・7.3・9.3 章に従う。具体的な書き方と例は `content/guidelines/writing.md`、レビューの基準は `content/guidelines/review-checklist.md`（コンテンツを書く前に `writing.md` を読む）。

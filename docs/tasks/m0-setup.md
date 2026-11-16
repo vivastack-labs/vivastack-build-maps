@@ -152,6 +152,7 @@
   - Team `maps-reviewers` と、リポジトリへの Write 権限。
 - 結果を開発概要書（11.3、11.4 (5)、第16章の U5・U7）に書く docs のPRを出す。
 - ブランチ保護で必須にするチェックの名前は `check` と `gitleaks`（T0-04 の `ci.yml`）。
+- ブランチ保護で「Dismiss stale pull request approvals when new commits are pushed」と「Require approval of the most recent reviewable push」は有効にしない。コンテンツの PR は、レビュアーの承認の後に、オーナーが `status` を `reviewed` にするコミットを足してから merge する（9.2 ⑧）ので、有効にすると承認が外れる。有効にするなら、`status` のコミットの後に、レビュアーに承認し直してもらう（`content/guidelines/review-checklist.md`）。
 - **プランの制約**（T0-04 で確認）：リポジトリは private、組織は Free プランで、ブランチ保護と Environments・Environment の Secrets を使えない（開発概要書 11.5、U14）。先に U14（GitHub Team に変える / public にする / ブランチ保護なしで運用する）を決める。Environments を使えないままなら、Secrets はリポジトリの Secrets に置くことになり、11.2 を直す。
 - この docs のPRは文書だけなので、`check` は lint だけを実行して、typecheck・test・build・e2e を飛ばすはず（T0-04 で merge 後に確かめることにした点）。PRで確かめる。
 
@@ -183,6 +184,7 @@
 - `deploy.yml` の本番のビルド（`reviewed` のみ）の後に、`pnpm lhci`（T4-04）を加えるか決める。`ci.yml` では、上限のコンテンツの `dist/` を測っている（開発概要書 5.1、12.2）。本物のコンテンツのビルドを測る場合、`dist/` の作り方と、基準値が同じでよいかを決める。
 - `pnpm build:preview`：`BUILD_TARGET=preview` でビルドする（`next build` と `scripts/postbuild.ts`）。`noindex`（`<meta name="robots" content="noindex">`）と、コンテンツの絞り込み（すべての項目を出し、`reviewed` でない項目に `draft` の値を付ける。画面の「下書き」の印は T3-03）を加えたもの。T3-02 で作った（`package.json` の `build`・`build:preview`、`src/lib/publish.ts`、`app/[lang]/layout.tsx` の `generateMetadata`）。ここ（T0-06）では、`ci.yml` の `preview` job が使う `pnpm build:preview` の出力に `noindex` が付くことを確かめる。
 - プレビューURLの形式と、wrangler の出力から取り出す方法を開発概要書 12.3 に書く。
+- 決まったプレビューURLの形式と、Access のログインの手順（T0-05 で確かめた内容）を、`content/guidelines/review-checklist.md` の「プレビューの開き方」に反映する（T5-01 で、決まっていない点に「T0-06 で確定」と印を付けてある）。
 
 ### 完了条件
 
