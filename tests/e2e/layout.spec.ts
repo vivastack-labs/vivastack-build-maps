@@ -1,9 +1,12 @@
 import { expect, test, type Page } from '@playwright/test';
-import { LANGS } from '../../src/i18n/lang';
+import { LANGS, PAGES, langPath } from '../../src/i18n/lang';
 import { getMessages } from '../../src/i18n/messages';
 import { plainText } from '../../src/lib/ruby';
+import { expandSheet } from './helpers';
 
 // 4.11.7・F-MAP-05・5.3：画面の枠組み（T2-03）
+
+const HOKKAIDO = '01';
 
 /** 領域の位置と大きさ。ページを開いてからでないと取れないので、表示を待ってから測る */
 async function box(page: Page, area: 'map' | 'card' | 'index') {
@@ -88,14 +91,6 @@ test.describe('幅を指定する（PC のプロジェクト）', { tag: '@pc' }
     const card = await box(page, 'card');
     expect(card.y).toBeCloseTo(16, 0);
   });
-
-  test('5.3：幅360pxで、横スクロールが出ない', async ({ page }) => {
-    await page.setViewportSize({ width: 360, height: 800 });
-    await page.goto('/ja/');
-    await box(page, 'map');
-
-    await expectNoHorizontalScroll(page);
-  });
 });
 
 // 端末の既定の幅（スマホ・タブレットを含む全プロジェクト）。幅は変えない
@@ -120,15 +115,90 @@ test('4.11.7・F-MAP-05：端末の幅が1024px以上なら横に並び、768px�
   }
 });
 
-for (const lang of LANGS) {
-  test(`5.3：端末の幅で、/${lang}/ に横スクロールが出ない`, async ({ page }) => {
-    await page.goto(`/${lang}/`);
-    await box(page, 'map');
+/** 横スクロールの検査の対象のパス。言語ごとの全ページ（`PAGES` から作る。ページを足すと自動で入る） */
+const SITE_PATHS = LANGS.flatMap(lang => PAGES.map(page => ({ lang, page, path: langPath(lang, page) })));
+const NOT_FOUND_PATH = '/no-such-page/';
 
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-    expect(overflow).toBeLessThanOrEqual(0);
+/** ページを開いて、本文が描かれるのを待つ */
+async function openAndSettle(page: Page, path: string): Promise<void> {
+  await page.goto(path);
+  await page.locator('main, body').first().waitFor({ state: 'visible' });
+  await page.waitForLoadState('load');
+}
+
+// 端末の幅のまま確かめる。pixel が、実際の幅360pxのスマホにあたる（5.3）
+for (const { lang, page: sitePage, path } of SITE_PATHS) {
+  test(`5.3：端末の幅で、/${lang}/${sitePage === 'home' ? '' : `${sitePage}/`} に横スクロールが出ない`, async ({ page }) => {
+    await openAndSettle(page, path);
+
+    await expectNoHorizontalScroll(page);
+  });
+}
+
+test('5.3：端末の幅で、404 のページに横スクロールが出ない', async ({ page }) => {
+  await openAndSettle(page, NOT_FOUND_PATH);
+
+  await expectNoHorizontalScroll(page);
+});
+
+// 幅360pxを指定して確かめる（PC のプロジェクト。スマホのエミュレーションは meta viewport の扱いが PC と違うので指定しない）
+test.describe('幅360pxを指定する（PC のプロジェクト）', { tag: '@pc' }, () => {
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
   });
 
+  for (const { lang, page: sitePage, path } of SITE_PATHS) {
+    test(`5.3：幅360pxで、/${lang}/${sitePage === 'home' ? '' : `${sitePage}/`} に横スクロールが出ない`, async ({ page }) => {
+      await openAndSettle(page, path);
+
+      await expectNoHorizontalScroll(page);
+    });
+  }
+
+  test('5.3：幅360pxで、404 のページに横スクロールが出ない', async ({ page }) => {
+    await openAndSettle(page, NOT_FOUND_PATH);
+
+    await expectNoHorizontalScroll(page);
+  });
+
+  test('5.3：幅360pxで、カード・出典・市区町村の一覧を開いても横スクロールが出ない', async ({ page }) => {
+    await expectNoHorizontalScrollWhenExpanded(page);
+  });
+});
+
+test('5.3：幅360pxのスマホ（pixel）で、カード・出典・市区町村の一覧を開いても横スクロールが出ない', { tag: '@touch' }, async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'pixel', '実際の幅360pxの端末は pixel だけ');
+
+  await expectNoHorizontalScrollWhenExpanded(page);
+});
+
+/**
+ * 内容がいちばん広がる状態で、横スクロールが出ない。
+ * 英語（単語が長い）の北海道のカードを開き、出典（URL の文字は長い1語）と最大化した県の市区町村の一覧を開く
+ */
+async function expectNoHorizontalScrollWhenExpanded(page: Page): Promise<void> {
+  await page.goto(`/en/#pref-${HOKKAIDO}`);
+  await page.locator('[data-map-ready]').waitFor({ state: 'attached' });
+  const card = page.locator(`[data-card-pref="${HOKKAIDO}"]`);
+  await card.locator('[data-card-details="loaded"]').waitFor();
+  await expandSheet(page);
+  await expectNoHorizontalScroll(page);
+
+  await card.locator('[data-card-sources] summary').click();
+  await expect(card.locator('[data-card-sources]')).toHaveJSProperty('open', true);
+  await expect(card.locator('[data-source-url]').first()).toBeVisible();
+  await expectNoHorizontalScroll(page);
+
+  await card.locator(`[data-card-maximize="${HOKKAIDO}"]`).click();
+  await expect(page.locator('[data-muni-status="loaded"]')).toBeAttached();
+  const list = page.locator('details[data-muni-list]');
+  await list.locator('summary').click();
+  await expect(list).toHaveJSProperty('open', true);
+  await expect(list.locator('[data-muni-item]').first()).toBeVisible();
+  await expectNoHorizontalScroll(page);
+}
+
+for (const lang of LANGS) {
   test(`5.2：/${lang}/ に header・main・footer がそれぞれ1つある`, async ({ page }) => {
     await page.goto(`/${lang}/`);
 
