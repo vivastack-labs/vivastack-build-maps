@@ -61,6 +61,9 @@ const fetchRejecting =
   };
 const options = (fetch: LinkFetch) => ({ fetch, timeoutMs: 20_000, userAgent: 'test-agent/1.0' });
 
+// spy（AbortSignal.timeout など）は、テストが途中で失敗しても元に戻す
+afterEach(() => vi.restoreAllMocks());
+
 describe('checkLink', () => {
   test('12.4 200 を ok に分類する', async () => {
     await expect(checkLink('https://example.com/a', options(fetchReturning(response(200))))).resolves.toEqual({ kind: 'ok', status: 200 });
@@ -136,7 +139,6 @@ describe('checkLink', () => {
     await checkLink('https://example.com/a', { ...options(fetchReturning(response(200))), timeoutMs: 1234 });
 
     expect(spy).toHaveBeenCalledWith(1234);
-    spy.mockRestore();
   });
 
   test('12.4 cause がない失敗は、メッセージを理由にする。Error でない値も文字列にする', async () => {
@@ -310,6 +312,35 @@ describe('runChecks', () => {
     expect(new Set(starts.values()).size).toBe(1);
   });
 
+  test('12.4 1件が例外で止まったら、ほかの作業も次の URL を取らずに止まり、例外を返す（裏で送り続けない）', async () => {
+    // Arrange：a は 10ms で投げる。b は同じホストなので、2件目以降は前の応答から 1000ms あけて送る
+    const { check } = recordingCheck();
+    const started: string[] = [];
+    const failing = async (url: string): Promise<LinkOutcome> => {
+      started.push(url);
+      if (url.startsWith('https://a.example/')) {
+        await sleep(10);
+        throw new Error('思わぬ例外');
+      }
+      return check(url);
+    };
+
+    // Act
+    const promise = runChecks(links(['https://a.example/1', 'https://b.example/1', 'https://b.example/2', 'https://b.example/3']), {
+      check: failing,
+      concurrency: 2,
+      hostIntervalMs: 1000,
+      now: () => Date.now(),
+      sleep
+    });
+    const assertion = expect(promise).rejects.toThrow('思わぬ例外');
+    await vi.runAllTimersAsync();
+
+    // Assert
+    await assertion;
+    expect(started).toEqual(['https://a.example/1', 'https://b.example/1']);
+  });
+
   test('12.4 リンクがなければ、何も確かめずに空を返す', async () => {
     const { check } = recordingCheck();
     const spy = vi.fn(check);
@@ -452,7 +483,6 @@ describe('runLinkCheck', () => {
     await runLinkCheck(['--pref', '13'], deps);
 
     expect(spy).toHaveBeenCalledWith(20_000);
-    spy.mockRestore();
   });
 
   test('12.4 思わぬ例外は、メッセージを出して終了コード 2（リンク切れの 1 と区別する）', async () => {

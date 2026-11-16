@@ -145,6 +145,18 @@ const hostOf = (url: string): string => {
 /** ホストごとの送信の状態。busy は送っている最中、readyAt は次に送れる時刻（前の応答が終わった時刻 + 間隔） */
 type HostState = { busy: boolean; readyAt: number };
 
+/** URL の順番ごとに、そのホストの状態を返す関数を作る。ホストは最初に一度だけ読む。同じホストの URL は同じ状態を共有する */
+function hostStates(links: readonly CollectedLink[]): (index: number) => HostState {
+  const byHost = new Map<string, HostState>();
+  const states = links.map(link => {
+    const host = hostOf(link.url);
+    const state = byHost.get(host) ?? { busy: false, readyAt: 0 };
+    byHost.set(host, state);
+    return state;
+  });
+  return index => states[index]!;
+}
+
 /**
  * 同時に確かめる数を concurrency までにし、すべて確かめる。同じホストへは同時に1件だけ送り、
  * 前の応答が終わってから hostIntervalMs 以上あけて次を送る（応答が遅いホストに重ねて送らない）。
@@ -154,28 +166,30 @@ type HostState = { busy: boolean; readyAt: number };
  */
 export async function runChecks(links: readonly CollectedLink[], { check, concurrency, hostIntervalMs, now, sleep, onResult }: RunOptions): Promise<readonly CheckedLink[]> {
   const results: (CheckedLink | undefined)[] = links.map(() => undefined);
-  const hosts = new Map<string, HostState>();
-  const hostState = (index: number): HostState => {
-    const host = hostOf(links[index]!.url);
-    const found = hosts.get(host) ?? { busy: false, readyAt: 0 };
-    hosts.set(host, found);
-    return found;
-  };
+  const hostState = hostStates(links);
   const pending: number[] = links.map((_, index) => index);
   const waiters: (() => void)[] = [];
   const wakeAll = (): void => waiters.splice(0).forEach(wake => wake());
   let done = 0;
+  // どこかで例外が起きたら、ほかの作業は次の URL を取らずに抜ける（レポートが出ないのに、裏で送り続けない）
+  let failed = false;
 
   const runOne = async (index: number): Promise<void> => {
     const state = hostState(index);
     state.busy = true;
-    const checked: CheckedLink = { ...links[index]!, outcome: await check(links[index]!.url) };
-    state.busy = false;
-    state.readyAt = now() + hostIntervalMs;
-    results[index] = checked;
-    done += 1;
-    onResult?.(checked, done, links.length);
-    wakeAll();
+    try {
+      const checked: CheckedLink = { ...links[index]!, outcome: await check(links[index]!.url) };
+      results[index] = checked;
+      done += 1;
+      onResult?.(checked, done, links.length);
+    } catch (error) {
+      failed = true;
+      throw error;
+    } finally {
+      state.busy = false;
+      state.readyAt = now() + hostIntervalMs;
+      wakeAll();
+    }
   };
 
   /** 今すぐ送れるものがなければ、待つ。送れるようになる時刻があればそこまで、すべてのホストが送信中なら、どれかが終わるまで */
@@ -186,7 +200,7 @@ export async function runChecks(links: readonly CollectedLink[], { check, concur
   };
 
   const worker = async (): Promise<void> => {
-    while (pending.length > 0) {
+    while (pending.length > 0 && !failed) {
       const position = pending.findIndex(index => {
         const state = hostState(index);
         return !state.busy && state.readyAt <= now();
