@@ -1,0 +1,43 @@
+---
+# 5.1・12.2（T4-04）：Lighthouse CI の設定。`pnpm lhci` が、この設定とタブレットの幅の設定（lighthouserc.tablet.yml）で
+# 測り、結果を `.lighthouseci/` に保存して、基準値を確かめる。基準値を下回ると終了コードが 1 になる。
+# 測るのは、CI の「Size budget」の手順で作った、上限の文字数のコンテンツの dist/（本物のコンテンツは47県とも「準備中」で、
+# カードの JSON を読まないため、最悪の場合を測れない）。手元で動かすときは、AGENTS.md の手順で dist/ を作ってから動かす。
+ci:
+  collect:
+    # lhci の内蔵サーバー（gzip で配信する）で dist/ を配信する。_headers・_redirects は効かないが、CSP は HTML の <meta> なので影響しない
+    staticDistDir: ./dist
+    url:
+      - /ja/
+      - /en/
+      - /zh/
+    # 3回測って、指標ごとの中央値で判断する（1回だと、冷えた状態や CI のランナーの負荷で揺れる）
+    numberOfRuns: 3
+    # 設定は Lighthouse の既定（スマホ：幅 412px、遅い 4G・CPU 4倍の模擬）
+  upload:
+    # temporary-public-storage はレポートが公開の場所に上がるので使わない。ファイルに出して、CI では Artifact にする
+    target: filesystem
+    outputDir: .lighthouseci
+  assert:
+    assertMatrix:
+      # 最初の表示（ハッシュなし）：5.1 の基準。INP は実機でしか測れないので、代わりに TBT（Total Blocking Time）を見る
+      - matchingUrlPattern: ^http://[^/]+/(ja|en|zh)/$
+        assertions:
+          categories:performance:
+            - error
+            - {minScore: 0.9, aggregationMethod: median}
+          largest-contentful-paint:
+            - error
+            - {maxNumericValue: 2500, aggregationMethod: median}
+          cumulative-layout-shift:
+            - error
+            - {maxNumericValue: 0.1, aggregationMethod: median}
+          total-blocking-time:
+            - error
+            - {maxNumericValue: 200, aggregationMethod: median}
+      # ハッシュつき・1列の配置（lighthouserc.tablet.yml。幅 800px）：開いたときのずれだけ（LCP は基準にしない。開発計画 5章）
+      - matchingUrlPattern: ^http://[^/]+/ja/#pref-01$
+        assertions:
+          cumulative-layout-shift:
+            - error
+            - {maxNumericValue: 0.1, aggregationMethod: median}

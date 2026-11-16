@@ -98,3 +98,6 @@ next-env.d.ts
 
 # wrangler dev の作業ディレクトリ
 .wrangler/
+
+# Lighthouse CI の結果（T4-04）
+.lighthouseci/
