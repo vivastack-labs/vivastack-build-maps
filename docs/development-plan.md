@@ -153,8 +153,8 @@ flowchart LR
 |---|---|---|---|
 | T4-01 | feat | CSP | 完了 |
 | T4-02 | feat | PWA | 完了 |
-| T4-03 | test | アクセシビリティ | 作業中 |
-| T4-04 | ci | Lighthouse CI | 未着手 |
+| T4-03 | test | アクセシビリティ | 完了 |
+| T4-04 | ci | Lighthouse CI | 作業中 |
 | T4-05 | feat | 「このサイトについて」とプライバシーポリシー | 未着手 |
 | T4-06 | test | 対応環境の確認 | 未着手 |
 
