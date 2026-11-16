@@ -27,7 +27,7 @@ function setup(storage: unknown, initial: Dataset = { mode: 'kids', ruby: 'on' }
     /** ハッシュを変えて hashchange を通知する */
     fire: (next: string) => {
       location.hash = next;
-      listeners.forEach((listener) => listener());
+      listeners.forEach(listener => listener());
     }
   };
 }

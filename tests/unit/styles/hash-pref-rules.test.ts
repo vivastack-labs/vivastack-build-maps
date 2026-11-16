@@ -10,7 +10,7 @@ const CODES = Array.from({ length: 47 }, (_, index) => String(index + 1).padStar
 
 /** 規則の前の部分（セレクターの一覧）を、`{` の前から取り出す */
 function selectorLists(): string[] {
-  return [...css.matchAll(/([^{}]+)\{/g)].map(match => match[1]);
+  return [...css.matchAll(/([^{}]+)\{/g)].map(match => match[1] ?? '');
 }
 
 /** `:root[data-hash-pref='NN'] … #pref-NN …` の形の個別のセレクターを集め、(属性のコード, id のコード) の組にする */
@@ -43,6 +43,16 @@ describe('app/globals.css のハッシュの県の規則', () => {
     // Assert
     expect(reserve).toHaveLength(1);
     expect(pairs.map(([code]) => code)).toEqual(CODES);
+  });
+
+  test('6.6 (2)（CLS）：県ごとの規則の前後の、ほかのセレクター（:target・data-card-reserve）は、カンマで区切られた別のセレクターとして残っている', () => {
+    // Arrange・Act：カンマの付け忘れは、後ろのセレクターが県ごとの規則の続き（子孫）になり、効かなくなる
+    const split = (list: string): string[] => list.split(',').map(selector => selector.trim());
+
+    // Assert
+    expect(split(display[0] ?? '')).toContain('[data-card-switch]:not([data-card-ready]) [data-card-pref]:target');
+    expect(split(reserve[0] ?? '')).toContain('[data-card-body][data-card-reserve]');
+    expect(split(reserve[0] ?? '')).toContain('[data-card-switch]:not([data-card-ready]) [data-card-pref]:target [data-card-body]');
   });
 
   test('6.6 (2)（CLS）：どの規則も、属性の県コードと #pref-NN の県コードが同じ', () => {

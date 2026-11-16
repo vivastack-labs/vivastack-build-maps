@@ -190,8 +190,7 @@
   :root[data-hash-pref='44'] [data-card-switch]:not([data-card-ready]) #pref-44,
   :root[data-hash-pref='45'] [data-card-switch]:not([data-card-ready]) #pref-45,
   :root[data-hash-pref='46'] [data-card-switch]:not([data-card-ready]) #pref-46,
-  :root[data-hash-pref='47'] [data-card-switch]:not([data-card-ready]) #pref-47
-  {
+  :root[data-hash-pref='47'] [data-card-switch]:not([data-card-ready]) #pref-47 {
     display: block !important;
   }
 }
@@ -261,7 +260,7 @@
   :root[data-hash-pref='44'] [data-card-switch]:not([data-card-ready]) #pref-44 [data-card-body],
   :root[data-hash-pref='45'] [data-card-switch]:not([data-card-ready]) #pref-45 [data-card-body],
   :root[data-hash-pref='46'] [data-card-switch]:not([data-card-ready]) #pref-46 [data-card-body],
-  :root[data-hash-pref='47'] [data-card-switch]:not([data-card-ready]) #pref-47 [data-card-body]
+  :root[data-hash-pref='47'] [data-card-switch]:not([data-card-ready]) #pref-47 [data-card-body],
   [data-card-body][data-card-reserve] {
     min-height: 100svh;
   }
