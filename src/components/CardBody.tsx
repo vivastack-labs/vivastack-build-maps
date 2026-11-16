@@ -53,7 +53,7 @@ function ItemList({ items, labels }: { readonly items: readonly CardItem[]; read
   return (
     <ul className="mt-1 space-y-2">
       {items.map(item => (
-        <li key={item.id} data-card-item={item.id}>
+        <li key={item.id} data-card-item={item.id} className="break-words">
           {item.emoji !== undefined && <Emoji emoji={item.emoji} />}
           <strong>
             <RubyText text={item.name} />

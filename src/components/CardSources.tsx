@@ -55,7 +55,7 @@ export function CardSources({ data, labels }: Props) {
       <ul className="mt-1 space-y-2">
         {entries.map(entry => (
           <li key={entry.key} data-source-item={entry.key}>
-            <p data-source-item-name className="font-bold">
+            <p data-source-item-name className="font-bold break-words">
               <RubyText text={entry.name} />
             </p>
             {entry.sources.length === 0 ? (
