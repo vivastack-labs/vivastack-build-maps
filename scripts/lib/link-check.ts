@@ -86,10 +86,27 @@ function failureReason(error: unknown): string {
 
 const isTimeout = (error: unknown): boolean => error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError');
 
-/** ステータスを分類する。2xx のうちリダイレクトありは redirected、404・410 は broken、そのほかは http-error */
+/** リダイレクト先が https でないときの注意（https から http や内部のアドレスへ飛ばされた可能性を、レポートで目立たせる） */
+export const NOT_HTTPS_NOTE = '⚠ リダイレクト先が https でない';
+
+const isHttps = (url: string): boolean => {
+  try {
+    return new URL(url).protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * ステータスを分類する。2xx のうちリダイレクトありは redirected（最終の URL が https でなければ注意の理由つき）、
+ * 404・410 は broken、そのほかは http-error
+ */
 function classify(response: LinkResponse): LinkOutcome {
   const { status } = response;
-  if (status >= 200 && status < 300) return response.redirected ? { kind: 'redirected', status, finalUrl: response.url } : { kind: 'ok', status };
+  if (status >= 200 && status < 300) {
+    if (!response.redirected) return { kind: 'ok', status };
+    return isHttps(response.url) ? { kind: 'redirected', status, finalUrl: response.url } : { kind: 'redirected', status, finalUrl: response.url, reason: NOT_HTTPS_NOTE };
+  }
   return { kind: BROKEN_STATUSES.has(status) ? 'broken' : 'http-error', status };
 }
 
@@ -130,6 +147,7 @@ const hostOf = (url: string): string => {
 /**
  * 同時に確かめる数を concurrency までにし、同じホストへの送信の間隔を hostIntervalMs 以上あけて、すべて確かめる。
  * 結果は入力と同じ順に返す。送る時刻はホストごとに先に取り分ける（同時に動く作業の間でも、間隔が詰まらない）。
+ * 間隔が効くのは、最初の URL のホストだけ（リダイレクト先のホストへの送信は数えない）。
  */
 export async function runChecks(links: readonly CollectedLink[], { check, concurrency, hostIntervalMs, now, sleep, onResult }: RunOptions): Promise<readonly CheckedLink[]> {
   const results: (CheckedLink | undefined)[] = links.map(() => undefined);
@@ -175,14 +193,35 @@ const KIND_LABELS: Readonly<Record<LinkKind, string>> = {
 
 const KIND_ORDER: readonly LinkKind[] = ['ok', 'redirected', 'broken', 'http-error', 'timeout', 'network-error'];
 
-/** 表の1マスに入れられる形にする（| は \| に、改行は空白に） */
+/** 理由の最大の長さ（相手が長い文字列を返しても、レポートが膨らまないように） */
+const MAX_REASON_LENGTH = 200;
+
+/** 表の1マスに入れられる形にする（| は \| に、改行・空白の連続は空白1つに） */
 const cell = (text: string): string => text.replaceAll('|', '\\|').replace(/\s+/gu, ' ');
+
+const longestBacktickRun = (text: string): number => Math.max(0, ...(text.match(/`+/gu) ?? []).map(run => run.length));
+
+/**
+ * 相手が決めた文字列（最終の URL・理由）を、リンクや強調にならないコードスパンにする。
+ * 中のバッククォートより長い囲みにし、端がバッククォートなら空白を足す。
+ */
+const codeSpan = (text: string): string => {
+  const body = cell(text).trim();
+  const fence = '`'.repeat(longestBacktickRun(body) + 1);
+  const pad = body.startsWith('`') || body.endsWith('`') ? ' ' : '';
+  return `${fence}${pad}${body}${pad}${fence}`;
+};
+
+const truncate = (text: string, max: number): string => {
+  const chars = [...text.replace(/\s+/gu, ' ').trim()];
+  return chars.length > max ? `${chars.slice(0, max).join('')}…` : chars.join('');
+};
 
 const TABLE_HEADER = ['| 分類 | HTTP | URL | 最終の URL・理由 | 使われている場所 |', '| --- | --- | --- | --- | --- |'];
 
 function row({ url, usages, outcome }: CheckedLink): string {
-  const detail = outcome.finalUrl ?? outcome.reason ?? '';
-  return `| ${KIND_LABELS[outcome.kind]} | ${outcome.status ?? ''} | ${cell(url)} | ${cell(detail)} | ${usages.map(cell).join('<br>')} |`;
+  const detail = [outcome.finalUrl, outcome.reason === undefined ? undefined : truncate(outcome.reason, MAX_REASON_LENGTH)].flatMap(part => (part === undefined ? [] : [codeSpan(part)]));
+  return `| ${KIND_LABELS[outcome.kind]} | ${outcome.status ?? ''} | ${codeSpan(url)} | ${detail.join(' ')} | ${usages.map(cell).join('<br>')} |`;
 }
 
 const section = (title: string, rows: readonly CheckedLink[]): readonly string[] => (rows.length === 0 ? [] : ['', `## ${title}（${rows.length}件）`, '', ...TABLE_HEADER, ...rows.map(row)]);
@@ -232,6 +271,7 @@ function parseArgs(args: readonly string[]): Args {
     if (name !== '--pref' && name !== '--out') throw new Error(`知らない引数です：${args[index]}`);
     const value = inline ?? args[(index += 1)];
     if (value === undefined) throw new Error(`${name} の値がありません`);
+    if (value.startsWith('-')) throw new Error(`${name} の値が - で始まっています：${value}`);
     if (name === '--pref') parsed.pref = value;
     else parsed.out = value;
   }
@@ -271,6 +311,13 @@ export async function runLinkCheck(args: readonly string[], deps: LinkCheckDeps)
   });
   const report = formatReport(results, { generatedAt: new Date(deps.now()), prefectures: labels });
   writeOut(report);
-  if (setup.out !== undefined) deps.writeFile(setup.out, report);
+  if (setup.out !== undefined) {
+    try {
+      deps.writeFile(setup.out, report);
+    } catch (error) {
+      writeErr(`レポートのファイルを書けませんでした：${setup.out}（${error instanceof Error ? error.message : String(error)}）`);
+      return 2;
+    }
+  }
   return results.some(result => result.outcome.kind === 'broken') ? 1 : 0;
 }

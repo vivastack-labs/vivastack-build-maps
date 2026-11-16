@@ -71,6 +71,21 @@ describe('checkLink', () => {
     await expect(checkLink('https://example.com/old', options(fetchReturning(res)))).resolves.toEqual({ kind: 'redirected', status: 200, finalUrl: 'https://example.com/new' });
   });
 
+  test('12.4 リダイレクト先が https でなければ、redirected のまま、理由に「https でない」を添える（SSRF の注意）', async () => {
+    const res = response(200, { url: 'http://169.254.169.254/latest/', redirected: true });
+
+    const outcome = await checkLink('https://example.com/old', options(fetchReturning(res)));
+
+    expect(outcome).toMatchObject({ kind: 'redirected', status: 200, finalUrl: 'http://169.254.169.254/latest/' });
+    expect(outcome.reason).toContain('https でない');
+  });
+
+  test('12.4 リダイレクト先が https なら、理由は付けない', async () => {
+    const outcome = await checkLink('https://example.com/old', options(fetchReturning(response(200, { url: 'https://example.com/new', redirected: true }))));
+
+    expect(outcome.reason).toBeUndefined();
+  });
+
   test.each([404, 410])('12.4 %i を broken（リンク切れ）に分類する', async status => {
     await expect(checkLink('https://example.com/a', options(fetchReturning(response(status))))).resolves.toEqual({ kind: 'broken', status });
   });
@@ -262,10 +277,10 @@ describe('formatReport', () => {
     expect(report).toContain('2026-11-17T09:30:00.000Z');
     expect(report).toContain('26-kyoto');
     expect(report).toContain('確かめた URL：6件');
-    expect(report).toMatch(/## リンク切れ（1件）[\s\S]*\| 404 \| https:\/\/example\.com\/gone \|[\s\S]*26-kyoto access<br>13-tokyo spots\/x/u);
+    expect(report).toMatch(/## リンク切れ（1件）[\s\S]*\| 404 \| `https:\/\/example\.com\/gone` \|[\s\S]*26-kyoto access<br>13-tokyo spots\/x/u);
     expect(report).toMatch(/## 要確認（4件）/u);
-    expect(report).toContain('https://example.com/new');
-    expect(report).toContain('ENOTFOUND');
+    expect(report).toContain('`https://example.com/new`');
+    expect(report).toContain('`ENOTFOUND`');
     expect(report).toContain('| 403 |');
     expect(report).not.toContain('https://example.com/ok');
   });
@@ -289,8 +304,32 @@ describe('formatReport', () => {
   test('12.4 表の中の | と改行は、表が崩れないように直す', () => {
     const report = formatReport([checked('https://example.com/a|b', { kind: 'network-error', reason: 'line1\nline2' })], meta);
 
-    expect(report).toContain('https://example.com/a\\|b');
-    expect(report).toContain('line1 line2');
+    expect(report).toContain('`https://example.com/a\\|b`');
+    expect(report).toContain('`line1 line2`');
+  });
+
+  test('12.4 リダイレクト先が決めた文字列（リンク・強調の記法）は、コードスパンで囲んで、そのまま見せる', () => {
+    const finalUrl = 'https://evil.example/[x](https://evil.example/)*a*_b_<script>';
+    const report = formatReport([checked('https://example.com/old', { kind: 'redirected', status: 200, finalUrl })], meta);
+
+    expect(report).toContain(`\`${finalUrl}\``);
+  });
+
+  test('12.4 中にバッククォートがあれば、それより長い囲みにする（端にあれば空白を足す）', () => {
+    const report = formatReport(
+      [checked('https://example.com/a', { kind: 'redirected', status: 200, finalUrl: 'https://e.example/a`b``c' }), checked('https://example.com/b', { kind: 'network-error', reason: '`start' })],
+      meta
+    );
+
+    expect(report).toContain('```https://e.example/a`b``c```');
+    expect(report).toContain('`` `start ``');
+  });
+
+  test('12.4 理由は200字で切る（相手が長い文字列を返しても、レポートが膨らまない）', () => {
+    const report = formatReport([checked('https://example.com/a', { kind: 'network-error', reason: 'x'.repeat(300) })], meta);
+
+    expect(report).toContain(`\`${'x'.repeat(200)}…\``);
+    expect(report).not.toContain('x'.repeat(201));
   });
 });
 
@@ -378,13 +417,31 @@ describe('runLinkCheck', () => {
     expect(out.join('\n')).toContain('出典の URL がありません');
   });
 
-  test.each([[['--unknown']], [['--pref']], [['--out']], [['extra']], [['--pref', 'nowhere']]])('12.4 引数の誤り %j は終了コード 2。何も確かめない', async args => {
-    const { deps, fetch, err } = setup();
+  test.each([[['--unknown']], [['--pref']], [['--out']], [['extra']], [['--pref', 'nowhere']], [['--pref', '--out']], [['--out', '-x']], [['--out=-x']], [['--pref=-1']]])(
+    '12.4 引数の誤り %j は終了コード 2。何も確かめない',
+    async args => {
+      const { deps, fetch, err } = setup();
 
-    await expect(runLinkCheck(args, deps)).resolves.toBe(2);
+      await expect(runLinkCheck(args, deps)).resolves.toBe(2);
 
-    expect(fetch).not.toHaveBeenCalled();
-    expect(err.length).toBeGreaterThan(0);
+      expect(fetch).not.toHaveBeenCalled();
+      expect(err.length).toBeGreaterThan(0);
+    }
+  );
+
+  test('12.4 レポートのファイルを書けなければ、メッセージを出して終了コード 2（リンク切れの 1 と区別する）。レポートは標準出力に出ている', async () => {
+    const { deps, out, err } = setup();
+
+    const code = await runLinkCheck(['--out', 'report.md'], {
+      ...deps,
+      writeFile: () => {
+        throw new Error('EACCES: permission denied');
+      }
+    });
+
+    expect(code).toBe(2);
+    expect(out.join('\n')).toContain('## リンク切れ');
+    expect(err.join('\n')).toContain('EACCES');
   });
 
   test('12.4 コンテンツの誤り（読み込みで例外）は終了コード 2', async () => {
