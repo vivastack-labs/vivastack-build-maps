@@ -98,16 +98,14 @@ const isHttps = (url: string): boolean => {
 };
 
 /**
- * ステータスを分類する。2xx のうちリダイレクトありは redirected（最終の URL が https でなければ注意の理由つき）、
- * 404・410 は broken、そのほかは http-error
+ * ステータスを分類する。2xx は ok、リダイレクトありなら redirected、404・410 は broken、そのほかは http-error。
+ * リダイレクトがあれば、ステータスによらず最終の URL を残し、https でなければ注意の理由を付ける。
  */
 function classify(response: LinkResponse): LinkOutcome {
   const { status } = response;
-  if (status >= 200 && status < 300) {
-    if (!response.redirected) return { kind: 'ok', status };
-    return isHttps(response.url) ? { kind: 'redirected', status, finalUrl: response.url } : { kind: 'redirected', status, finalUrl: response.url, reason: NOT_HTTPS_NOTE };
-  }
-  return { kind: BROKEN_STATUSES.has(status) ? 'broken' : 'http-error', status };
+  const kind: LinkKind = status >= 200 && status < 300 ? (response.redirected ? 'redirected' : 'ok') : BROKEN_STATUSES.has(status) ? 'broken' : 'http-error';
+  if (!response.redirected) return { kind, status };
+  return isHttps(response.url) ? { kind, status, finalUrl: response.url } : { kind, status, finalUrl: response.url, reason: NOT_HTTPS_NOTE };
 }
 
 /**
@@ -196,8 +194,8 @@ const KIND_ORDER: readonly LinkKind[] = ['ok', 'redirected', 'broken', 'http-err
 /** 理由の最大の長さ（相手が長い文字列を返しても、レポートが膨らまないように） */
 const MAX_REASON_LENGTH = 200;
 
-/** 表の1マスに入れられる形にする（| は \| に、改行・空白の連続は空白1つに） */
-const cell = (text: string): string => text.replaceAll('|', '\\|').replace(/\s+/gu, ' ');
+/** 表の1マスに入れられる形にする（\ は %5C に、| は \| に、改行・空白の連続は空白1つに。\ の直後の | で表が割れないように、\ を先に直す） */
+const cell = (text: string): string => text.replaceAll('\\', '%5C').replaceAll('|', '\\|').replace(/\s+/gu, ' ');
 
 const longestBacktickRun = (text: string): number => Math.max(0, ...(text.match(/`+/gu) ?? []).map(run => run.length));
 

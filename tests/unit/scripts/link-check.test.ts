@@ -9,6 +9,7 @@ import {
   type CheckedLink,
   type LinkFetch,
   type LinkOutcome,
+  NOT_HTTPS_NOTE,
   type LinkResponse
 } from '../../../scripts/lib/link-check';
 import type { Prefecture } from '../../../src/lib/content';
@@ -84,6 +85,21 @@ describe('checkLink', () => {
     const outcome = await checkLink('https://example.com/old', options(fetchReturning(response(200, { url: 'https://example.com/new', redirected: true }))));
 
     expect(outcome.reason).toBeUndefined();
+  });
+
+  test.each([
+    [404, 'broken'],
+    [500, 'http-error']
+  ])('12.4 リダイレクト先が https でなく、そこで %i が返ったときも、最終の URL を残し、https でない注意を添える（分類は %s のまま）', async (status, kind) => {
+    const res = response(status, { url: 'http://169.254.169.254/latest/', redirected: true });
+
+    await expect(checkLink('https://example.com/old', options(fetchReturning(res)))).resolves.toEqual({ kind, status, finalUrl: 'http://169.254.169.254/latest/', reason: NOT_HTTPS_NOTE });
+  });
+
+  test('12.4 リダイレクト先が https で 404 が返ったときは、最終の URL を残し、注意は付けない', async () => {
+    const res = response(404, { url: 'https://example.com/moved', redirected: true });
+
+    await expect(checkLink('https://example.com/old', options(fetchReturning(res)))).resolves.toEqual({ kind: 'broken', status: 404, finalUrl: 'https://example.com/moved' });
   });
 
   test.each([404, 410])('12.4 %i を broken（リンク切れ）に分類する', async status => {
@@ -306,6 +322,12 @@ describe('formatReport', () => {
 
     expect(report).toContain('`https://example.com/a\\|b`');
     expect(report).toContain('`line1 line2`');
+  });
+
+  test('12.4 バックスラッシュの直後の | でも表が割れない（バックスラッシュを %5C にしてから、| を \| にする）', () => {
+    const report = formatReport([checked('https://example.com/a\\|b', { kind: 'broken', status: 404 })], meta);
+
+    expect(report).toContain('`https://example.com/a%5C\\|b`');
   });
 
   test('12.4 リダイレクト先が決めた文字列（リンク・強調の記法）は、コードスパンで囲んで、そのまま見せる', () => {
