@@ -39,6 +39,7 @@ pnpm exec wrangler dev   # dist/ を本番の Workers と同じ形で配信す�
 pnpm content:validate   # コンテンツの YAML を検証する（誤りで終了コード1。CONTENT_DIR で読むディレクトリを変える）
 pnpm content:furigana   # 日本語の文にふりがなを付けて標準出力に出す（標準入力の各行、または引数。読みが怪しい語は標準エラーに出す。YAML は書き換えない。T5-02）
 pnpm content:furigana --check <YAML>...   # YAML の {漢字|よみ} の読みを辞書の読みと比べて、違うものを出す（YAML は読むだけ。辞書が誤ることもあるので、違いは公式の表記で確かめる。終了コードは 0。T5-02）
+pnpm content:links   # 出典（sources[].url）のリンク切れを確かめて、Markdown のレポートを標準出力に出す（`--pref 26,kyoto` で県を絞る、`--out <ファイル>` でファイルにも書く。同時4件・同じホストへ2秒おき。リンク切れ〔404・410〕があれば終了コード 1、引数・コンテンツの誤りは 2。コンテンツは CONTENT_DIR。ふつうは手動の workflow `link-check.yml` で動かす。外のサイトにリクエストを送るので、手元で試すときは件数に気をつける。T5-03）
 pnpm content:types      # スキーマから型（src/lib/content-schema.generated.ts）を作り直す（スキーマを変えたら実行してコミット）
 pnpm size         # dist/ の言語ごとの最初の読み込み（HTML＋JS＋CSS）の圧縮後のサイズを表にする（gzip が 300KB を超えると終了コード 1。先に pnpm build）
 node scripts/make-max-content.ts --out <ディレクトリ>   # 47県を 7.3 の上限の文字数で埋めたダミーのコンテンツを作る（コミットしない。CONTENT_DIR=<ディレクトリ> pnpm build の後に pnpm size で測る）
@@ -81,7 +82,7 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
 | `tests/e2e-preview/` | プレビュー用のビルド（`pnpm build:preview`）の E2E（`playwright.preview.config.ts`。chromium だけ。T3-02） |
 | `tests/screenshots/` | PRに載せるスクリーンショットの画面（`playwright.screenshots.config.ts`。`pnpm screenshots` から使う） |
 | `tests/setup/` | テストの共通の準備（jest-dom のマッチャーなど） |
-| `scripts/` | ビルドのスクリプト（`postbuild.ts`：`out/` → `dist/`、各 HTML への CSP の `<meta>` の書き込み、`sw.js` の生成〔`service-worker.ts`〕）と、アイコンの生成（`make-icons.ts`）、サイズの計測（`measure-size.ts`・`make-max-content.ts`。T3-08）、ふりがなの自動付与と読みの比べ方（`furigana.ts`。T5-02。ロジックは `lib/`）。Node.js で直接実行するので、`enum` など型の除去で消せない書き方は使わない（`geo/scripts/` も同じ。相対の import には `.ts` を付ける） |
+| `scripts/` | ビルドのスクリプト（`postbuild.ts`：`out/` → `dist/`、各 HTML への CSP の `<meta>` の書き込み、`sw.js` の生成〔`service-worker.ts`〕）と、アイコンの生成（`make-icons.ts`）、サイズの計測（`measure-size.ts`・`make-max-content.ts`。T3-08）、ふりがなの自動付与と読みの比べ方（`furigana.ts`。T5-02。ロジックは `lib/`）、出典のリンク切れチェック（`check-links.ts`。T5-03。ロジックは `lib/link-check.ts`）。Node.js で直接実行するので、`enum` など型の除去で消せない書き方は使わない（`geo/scripts/` も同じ。相対の import には `.ts` を付ける） |
 | `public/` | そのまま配信するファイル。`_redirects`・`_headers` は `dist/` の直下に置かれる。`public/geo/muni/` は `pnpm geo:build` の出力（手で直さない） |
 | `content/` | `prefectures/`：都道府県ごとの YAML（T1-08。先頭のコメントに県庁の位置の調べ方がある）。`schema/`：JSON Schema。lint は `content/.yamllint` |
 | `geo/` | 地図データの変換（`scripts/`）、読み・ローマ字の修正表（`sources/`）、都道府県の形（`data/prefs.topo.json`。生成物）。原データは `geo/downloads/` に置き、コミットしない。手順と判断は `geo/README.md` |
