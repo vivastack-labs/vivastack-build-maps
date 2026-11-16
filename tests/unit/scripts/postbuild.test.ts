@@ -408,12 +408,16 @@ describe('assembleDistWithCsp', () => {
     writeFileSync(join(root, path), body);
   };
 
-  /** 3言語の HTML（Service Worker のプリキャッシュに要る。U13）。`ja` の中身だけ変えられる */
+  /** 3言語 × 3ページの HTML（Service Worker のプリキャッシュに要る。U13・T4-05）。`ja` の中身だけ変えられる */
   const putPages = (ja = '<head><meta charSet="utf-8"/><script>self.__next_f.push([1,"a"])</script></head>'): void => {
     put('out/ja/index.html', ja);
     put('out/en/index.html', '<head><meta charSet="utf-8"/></head>');
     put('out/zh/index.html', '<head><meta charSet="utf-8"/></head>');
-    for (const lang of ['ja', 'en', 'zh']) put(`out/${lang}/app.webmanifest`, '{}');
+    for (const lang of ['ja', 'en', 'zh']) {
+      put(`out/${lang}/app.webmanifest`, '{}');
+      put(`out/${lang}/about/index.html`, '<head><meta charSet="utf-8"/></head>');
+      put(`out/${lang}/privacy/index.html`, '<head><meta charSet="utf-8"/></head>');
+    }
     put('out/_next/static/chunks/a.js', 'js');
     put('out/icons/icon-192.png', 'png');
   };

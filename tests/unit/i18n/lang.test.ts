@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { htmlLang, isLang, LANG_LINK_ATTRIBUTE, LANG_NAMES, langPath, langStaticParams } from '@/i18n/lang';
+import { htmlLang, isLang, LANG_LINK_ATTRIBUTE, LANG_NAMES, langPath, langStaticParams, PAGES } from '@/i18n/lang';
 
 describe('isLang（F-I18N-01）', () => {
   test.each(['ja', 'en', 'zh'])('F-I18N-01: 対応する言語 %s を受け付ける', value => {
@@ -54,6 +54,17 @@ describe('langPath・LANG_LINK_ATTRIBUTE（F-I18N-03）', () => {
   test.each(['ja', 'en', 'zh'] as const)('F-I18N-03: %s のページのパスは /%s/', lang => {
     // Assert
     expect(langPath(lang)).toBe(`/${lang}/`);
+  });
+
+  test.each(['ja', 'en', 'zh'] as const)('F-I18N-03：langPath(%s, page) は /{lang}/・/{lang}/about/・/{lang}/privacy/ を返す', lang => {
+    // Assert
+    expect(langPath(lang, 'home')).toBe(`/${lang}/`);
+    expect(langPath(lang, 'about')).toBe(`/${lang}/about/`);
+    expect(langPath(lang, 'privacy')).toBe(`/${lang}/privacy/`);
+  });
+
+  test('T4-05：ページは home・about・privacy の3つ', () => {
+    expect(PAGES).toEqual(['home', 'about', 'privacy']);
   });
 
   test('F-I18N-03: 言語切替のリンクの属性名は data-lang-link', () => {

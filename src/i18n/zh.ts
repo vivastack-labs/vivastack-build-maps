@@ -96,7 +96,70 @@ export const zh: Messages = {
       before: '出处：根据「国土数值信息（行政区域数据）」（日本国土交通省）（',
       after: '）加工制作'
     },
-    ai: '由 AI 制作，并经人工确认'
+    ai: '由 AI 制作，并经人工确认',
+    about: '关于本网站',
+    privacy: '隐私政策',
+    linksLabel: '网站信息'
+  },
+  about: {
+    title: '关于本网站',
+    site: {
+      heading: '本网站',
+      body: '「日本各地名产地图」可以让你从日本地图上查找全部 47 个都道府县的名产和名胜。网站提供儿童模式和成人模式，可以开关假名注音（日语的读音标注），并提供日语、英语和中文页面。'
+    },
+    content: {
+      heading: '名产和名胜的文字',
+      body: '名产和名胜的文字由 AI 制作，并经人工确认。每个项目的出处列在都道府县卡片的「出处」中。无法确认出处的项目会写明「无出处」。'
+    },
+    mapData: {
+      heading: '地图数据',
+      processedIntro: '我们对国土数值信息做了如下加工。',
+      processedItems: ['为了方便在地图上查看，简化了形状。', '将市区町村的形状合并，制作出都道府县的形状。', '放不进全国地图的岛屿，已从全国地图中去除。'],
+      notOfficial: '加工后的数据并非由日本政府制作。'
+    },
+    boundary: {
+      heading: '边界尚未确定的地区',
+      body: '原始数据中有边界尚未确定的地区，部分边界线是暂定画出的。本地图直接使用了这些数据。'
+    },
+    reading: {
+      heading: '读音和都道府县厅的位置',
+      soumu: {
+        before: '出处：根据「全国地方公共团体代码」（日本总务省）（',
+        after: '）加工制作'
+      },
+      gsi: {
+        before: '出处：在地理院地图（日本国土地理院）（',
+        after: '）上查询都道府县厅的位置后制作'
+      },
+      distance: '与东京的距离，是从东京都厅到各都道府县厅的直线距离，以 10 公里为单位取整。'
+    }
+  },
+  privacy: {
+    title: '隐私政策',
+    analytics: {
+      heading: '访问分析',
+      body: '为了了解哪些页面被浏览，本网站使用 Cloudflare Web Analytics。它不使用 Cookie，也不会识别访问者个人。我们查看的是汇总后的页面路径、来源网站（引荐来源）、国家或地区、浏览器、操作系统、设备类型和页面显示速度。',
+      detail: { before: '详情请参阅 Cloudflare 的说明（', after: '）。' }
+    },
+    cookies: {
+      heading: 'Cookie',
+      body: '本网站不使用 Cookie，因此不会显示征求 Cookie 同意的横幅。'
+    },
+    storage: {
+      heading: '保存在你设备上的内容',
+      intro: '本网站会在你设备的浏览器中保存以下内容。两者都只保存在你的设备中，不会发送到服务器。',
+      items: ['模式和假名注音的设置（localStorage）。仅在你按下按钮时保存。', '为了离线也能使用而保存的页面、地图和卡片数据（Service Worker 缓存）。'],
+      note: '你可以在浏览器的设置中删除它们。'
+    },
+    delivery: {
+      heading: '网站的发布',
+      body: '本网站通过 Cloudflare 的服务发布。'
+    },
+    external: {
+      heading: '外部网站',
+      body: '出处等链接指向的网站，适用各自网站的政策。'
+    },
+    revised: '修订日期'
   },
   pwa: {
     shortName: '名产地图'

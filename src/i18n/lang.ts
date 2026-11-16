@@ -39,7 +39,20 @@ export const LANG_NAMES: Readonly<Record<Lang, string>> = {
 /** 言語切替のリンク（`LangSwitch`）に付ける属性の名前。値は言語のコード。`HashSync` がこの属性でリンクを探す */
 export const LANG_LINK_ATTRIBUTE = 'data-lang-link';
 
-/** 言語のページの、サイトの中のパス（`/ja/`）。言語切替のリンクの `href` の基になる（ハッシュは付けない） */
-export function langPath(lang: Lang): string {
-  return `/${lang}/`;
+/** サイトのページ（T4-05）。トップ・「このサイトについて」・プライバシーポリシー。URL のパスはここの名前から作る（自由な文字列を入れない） */
+export const PAGES = ['home', 'about', 'privacy'] as const;
+
+/** サイトのページの名前 */
+export type SitePage = (typeof PAGES)[number];
+
+/** `/{lang}/` に続くパス。トップは空 */
+const PAGE_SEGMENTS: Readonly<Record<SitePage, string>> = {
+  home: '',
+  about: 'about/',
+  privacy: 'privacy/'
+};
+
+/** 言語のページの、サイトの中のパス（`/ja/`・`/ja/about/`）。言語切替・フッターのリンクの `href` の基になる（ハッシュは付けない） */
+export function langPath(lang: Lang, page: SitePage = 'home'): string {
+  return `/${lang}/${PAGE_SEGMENTS[page]}`;
 }

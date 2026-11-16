@@ -4,6 +4,7 @@ import { HashSync } from '@/components/HashSync';
 import { IndexArea } from '@/components/IndexArea';
 import { MapArea } from '@/components/MapArea';
 import { MapStateProvider } from '@/components/MapStateProvider';
+import { PageFrame } from '@/components/PageFrame';
 import { isLang } from '@/i18n/lang';
 import { loadContent } from '@/lib/content';
 import { distancesFromTokyo } from '@/lib/distance';
@@ -25,19 +26,21 @@ export default async function Page({ params }: Props) {
   const distances = distancesFromTokyo(prefectures);
 
   return (
-    // T2-05：地図とカードが同じ状態を見る。MapStateProvider は DOM の要素を出さないので、grid の子は変わらない
-    <main className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-3">
-      <MapStateProvider>
-        {/* T3-07：ハッシュ（#pref-NN）と固定している県を合わせる。DOM は出さない */}
-        <HashSync />
-        <div className="min-w-0 lg:col-span-2">
-          <MapArea lang={lang} prefectures={prefectures} />
-        </div>
-        <CardArea lang={lang} prefectures={prefectures} distances={distances} />
-        <div className="min-w-0 lg:col-span-2">
-          <IndexArea lang={lang} prefectures={prefectures} />
-        </div>
-      </MapStateProvider>
-    </main>
+    <PageFrame lang={lang} page="home">
+      {/* T2-05：地図とカードが同じ状態を見る。MapStateProvider は DOM の要素を出さないので、grid の子は変わらない */}
+      <main className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-3">
+        <MapStateProvider>
+          {/* T3-07：ハッシュ（#pref-NN）と固定している県を合わせる。DOM は出さない */}
+          <HashSync />
+          <div className="min-w-0 lg:col-span-2">
+            <MapArea lang={lang} prefectures={prefectures} />
+          </div>
+          <CardArea lang={lang} prefectures={prefectures} distances={distances} />
+          <div className="min-w-0 lg:col-span-2">
+            <IndexArea lang={lang} prefectures={prefectures} />
+          </div>
+        </MapStateProvider>
+      </main>
+    </PageFrame>
   );
 }

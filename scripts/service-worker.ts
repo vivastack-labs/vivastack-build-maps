@@ -5,15 +5,21 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import workboxBuild from 'workbox-build';
 import type { ManifestTransform } from 'workbox-build';
-import { LANGS } from '../src/i18n/lang.ts';
+import { LANGS, PAGES, langPath } from '../src/i18n/lang.ts';
 
 /** 市区町村データ（`/geo/muni/NN.topo.json`。T2-07）の実行時のキャッシュの名前と、持つ数の上限（47都道府県） */
 const MUNI_CACHE = { name: 'maps-muni', maxEntries: 47 } as const;
 /** カードの内容（`/cards/{lang}/NN.json`。T3-09）の実行時のキャッシュの名前と、持つ数の上限（47県 × 3言語） */
 const CARD_CACHE = { name: 'maps-cards', maxEntries: 141 } as const;
 
+/**
+ * 言語 × ページ（トップ・「このサイトについて」・プライバシーポリシー。T4-05）の HTML の、`dist/` の中のパス（`ja/about/index.html`）。
+ * ページを足すときは `PAGES` に足すと、ここにも入る。
+ */
+const PAGE_HTML_FILES: readonly string[] = LANGS.flatMap(lang => PAGES.map(page => `${langPath(lang, page).slice(1)}index.html`));
+
 /** プリキャッシュする、`dist/` の中のファイル（アプリの枠組み。D40）。RSC の `*.txt`・404・`cards/`・`geo/`・`_headers`・`_redirects`・ソースマップは入れない */
-const PRECACHE_PATTERNS: readonly string[] = [`{${LANGS.join(',')}}/index.html`, `{${LANGS.join(',')}}/app.webmanifest`, '_next/static/**/*.{js,css}', 'icons/*'];
+const PRECACHE_PATTERNS: readonly string[] = [...PAGE_HTML_FILES, `{${LANGS.join(',')}}/app.webmanifest`, '_next/static/**/*.{js,css}', 'icons/*'];
 
 /**
  * NetworkFirst がキャッシュに切り替えるまでの待ち時間（秒）。つながっているのに通信が進まないとき（`navigator.onLine` は true）に、
@@ -27,9 +33,9 @@ const HASHED_FILES = /^_next\/static\//u;
 /** `sw.js` を作った結果：プリキャッシュしたファイルの数と、その大きさ（圧縮前のバイト数） */
 export type ServiceWorkerResult = { readonly count: number; readonly size: number };
 
-// 失敗したら捨てる必要がないよう、ファイルを書く前に、3言語の HTML があることを確かめる
+// 失敗したら捨てる必要がないよう、ファイルを書く前に、3言語 × 各ページの HTML があることを確かめる
 const assertLanguagePages = (distDir: string): void => {
-  const missing = LANGS.map(lang => `${lang}/index.html`).filter(path => !existsSync(join(distDir, path)));
+  const missing = PAGE_HTML_FILES.filter(path => !existsSync(join(distDir, path)));
   if (missing.length > 0) {
     throw new Error(`${distDir} に ${missing.join('・')} がありません（オフラインで開けなくなるので、sw.js を作りません）`);
   }
@@ -45,7 +51,7 @@ const toDirectoryUrl: ManifestTransform = entries => ({
 
 /**
  * `dist/sw.js`（1ファイル。`workbox-*.js` を別に置かない）を作る。
- * - アプリの枠組み（3言語の HTML・manifest・`_next/static/` の JS・CSS・アイコン）を、インストールのときにプリキャッシュする。HTML の版は、CSP を書いた後の内容のハッシュ。
+ * - アプリの枠組み（3言語 × 3ページの HTML・manifest・`_next/static/` の JS・CSS・アイコン）を、インストールのときにプリキャッシュする。HTML の版は、CSP を書いた後の内容のハッシュ。
  * - 市区町村・カードの JSON は、一度読んだものだけを NetworkFirst で持つ（オンラインでは今までどおりネットワークから読み、失敗したときだけキャッシュから返す。成功した 200 の応答だけを入れる）。
  * - `skipWaiting`・`clientsClaim`：最初に開いたページも、インストールが終わったらすぐ Service Worker を通る。古いプリキャッシュは削除する。
  * 3言語の HTML がない・大きさの上限などでプリキャッシュから外れたファイルがある（workbox の警告）ときは例外（オフラインの範囲が黙って小さくならないように）。
