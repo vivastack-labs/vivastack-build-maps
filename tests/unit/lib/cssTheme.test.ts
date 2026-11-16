@@ -47,6 +47,32 @@ describe('parseThemes', () => {
     expect(() => parseThemes(twice)).toThrow(/1つだけ.*2 個/u);
   });
 
+  test.each([
+    '@media screen and (prefers-color-scheme: dark)',
+    '@media (prefers-color-scheme: dark) and (min-width: 1px)',
+    '@media (prefers-color-scheme : dark)',
+    '@media not print and (prefers-color-scheme:dark)'
+  ])('5.2：ふつうの別の書き方のダークの @media（%s）も数え、2つ目は例外にする', media => {
+    const twice = `${css}\n${media} { :root { --color-b: #000000; } }`;
+
+    expect(() => parseThemes(twice)).toThrow(/1つだけ.*2 個/u);
+  });
+
+  test.each(['@theme inline', '@theme static', '@theme default'])('5.2：%s の { も @theme として読む', marker => {
+    const { light } = parseThemes(`${css}\n${marker} { --color-d: #444444; }`);
+
+    expect(light.get('d')).toBe('#444444');
+  });
+
+  test('5.2：@theme・ダークの @media の外の --color- の宣言（:root での上書きなど）は、黙って捨てず例外にする', () => {
+    expect(() => parseThemes(`${css}\n:root { --color-a: #123456; }`)).toThrow(/外に.*1 件/u);
+    expect(() => parseThemes(`${css}\n@media (min-width: 1px) { :root { --color-a: #123456; } }`)).toThrow(/外に.*1 件/u);
+  });
+
+  test('5.2：var(--color-a) のような使う側の書き方は、宣言として数えない', () => {
+    expect(() => parseThemes(`${css}\n.x { background: var(--color-a); }`)).not.toThrow();
+  });
+
   test('5.2：ダークの @media がなければ例外にする', () => {
     expect(() => parseThemes('@theme { --color-a: #111111; }')).toThrow(/0 個/u);
   });

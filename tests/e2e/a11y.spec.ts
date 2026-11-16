@@ -177,7 +177,8 @@ test.describe('5.2：固定中の県名ラベルの縁取り', () => {
       const fill = await path.evaluate(element => getComputedStyle(element).fill);
       await expect(label).toHaveCSS('stroke', fill);
       await expect(label).toHaveCSS('paint-order', 'stroke');
-      await expect(label).not.toHaveCSS('stroke-width', '0px');
+      // 倍率1のとき 3px（SVG の既定の 1px ではない）
+      await expect(label).toHaveCSS('stroke-width', '3px');
       // ふつうの県のラベルには付かない
       await expect(other).toHaveCSS('stroke', 'none');
 

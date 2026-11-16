@@ -80,6 +80,12 @@ describe.each([
     expect(ratio('map-border', fill)).toBeGreaterThanOrEqual(GRAPHIC_MIN);
   });
 
+  // 最大化した県の外周の線（MuniLayer の data-muni-outline。stroke-map-border）の内側は、市区町村の塗り。
+  // ホバーの塗り（muni-hover）は対象から外す：マウスをのせている間だけで、ライトでは 2.26:1 になる。線の外側（海・隣の県）とは 3:1 以上ある
+  test.each(MUNI.filter(fill => fill !== 'muni-hover'))('最大化した県の外周の線（県境の線）と %s の塗りが 3:1 以上（WCAG 1.4.11）', fill => {
+    expect(ratio('map-border', fill)).toBeGreaterThanOrEqual(GRAPHIC_MIN);
+  });
+
   test.each(MUNI)('市区町村の境の線と %s の塗りが 3:1 以上（WCAG 1.4.11）', fill => {
     expect(ratio('muni-border', fill)).toBeGreaterThanOrEqual(GRAPHIC_MIN);
   });
