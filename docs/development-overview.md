@@ -5,7 +5,7 @@
 | ドキュメント | docs/development-overview.md |
 | 版 | 0.8（ドラフト） |
 | 作成日 | 2026-11-11 |
-| 更新日 | 2026-11-16（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）。0.11：PWA のオフラインで使える範囲と Service Worker のツールを決めた（5.4、U3・U13、D40・D41）。0.12：アクセシビリティの検査（axe・コントラストの単体テスト）と、ふりがなの読み上げの対処を 5.2 に書いた） |
+| 更新日 | 2026-11-16（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）。0.11：PWA のオフラインで使える範囲と Service Worker のツールを決めた（5.4、U3・U13、D40・D41）。0.12：アクセシビリティの検査（axe・コントラストの単体テスト）と、ふりがなの読み上げの対処を 5.2 に書いた。0.13：Lighthouse CI の測り方と TBT の基準を 5.1 に書き、ハッシュつきのずれの直し方を決めた〔D42〕） |
 | リポジトリ | vivastack-labs/vivastack-build-maps（リポジトリ直下がアプリ本体） |
 | 公開URL | `https://maps.vivastack-dev.workers.dev/{ja,en,zh}/` |
 | ステータス | 検討フェーズの決定事項を反映。「要検証」とした項目は実装時に確定する |
@@ -222,7 +222,7 @@
 - 言語を切り替えるときは、固定している県をURLのハッシュ（例：`/en/#pref-13`）で引き継ぐ。ページを開いたときにハッシュがあれば、その県を固定する（T3-07）。
   - ハッシュを書くのは `history.replaceState`（履歴を増やさない。戻るボタンで固定をたどらない）。固定を外すとハッシュも消す。言語切替のリンクの `href` にも、固定している県のハッシュを付ける。
   - 引き継ぐのは固定だけ（最大化は引き継がない）。正しくないハッシュ（`#pref-99`・`#pref-1`・`#foo`）は無視する（固定せず、ハッシュも消さない）。
-  - 768px未満（4.11.3）でハッシュから復元したとき（利用者の操作の前）は、パネルを全部見える状態で開く（ハイドレーションの前の `:target` の見た目と同じで、読み込みの途中でパネルが縮まない。CLS）。フォーカスは動かさない（読み込み直後にフォーカスが動くと、読み上げ・キーボードの利用者には予想外のため。WCAG 3.2.1）。利用者が操作してから固定したときは、一部だけ見える状態で開く（4.11.3）。
+  - 768px未満（4.11.3）でハッシュから復元したとき（利用者の操作の前）は、パネルを全部見える状態で開く（ハイドレーションの前の見た目〔`:target`・`data-hash-pref`〕と同じで、読み込みの途中でパネルが縮まない。CLS）。フォーカスは動かさない（読み込み直後にフォーカスが動くと、読み上げ・キーボードの利用者には予想外のため。WCAG 3.2.1）。利用者が操作してから固定したときは、一部だけ見える状態で開く（4.11.3）。
   - 言語切替のリンクはふつうの `<a>`（全体の読み込み）にする。ソフトナビゲーションでは、保存したモード・ふりがな（`<html data-mode data-ruby>`）が言語の既定値に書き戻される（T3-05）。JavaScriptがないときは、ハッシュなしの `/{lang}/` に移る。
 
 #### 4.11.3 スマホ（タッチ操作）
@@ -317,7 +317,12 @@ PC（1024px以上）                          スマホ（768px未満）
 | Lighthouse Performance（スマホ） | 90以上 |
 | LCP / CLS / INP | 2.5秒以下 / 0.1以下 / 200ms以下 |
 
-Lighthouse CIでこの基準値を超えたら、CIを失敗させる。
+Lighthouse CIでこの基準値を超えたら、CIを失敗させる（T4-04、D42）。
+
+- **測る URL と設定**：`/ja/`・`/en/`・`/zh/`（ハッシュなし）を、Lighthouse の既定のスマホの設定（幅 412px、遅い 4G・CPU 4倍の模擬）で3回ずつ測り、指標ごとの中央値で判断する。加えて、1列の配置（幅 800px）の `/ja/#pref-01` を3回測り、CLS だけを判断する（ハッシュつきで開いたときのずれを止めるため）。ハッシュつきの LCP は基準にしない（カードの内容の JSON を読み込んでから描くので、約 2.9秒になる。開発計画 5章）。
+- **測るビルド**：上限のコンテンツ（`scripts/make-max-content.ts`）の `dist/`（CI の「Size budget」の手順で作ったもの）。本物のコンテンツは47県とも「準備中」でカードの JSON を読まないため、最悪の場合を測れない。
+- **基準**：Performance 0.9 以上、LCP 2500ms 以下、CLS 0.1 以下、**TBT 200ms 以下**。INP は実機でしか測れないので、Lighthouse の実験室の計測では、INP の代わりに TBT（Total Blocking Time。Lighthouse のスマホの採点で「良好」になる境目が 200ms）を基準にする。INP の 200ms 以下は、公開後の実測（Cloudflare Web Analytics。T6）で見る。
+- **結果**：`.lighthouseci/` に保存し、CI では Artifact（14日）に残す。公開のレポートの置き場所（`temporary-public-storage`）は使わない。
 
 ### 5.2 アクセシビリティ
 
@@ -623,8 +628,8 @@ vivastack-build-maps/
   - 「準備中」の県も、内容が空のJSONを出力する（クライアントは読み込まない。Next.js の静的出力は経路が1つ以上要り、本物のコンテンツは全部が「準備中」で空になるため）。
   - 読み込みは、市区町村（T2-07）と共通の部品（`src/features/loader/resourceLoader.ts`）に URL と検証だけを渡す。`loading` → 300msを超えたら `slow` → `loaded`／`failed`（`network`・`http`・`invalid`）／`offline`、15秒で打ち切り、成功だけをメモリに残し、同じ県の読み込みは1回にまとめる。URL に自由な文字列を入れないよう、言語は `isLang`、県コードは許可リスト（01〜47）で確かめる（Route Handler の `params` も同じ）。読み込んだJSONは、県コードの違い・項目の欠け・文字列でない値・http(s) でない出典のURLを `invalid` にする。失敗したときは文言と「再試行」を差し込み先に出す（4.11.5）。
   - 固定の復元（T3-07）は、復元した県のJSONを読み込んで出す。パネル（T3-06）の高さは、内容が入ったあと `ResizeObserver` で合う。
-  - 1列の配置（768px 以上 1024px 未満。カードがさくいんの上）でハッシュつきで開くと、内容が入ったときに下のさくいんが押し出される（CLS）。内容が入る前から、表示する県の差し込み先に `min-height: 100svh`（アドレスバーの出し入れで変わらない高さ。`dvh` はスクロール中に変わる）を取っておく（ハイドレーションの前は `:target` のカード、後は `CardDetails` が付ける `data-card-reserve`）。ハッシュから復元して利用者がまだ操作していない間は、内容が入った後も予約を外さない（内容が画面より短いと、外したときにさくいんが上がってくる）。利用者が click・keydown したら外す（押した瞬間の pointerdown で外すと、押した県の要素が動いて click が失われる）。内容が入ったとき、外しても画面の外の要素しか動かない（差し込み先の上端＋内容の高さ ≧ 画面の下端）なら、すぐに外す。JavaScript が有効なのに読み込めなかったときも、1列の配置では `:target` のカードに 100svh の空白が残る（カードの見出しは読める）。
-  - ハッシュつきで1列の配置で開くと、`data-card-ready` の前に、さくいんが 0.6〜0.9 ずれる（ブラウザの最初のレイアウトの後で `:target` が決まり、`hidden` のカードが表示されるため。main で 0.639、T3-09 で 0.899）。T3-03 の `:target` の方式による問題で、T3-09 の範囲外（開発計画 5章の課題）。
+  - 1列の配置（768px 以上 1024px 未満。カードがさくいんの上）でハッシュつきで開くと、内容が入ったときに下のさくいんが押し出される（CLS）。内容が入る前から、表示する県の差し込み先に `min-height: 100svh`（アドレスバーの出し入れで変わらない高さ。`dvh` はスクロール中に変わる）を取っておく（ハイドレーションの前は `<html data-hash-pref>` の県のカード〔D42〕、後は `CardDetails` が付ける `data-card-reserve`）。ハッシュから復元して利用者がまだ操作していない間は、内容が入った後も予約を外さない（内容が画面より短いと、外したときにさくいんが上がってくる）。利用者が click・keydown したら外す（押した瞬間の pointerdown で外すと、押した県の要素が動いて click が失われる）。内容が入ったとき、外しても画面の外の要素しか動かない（差し込み先の上端＋内容の高さ ≧ 画面の下端）なら、すぐに外す。JavaScript が有効なのに読み込めなかったときも、1列の配置では `data-hash-pref` の県のカードに 100svh の空白が残る（カードの見出しは読める）。
+  - ハッシュつきで1列の配置で開いたときの最初のずれ（CLS 0.6〜0.9。ブラウザの最初のレイアウトの後で `:target` が決まり、`hidden` のカードが表示されるため）は、T4-04 で直した（D42）。`<head>` の初期化スクリプトが、最初の描画の前に、ハッシュ（`#pref-01`〜`#pref-47`）の県を `<html data-hash-pref>` に書き（`hashchange` でも書き直す）、CSS（`app/globals.css`）が `:target` の代わりにこの属性で、最初のレイアウトからカードを表示し、差し込み先の高さを予約し、768px 未満ではパネルを全部見える状態にする（CSS は属性の値を別の要素の `id` と比べられないので、47県ぶんの規則。書き漏れは単体テストで確かめる）。`:target` の規則は JavaScript が無効のときのために残す。
   - 英語・中国語の文に、ふりがなの記法でない `{` `}` があると、ブラウザの `RubyText` が例外になり、ページ全体が消える。`content:validate` が場所つきの誤りにし、`cardData` が JSON を作る前に例外にし、`validateCardData` が（`checkRuby` で）`invalid` にする。
 - **内容をクライアントコンポーネントの props に渡さない**。サーバーコンポーネントで描いた結果は、HTMLの本体に1回と、RSCのデータ（HTMLの末尾の `<script>self.__next_f.push(…)`）に1回の、計2回入る（T3-03で実測した。App Router の仕組みで、止める設定はない。地図のパスも同じ）。サーバーで描いたうえに props にも渡すと3回になる。`CardDetails` には、文言（辞書から必要な分だけ）を1回だけ渡す。
 - ふりがなの変換（7.2）は、見出しはビルド時に行い、JSONの文は読み込んだあとにクライアントで行う。`dangerouslySetInnerHTML` は使わない。
@@ -1181,7 +1186,7 @@ flowchart LR
 ### 12.3 PR用workflow（`ci.yml`）
 
 実際の設定は `.github/workflows/ci.yml`。T0-04 で `check`・`gitleaks` を作った。
-`（後で）` を付けた手順・jobは、後のタスクで加える（`content:validate` は T1-07 で加えた。`build:preview` と `preview` job は T0-06、`lhci` は T4-04）。
+`（後で）` を付けた手順・jobは、後のタスクで加える（`content:validate` は T1-07、`lhci` は T4-04 で加えた。`build:preview` と `preview` job は T0-06）。
 
 ```yaml
 # .github/workflows/ci.yml（概略。Action はコミットSHAで固定する）
@@ -1214,9 +1219,9 @@ jobs:
       - run: pnpm content:validate            # 誤りで失敗し、警告はログに出すだけ
       - run: node scripts/make-max-content.ts --out "$RUNNER_TEMP/max-content"   # 上限の文字数で埋めたダミー（コミットしない）
       - run: CONTENT_DIR="$RUNNER_TEMP/max-content" pnpm build && pnpm size      # 最初の読み込みが gzip 後 300KB を超えたら失敗（5.1）。dist/ を作り直すので、本物の build より前に置く
+      - run: pnpm lhci                        # 上の上限のコンテンツの dist/ を Lighthouse で測り、基準値（5.1）を下回ったら失敗（T4-04）。結果は Artifact に残す
       - run: pnpm build                       # （後で）build:preview にする。draft を含め「下書き」と表示、noindex を付ける（build:preview は T3-02 で作った。ここで使うのは T0-06）
       # E2E は開発中はここで実行しない（D30）。e2e.yml で手動で実行する
-      - run: pnpm lhci                        # （後で）
 
   gitleaks:                     # ブランチ保護で必須にするチェック
     runs-on: ubuntu-latest
@@ -1388,6 +1393,7 @@ flowchart LR
 | D39 | CSPの置き場所と `style-src` | ハッシュを含む CSP は各 HTML の `<meta http-equiv>`（`<meta charset>` の直後）、`frame-ancestors 'none'`・`object-src 'none'`・`base-uri 'self'` は `_headers` の `/*`。`style-src 'self'` だけにして、サーバーの HTML に `style` 属性を出さない（Tailwind のクラスで書く）。知らない形のインラインスクリプトはビルドを止める。Web Analytics のドメインは今許可する（5.5、6.6 (4)）。`_headers` は1行 2,000 字までで、ja のハッシュ 128 個が入らないため |
 | D40 | PWAでオフライン時に使える範囲と manifest | アプリの枠組み（3言語の HTML・manifest・JS・CSS・アイコン）はインストールのときにプリキャッシュし、市区町村の地図データ（`/geo/muni/`）とカードの内容のJSON（`/cards/`）は一度読んだものだけを NetworkFirst でキャッシュする（オンラインでは今と同じ、失敗したときだけキャッシュ。つながっているのに通信が進まないときは、4秒でキャッシュに切り替える）。manifest は言語ごとに `/{lang}/app.webmanifest`（`id`・`start_url` は `/{lang}/`、`scope` は `/`、`display` は `standalone`）。アイコンは日本の形を描いた仮のもの（5.4）。`generateSW` で作る `sw.js` が最初のページから有効になる（`skipWaiting`・`clientsClaim`）ので、更新を知らせる画面は作らない |
 | D41 | Service Worker のツール | `workbox-build` の `generateSW`。`scripts/postbuild.ts` の最後（CSP の書き込みの後）に `dist/sw.js`（1ファイル）を作る。自分で Service Worker のコードを書かず、版の管理・古いキャッシュの削除・NetworkFirst を使う。Serwist は Service Worker のソースを組み立てる工程が増えるので選ばなかった（5.4）。E2E は既定で Service Worker を使わず、`pwa.spec.ts` だけ許可する |
+| D42 | Lighthouse CI の測り方と、ハッシュつきで開いたときのずれの直し方 | `@lhci/cli` を `ci.yml` の「Size budget」の直後に動かす。上限のコンテンツの `dist/` を、スマホの既定の設定で `/ja/`・`/en/`・`/zh/` を3回ずつ測り、中央値で Performance 0.9 以上・LCP 2.5秒以下・CLS 0.1 以下・TBT 200ms 以下（INP の代わり）を確かめる。幅 800px の `/ja/#pref-01` は CLS だけを確かめる。結果は Artifact（14日）に残し、公開のレポートの置き場所は使わない（5.1）。ずれは、`<head>` の初期化スクリプトを広げて、最初の描画の前にハッシュの県を `<html data-hash-pref>` に書き、CSS が `:target` の代わりにこの属性で最初のレイアウトからカードを表示・予約する（47県ぶんの規則。6.6 (2)）。`:target` の規則は JavaScript が無効のときのために残す |
 
 ## 付録B. 参考資料
 
