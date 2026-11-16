@@ -368,7 +368,7 @@ Lighthouse CIでこの基準値を超えたら、CIを失敗させる（T4-04、
 - 「最新版と1つ前の版」は、Safari・iOS・iPadOSでは**メジャーバージョン**で数える。
 - 1つ前の版を実機で確かめるのは、OSの更新に左右される Safari（macOS）・iOS・iPadOS。Chrome・Edge・Firefox は自動更新されるので、1つ前の版は `browserslist` で対象にするだけで、個別には確かめない。
 - 同じ範囲を `package.json` の `browserslist` に書き、ビルドツールとlintで同じ基準を使う（例：`last 2 Chrome major versions`、`last 2 iOS major versions`）。
-- CI のプロジェクトは9つ（T4-06）。Playwright は同梱の1つの版のエンジンだけを動かすので、「1つ前の版」と Edge の実機は、公開前の確認（[device-checklist.md](device-checklist.md)）で見る。PC だけ・タッチだけのテストは `@pc`・`@touch` のタグで分け、プロジェクトの設定で除く。
+- CI のプロジェクトは9つ（T4-06）。Playwright は同梱の1つの版のエンジンだけを動かすので、Safari・iOS・iPadOS の1つ前の版と、Edge（Windows）の最新版は、公開前の実機確認（[device-checklist.md](device-checklist.md)）で見る。PC だけ・タッチだけのテストは `@pc`・`@touch` のタグで分け、プロジェクトの設定で除く。
 - 学校で管理されているiPadは、OSの更新が遅れることがある。M4の実機確認では、1つ前のiPadOSでも動くことを確かめる。
 - Tailwind CSS v4（6.2、D26）は Safari 16.4・Chrome 111・Firefox 128 以降を前提にしている。対象の範囲はこれより新しいので問題ない。これより古いブラウザでは、表示が崩れることがある。
 - JavaScriptが使えない環境でも、既定のモードで読めて、県名さくいんから県のカードの見出し（県名・県庁所在地・東京からの距離）まで開ける。行き方・名物・名所・出典は、カードの内容を県ごとのJSONから描くので読めず、代わりに「JavaScript を有効にすると読めます」の文を出す（F-MODE-04、6.6 (2)、D38）。
