@@ -21,7 +21,7 @@ describe('ModeText', () => {
   test('7.2：ふりがなの記法を <ruby> で描く', () => {
     const { container } = render(<ModeText text={{ kids: '{県|けん}だよ', adult: '{県|けん}です' }} />);
 
-    expect(container.querySelector('.kids')?.innerHTML).toBe('<ruby>県<rt>けん</rt></ruby>だよ');
-    expect(container.querySelector('.adult')?.innerHTML).toBe('<ruby>県<rt>けん</rt></ruby>です');
+    expect(container.querySelector('.kids')?.innerHTML).toBe('<ruby>県<rt aria-hidden="true">けん</rt></ruby>だよ');
+    expect(container.querySelector('.adult')?.innerHTML).toBe('<ruby>県<rt aria-hidden="true">けん</rt></ruby>です');
   });
 });

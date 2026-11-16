@@ -231,7 +231,7 @@ export function MapZoom({ bounds, labels, children }: Props) {
           <button type="button" data-zoom="out" aria-label={plainText(labels.outLabel)} className={BUTTON_CLASS} onClick={() => step(-1)}>
             <RubyText text={labels.out} />
           </button>
-          <button type="button" data-zoom="reset" aria-label={plainText(labels.reset)} className={BUTTON_CLASS} onClick={reset}>
+          <button type="button" data-zoom="reset" className={BUTTON_CLASS} onClick={reset}>
             <RubyText text={labels.reset} />
           </button>
         </div>
