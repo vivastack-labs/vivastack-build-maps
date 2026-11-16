@@ -176,6 +176,13 @@ test('5.3：幅800pxで、カード・出典・市区町村の一覧を開いて
   await expectNoHorizontalScrollWhenExpanded(page);
 });
 
+// 2列の配置の下限（1024px）。カードは横幅がいちばん狭く（約286px）、市区町村の一覧は1列が約137px
+test('5.3：幅1024pxで、カード・出典・市区町村の一覧を開いても、カードと文書に横スクロールが出ない', { tag: '@pc' }, async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 900 });
+
+  await expectNoHorizontalScrollWhenExpanded(page);
+});
+
 test('5.3：幅360pxのスマホ（pixel）で、カード・出典・市区町村の一覧を開いても、パネルと文書に横スクロールが出ない', { tag: '@touch' }, async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'pixel', '実際の幅360pxの端末は pixel だけ');
 
@@ -186,6 +193,9 @@ test('5.3：幅360pxのスマホ（pixel）で、カード・出典・市区町�
 const LONG_URL = `https://example.com/${'a1b2c3d4'.repeat(25)}`;
 /** 名物の名前（長い1語。空白がない） */
 const LONG_WORD = 'Supercalifragilisticexpialidocious'.repeat(3);
+
+/** 市区町村の名前（英語。長い1語。空白がなく、ハイフンで折り返せない） */
+const LONG_MUNI_NAME = 'Higashimatsushimashimashimashimashimashi';
 
 type CardJson = { access?: { sources: { url: string }[] }; specialties: { name: string; sources: { url: string }[] }[]; spots: { sources: { url: string }[] }[] };
 
@@ -209,7 +219,34 @@ async function routeLongCard(page: Page): Promise<void> {
   });
 }
 
-/** 文書と、カードの領域（768px 未満は fixed のパネルで、中でスクロールするので、文書の検査では見えない）の両方に、横スクロールが出ない */
+/** 書き換えた市区町村の `code`（応答を書き換えたときに入る） */
+type RewrittenMuni = { code?: string };
+
+type MuniJson = { objects: { municipalities: { geometries: { properties: { code: string; name: { en: string } } }[] } } };
+
+/**
+ * 北海道の市区町村データの1件の `name.en` を、長い1語に書き換える（元の応答を取ってから。データの形は変えない）。
+ * 書き換えた市区町村の `code` を返す入れ物に書く
+ */
+async function routeLongMuni(page: Page): Promise<RewrittenMuni> {
+  const rewritten: RewrittenMuni = {};
+  await page.route(`**/geo/muni/${HOKKAIDO}.topo.json`, async route => {
+    const response = await route.fetch();
+    const json = (await response.json()) as MuniJson;
+    const [first] = json.objects.municipalities.geometries;
+    if (first) {
+      first.properties.name.en = LONG_MUNI_NAME;
+      rewritten.code = first.properties.code;
+    }
+    await route.fulfill({ response, json });
+  });
+  return rewritten;
+}
+
+/**
+ * 文書と、カードの領域の両方に、横スクロールが出ない。
+ * 768px 未満は fixed のパネル、1024px 以上（2列の配置）も `lg:overflow-y-auto` の箱で、はみ出しはカードの中でスクロールになり、文書の検査では見えない
+ */
 async function expectNoHorizontalScrollInCard(page: Page): Promise<void> {
   await expectNoHorizontalScroll(page);
   const overflow = await page.locator('[data-area="card"]').evaluate(element => element.scrollWidth - element.clientWidth);
@@ -222,6 +259,7 @@ async function expectNoHorizontalScrollInCard(page: Page): Promise<void> {
  */
 async function expectNoHorizontalScrollWhenExpanded(page: Page): Promise<void> {
   await routeLongCard(page);
+  const muni = await routeLongMuni(page);
   await page.goto(`/en/#pref-${HOKKAIDO}`);
   await page.locator('[data-map-ready]').waitFor({ state: 'attached' });
   const card = page.locator(`[data-card-pref="${HOKKAIDO}"]`);
@@ -240,7 +278,8 @@ async function expectNoHorizontalScrollWhenExpanded(page: Page): Promise<void> {
   const list = page.locator('details[data-muni-list]');
   await list.locator('summary').click();
   await expect(list).toHaveJSProperty('open', true);
-  await expect(list.locator('[data-muni-item]').first()).toBeVisible();
+  // 書き換えが描かれたことを確かめてから測る
+  await expect(list.locator(`[data-muni-item="${muni.code}"]`)).toHaveText(LONG_MUNI_NAME);
   await expectNoHorizontalScrollInCard(page);
 }
 

@@ -41,7 +41,8 @@ function listTsFiles(dir: string): string[] {
 
 /**
  * ソースの中で、分割代入（`({ page, hasTouch })` など。複数行も）の中に禁止のフィクスチャがある箇所を返す。
- * 行コメントは除く。`hasTouch: false`（`test.use` の設定）は見ない
+ * 行コメントは除く。`hasTouch: false`（`test.use` の設定）は見ない。
+ * 見つけられないもの：名前の付け替え（`hasTouch: touch`）、入れ子の分割代入、`testInfo.project.use` での判定。例外（`FIXTURE_EXCEPTIONS`）はファイル単位で、そのファイルのほかの使い方も見逃す
  */
 function findFixtureUses(source: string): string[] {
   const code = source.replace(/(^|\s)\/\/.*$/gm, '$1');
