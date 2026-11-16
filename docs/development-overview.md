@@ -5,7 +5,7 @@
 | ドキュメント | docs/development-overview.md |
 | 版 | 0.8（ドラフト） |
 | 作成日 | 2026-11-11 |
-| 更新日 | 2026-11-16（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）。0.11：PWA のオフラインで使える範囲と Service Worker のツールを決めた（5.4、U3・U13、D40・D41）。0.12：アクセシビリティの検査（axe・コントラストの単体テスト）と、ふりがなの読み上げの対処を 5.2 に書いた。0.13：Lighthouse CI の測り方と TBT の基準を 5.1 に書き、ハッシュつきのずれの直し方を決めた〔D42〕。0.14：執筆ルールとレビュー基準を `content/guidelines/` に書き（T5-01）、9.2・9.3 に参照を足した。`status` を `reviewed` にするのは、承認の後にオーナー） |
+| 更新日 | 2026-11-16（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）。0.11：PWA のオフラインで使える範囲と Service Worker のツールを決めた（5.4、U3・U13、D40・D41）。0.12：アクセシビリティの検査（axe・コントラストの単体テスト）と、ふりがなの読み上げの対処を 5.2 に書いた。0.13：Lighthouse CI の測り方と TBT の基準を 5.1 に書き、ハッシュつきのずれの直し方を決めた〔D42〕。0.14：執筆ルールとレビュー基準を `content/guidelines/` に書き（T5-01）、9.2・9.3 に参照を足した。`status` を `reviewed` にするのは、承認の後にオーナー。0.15：ふりがなの自動付与のツール（`pnpm content:furigana`、`lindera-wasm-nodejs-ipadic`）と、①〜④のスキル・エージェント（`gotouchi-content`・`gotouchi-source-checker`・`gotouchi-derivative-checker`）を決めた〔T5-02〕） |
 | リポジトリ | vivastack-labs/vivastack-build-maps（リポジトリ直下がアプリ本体） |
 | 公開URL | `https://maps.vivastack-dev.workers.dev/{ja,en,zh}/` |
 | ステータス | 検討フェーズの決定事項を反映。「要検証」とした項目は実装時に確定する |
@@ -786,7 +786,8 @@ spots:                     # ちょうど3件。項目の構成は specialties �
   - 警告にする漢字は Unicode の `Script=Han`（々・〆 を含む）。続いた漢字はまとめて1件にする。
   - 英語・中国語の文に記法（`{…|…}`）があれば誤りにする（T1-07）。
   - 誤りのある文は変換しない（`parseRuby` が例外を投げ、ビルドが止まる）。例外のメッセージの「何文字目」は、𩸽 のような BMP の外の字も1字と数える。誤りと警告の一覧は `checkRuby` で得る（`index` は UTF-16 の位置）。
-- 下書きのときは、形態素解析（Sudachiなど）で自動的にふりがなを付け、人がレビューで直す。固有名詞（地名・人名）はレビューで特に注意して確認する。
+- 下書きのときは、形態素解析で自動的にふりがなを付け、人がレビューで直す。固有名詞（地名・人名）はレビューで特に注意して確認する。
+- ツール（T5-02）：`pnpm content:furigana`（`scripts/furigana.ts`）。形態素解析は `lindera-wasm-nodejs-ipadic`（IPADIC を同梱した WASM。pnpm で入り、Python など別の実行環境が要らない）。標準入力（または引数）の各行にふりがなを付けて標準出力に出し、YAML のファイルは書き換えない。送り仮名は括弧の外に出す（`{町並|まちな}み`）。固有名詞・辞書にない語・送り仮名で区切れなかった語は、読みを確かめる語として標準エラーに出す（IPADIC は、函館山を「はこだてさん」と読むなど、固有名詞の読みを誤る）。
 
 ### 7.3 解説文の文字数の基準
 
@@ -954,7 +955,7 @@ flowchart TB
 
 | 手順 | 担当 | 使うもの |
 |---|---|---|
-| ①〜④ | Claude Code | `.claude/` 以下のスキルと、検証用のサブエージェント |
+| ①〜④ | Claude Code | `.claude/` 以下のスキル `gotouchi-content`（①③と全体の流れ）と、検証用のサブエージェント `gotouchi-source-checker`（②）・`gotouchi-derivative-checker`（④） |
 | ⑤⑥ | Claude Code / GitHub Actions | PR、CI、プレビューURL |
 | ⑦ | コンテンツレビュアー（チームメンバー） | プレビューURL（Access経由）、PRのSuggested changesと承認 |
 | ⑧ | オーナー | レビュアーの承認の後、同じPRで `status` を `verified` から `reviewed` にするコミットを足し（Claude Code に頼んでもよい）、PRをmerge する |

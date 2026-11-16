@@ -37,6 +37,7 @@ pnpm build        # BUILD_TARGET=production の next build で out/ を作り、
 pnpm build:preview   # BUILD_TARGET=preview（すべての項目を `draft` の値を付けて出す。カードの項目に「下書き」の印。noindex つき）。レビュー用のプレビューに使う（T3-02）
 pnpm exec wrangler dev   # dist/ を本番の Workers と同じ形で配信する（http://localhost:8787/ja/。先に pnpm build）
 pnpm content:validate   # コンテンツの YAML を検証する（誤りで終了コード1。CONTENT_DIR で読むディレクトリを変える）
+pnpm content:furigana   # 日本語の文にふりがなを付けて標準出力に出す（標準入力の各行、または引数。読みが怪しい語は標準エラーに出す。YAML は書き換えない。T5-02）
 pnpm content:types      # スキーマから型（src/lib/content-schema.generated.ts）を作り直す（スキーマを変えたら実行してコミット）
 pnpm size         # dist/ の言語ごとの最初の読み込み（HTML＋JS＋CSS）の圧縮後のサイズを表にする（gzip が 300KB を超えると終了コード 1。先に pnpm build）
 node scripts/make-max-content.ts --out <ディレクトリ>   # 47県を 7.3 の上限の文字数で埋めたダミーのコンテンツを作る（コミットしない。CONTENT_DIR=<ディレクトリ> pnpm build の後に pnpm size で測る）
@@ -134,3 +135,4 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
 - ふりがなは `{漢字|よみ}` で書く。
 - 出典は、実際に開いて内容を確認できた URL だけを残す。確認できなければ `sources: []`。
 - 執筆ルールと文字数は設計書の 7.2・7.3・9.3 章に従う。具体的な書き方と例は `content/guidelines/writing.md`、レビューの基準は `content/guidelines/review-checklist.md`（コンテンツを書く前に `writing.md` を読む）。
+- 1県分の①〜④（下書き → 出典の照合 → 派生版 → 検証）は、Claude Code のスキル `gotouchi-content`（`.claude/skills/gotouchi-content/`）で行う。検証は `gotouchi-source-checker`・`gotouchi-derivative-checker` エージェント（Claude Code 専用。Codex は対象にしない。D22）。
