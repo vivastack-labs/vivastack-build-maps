@@ -45,19 +45,22 @@ const REGEX_SPECIAL = /[.*+?^${}()|[\]\\]/g;
 
 const escapeRegex = (text: string): string => text.replace(REGEX_SPECIAL, '\\$&');
 
+/** 語を漢字の連なりと送り仮名に分けた1つ。reading があれば、漢字の連なりの読み（ひらがな） */
+type Piece = { readonly text: string; readonly reading?: string };
+
 /** 漢字の連なりを (.+?)、それ以外（送り仮名）をそのまま並べた正規表現で、読みを分ける。合わなければ undefined */
-function alignParts(surface: string, hiragana: string): string | undefined {
+function alignPieces(surface: string, hiragana: string): readonly Piece[] | undefined {
   const parts = surface.split(KANJI_RUNS);
   const pattern = parts.map((part, index) => (index % 2 === 1 ? '(.+?)' : escapeRegex(katakanaToHiragana(part)))).join('');
   const match = new RegExp(`^${pattern}$`, 'u').exec(hiragana);
   if (match === null) return undefined;
-  let group = 0;
-  return parts
-    .map((part, index) => {
-      if (index % 2 === 0) return part;
-      group += 1;
-      return `{${part}|${match[group]}}`;
-    })
+  return parts.map((part, index) => (index % 2 === 0 ? { text: part } : { text: part, reading: match[(index + 1) / 2] }));
+}
+
+/** alignPieces を `{漢字|よみ}` の並びにする */
+function alignParts(surface: string, hiragana: string): string | undefined {
+  return alignPieces(surface, hiragana)
+    ?.map(piece => (piece.reading === undefined ? piece.text : `{${piece.text}|${piece.reading}}`))
     .join('');
 }
 
@@ -169,4 +172,34 @@ const REVIEW_ADVICE: Readonly<Record<ReviewKind, string>> = {
 export function formatReview({ surface, reading, kind }: FuriganaReview): string {
   const label = reading === undefined ? surface : `${surface}（${reading}）`;
   return `${label}：${REVIEW_ADVICE[kind]}`;
+}
+
+/** 辞書の読みの1単位：文の中の位置（UTF-16。start 以上 end 未満）と、その読み（ひらがな）。読みがなければ辞書にない語 */
+export type DictionaryUnit = { readonly start: number; readonly end: number; readonly reading?: string };
+
+/** 1語を、漢字の連なりごと（送り仮名で区切れなければ語全体）の読みの単位にする */
+function tokenUnits(token: FuriganaToken, start: number): readonly DictionaryUnit[] {
+  const end = start + token.surface.length;
+  if (!HAS_KANJI.test(token.surface)) return [{ start, end, reading: katakanaToHiragana(token.surface) }];
+  const hiragana = token.reading === undefined ? undefined : toReading(token.reading);
+  if (hiragana === undefined) return [{ start, end }];
+  const pieces = alignPieces(token.surface, hiragana);
+  if (pieces === undefined) return [{ start, end, reading: hiragana }];
+  return pieces
+    .filter(piece => piece.text !== '')
+    .reduce<readonly DictionaryUnit[]>((units, piece) => {
+      const from = units.length === 0 ? start : (units[units.length - 1] as DictionaryUnit).end;
+      return [...units, { start: from, end: from + piece.text.length, reading: piece.reading ?? katakanaToHiragana(piece.text) }];
+    }, []);
+}
+
+/**
+ * 辞書で分けた語を、読みの単位の並びにする（送り仮名は漢字と分ける。広い・ヒロイ → 広=ひろ・い=い）。
+ * YAML の `{漢字|よみ}` の親文字と、辞書の読みを比べるために使う（--check）。
+ */
+export function dictionaryUnits(tokens: readonly FuriganaToken[]): readonly DictionaryUnit[] {
+  return tokens.reduce<readonly DictionaryUnit[]>((units, token) => {
+    const start = units.length === 0 ? 0 : (units[units.length - 1] as DictionaryUnit).end;
+    return [...units, ...tokenUnits(token, start)];
+  }, []);
 }

@@ -1,8 +1,10 @@
 // 7.2：標準入力（または引数）の各行にふりがなを付けて標準出力に出す（T5-02。pnpm content:furigana）。
 // 読みが怪しい語（固有名詞・辞書にない語・区切れなかった語）の一覧は標準エラーに出す。YAML のファイルは書き換えない。
+// --check <YAML のパス>...：YAML の {漢字|よみ} の読みを、辞書の読みと比べる（lib/furigana-check.ts。YAML は読むだけ）。
 // 実行：node scripts/furigana.ts "文" ／ echo "文" | node scripts/furigana.ts（Node.js の型の除去で直接動かすので、enum などは使わない）
 import { readFileSync } from 'node:fs';
 import { TokenizerBuilder } from 'lindera-wasm-nodejs-ipadic';
+import { runCheck } from './lib/furigana-check.ts';
 import { annotate, formatReview, uniqueReviews, type FuriganaReview, type FuriganaToken, type Tokenize } from './lib/furigana.ts';
 
 /** lindera の1語のうち、使う項目（辞書にない語は、表記と品詞だけで、読みがない） */
@@ -42,11 +44,11 @@ function inputLines(args: readonly string[]): readonly string[] {
   return input === '' ? [] : input.replace(/\r?\n$/, '').split(/\r?\n/);
 }
 
+const CHECK_OPTION = '--check';
+
 if (import.meta.main) {
-  process.exitCode = runFurigana(
-    inputLines(process.argv.slice(2)),
-    createLinderaTokenizer(),
-    line => process.stdout.write(`${line}\n`),
-    line => process.stderr.write(`${line}\n`)
-  );
+  const args = process.argv.slice(2);
+  const writeOut = (line: string): void => void process.stdout.write(`${line}\n`);
+  const writeErr = (line: string): void => void process.stderr.write(`${line}\n`);
+  process.exitCode = args[0] === CHECK_OPTION ? runCheck(args.slice(1), createLinderaTokenizer(), writeOut, writeErr) : runFurigana(inputLines(args), createLinderaTokenizer(), writeOut, writeErr);
 }

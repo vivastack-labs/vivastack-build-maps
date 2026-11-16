@@ -1,0 +1,137 @@
+# 評価用（T5-02）。誤りをわざと入れてある。コンテンツに使わない（content/ に置かない）。
+# 入れた誤りと、指摘されるべきものは、evals/README.md にある。
+# 県庁の位置（D32。2026-11-12 に確認）
+# - 庁舎の住所：京都府京都市上京区下立売通新町西入薮ノ内町（https://www.pref.kyoto.jp/）
+# - 地理院地図の住所検索（京都府京都市上京区藪之内町）の点（35.021412, 135.75563）は庁舎の外にあったので、
+#   地理院地図（標準地図）で「京都府庁舎」と書かれた建物の中の点を読み取った
+---
+id: kyoto
+code: "26"
+region: kinki
+name:
+  ja: "{京都府|きょうとふ}"
+  en: "Kyoto"
+  zh: "京都府"
+capital:
+  name:
+    ja: "{京都市|きょうとし}"
+    en: "Kyoto"
+    zh: "京都市"
+  lat: 35.021096
+  lon: 135.755292
+specialties:
+  - id: uji-tea
+    emoji: "🍵"
+    name: {ja: "{宇治茶|うじちゃ}", en: "Uji Tea", zh: "宇治茶"}
+    description:
+      ja:
+        kids: "{川|かわ}のそばでたくさんつくられる{緑茶|りょくちゃ}だよ。{抹茶|まっちゃ}などの{種類|しゅるい}があるんだ。"
+        adult: "{宇治川|うじがわ}と{木津川|きづがわ}の{流域|りゅういき}で{多|おお}くつくられる{緑茶|りょくちゃ}で、{煎茶|せんちゃ}や{玉露|ぎょくろ}、{抹茶|まっちゃ}などの{種類|しゅるい}\
+          があります。"
+      en:
+        kids: "Lots of this green tea is grown near rivers, and it comes in kinds such as matcha powder."
+        adult: "Green tea grown in large amounts along the Uji and Kizu Rivers, including sencha and gyokuro leaf teas \
+          and powdered matcha."
+      zh:
+        kids: "这是在河边大量种植的绿茶，有抹茶等种类哦。"
+        adult: "在宇治川和木津川流域大量种植、产量居日本第一的绿茶，有煎茶、玉露、抹茶等种类。"
+    sources:
+      - title: "宇治茶（うじちゃ）"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/traditional-foods/menu/uzitya.html"
+        accessed: "2026-11-16"
+    status: verified
+  - id: senmaizuke
+    emoji: "🥬"
+    name: {ja: "{千枚漬|せんまいづ}け", en: "Senmaizuke Pickles", zh: "千枚渍"}
+    description:
+      ja:
+        kids: "かぶをうすくうすく{切|き}って、ていねいにつけた、おつけものだよ。11{月|がつ}ごろからつくるんだ。"
+        adult: "{聖護院|せいごいん}かぶを{薄|うす}く{切|き}って{塩|しお}や{酢|す}で{漬|つ}けたもので、かぶを{出荷|しゅっか}する{時期|じき}の11{月|がつ}ごろから{漬|つ}け{始|はじ}めます。"
+      en:
+        kids: "Thin slices of turnip are pickled to make this, starting around November."
+        adult: "Shogoin turnips are sliced thin and pickled in salt and vinegar, starting around November when the \
+          turnips are shipped."
+      zh:
+        kids: "把芜菁切成薄片腌制的咸菜，从11月左右开始做。"
+        adult: "将圣护院芜菁切成薄片，用盐和醋腌制而成，从芜菁上市的11月左右开始腌制。"
+    sources:
+      - title: "千枚漬け（せんまいづけ）"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/semmaizuke_kyoto.html"
+        accessed: "2026-11-16"
+    status: verified
+  - id: nishijin-ori
+    emoji: "🧵"
+    name: {ja: "{西陣織|にしじんおり}", en: "Nishijin Weaving", zh: "西阵织"}
+    description:
+      ja:
+        kids: "{色|いろ}をつけた{糸|いと}で{模様|もよう}を{織|お}る{絹|きぬ}の{布|ぬの}だよ。{名前|なまえ}は{昔|むかし}の{戦|たたか}いからついたんだ。"
+        adult: "{先染|さきぞ}めの{糸|いと}で{模様|もよう}を{織|お}り{出|だ}す{京都|きょうと}の{絹織物|きぬおりもの}で、{西陣|にしじん}の{名|な}は{応仁|おうにん}の{乱|らん}\
+          の{西軍|せいぐん}の{陣地|じんち}に{由来|ゆらい}します。"
+      en:
+        kids: "Silk cloth from Kyoto, woven into patterns with dyed threads. Its name comes from an old war."
+        adult: "Kyoto silk woven into patterns with pre-dyed threads; the name Nishijin comes from the Western Army \
+          camp in the Onin War."
+      zh:
+        kids: "用染好颜色的线织出花纹的京都丝绸，名字来自古时候的战争。"
+        adult: "用先染色的丝线织出花纹的京都丝织品，“西阵”之名源于应仁之乱时西军的阵地。"
+    sources:
+      - title: "西陣織 ［京都府の伝統的工芸品等］"
+        url: "https://www.pref.kyoto.jp/senshoku/nisijin.html"
+        accessed: "2026-11-16"
+    status: draft
+spots:
+  - id: kiyomizu-dera
+    name: {ja: "{清水寺|しみずでら}", en: "Kiyomizu-dera Temple", zh: "清水寺"}
+    description:
+      ja:
+        kids: "がけに{建|た}つお{堂|どう}の{前|まえ}に、{舞台|ぶたい}がつき{出|で}ているよ。"
+        adult: "{崖|がけ}に{建|た}つ{本堂|ほんどう}は{懸造|かけづく}りという{伝統|でんとう}の{工法|こうほう}で{建|た}てられ、{前|まえ}に{舞台|ぶたい}が{張|は}り{出|だ}しています。"
+      en:
+        kids: "A stage sticks out in front of a hall built on a cliff."
+        adult: "The cliffside main hall, built in the traditional kakezukuri style, has a stage jutting out in front."
+      zh:
+        kids: "建在悬崖上的大殿前面，伸出了一个舞台。"
+        adult: "建在悬崖上的本堂采用名为“悬造”的传统技法，前方伸出舞台。"
+    sources:
+      - title: "清水寺の物語を紐解く 清水寺の歴史"
+        url: "https://www.kiyomizudera.or.jp/history.php"
+        accessed: "2026-11-16"
+    status: verified
+  - id: fushimi-inari-taisha
+    name: {ja: "{伏見稲荷大社|ふしみいなりたいしゃ}", en: "Fushimi Inari Taisha", zh: "伏见稻荷大社"}
+    description:
+      ja:
+        kids: "{全国|ぜんこく}のおいなりさんの、おおもとの{神社|じんじゃ}だよ。"
+        adult: "{全国|ぜんこく}に{約|やく}5{万|まん}{社|しゃ}あるといわれる{稲荷|いなり}{神社|じんじゃ}の{総本宮|そうほんぐう}で、{稲荷山|いなりやま}が{信仰|しんこう}の{原点|げんてん}です。"
+      en:
+        kids: "This is the head shrine of the many Inari shrines all over Japan."
+        adult: "Head shrine of about 30,000 Inari shrines said to exist nationwide; Mount Inari is where the faith \
+          began."
+      zh:
+        kids: "这里是日本各地很多稻荷神社的总本宫。"
+        adult: "据说全国约有3万座稻荷神社，这里是总本宫，稻荷山是信仰之源。"
+    sources:
+      - title: "伏見稲荷大社とは"
+        url: "https://inari.jp/about/"
+        accessed: "2026-11-16"
+    status: verified
+  - id: amanohashidate
+    name: {ja: "{天橋立|あまのはしだて}", en: "Amanohashidate", zh: "天桥立"}
+    description:
+      ja:
+        kids: "{海|うみ}を{二|ふた}つに{分|わ}ける、{細長|ほそなが}い{砂|すな}の{道|みち}だよ。"
+        adult: "{宮津湾|みやづわん}と{阿蘇海|あそかい}を{隔|へだ}てる{砂州|さす}で、{江戸|えど}{時代|じだい}に{日本三景|にほんさんけい}の{一|ひと}つに{選|えら}ばれました。"
+      en:
+        kids: "A long strip of sand that splits the sea in two."
+        adult: "A sandbar between Miyazu Bay and the Aso Sea, named one of Japan's Three Views in Edo times."
+      zh:
+        kids: "把大海分成两半的细长沙洲。"
+        adult: "分隔宫津湾和阿苏海的沙洲，江户时代被选为日本三景之一。"
+    sources:
+      - title: "天橋立（特別名勝）"
+        url: "https://www.mlit.go.jp/tagengo-db/R2-01553.html"
+        accessed: "2026-11-16"
+      - title: "天橋立の概要"
+        url: "https://www.pref.kyoto.jp/tango/tango-doboku/hashitate_gaiyo.html"
+        accessed: "2026-11-16"
+    status: draft
