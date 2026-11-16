@@ -152,6 +152,7 @@
   - Team `maps-reviewers` と、リポジトリへの Write 権限。
 - 結果を開発概要書（11.3、11.4 (5)、第16章の U5・U7）に書く docs のPRを出す。
 - ブランチ保護で必須にするチェックの名前は `check` と `gitleaks`（T0-04 の `ci.yml`）。
+- ブランチ保護で「Dismiss stale pull request approvals when new commits are pushed」と「Require approval of the most recent reviewable push」は有効にしない。コンテンツの PR は、レビュアーの承認の後に、オーナーが `status` を `reviewed` にするコミットを足してから merge する（9.2 ⑧）ので、有効にすると承認が外れる。有効にするなら、`status` のコミットの後に、レビュアーに承認し直してもらう（`content/guidelines/review-checklist.md`）。
 - **プランの制約**（T0-04 で確認）：リポジトリは private、組織は Free プランで、ブランチ保護と Environments・Environment の Secrets を使えない（開発概要書 11.5、U14）。先に U14（GitHub Team に変える / public にする / ブランチ保護なしで運用する）を決める。Environments を使えないままなら、Secrets はリポジトリの Secrets に置くことになり、11.2 を直す。
 - この docs のPRは文書だけなので、`check` は lint だけを実行して、typecheck・test・build・e2e を飛ばすはず（T0-04 で merge 後に確かめることにした点）。PRで確かめる。
 
