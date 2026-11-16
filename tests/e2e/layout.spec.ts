@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { LANGS, PAGES, langPath } from '../../src/i18n/lang';
+import { LANGS, PAGES, langPath, type SitePage } from '../../src/i18n/lang';
 import { getMessages } from '../../src/i18n/messages';
 import { plainText } from '../../src/lib/ruby';
 import { expandSheet } from './helpers';
@@ -119,24 +119,27 @@ test('4.11.7・F-MAP-05：端末の幅が1024px以上なら横に並び、768px�
 const SITE_PATHS = LANGS.flatMap(lang => PAGES.map(page => ({ lang, page, path: langPath(lang, page) })));
 const NOT_FOUND_PATH = '/no-such-page/';
 
-/** ページを開いて、本文が描かれるのを待つ */
-async function openAndSettle(page: Page, path: string): Promise<void> {
+/** ページを開いたあとに待つ要素。トップはハイドレーション（地図とカード）が終わるのを、ほかのページと 404 は本文（`<main>`）が描かれるのを待つ */
+const READY_SELECTORS = { home: ['[data-map-ready]', '[data-card-ready]'], about: ['main'], privacy: ['main'] } as const satisfies Record<SitePage, readonly string[]>;
+
+/** ページを開いて、待つ要素（`ready`）が描かれるのを待つ */
+async function openAndSettle(page: Page, path: string, ready: readonly string[]): Promise<void> {
   await page.goto(path);
-  await page.locator('main, body').first().waitFor({ state: 'visible' });
+  for (const selector of ready) await page.locator(selector).waitFor({ state: 'attached' });
   await page.waitForLoadState('load');
 }
 
 // 端末の幅のまま確かめる。pixel が、実際の幅360pxのスマホにあたる（5.3）
 for (const { lang, page: sitePage, path } of SITE_PATHS) {
   test(`5.3：端末の幅で、/${lang}/${sitePage === 'home' ? '' : `${sitePage}/`} に横スクロールが出ない`, async ({ page }) => {
-    await openAndSettle(page, path);
+    await openAndSettle(page, path, READY_SELECTORS[sitePage]);
 
     await expectNoHorizontalScroll(page);
   });
 }
 
 test('5.3：端末の幅で、404 のページに横スクロールが出ない', async ({ page }) => {
-  await openAndSettle(page, NOT_FOUND_PATH);
+  await openAndSettle(page, NOT_FOUND_PATH, ['main']);
 
   await expectNoHorizontalScroll(page);
 });
@@ -149,45 +152,88 @@ test.describe('幅360pxを指定する（PC のプロジェクト）', { tag: '@
 
   for (const { lang, page: sitePage, path } of SITE_PATHS) {
     test(`5.3：幅360pxで、/${lang}/${sitePage === 'home' ? '' : `${sitePage}/`} に横スクロールが出ない`, async ({ page }) => {
-      await openAndSettle(page, path);
+      await openAndSettle(page, path, READY_SELECTORS[sitePage]);
 
       await expectNoHorizontalScroll(page);
     });
   }
 
   test('5.3：幅360pxで、404 のページに横スクロールが出ない', async ({ page }) => {
-    await openAndSettle(page, NOT_FOUND_PATH);
+    await openAndSettle(page, NOT_FOUND_PATH, ['main']);
 
     await expectNoHorizontalScroll(page);
   });
 
-  test('5.3：幅360pxで、カード・出典・市区町村の一覧を開いても横スクロールが出ない', async ({ page }) => {
+  test('5.3：幅360pxで、カード・出典・市区町村の一覧を開いても、パネルと文書に横スクロールが出ない', async ({ page }) => {
     await expectNoHorizontalScrollWhenExpanded(page);
   });
 });
 
-test('5.3：幅360pxのスマホ（pixel）で、カード・出典・市区町村の一覧を開いても横スクロールが出ない', { tag: '@touch' }, async ({ page }, testInfo) => {
+// カードがページの流れの中にある配置（768〜1023px）。パネル（fixed）ではないので、文書全体の検査が効く
+test('5.3：幅800pxで、カード・出典・市区町村の一覧を開いても、カードと文書に横スクロールが出ない', { tag: '@pc' }, async ({ page }) => {
+  await page.setViewportSize({ width: 800, height: 900 });
+
+  await expectNoHorizontalScrollWhenExpanded(page);
+});
+
+test('5.3：幅360pxのスマホ（pixel）で、カード・出典・市区町村の一覧を開いても、パネルと文書に横スクロールが出ない', { tag: '@touch' }, async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'pixel', '実際の幅360pxの端末は pixel だけ');
 
   await expectNoHorizontalScrollWhenExpanded(page);
 });
 
+/** 出典の URL の文字（長い1語。空白がなく、`validateCardData` を通る http(s) の URL） */
+const LONG_URL = `https://example.com/${'a1b2c3d4'.repeat(25)}`;
+/** 名物の名前（長い1語。空白がない） */
+const LONG_WORD = 'Supercalifragilisticexpialidocious'.repeat(3);
+
+type CardJson = { access?: { sources: { url: string }[] }; specialties: { name: string; sources: { url: string }[] }[]; spots: { sources: { url: string }[] }[] };
+
+/**
+ * 英語の北海道のカードの JSON を、はみ出しやすい内容に書き換える（フィクスチャは変えない）。
+ * 出典の URL をすべて長い1語の URL に、名物の名前の1つを長い1語にする
+ */
+async function routeLongCard(page: Page): Promise<void> {
+  await page.route(`**/cards/en/${HOKKAIDO}.json`, async route => {
+    const response = await route.fetch();
+    const json = (await response.json()) as CardJson;
+    const longUrl = (sources: { url: string }[]) => sources.map(source => ({ ...source, url: LONG_URL }));
+    const [first, ...rest] = json.specialties;
+    const body: CardJson = {
+      ...json,
+      ...(json.access === undefined ? {} : { access: { ...json.access, sources: longUrl(json.access.sources) } }),
+      specialties: first === undefined ? [] : [{ ...first, name: LONG_WORD, sources: longUrl(first.sources) }, ...rest.map(item => ({ ...item, sources: longUrl(item.sources) }))],
+      spots: json.spots.map(item => ({ ...item, sources: longUrl(item.sources) }))
+    };
+    await route.fulfill({ response, json: body });
+  });
+}
+
+/** 文書と、カードの領域（768px 未満は fixed のパネルで、中でスクロールするので、文書の検査では見えない）の両方に、横スクロールが出ない */
+async function expectNoHorizontalScrollInCard(page: Page): Promise<void> {
+  await expectNoHorizontalScroll(page);
+  const overflow = await page.locator('[data-area="card"]').evaluate(element => element.scrollWidth - element.clientWidth);
+  expect(overflow, 'カードの領域（パネル）の中の横スクロール').toBeLessThanOrEqual(0);
+}
+
 /**
  * 内容がいちばん広がる状態で、横スクロールが出ない。
- * 英語（単語が長い）の北海道のカードを開き、出典（URL の文字は長い1語）と最大化した県の市区町村の一覧を開く
+ * 英語（単語が長い）の北海道のカードを、長い URL・長い名前に書き換えて開き、出典と、最大化した県の市区町村の一覧を開く
  */
 async function expectNoHorizontalScrollWhenExpanded(page: Page): Promise<void> {
+  await routeLongCard(page);
   await page.goto(`/en/#pref-${HOKKAIDO}`);
   await page.locator('[data-map-ready]').waitFor({ state: 'attached' });
   const card = page.locator(`[data-card-pref="${HOKKAIDO}"]`);
   await card.locator('[data-card-details="loaded"]').waitFor();
   await expandSheet(page);
-  await expectNoHorizontalScroll(page);
+  await expect(card.locator('[data-card-specialties] [data-card-item]').first()).toContainText(LONG_WORD);
+  await expectNoHorizontalScrollInCard(page);
 
   await card.locator('[data-card-sources] summary').click();
   await expect(card.locator('[data-card-sources]')).toHaveJSProperty('open', true);
-  await expect(card.locator('[data-source-url]').first()).toBeVisible();
-  await expectNoHorizontalScroll(page);
+  await expect(card.locator('[data-source-url]').first()).toHaveText(LONG_URL);
+  await expectNoHorizontalScrollInCard(page);
 
   await card.locator(`[data-card-maximize="${HOKKAIDO}"]`).click();
   await expect(page.locator('[data-muni-status="loaded"]')).toBeAttached();
@@ -195,7 +241,7 @@ async function expectNoHorizontalScrollWhenExpanded(page: Page): Promise<void> {
   await list.locator('summary').click();
   await expect(list).toHaveJSProperty('open', true);
   await expect(list.locator('[data-muni-item]').first()).toBeVisible();
-  await expectNoHorizontalScroll(page);
+  await expectNoHorizontalScrollInCard(page);
 }
 
 for (const lang of LANGS) {
