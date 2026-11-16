@@ -26,8 +26,8 @@ specialties:
     description:
       ja:
         kids: "{川|かわ}のそばでたくさんつくられる{緑茶|りょくちゃ}だよ。{抹茶|まっちゃ}などの{種類|しゅるい}があるんだ。"
-        adult: "{宇治川|うじがわ}と{木津川|きづがわ}の{流域|りゅういき}で{多|おお}くつくられる{緑茶|りょくちゃ}で、{煎茶|せんちゃ}や{玉露|ぎょくろ}、{抹茶|まっちゃ}などの{種類|しゅるい}\
-          があります。"
+        adult: "{宇治川|うじがわ}と{木津川|きづがわ}の{流域|りゅういき}で{多|おお}くつくられる{緑茶|りょくちゃ}で、{煎茶|せんちゃ}や{玉露|ぎょくろ}、\
+          {抹茶|まっちゃ}などの{種類|しゅるい}があります。"
       en:
         kids: "Lots of this green tea is grown near rivers, and it comes in kinds such as matcha powder."
         adult: "Green tea grown in large amounts along the Uji and Kizu Rivers, including sencha and gyokuro leaf teas \
@@ -65,8 +65,8 @@ specialties:
     description:
       ja:
         kids: "{色|いろ}をつけた{糸|いと}で{模様|もよう}を{織|お}る{絹|きぬ}の{布|ぬの}だよ。{名前|なまえ}は{昔|むかし}の{戦|たたか}いからついたんだ。"
-        adult: "{先染|さきぞ}めの{糸|いと}で{模様|もよう}を{織|お}り{出|だ}す{京都|きょうと}の{絹織物|きぬおりもの}で、{西陣|にしじん}の{名|な}は{応仁|おうにん}の{乱|らん}\
-          の{西軍|せいぐん}の{陣地|じんち}に{由来|ゆらい}します。"
+        adult: "{先染|さきぞ}めの{糸|いと}で{模様|もよう}を{織|お}り{出|だ}す{京都|きょうと}の{絹織物|きぬおりもの}で、\
+          {西陣|にしじん}の{名|な}は{応仁|おうにん}の{乱|らん}の{西軍|せいぐん}の{陣地|じんち}に{由来|ゆらい}します。"
       en:
         kids: "Silk cloth from Kyoto, woven into patterns with dyed threads. Its name comes from an old war."
         adult: "Kyoto silk woven into patterns with pre-dyed threads; the name Nishijin comes from the Western Army \

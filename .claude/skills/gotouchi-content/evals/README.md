@@ -34,7 +34,23 @@ pnpm content:furigana --check .claude/skills/gotouchi-content/evals/seeded-error
 | 4 | ふりがなの読みの誤り（聖護院 → せいごいん。正しくは しょうごいん） | `specialties/senmaizuke` の `description.ja.adult` | ④（`--check` で） |
 | 5 | 文字数の超過（43字。範囲は20〜35字） | `specialties/senmaizuke` の `description.ja.kids` | `content:validate` の警告・④ |
 
+## `--check` の期待する出力
+
+`pnpm content:furigana --check` は、8件の違いを出す（18文、比べられない0件）。エージェントは、1件ずつ、どちらが正しいかを判断する。
+
+| 行 | 場所 | 表記 | YAML の読み／辞書の読み | 正しいのは | エージェントの扱い |
+|---|---|---|---|---|---|
+| 49 | `specialties/senmaizuke` の `description.ja.adult` | 聖護院 | せいごいん／しょうごいん | 辞書（しょうごいん） | **指摘する**（誤り #4） |
+| 84 | `spots/kiyomizu-dera` の `name.ja` | 清水寺 | しみずでら／きよみずでら | 辞書（きよみずでら） | **指摘する**（誤り #3） |
+| 48 | `specialties/senmaizuke` の `description.ja.kids` | 月 | がつ／つき | YAML（11月 → がつ） | 指摘しない（辞書が誤り） |
+| 49 | `specialties/senmaizuke` の `description.ja.adult` | 月 | がつ／つき | YAML | 指摘しない（辞書が誤り） |
+| 68 | `specialties/nishijin-ori` の `description.ja.adult` | 西軍 | せいぐん／にしぐん | YAML（せいぐん） | 指摘しない（辞書が誤り） |
+| 88 | `spots/kiyomizu-dera` の `description.ja.adult` | 懸造 | かけづく／かかつく | YAML（懸造り → かけづくり） | 指摘しない（辞書が誤り） |
+| 123 | `spots/amanohashidate` の `description.ja.adult` | 阿蘇海 | あそかい／あそうみ | YAML | 指摘しない（辞書が誤り） |
+| 123 | `spots/amanohashidate` の `description.ja.adult` | 日本三景 | にほんさんけい／にっぽんさんけい | YAML | 指摘しない（辞書が誤り） |
+
+行番号は、`seeded-errors/26-kyoto.yaml` の行。YAML を直したら、番号は変わる。
+
 ## 注意
 
-- `--check` は、辞書と違う読みを、誤りでない語（辞書の方が誤り）も含めて出す。この YAML では、日本三景（にほんさんけい）・阿蘇海（あそかい）が、辞書の読みと違うものとして出るが、YAML が正しい。エージェントは、これらを指摘しない（辞書が違うため）。
 - 上の誤り以外に、試行の YAML に元からあった問題が見つかることがある。表の誤りが見つかったかどうかだけを見る。

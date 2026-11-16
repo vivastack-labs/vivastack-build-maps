@@ -2,7 +2,6 @@
 // 辞書の読みが誤っていることもある（函館山 → はこだてさん）ので、違いは「どちらが正しいか確かめる」要確認として出す。
 // YAML は読むだけで書き換えない。トークナイザーは引数で受け取る（辞書は scripts/furigana.ts が用意する）。
 import { readFileSync } from 'node:fs';
-import { basename } from 'node:path';
 import { isScalar, isSeq, LineCounter, parseDocument } from 'yaml';
 import { checkRuby, parseRuby, plainText } from '../../src/lib/ruby.ts';
 import { dictionaryUnits, type DictionaryUnit, type Tokenize } from './furigana.ts';
@@ -137,7 +136,7 @@ export function runCheck(
   }
   const results = paths.map(path => {
     try {
-      return checkSource(basename(path), read(path), tokenize);
+      return checkSource(path, read(path), tokenize);
     } catch (error) {
       writeErr(`${path}：読めません（${error instanceof Error ? error.message : String(error)}）`);
       return undefined;

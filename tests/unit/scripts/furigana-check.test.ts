@@ -36,6 +36,15 @@ describe('compareReadings', () => {
     expect(compareReadings('{焼|や}き{魚|さかな}', tokenize)).toEqual([{ kind: 'differs', surface: '魚', yamlReading: 'さかな', dictionaryReading: 'ざかな' }]);
   });
 
+  test('7.2 区切りが2通りに合う語（物の怪）は、正しい {物|もの}の{怪|け} を違いにせず、比べられないとして出す', () => {
+    const tokenize = fake({ surface: '物の怪', reading: 'モノノケ' });
+
+    expect(compareReadings('{物|もの}の{怪|け}', tokenize)).toEqual([
+      { kind: 'incomparable', surface: '物', yamlReading: 'もの', reason: 'boundary' },
+      { kind: 'incomparable', surface: '怪', yamlReading: 'け', reason: 'boundary' }
+    ]);
+  });
+
   test('7.2 辞書の語の一部だけが親文字に入るときは、比べられないとして出す', () => {
     const tokenize = fake({ surface: '総本宮', reading: 'ソウホングウ' });
 
@@ -161,7 +170,7 @@ describe('runCheck', () => {
     );
 
     expect(code).toBe(0);
-    expect(out).toEqual(['26-kyoto.yaml:6 spots/a.name.ja 聖護院 せいごいん／しょうごいん：読みが辞書と違う。どちらが正しいか公式の表記で確かめる', '比べました：2文、違い1件、比べられない0件']);
+    expect(out).toEqual(['dir/26-kyoto.yaml:6 spots/a.name.ja 聖護院 せいごいん／しょうごいん：読みが辞書と違う。どちらが正しいか公式の表記で確かめる', '比べました：2文、違い1件、比べられない0件']);
     expect(err).toEqual([]);
   });
 
@@ -205,6 +214,13 @@ describe('runCheck', () => {
 });
 
 describe('compareReadings（実際の辞書）', () => {
+  test('7.2 実際の辞書：空白を含む文（東京 → 京都、JR 東海道新幹線）も比べられる', () => {
+    const tokenize = createLinderaTokenizer();
+
+    expect(compareReadings('{東京|とうきょう} → {京都|きょうと}', tokenize)).toEqual([]);
+    expect(compareReadings('JR {東海道新幹線|とうかいどうしんかんせん}', tokenize)).toEqual([]);
+  });
+
   test('7.2 {聖護院|せいごいん} は違いとして出る。{聖護院|しょうごいん}・{総本宮|そうほんぐう} は出ない', { timeout: 30_000 }, () => {
     // Arrange
     const tokenize = createLinderaTokenizer();

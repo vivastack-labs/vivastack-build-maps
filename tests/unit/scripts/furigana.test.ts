@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { checkRuby } from '@/lib/ruby';
-import { createLinderaTokenizer, runFurigana } from '../../../scripts/furigana';
+import { createLinderaTokenizer, runFurigana, toFuriganaTokens } from '../../../scripts/furigana';
 import { alignReading, annotate, formatReview, type FuriganaToken, type Tokenize } from '../../../scripts/lib/furigana';
 
 /** 偽のトークナイザー：渡したトークンの並びをそのまま返す（辞書を使わない） */
@@ -29,6 +29,10 @@ describe('alignReading', () => {
 
   test('7.2 読みと表記を合わせられないときは、語全体を1つのルビにする（八ヶ岳）', () => {
     expect(alignReading('八ヶ岳', 'ヤツガダケ')).toBe('{八ヶ岳|やつがだけ}');
+  });
+
+  test('7.2 区切りが2通りに合うとき（物の怪。もののけ）は、誤って区切らず、語全体を1つのルビにする', () => {
+    expect(alignReading('物の怪', 'モノノケ')).toBe('{物の怪|もののけ}');
   });
 
   test('7.2 漢字のない語は、そのまま返す', () => {
@@ -202,10 +206,12 @@ describe('annotate', () => {
       expect(result.reviews).toEqual([{ surface: '11月', reading: 'つき', kind: 'after-digit' }]);
     });
 
-    test('7.2 全角の数字でも要確認に入れる', () => {
-      const tokenize = fake({ surface: '１２' }, { surface: '社', reading: 'シャ' });
+    test('7.2 全角の数字と漢字が1つの語になっているとき（実際の IPADIC の分け方。１１月）も、要確認に入れる', () => {
+      const tokenize = fake({ surface: '１１月', reading: 'ジュウイチガツ' });
 
-      expect(annotate('１２社', tokenize).reviews).toEqual([{ surface: '１２社', reading: 'しゃ', kind: 'after-digit' }]);
+      const { reviews } = annotate('１１月', tokenize);
+
+      expect(reviews).toContainEqual({ surface: '１１月', reading: 'じゅういちがつ', kind: 'after-digit' });
     });
 
     test('7.2 数字と漢字が1つの語になっているときも、要確認に入れる', () => {
@@ -229,6 +235,33 @@ describe('annotate', () => {
     });
   });
 
+  test('7.2 ふりがなの記法に誤りがある文（閉じていない括弧）は、文を変えずに、要確認に入れる', () => {
+    const tokenize = fake({ surface: '京都', reading: 'キョウト' });
+
+    const result = annotate('{京都|きょうと', tokenize);
+
+    expect(result.text).toBe('{京都|きょうと');
+    expect(result.reviews).toEqual([{ surface: '{京都|きょうと', kind: 'notation' }]);
+  });
+
+  test('7.2 辞書の語をつないだ文が、元の文と違うとき（空白が消えたなど）は、文を変えずに、要確認に入れる', () => {
+    const tokenize = fake({ surface: '東京', reading: 'トウキョウ' }, { surface: '京都', reading: 'キョウト' });
+
+    const result = annotate('東京 京都', tokenize);
+
+    expect(result.text).toBe('東京 京都');
+    expect(result.reviews).toEqual([{ surface: '東京 京都', kind: 'mismatch' }]);
+  });
+
+  test('7.2 区切りが2通りに合う語（物の怪）は、語全体に読みを付けて、要確認に入れる', () => {
+    const tokenize = fake({ surface: '物の怪', reading: 'モノノケ' });
+
+    const result = annotate('物の怪', tokenize);
+
+    expect(result.text).toBe('{物の怪|もののけ}');
+    expect(result.reviews).toEqual([{ surface: '物の怪', reading: 'もののけ', kind: 'misaligned' }]);
+  });
+
   test('7.2 空の文は、そのまま返す', () => {
     expect(annotate('', fake())).toEqual({ text: '', reviews: [] });
   });
@@ -240,6 +273,8 @@ describe('formatReview', () => {
     expect(formatReview({ surface: '八ヶ岳', reading: 'やつがだけ', kind: 'misaligned' })).toBe('八ヶ岳（やつがだけ）：送り仮名で区切れず、語全体に読みを付けた。区切りと読みを確かめる');
     expect(formatReview({ surface: '麟', kind: 'unknown' })).toBe('麟：辞書にない語（読みを付けていない）。読みを調べて手で付ける');
     expect(formatReview({ surface: '紋織物', reading: 'もんおりぶつ', kind: 'split-compound' })).toBe('紋織物（もんおりぶつ）：漢字の続きが語に分かれた。複合語の読みを確かめる');
+    expect(formatReview({ surface: '{京都', kind: 'notation' })).toBe('{京都：ふりがなの記法の誤り。文は変えていない。括弧を直してから、もう一度付ける');
+    expect(formatReview({ surface: '東京 京都', kind: 'mismatch' })).toBe('東京 京都：辞書の語が文と合わない。文は変えていない。ふりがなを手で付ける');
     expect(formatReview({ surface: '麒麟', kind: 'split-compound' })).toBe('麒麟：漢字の続きが語に分かれた。複合語の読みを確かめる');
     expect(formatReview({ surface: '11月', reading: 'つき', kind: 'after-digit' })).toBe('11月（つき）：数字の後の漢字。数え方の読みを確かめる');
   });
@@ -332,6 +367,14 @@ describe('createLinderaTokenizer（実際の辞書）', () => {
     expect(reviews).toContainEqual(expect.objectContaining({ surface: '紋織物', kind: 'split-compound' }));
   });
 
+  test('7.2 実際の辞書：空白は消えずに、そのまま保たれる（東京 → 京都、JR 東海道新幹線）', () => {
+    const tokenize = createLinderaTokenizer();
+
+    expect(annotate('{東京|とうきょう} → 京都', tokenize).text).toBe('{東京|とうきょう} → {京都|きょうと}');
+    expect(annotate('JR 東海道新幹線', tokenize).text).toBe('JR {東海道新幹線|とうかいどうしんかんせん}');
+    expect(annotate('東京\t京都', tokenize).text).toBe('{東京|とうきょう}\t{京都|きょうと}');
+  });
+
   test('7.2 実際の辞書：辞書にない漢字は、そのまま残して要確認に入れる', () => {
     const tokenize = createLinderaTokenizer();
 
@@ -339,5 +382,25 @@ describe('createLinderaTokenizer（実際の辞書）', () => {
 
     expect(result.text).toBe('{麒麟|きりん}麟');
     expect(result.reviews).toContainEqual({ surface: '麟', kind: 'unknown' });
+  });
+});
+
+describe('toFuriganaTokens', () => {
+  test('7.2 トークナイザーの出力から、使う項目だけを取り出す。読みが null（空白など）のものは、読みなし', () => {
+    const raw = [
+      { surface: '京都', reading: 'キョウト', partOfSpeech: '名詞', partOfSpeechSubcategory1: '固有名詞', baseForm: '京都' },
+      { surface: ' ', reading: null }
+    ];
+
+    expect(toFuriganaTokens(raw)).toEqual([
+      { surface: '京都', reading: 'キョウト', partOfSpeech: '名詞', partOfSpeechSubcategory1: '固有名詞' },
+      { surface: ' ', reading: undefined, partOfSpeech: undefined, partOfSpeechSubcategory1: undefined }
+    ]);
+  });
+
+  test('7.2 配列でない出力・表記が文字列でない語は、エラーにする（誤った出力のまま使わない）', () => {
+    expect(() => toFuriganaTokens('京都')).toThrow('トークナイザー');
+    expect(() => toFuriganaTokens([{ surface: 1 }])).toThrow('トークナイザー');
+    expect(() => toFuriganaTokens([null])).toThrow('トークナイザー');
   });
 });

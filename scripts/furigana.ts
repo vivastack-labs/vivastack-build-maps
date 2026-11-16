@@ -7,22 +7,29 @@ import { TokenizerBuilder } from 'lindera-wasm-nodejs-ipadic';
 import { runCheck } from './lib/furigana-check.ts';
 import { annotate, formatReview, uniqueReviews, type FuriganaReview, type FuriganaToken, type Tokenize } from './lib/furigana.ts';
 
-/** lindera の1語のうち、使う項目（辞書にない語は、表記と品詞だけで、読みがない） */
-type LinderaToken = {
-  readonly surface: string;
-  readonly reading?: string;
-  readonly partOfSpeech?: string;
-  readonly partOfSpeechSubcategory1?: string;
-};
+/**
+ * lindera の出力（型は any）から、使う項目だけを取り出す。配列でない・表記が文字列でない出力は、エラーにする。
+ * 読みなどが文字列でない（辞書にない語は項目がなく、空白は null）ものは、なしとして扱う。
+ */
+export function toFuriganaTokens(raw: unknown): readonly FuriganaToken[] {
+  if (!Array.isArray(raw)) throw new Error('トークナイザーの出力が配列ではありません');
+  const text = (value: unknown): string | undefined => (typeof value === 'string' ? value : undefined);
+  return raw.map((token: unknown) => {
+    const { surface, reading, partOfSpeech, partOfSpeechSubcategory1 } = (typeof token === 'object' && token !== null ? token : {}) as Record<string, unknown>;
+    if (typeof surface !== 'string') throw new Error('トークナイザーの出力に、表記が文字列でない語があります');
+    return { surface, reading: text(reading), partOfSpeech: text(partOfSpeech), partOfSpeechSubcategory1: text(partOfSpeechSubcategory1) };
+  });
+}
 
 /** IPADIC を同梱した lindera（WASM）のトークナイザーを作る。辞書の読み込みに時間がかかるので、使い回す */
 export function createLinderaTokenizer(): Tokenize {
   const builder = new TokenizerBuilder();
   builder.setDictionary('embedded://ipadic');
   builder.setMode('normal');
+  // 空白を捨てると、{東京|とうきょう} → 京都 の空白が消えて、行き方（route）などが壊れる
+  builder.setKeepWhitespace(true);
   const tokenizer = builder.build();
-  return (text): readonly FuriganaToken[] =>
-    (tokenizer.tokenize(text) as readonly LinderaToken[]).map(({ surface, reading, partOfSpeech, partOfSpeechSubcategory1 }) => ({ surface, reading, partOfSpeech, partOfSpeechSubcategory1 }));
+  return text => toFuriganaTokens(tokenizer.tokenize(text));
 }
 
 /** 各行にふりがなを付けて writeOut に出し、要確認の一覧を writeErr に出す。終了コードを返す（要確認があっても 0） */

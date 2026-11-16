@@ -38,6 +38,7 @@ pnpm build:preview   # BUILD_TARGET=preview（すべての項目を `draft` の�
 pnpm exec wrangler dev   # dist/ を本番の Workers と同じ形で配信する（http://localhost:8787/ja/。先に pnpm build）
 pnpm content:validate   # コンテンツの YAML を検証する（誤りで終了コード1。CONTENT_DIR で読むディレクトリを変える）
 pnpm content:furigana   # 日本語の文にふりがなを付けて標準出力に出す（標準入力の各行、または引数。読みが怪しい語は標準エラーに出す。YAML は書き換えない。T5-02）
+pnpm content:furigana --check <YAML>...   # YAML の {漢字|よみ} の読みを辞書の読みと比べて、違うものを出す（YAML は読むだけ。辞書が誤ることもあるので、違いは公式の表記で確かめる。終了コードは 0。T5-02）
 pnpm content:types      # スキーマから型（src/lib/content-schema.generated.ts）を作り直す（スキーマを変えたら実行してコミット）
 pnpm size         # dist/ の言語ごとの最初の読み込み（HTML＋JS＋CSS）の圧縮後のサイズを表にする（gzip が 300KB を超えると終了コード 1。先に pnpm build）
 node scripts/make-max-content.ts --out <ディレクトリ>   # 47県を 7.3 の上限の文字数で埋めたダミーのコンテンツを作る（コミットしない。CONTENT_DIR=<ディレクトリ> pnpm build の後に pnpm size で測る）
@@ -80,7 +81,7 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
 | `tests/e2e-preview/` | プレビュー用のビルド（`pnpm build:preview`）の E2E（`playwright.preview.config.ts`。chromium だけ。T3-02） |
 | `tests/screenshots/` | PRに載せるスクリーンショットの画面（`playwright.screenshots.config.ts`。`pnpm screenshots` から使う） |
 | `tests/setup/` | テストの共通の準備（jest-dom のマッチャーなど） |
-| `scripts/` | ビルドのスクリプト（`postbuild.ts`：`out/` → `dist/`、各 HTML への CSP の `<meta>` の書き込み、`sw.js` の生成〔`service-worker.ts`〕）と、アイコンの生成（`make-icons.ts`）、サイズの計測（`measure-size.ts`・`make-max-content.ts`。T3-08）。Node.js で直接実行するので、`enum` など型の除去で消せない書き方は使わない（`geo/scripts/` も同じ。相対の import には `.ts` を付ける） |
+| `scripts/` | ビルドのスクリプト（`postbuild.ts`：`out/` → `dist/`、各 HTML への CSP の `<meta>` の書き込み、`sw.js` の生成〔`service-worker.ts`〕）と、アイコンの生成（`make-icons.ts`）、サイズの計測（`measure-size.ts`・`make-max-content.ts`。T3-08）、ふりがなの自動付与と読みの比べ方（`furigana.ts`。T5-02。ロジックは `lib/`）。Node.js で直接実行するので、`enum` など型の除去で消せない書き方は使わない（`geo/scripts/` も同じ。相対の import には `.ts` を付ける） |
 | `public/` | そのまま配信するファイル。`_redirects`・`_headers` は `dist/` の直下に置かれる。`public/geo/muni/` は `pnpm geo:build` の出力（手で直さない） |
 | `content/` | `prefectures/`：都道府県ごとの YAML（T1-08。先頭のコメントに県庁の位置の調べ方がある）。`schema/`：JSON Schema。lint は `content/.yamllint` |
 | `geo/` | 地図データの変換（`scripts/`）、読み・ローマ字の修正表（`sources/`）、都道府県の形（`data/prefs.topo.json`。生成物）。原データは `geo/downloads/` に置き、コミットしない。手順と判断は `geo/README.md` |
@@ -105,7 +106,7 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
 - `dynamicParams = false` と `generateStaticParams` で、ja・en・zh の3つだけを静的に生成する。言語の一覧・判定・`<html lang>` の値は `src/i18n/lang.ts` に集める。
 - Next.js 16 では `params` が `Promise`。`await` してから `isLang()` で確かめ、合わなければ `notFound()` にする。
 - `@/` は `src/` を指す。設定は `tsconfig.json` と `vitest.config.ts` の両方にあるので、変えるときは2か所を合わせる。
-- カバレッジの対象は `src/`・`scripts/`・`geo/scripts/`。`app/` は E2E（`tests/e2e/`）で確かめる。async の Server Component（ページ・レイアウト）は Vitest で描画できないので、E2E で確かめる。ドメインロジック（`src/lib/`・`src/features/`・`geo/scripts/lib/`）は 90% 以上を `vitest.config.ts` で強制している。
+- カバレッジの対象は `src/`・`scripts/`・`geo/scripts/`。`app/` は E2E（`tests/e2e/`）で確かめる。async の Server Component（ページ・レイアウト）は Vitest で描画できないので、E2E で確かめる。ドメインロジック（`src/lib/`・`src/features/`・`geo/scripts/lib/`・`scripts/lib/`）は 90% 以上を `vitest.config.ts` で強制している。
 - サーバーで出力した要素は描き直さず、クライアントは属性（`hidden`・`aria-*`・`data-*`）だけを書き換える（6.6 (2)）。カードなどの内容をクライアントコンポーネントに props で渡さない（HTML に3回目の写しができる）。
 - CSP（`style-src 'self'`・`script-src` はハッシュ）：サーバーの HTML に `style` 属性・`<style>`・`onclick=` などを出さない（見た目は Tailwind のクラス。クラス名は組み立てずに全体を書く）。インラインスクリプトを足すと `scripts/postbuild.ts` がビルドを止める。**`pnpm dev` には CSP がかからない**ので、`pnpm build` ＋ `wrangler dev` か E2E で確かめる（`docs/architecture/platform.md`）。
 - 文言は `src/i18n/ja.ts` に足す（`en.ts`・`zh.ts` はキーが足りなければ typecheck で落ちる）。日本語はふりがなの記法つきで、`RubyText` で描く。
