@@ -30,6 +30,12 @@ const PREF_LABEL_FONT_CLASS: Readonly<Record<Lang, string>> = {
   zh: '[font-size:calc(16px/var(--zoom-k,1))]'
 };
 /**
+ * 固定中の県の県名ラベルの見た目（5.2、T4-03）。文字は暗い色、縁取りは塗り（`--color-map-selected`）と同じ色で、拡大しても画面の上の太さを保つ（`--zoom-k`）。
+ * Tailwind がクラス名を拾えるよう、組み立てずに全体を書く
+ */
+const PINNED_LABEL_CLASS =
+  'data-[state=pinned]:fill-map-selected-label data-[state=pinned]:stroke-map-selected data-[state=pinned]:[paint-order:stroke] data-[state=pinned]:[stroke-width:calc(3px/var(--zoom-k,1))] data-[state=pinned]:[stroke-linejoin:round]';
+/**
  * 県のパスの操作の見た目（D26）。マウスをのせると少し薄く（Tailwind の hover: は (hover: hover) のときだけ効くので、タッチで色が残らない）、
  * 固定中・最大化中は aria-pressed で塗りを変える。状態の属性は `MapInteraction` が書き換える
  */
@@ -144,8 +150,10 @@ export function JapanMap({ lang, prefectures, children }: Props) {
           {prefectures.map(({ code, name }) => {
             const label = pathOf(pathByCode, code).labels[lang];
             return (
-              // 最大化した県のラベルは、市区町村のラベルと重なるので隠す（`MapInteraction` が data-state を書く。T2-08）
-              <text key={code} data-pref-label={code} x={label.x} y={label.y} className="data-[state=maximized]:hidden">
+              // 最大化した県のラベルは、市区町村のラベルと重なるので隠す（`MapInteraction` が data-state を書く。T2-08）。
+              // 固定中の県のラベルは、暗い色（--color-map-selected-label）に、塗りと同じ色の縁取りを付ける。文字が県の形からはみ出しても、
+              // 縁取りの上に載るので、塗りと 4.5:1 以上になる（5.2、T4-03）。縁取りは文字の下（paint-order）に描き、文字の形を細らせない
+              <text key={code} data-pref-label={code} x={label.x} y={label.y} className={`data-[state=maximized]:hidden ${PINNED_LABEL_CLASS}`}>
                 {labelText(name[lang])}
               </text>
             );

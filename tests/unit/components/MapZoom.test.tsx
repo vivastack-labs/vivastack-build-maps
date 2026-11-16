@@ -89,6 +89,15 @@ describe('MapZoom', () => {
     for (const name of ['拡大', '縮小']) expect(button(name).getAttribute('type')).toBe('button');
   });
 
+  test('5.2：「全体」ボタンの名前は見える文字（読みを含まない）。aria-label は付けない（WCAG 2.5.3）', () => {
+    render(<Fixture />);
+
+    const reset = button('全体');
+    expect(reset.hasAttribute('aria-label')).toBe(false);
+    expect(reset.textContent).toContain('全体');
+    expect(reset.querySelector('rt')?.getAttribute('aria-hidden')).toBe('true');
+  });
+
   test('全体表示で始まり、data-zoom-scale が 1 である（F-ZOOM-02）', () => {
     const { container } = render(<Fixture />);
 

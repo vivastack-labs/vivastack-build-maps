@@ -221,6 +221,21 @@ describe('JapanMap の入力の確かめ', () => {
     expect(path.getAttribute('class')).toContain('opacity-40');
     expect(container.querySelector('[data-pref-label]')?.getAttribute('class')).toContain('data-[state=maximized]:hidden');
   });
+
+  test('5.2：固定中の県名ラベルは、塗りと 4.5:1 以上になる暗い色（fill-map-selected-label）にする', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
+
+    expect(container.querySelector('[data-pref-label]')?.getAttribute('class')).toContain('data-[state=pinned]:fill-map-selected-label');
+  });
+
+  test('5.2：固定中の県名ラベルは、塗りと同じ色の縁取りを文字の下に付ける（県の形からはみ出しても読める）', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
+
+    const className = container.querySelector('[data-pref-label]')?.getAttribute('class') ?? '';
+    for (const name of ['stroke-map-selected', '[paint-order:stroke]', '[stroke-width:calc(3px/var(--zoom-k,1))]', '[stroke-linejoin:round]']) {
+      expect(className).toContain(`data-[state=pinned]:${name}`);
+    }
+  });
 });
 
 describe('JapanMap の「準備中」の県（T3-02、4.11.4）', () => {

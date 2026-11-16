@@ -37,7 +37,9 @@
 }
 
 /* F-MAP-01〜04：地図とページの色。ライトは淡い色に濃い文字、ダークは濃い色に明るい文字（Tailwind の 200・800 番台）。
-   県名ラベルは縁取りを付けず、文字の色と地方の塗り・海の色が直接 4.5:1 以上になる組み合わせにする（T4-03 で確かめる）。
+   県名ラベルは縁取りを付けず、文字の色と地方の塗り・海の色が直接 4.5:1 以上になる組み合わせにする（`tests/unit/styles/theme-contrast.test.ts` が確かめる。T4-03）。
+   例外は固定中の県のラベル：県の形からはみ出して海・ほかの県の上に出ることがあるので、暗い文字（--color-map-selected-label）に、塗り（--color-map-selected）と同じ色の縁取りを付ける（文字と縁取りが 4.5:1 以上）。
+   県境・市区町村の境の線は、隣り合う塗りと 3:1 以上（WCAG 1.4.11）。県は1つずつがボタンなので、同じ地方の中の県と県の境は、線の隣が地方の塗りになる
    色の値はここだけに書き、部品は fill-region-kanto のようなクラスで使う（D26） */
 @theme {
   --color-region-hokkaido: #bae6fd;
@@ -51,10 +53,13 @@
   --color-map-sea: #f0f9ff;
   --color-map-label: #0f172a;
   --color-map-sea-label: #0f172a;
-  --color-map-border: #64748b;
+  /* ライト：県境の線。8地方・準備中の地・固定中の塗り・海・ページの背景のすべてと 3:1 以上（最小 3.06。以前の #64748b は地方の塗りと 2.85） */
+  --color-map-border: #5f6f86;
   --color-map-frame: #64748b;
   /* T2-05：固定中・最大化中の県の塗り。8地方の寒色〜中間色と見分けがつく暖色（色の値は仮。T4 で見直す） */
   --color-map-selected: #fbbf24;
+  /* T4-03：固定中の県の県名ラベル。ダークは塗り #d97706 と白に近い文字が 3.04:1 で足りないので、固定中だけ暗い文字にする（塗りと 5.6:1。ライトは 10.7:1） */
+  --color-map-selected-label: #0f172a;
   /* T3-02：「準備中」の県（4.11.4）。灰色の地に斜線（色の値は仮。T4 で見直す）。
      地と線は 3:1 以上（斜線が見える。WCAG 1.4.11）、県名ラベルの色（--color-map-label #0f172a）と、地・線の両方で 4.5:1 以上。
      ライト：地 #f1f5f9 と線 #7a8aa3 が 3.20:1、ラベルと線が 5.09:1（ラベルと地は 16.3:1） */
@@ -68,7 +73,8 @@
   --color-muni-3: #fecaca;
   --color-muni-4: #ffedd5;
   --color-muni-hover: #fb923c;
-  --color-muni-border: #a8a29e;
+  /* ライト：市区町村の境の線。5色とホバーの塗りと 3:1 以上（最小 3.10。以前の #a8a29e は 1.11） */
+  --color-muni-border: #5d5854;
   --color-page-bg: #ffffff;
   --color-page-text: #0f172a;
   /* T2-09：ツールチップ。地図の上（海・県の塗り）で目立つ、ページの文字色と反対の濃淡（色の値は仮。T4 で見直す） */
@@ -94,9 +100,12 @@
     --color-map-sea: #0f172a;
     --color-map-label: #f8fafc;
     --color-map-sea-label: #f8fafc;
-    --color-map-border: #94a3b8;
+    /* ダーク：県境の線。8地方・準備中の地・固定中の塗り（#d97706）・海と 3:1 以上（最小 3.04 は固定中の塗り。以前の #94a3b8 は地方の塗りと 1.2〜2.8）。
+       明るい線になるのは、固定中の塗りが中間の明るさのため */
+    --color-map-border: #f8fafc;
     --color-map-frame: #94a3b8;
     --color-map-selected: #d97706;
+    --color-map-selected-label: #0f172a;
     /* ダーク：地 #1e293b と線 #64748b が 3.07:1、ラベル #f8fafc と線が 4.55:1（ラベルと地は 13.98:1） */
     --color-map-pending: #1e293b;
     --color-map-pending-stripe: #64748b;
@@ -106,6 +115,7 @@
     --color-muni-3: #7f1d1d;
     --color-muni-4: #7c2d12;
     --color-muni-hover: #c2410c;
+    /* ダーク：市区町村の境の線。5色とホバーの塗りと 3:1 以上（最小 3.48）。変えない */
     --color-muni-border: #d6d3d1;
     --color-page-bg: #0f172a;
     --color-page-text: #f8fafc;
