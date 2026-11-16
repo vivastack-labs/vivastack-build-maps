@@ -36,11 +36,11 @@ function AccessSection({ access, labels }: { readonly access: NonNullable<CardDa
         <RubyText text={labels.access} />
         {access.draft && <DraftMark label={labels.draft} />}
       </h3>
-      <p>
+      <p className="break-words">
         <Emoji emoji={access.emoji} />
         <RubyText text={access.mode} /> <RubyText text={access.route} />
       </p>
-      <p data-card-duration>
+      <p data-card-duration className="break-words">
         <RubyText text={labels.durationLabel} />
         <RubyText text={access.durationText} />
       </p>
@@ -53,7 +53,7 @@ function ItemList({ items, labels }: { readonly items: readonly CardItem[]; read
   return (
     <ul className="mt-1 space-y-2">
       {items.map(item => (
-        <li key={item.id} data-card-item={item.id}>
+        <li key={item.id} data-card-item={item.id} className="break-words">
           {item.emoji !== undefined && <Emoji emoji={item.emoji} />}
           <strong>
             <RubyText text={item.name} />

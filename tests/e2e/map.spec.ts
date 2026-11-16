@@ -70,9 +70,8 @@ test.describe('県の形', () => {
 });
 
 test.describe('県名ラベル', () => {
-  test('F-MAP-01：幅820pxでは県名ラベルが見えず、幅821pxでは見える', async ({ page, isMobile }) => {
-    // スマホ・タブレットのエミュレーション（isMobile）は meta viewport の扱いが PC と違うので、PC のプロジェクトだけで幅を指定する
-    test.skip(isMobile, 'isMobile のプロジェクトでは幅を指定しない');
+  // スマホ・タブレットのエミュレーション（isMobile）は meta viewport の扱いが PC と違うので、PC のプロジェクトだけで幅を指定する
+  test('F-MAP-01：幅820pxでは県名ラベルが見えず、幅821pxでは見える', { tag: '@pc' }, async ({ page }) => {
     await page.setViewportSize({ width: 820, height: 900 });
     await page.goto('/ja/');
     const labels = page.locator('[data-pref-labels]');
@@ -85,11 +84,11 @@ test.describe('県名ラベル', () => {
   });
 
   for (const lang of LANGS) {
-    test(`F-MAP-01：県名ラベルどうしが重ならない（${lang}）`, async ({ page, browserName, isMobile }) => {
+    test(`F-MAP-01：県名ラベルどうしが重ならない（${lang}）`, { tag: '@pc' }, async ({ page }, testInfo) => {
       // 文字の幅はフォントで変わる。重ならない配置は、chromium（既定のフォント）で確かめる。
       // getBBox() は文字の外接矩形（ascent＋descent。字の見た目より縦に大きい）で測るので、runner のフォントが変わると結果が変わる。
       // 落ちたら、まずフォントの違いを疑う（ずらしは `prefPaths.ts` の LABEL_OFFSETS。文字の大きさは LABEL_FONT_SIZE）
-      test.skip(browserName !== 'chromium' || isMobile, 'フォントで幅が変わるので、PC の chromium だけで確かめる');
+      test.skip(testInfo.project.name !== 'chromium', 'フォントで幅が変わるので、PC の chromium だけで確かめる（chromebook も同じ Chromium なので、くり返さない）');
       await page.setViewportSize({ width: 1280, height: 900 });
       await page.goto(`/${lang}/`);
 

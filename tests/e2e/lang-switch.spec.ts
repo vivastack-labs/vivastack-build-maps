@@ -216,8 +216,8 @@ const RECORD_CARD_VISIBILITY = `
   requestAnimationFrame(loop);
 `;
 
-test('T3-03：ハッシュつきで開いたとき、ハイドレーションの前後でカードが消えない（案内文にならない）', async ({ page, isMobile }) => {
-  test.skip(isMobile, 'PC の幅で確かめる（パネルの幅は下のテスト）');
+// PC の幅で確かめる（パネルの幅は下のテスト）
+test('T3-03：ハッシュつきで開いたとき、ハイドレーションの前後でカードが消えない（案内文にならない）', { tag: '@pc' }, async ({ page }) => {
   // Arrange
   await page.addInitScript(RECORD_CARD_VISIBILITY);
 

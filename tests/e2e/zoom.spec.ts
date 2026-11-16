@@ -75,11 +75,7 @@ test.describe('ボタンでの拡大・縮小（全プロジェクト）', () =>
   });
 });
 
-test.describe('PC のマウス操作', () => {
-  test.beforeEach(({ hasTouch }) => {
-    test.skip(hasTouch, 'ホイール・ドラッグ・ダブルクリックはマウスの操作（4.11.3）');
-  });
-
+test.describe('PC のマウス操作', { tag: '@pc' }, () => {
   test('F-ZOOM-01：ホイールで倍率が変わる', async ({ page }) => {
     await open(page);
     await page.locator('[data-map-sea]').hover();
@@ -144,8 +140,8 @@ test.describe('PC のマウス操作', () => {
       .toBeGreaterThanOrEqual(0.85);
   });
 
-  test('F-ZOOM-01：最大化しても、県名ラベルの画面の上の高さと県境の線の太さは全体表示のときとほぼ同じ', async ({ page, browserName }) => {
-    test.skip(browserName !== 'chromium', '見た目の大きさの検査は chromium だけで足りる');
+  test('F-ZOOM-01：最大化しても、県名ラベルの画面の上の高さと県境の線の太さは全体表示のときとほぼ同じ', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', '見た目の大きさの検査は chromium だけで足りる（chromebook も同じ Chromium なので、くり返さない）');
     await open(page);
     // 最大化した県（長野県）の県名ラベルは、市区町村のラベルと重なるので隠す（T2-08）。隣の山梨県のラベルで確かめる
     const label = page.locator(`[data-pref-label="${YAMANASHI}"]`);

@@ -8,7 +8,7 @@ import { expandSheet, settle } from './helpers';
 
 // 5.2（T4-03）：axe で、WCAG 2.2 AA（A・AA）の違反が0件であることを確かめる。本番用のビルド（フィクスチャのコンテンツ。北海道だけが内容を持つ）。
 // 組み合わせ：3言語 × 2モード（こども・おとな）× ライト・ダーク × 状態（PC は最初の表示・固定中・最大化中、スマホはパネルの peek・full）。
-// 同じ検査を7つのプロジェクトでくり返さないよう、PC の状態は chromium、パネルは pixel のプロジェクトだけで動かす。
+// 同じ検査を9つのプロジェクトでくり返さないよう、PC の状態は chromium、パネルは pixel のプロジェクトだけで動かす。
 // 除外（exclude・disableRules）はしない。axe が判断できない項目（incomplete）は、違反にならない（SVG の中の文字の色など。色は単体テストで確かめる）。
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];

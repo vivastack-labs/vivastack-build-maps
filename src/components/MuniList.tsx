@@ -35,7 +35,7 @@ export function MuniList({ lang, labels, loader }: Props) {
       </summary>
       <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
         {shapes.map(({ code, properties }) => (
-          <li key={code} data-muni-item={code} lang={lang === 'zh' ? 'ja' : undefined}>
+          <li key={code} data-muni-item={code} lang={lang === 'zh' ? 'ja' : undefined} className="break-words">
             {lang === 'en' ? properties.name.en : properties.name.ja}
           </li>
         ))}

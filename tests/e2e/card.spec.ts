@@ -311,9 +311,9 @@ test.describe('D38：カードの内容は県ごとの JSON', () => {
     expect(requested).toEqual([]);
   });
 
-  test('D38：ホバーでカードを出すときも読み込む（固定しない）', async ({ page, isMobile }) => {
-    // Arrange：タッチではホバーしない
-    test.skip(isMobile, 'タッチにホバーはない');
+  // タッチではホバーしない
+  test('D38：ホバーでカードを出すときも読み込む（固定しない）', { tag: '@pc' }, async ({ page }) => {
+    // Arrange
     await open(page);
 
     // Act：さくいんの項目にマウスをのせる（1024px 未満ではさくいんのホバーでカードを変えない。T3-06）

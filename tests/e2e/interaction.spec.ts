@@ -109,13 +109,9 @@ async function expectState(page: Page, code: string, state: 'pinned' | 'maximize
   await expectElementState(indexPref(page, code), state);
 }
 
-/** PC（マウス）の操作。`hasTouch` のプロジェクトでは動かさない */
+/** PC（マウス）の操作。`@pc` のタグで、タッチのプロジェクトでは動かさない */
 function definePointerTests({ locate: prefOf, clickMaximized, dblclickMaximized }: PrefTarget): void {
-  test.describe('PC のマウス操作', () => {
-    test.beforeEach(({ hasTouch }) => {
-      test.skip(hasTouch, 'タッチの端末にはマウスのホバーがない（4.11.3）');
-    });
-
+  test.describe('PC のマウス操作', { tag: '@pc' }, () => {
     test('F-CARD-01：県にホバーすると、カードの県名が変わる', async ({ page }) => {
       await open(page);
       await expectCard(page, null);
@@ -237,13 +233,9 @@ function definePointerTests({ locate: prefOf, clickMaximized, dblclickMaximized 
   });
 }
 
-/** スマホ・タブレット（タッチ）の操作。`hasTouch` のプロジェクトだけで動かす */
+/** スマホ・タブレット（タッチ）の操作。`@touch` のタグで、タッチのプロジェクトだけで動かす */
 function defineTouchTests({ locate: prefOf }: PrefTarget): void {
-  test.describe('タッチ操作', () => {
-    test.beforeEach(({ hasTouch }) => {
-      test.skip(!hasTouch, 'タッチの端末のプロジェクトだけで確かめる');
-    });
-
+  test.describe('タッチ操作', { tag: '@touch' }, () => {
     test('4.11.3：タップで固定する', async ({ page }) => {
       await open(page);
       await expectCard(page, null);

@@ -33,7 +33,7 @@ pnpm dev          # http://localhost:3000/ja/（3000番が使用中なら別の�
 pnpm lint         # ESLint・Prettier・markdownlint・yamllint
 pnpm typecheck    # tsc --noEmit
 pnpm test         # Vitest（カバレッジの基準を下回ると失敗する）
-pnpm test:e2e     # Playwright（PC・スマホ・タブレットの7プロジェクト。本番用のビルド）
+pnpm test:e2e     # Playwright（PC・スマホ・タブレットの9プロジェクト。本番用のビルド）
 pnpm test:e2e:preview   # プレビュー用のビルドの E2E（chromium だけ。8789番。tests/e2e-preview/。playwright.preview.config.ts）
 pnpm build        # BUILD_TARGET=production の next build で out/ を作り、scripts/postbuild.ts で dist/ にコピーする
 pnpm build:preview   # BUILD_TARGET=preview（すべての項目を `draft` の値を付けて出す。カードの項目に「下書き」の印。noindex つき）。レビュー用のプレビューに使う（T3-02）
@@ -50,6 +50,7 @@ pnpm vitest run tests/unit/i18n/lang.test.ts   # 1ファイルだけ動かす（
 pnpm vitest run -t "F-I18N-01"                 # テスト名で絞る（テスト名に要件IDが入っている）
 pnpm vitest run --project data                 # データの検査（tests/data/）だけを動かす
 pnpm test:e2e --project=chromium               # E2E を1プロジェクトだけ動かす
+pnpm test:e2e --grep @touch                      # タッチのテスト（@touch）だけ動かす（PC のテストは --grep @pc）。タグを付けたテストは、反対の種類のプロジェクトでは動かない
 gh workflow run e2e.yml --ref <ブランチ> -f project=all   # CI で E2E を手動で動かす（UI・ルーティングを変えたPRは merge の前に）
 pnpm screenshots > <ファイル>   # PRに載せる after（今の作業ツリー）のスクリーンショットを撮り、screenshots ブランチに push して、PR本文の表を出す
 ```
@@ -205,6 +206,11 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
   - 表示（`pending` の県）：地図は `JapanMap` の `<defs>` の `<pattern id="pref-pending-hatch">` で斜線に塗り（`regions.ts` の `PENDING_FILL_CLASS`・`PENDING_PATTERN_ID`。色は `globals.css` の `--color-map-pending`・`--color-map-pending-stripe`）、`data-pending` と `aria-label` の「（準備中）」を付ける。凡例（`MapLegend`）は `pending` の県が1つ以上あるときだけ最後に `<li data-legend-pending>`（色見本は `globals.css` の `@utility bg-pending-hatch`）。さくいんは県名の後ろに `<span data-index-pending>`。ツールチップは名物が空なので県名だけ。文言は辞書の `comingSoon.label`・`comingSoon.indexSuffix`。カードの「準備中」の文と「下書き」の印は `PrefCard`（T3-03。下の「県のカード」）。
   - `noindex`：プレビューのときだけ `app/[lang]/layout.tsx` の `generateMetadata` が `robots: { index: false }` を返す。404（`global-not-found`）の `noindex` は Next.js が常に付ける（本番にも付く）ので、何もしない。
   - E2E：本番用は `tests/e2e/pending.spec.ts`（フィクスチャ。HTML に東京都の `reviewed` でない項目の文が出ないことも確かめる）。プレビュー用は `tests/e2e-preview/preview.spec.ts`（`pnpm test:e2e:preview`。`playwright.preview.config.ts`。`out/`・`dist/` が本番用のビルドとぶつかるので、設定を分けている。レポート・trace は `playwright-report-preview/`・`test-results-preview/` に出す）。`e2e.yml` は `all`・`chromium` のときに続けて動かす。E2E のフィクスチャでは、北海道以外の46県が「準備中」になるので、塗りの色を比べるテストは北海道を使う（東京都は斜線）。
+- 対応環境の確認（T4-06。5.3、D25）：Playwright のプロジェクトは9つ（`playwright.config.ts` のコメントに端末と幅の対応）。PC：`chromium`・`firefox`・`webkit`（1280px）・`chromebook`（Chromium、1366×768）。タッチ：`iphone`（402px）・`pixel`（360px）・`ipad-portrait`（768px）・`ipad-landscape`（1194px）・`android-tablet`（Galaxy Tab S9 の横、1024px）。
+  - **PC だけ・タッチだけのテストは、`test.skip(hasTouch…)` ではなくタグで書く**：`test('…', { tag: '@pc' }, …)`・`test.describe('…', { tag: '@pc' }, …)`（マウス・キーボード・`setViewportSize` を使うもの）、`@touch`（タップを使うもの）。`pcProject`・`touchProject` が、PC のプロジェクトでは `@touch` を、タッチのプロジェクトでは `@pc` を `grepInvert` で除く（`hasTouch` で決まる）。「代表の1つで確かめる」ものは `test.skip(testInfo.project.name !== 'chromium', …)`（`browserName` では書かない。chromebook も Chromium で、同じ検査が2回動くため）。プロジェクトを足すときは、`e2e.yml` の `project` の選択肢と `install` の `case` も合わせる（`tests/unit/config/playwright-projects.test.ts` が選択肢・タグ・`test.skip` の書き方を止める）。
+  - **テストの引数で `hasTouch`・`isMobile`・`browserName` を受け取らない**（`tests/unit/config/playwright-projects.test.ts` が `tests/e2e/` の下すべてで止める）。受け取ってよいのは、操作の一部だけを分けるファイルで、`FIXTURE_EXCEPTIONS`（ファイルと理由の一覧。今は `csp.spec.ts` のホバーだけ）に足す。
+  - 横スクロールの検査は `tests/e2e/layout.spec.ts`（3言語 × `PAGES` ＋ 404 を、端末の幅と、PC の幅360pxの指定で）。内容を広げた状態は、英語の北海道のカード・市区町村の一覧の JSON を `page.route` で長い URL・長い1語の名前に書き換えて開き、幅 360px・800px・1024px で、文書とカードの領域（`[data-area="card"]`。768px 未満は fixed のパネル、1024px 以上も `overflow-y-auto` の箱で、はみ出しは中でスクロールになり文書の検査では見えない）の両方を確かめる。ページを足すと自動で対象になる。
+  - CI で確かめられないもの（ピンチ・Apple Pencil・ホーム画面への追加・オフライン・1つ前の iPadOS など）は `docs/device-checklist.md`。公開前（T6-01）に確かめ、結果を表に書く。
 - `next.config.ts` の `agentRules: false` は消さない。消すと `next dev` が `AGENTS.md` に英語の指示を書き込む。
 
 ## 開発ルール

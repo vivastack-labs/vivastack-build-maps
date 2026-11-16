@@ -10,8 +10,9 @@ import { dblclickAtCenter } from './helpers';
 
 test.use({ serviceWorkers: 'allow' });
 
-test.beforeEach(({ browserName, hasTouch }) => {
-  test.skip(browserName !== 'chromium' || hasTouch, 'Chromium のデスクトップだけ（最大化はダブルクリック）');
+test.beforeEach(({}, testInfo) => {
+  // 最大化はダブルクリック（マウス）なので @pc。chromebook も同じ Chromium なので、project.name で chromium だけにする
+  test.skip(testInfo.project.name !== 'chromium', 'Chromium のデスクトップだけ（同じ検査をくり返さない）');
 });
 
 const HOKKAIDO = '01';
@@ -58,7 +59,7 @@ async function reloadOffline(context: BrowserContext, page: Page): Promise<void>
   await page.locator('[data-map-ready]').waitFor({ state: 'attached' });
 }
 
-test.describe('5.4：Service Worker', () => {
+test.describe('5.4：Service Worker', { tag: '@pc' }, () => {
   test('5.4：Service Worker が登録され、有効になった後はページを制御する（scope は /）', async ({ page, baseURL }) => {
     // Act
     await openControlled(page);
@@ -184,7 +185,7 @@ test.describe('5.4：Service Worker', () => {
   });
 });
 
-test.describe('5.4：Web App Manifest・アイコン', () => {
+test.describe('5.4：Web App Manifest・アイコン', { tag: '@pc' }, () => {
   for (const lang of LANGS) {
     test(`5.4：${lang} の manifest は、その言語の名前・start_url・アイコンを持ち、HTML からリンクされている`, async ({ page, request }) => {
       // Act
@@ -223,7 +224,7 @@ test.describe('5.4：Web App Manifest・アイコン', () => {
   });
 });
 
-test.describe('5.5：Service Worker があっても CSP 違反が出ない', () => {
+test.describe('5.5：Service Worker があっても CSP 違反が出ない', { tag: '@pc' }, () => {
   test('5.5：登録・プリキャッシュ・オフラインの操作の間に、CSP 違反が1件も出ない', async ({ page, context }) => {
     // Arrange：違反を集める（イベントはページの読み込みの前から）
     const found: string[] = [];

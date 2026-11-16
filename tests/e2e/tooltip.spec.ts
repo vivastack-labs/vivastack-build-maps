@@ -55,11 +55,7 @@ async function maximize(page: Page, code: string): Promise<void> {
   await expect(page.locator(`[data-muni-layer][data-muni-pref="${code}"]`)).toBeAttached();
 }
 
-test.describe('PC（マウス）', () => {
-  test.beforeEach(({ hasTouch }) => {
-    test.skip(hasTouch, 'タッチの端末にはマウスのホバーがない（4.11.3）');
-  });
-
+test.describe('PC（マウス）', { tag: '@pc' }, () => {
   test('F-TIP-01：名物のある県（北海道）にマウスをのせると、県名と名物3つの名前が出る', async ({ page }) => {
     await open(page);
 
@@ -149,11 +145,7 @@ test.describe('PC（マウス）', () => {
   });
 });
 
-test.describe('スマホ・タブレット（タッチ）', () => {
-  test.beforeEach(({ hasTouch }) => {
-    test.skip(!hasTouch, 'タッチの端末のプロジェクトだけで確かめる');
-  });
-
+test.describe('スマホ・タブレット（タッチ）', { tag: '@touch' }, () => {
   test('4.11.3：県をタップしても、ツールチップは出ない', async ({ page }) => {
     await open(page);
     const { x, y } = await pointOn(page.locator(PREF(HOKKAIDO)));
