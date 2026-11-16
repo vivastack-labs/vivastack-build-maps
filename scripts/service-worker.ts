@@ -54,7 +54,7 @@ const toDirectoryUrl: ManifestTransform = entries => ({
  * - アプリの枠組み（3言語 × 3ページの HTML・manifest・`_next/static/` の JS・CSS・アイコン）を、インストールのときにプリキャッシュする。HTML の版は、CSP を書いた後の内容のハッシュ。
  * - 市区町村・カードの JSON は、一度読んだものだけを NetworkFirst で持つ（オンラインでは今までどおりネットワークから読み、失敗したときだけキャッシュから返す。成功した 200 の応答だけを入れる）。
  * - `skipWaiting`・`clientsClaim`：最初に開いたページも、インストールが終わったらすぐ Service Worker を通る。古いプリキャッシュは削除する。
- * 3言語の HTML がない・大きさの上限などでプリキャッシュから外れたファイルがある（workbox の警告）ときは例外（オフラインの範囲が黙って小さくならないように）。
+ * 3言語×3ページの HTML がない・大きさの上限などでプリキャッシュから外れたファイルがある（workbox の警告）ときは例外（オフラインの範囲が黙って小さくならないように）。
  */
 export const writeServiceWorker = async (distDir: string): Promise<ServiceWorkerResult> => {
   assertLanguagePages(distDir);

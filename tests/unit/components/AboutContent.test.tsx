@@ -44,6 +44,18 @@ describe('AboutContent', () => {
     expect(text).toMatch(/AI/u);
   });
 
+  test.each(LANGS)('F-SRC-04：「名物・名所の文」の説明は、カードの出典欄の見出しと「出典なし」の文言（辞書の card）と同じ言葉を使う（%s）', lang => {
+    // Arrange
+    const { card, about } = getMessages(lang);
+
+    // Act
+    const body = plainText(about.content.body);
+
+    // Assert：カードの文言を変えたら、この説明も直す
+    expect(body).toContain(plainText(card.sources));
+    expect(body).toContain(plainText(card.noSource));
+  });
+
   test.each(LANGS)('R10：境界が確定していない地域があり、暫定の線をそのまま使っていること（%s）', lang => {
     // Arrange・Act
     const { container } = render(<AboutContent lang={lang} />);

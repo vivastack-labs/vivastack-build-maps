@@ -114,7 +114,13 @@ export const zh: Messages = {
     mapData: {
       heading: '地图数据',
       processedIntro: '我们对国土数值信息做了如下加工。',
-      processedItems: ['为了方便在地图上查看，简化了形状。', '将市区町村的形状合并，制作出都道府县的形状。', '放不进全国地图的岛屿，已从全国地图中去除。'],
+      processedItems: [
+        '为了方便在地图上查看，简化了形状。',
+        '将市区町村的形状合并，制作出都道府县的形状。',
+        '冲绳县没有画在实际位置，而是以相同大小画在地图左上方的方框内。',
+        '面积不足 1 平方公里的岛屿，已从都道府县的形状中去除，但仍有少数保留。',
+        '放不进全国地图的岛屿，已从全国地图中去除。'
+      ],
       notOfficial: '加工后的数据并非由日本政府制作。'
     },
     boundary: {
@@ -143,18 +149,18 @@ export const zh: Messages = {
     },
     cookies: {
       heading: 'Cookie',
-      body: '本网站不使用 Cookie，因此不会显示征求 Cookie 同意的横幅。'
+      body: '本网站自身不设置 Cookie，因此不会显示征求 Cookie 同意的横幅。'
     },
     storage: {
       heading: '保存在你设备上的内容',
       intro: '本网站会在你设备的浏览器中保存以下内容。两者都只保存在你的设备中，不会发送到服务器。',
-      items: ['模式和假名注音的设置（localStorage）。仅在你按下按钮时保存。', '为了离线也能使用而保存的页面、地图和卡片数据（Service Worker 缓存）。'],
+      items: ['模式和假名注音的设置（localStorage）。仅在你按下按钮时保存。', '为了离线也能使用而保存的页面、地图和卡片数据，以及用于管理它们的数据（Service Worker 缓存）。'],
       note: '你可以在浏览器的设置中删除它们。'
     },
     delivery: {
-      heading: '网站的发布',
-      body: '本网站通过 Cloudflare 的服务发布。',
-      processing: '为了发布网站，Cloudflare 会处理访问者的 IP 地址等连接信息。',
+      heading: '网站托管与分发',
+      body: '本网站通过 Cloudflare 的服务托管和分发。',
+      processing: '为了分发网站，Cloudflare 会处理访问者的 IP 地址等连接信息。',
       detail: { before: '详情请参阅 Cloudflare 的隐私政策（', after: '）。' }
     },
     external: {

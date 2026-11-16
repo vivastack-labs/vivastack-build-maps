@@ -99,7 +99,7 @@ export const en: Messages = {
     ai: 'Created with AI and checked by people',
     about: 'About this site',
     privacy: 'Privacy policy',
-    linksLabel: 'About the site'
+    linksLabel: 'Site information'
   },
   about: {
     title: 'About this site',
@@ -117,6 +117,8 @@ export const en: Messages = {
       processedItems: [
         'We simplified the shapes so that they are easy to see on a map.',
         'We created the prefecture shapes by combining the shapes of the municipalities.',
+        'Okinawa is drawn at the same size, but inside a frame in the upper left of the map, not at its real position.',
+        'Islands with an area of less than 1 km² are left out of the prefecture shapes. A few of them remain.',
         'Islands that do not fit inside the map of the whole country are left out of that map.'
       ],
       notOfficial: 'The processed data was not created by the national government.'
@@ -141,23 +143,26 @@ export const en: Messages = {
   privacy: {
     title: 'Privacy policy',
     analytics: {
-      heading: 'Access analytics',
+      heading: 'Analytics',
       body: 'To learn which pages are viewed, this site uses Cloudflare Web Analytics. It does not use cookies and does not identify visitors as individuals. We look at aggregated data on the page path, the referrer (the site a visitor came from), the country, the browser, the OS, the device type, and the page load speed.',
       detail: { before: 'For details, see the Cloudflare documentation (', after: ').' }
     },
     cookies: {
       heading: 'Cookies',
-      body: 'This site does not use cookies. For this reason, it does not show a cookie consent banner.'
+      body: 'This site itself does not set any cookies. For this reason, it does not show a cookie consent banner.'
     },
     storage: {
       heading: 'What is saved on your device',
       intro: 'This site saves the following in the browser on your device. Both stay on your device and are not sent to the server.',
-      items: ['Your mode and furigana settings (localStorage). They are saved only when you press a button.', 'The pages, maps, and card data that let the site work offline (Service Worker cache).'],
+      items: [
+        'Your mode and furigana settings (localStorage). They are saved only when you press a button.',
+        'The pages, maps, and card data that let the site work offline, and the data used to manage them (Service Worker cache).'
+      ],
       note: 'You can delete them in your browser settings.'
     },
     delivery: {
-      heading: 'Delivery',
-      body: 'This site is delivered using Cloudflare services.',
+      heading: 'Hosting',
+      body: 'This site is hosted and delivered using Cloudflare services.',
       processing: "To deliver the site, Cloudflare handles connection information such as the visitor's IP address.",
       detail: { before: 'For details, see the Cloudflare privacy policy (', after: ').' }
     },

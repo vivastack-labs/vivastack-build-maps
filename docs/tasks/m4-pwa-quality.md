@@ -162,9 +162,9 @@ T4-04 で作った（開発概要書 5.1、D42）。
 - `/{lang}/about/`・`/{lang}/privacy/` を3言語で出した。ページは `src/i18n/lang.ts` の `PAGES` に集め、`langPath(lang, page)`・`alternateUrls(lang, page)`（そのページの canonical と、同じページの3言語の hreflang）・プリキャッシュ（`PAGE_HTML_FILES`）はここから作る（D43）。
 - `Header`・`Footer` を、ルートレイアウトから各ページ（`PageFrame`）に移した。レイアウトは子のページを知らないので、ページの題名を h1 にしてサイト名をトップへのリンクにすること、言語切替を同じページに向けること、フッターの `aria-current` が、そのままでは出来なかったため。
 - 文は辞書の `about`・`privacy`（こども向け・おとな向けの言い分けはしない。日本語はふりがなつき）。URL は `src/lib/sources.ts` の定数。8.3 の3つの出典の文（国土数値情報・総務省・地理院地図）、加工したこと、境界が暫定の地域（R10）、東京からの距離の説明を「このサイトについて」に載せた。
-- プライバシーポリシーは、Cloudflare Web Analytics（Cookie を使わない・個人を見分けない。集計する項目と説明のリンクは Cloudflare の公式の文書のとおり）、Cookie を使わないこと、端末に保存するもの（localStorage の設定・Service Worker のキャッシュ）、Cloudflare で配信していること（接続元の IP アドレスなどを Cloudflare が扱う）、外部のサイト、改定日。
+- プライバシーポリシーは、Cloudflare Web Analytics（Cookie を使わない・個人を見分けない。集計する項目と説明のリンクは Cloudflare の公式の文書のとおり）、このサイト自身は Cookie を設定しないこと、端末に保存するもの（localStorage の設定・Service Worker のキャッシュ）、Cloudflare で配信していること（接続元の IP アドレスなどを Cloudflare が扱う）、外部のサイト、改定日。
 - オフラインでも開く（3言語×3ページの HTML をプリキャッシュ。説明の2ページ×3言語は合わせて圧縮後約 40KB）。
-- 決めていないこと：運営者の名前・問い合わせ先は載せていない。公開（T6-01）の前に決めて足す（`docs/development-plan.md` 5章）。Web Analytics は T6-02 で入れる前提の文で、入れなかったら公開の前に直す（T6-02 の実装内容に書いた）。
+- 決めていないこと：運営者の名前・問い合わせ先は載せていない。公開（T6-02）の前に決めて足す（`docs/development-plan.md` 5章）。Web Analytics は T6-02 で入れる前提の文で、入れなかったら公開の前に直す（T6-02 の実装内容に書いた）。
 
 ---
 
