@@ -24,6 +24,7 @@
     "content:types": "node scripts/content-types.ts",
     "content:validate": "node scripts/validate-content.ts",
     "content:furigana": "node scripts/furigana.ts",
+    "content:links": "node scripts/check-links.ts",
     "size": "node scripts/measure-size.ts",
     "lhci": "lhci collect --config=lighthouserc.yml && lhci collect --config=lighthouserc.tablet.yml --additive --collect.settings.formFactor=mobile --collect.settings.screenEmulation.mobile --collect.settings.screenEmulation.width=800 --collect.settings.screenEmulation.height=1280 --collect.settings.screenEmulation.deviceScaleFactor=2 && lhci upload --config=lighthouserc.yml && lhci assert --config=lighthouserc.yml"
   },
