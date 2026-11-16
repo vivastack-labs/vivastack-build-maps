@@ -18,6 +18,9 @@ describe('writeServiceWorker', () => {
   const putFixtureDist = (): void => {
     for (const lang of ['ja', 'en', 'zh']) {
       put(`${lang}/index.html`, `<html lang="${lang}">${lang}</html>`);
+      put(`${lang}/about/index.html`, `<html lang="${lang}">about</html>`);
+      put(`${lang}/privacy/index.html`, `<html lang="${lang}">privacy</html>`);
+      put(`${lang}/about/index.txt`, 'rsc');
       put(`${lang}/index.txt`, 'rsc');
       put(`${lang}/__next._full.txt`, 'rsc');
       put(`${lang}/app.webmanifest`, `{"id":"/${lang}/"}`);
@@ -59,13 +62,41 @@ describe('writeServiceWorker', () => {
       '_next/static/chunks/0abc.css',
       '_next/static/chunks/0abc.js',
       'en/',
+      'en/about/',
       'en/app.webmanifest',
+      'en/privacy/',
       'icons/icon-192.png',
       'ja/',
+      'ja/about/',
       'ja/app.webmanifest',
+      'ja/privacy/',
       'zh/',
-      'zh/app.webmanifest'
+      'zh/about/',
+      'zh/app.webmanifest',
+      'zh/privacy/'
     ]);
+  });
+
+  test('D40：3言語の about・privacy の HTML をプリキャッシュする（オフラインのトップのフッターから開ける。T4-05）', async () => {
+    // Arrange
+    putFixtureDist();
+
+    // Act
+    await writeServiceWorker(dist);
+
+    // Assert：ナビゲーションの URL（/ja/about/）と同じ形のキー。RSC の txt は入らない
+    expect(precacheUrls()).toEqual(expect.arrayContaining(['ja/about/', 'ja/privacy/', 'en/about/', 'en/privacy/', 'zh/about/', 'zh/privacy/']));
+    expect(precacheUrls().some(url => url.endsWith('.txt'))).toBe(false);
+  });
+
+  test('D40：about・privacy の HTML がなければ、sw.js を作らずに例外にする（オフラインの範囲が黙って小さくならない。T4-05）', async () => {
+    // Arrange
+    putFixtureDist();
+    rmSync(join(dist, 'en/privacy/index.html'));
+
+    // Act・Assert
+    await expect(writeServiceWorker(dist)).rejects.toThrow('en/privacy/index.html');
+    expect(existsSync(join(dist, 'sw.js'))).toBe(false);
   });
 
   test('U13：sw.js 1つにまとめ、workbox-*.js を別に置かない（inlineWorkboxRuntime）', async () => {
@@ -155,7 +186,7 @@ describe('writeServiceWorker', () => {
     const result = await writeServiceWorker(dist);
 
     // Assert
-    expect(result.count).toBe(10);
+    expect(result.count).toBe(16);
     expect(result.size).toBeGreaterThan(0);
   });
 

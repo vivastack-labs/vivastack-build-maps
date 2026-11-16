@@ -50,4 +50,32 @@ describe('Header', () => {
     expect(container.querySelector('header [data-lang-switch]')).not.toBeNull();
     expect(container.querySelectorAll('[data-lang-link]')).toHaveLength(3);
   });
+
+  test.each(['about', 'privacy'] as const)('4.11.7：%s のページでは、サイト名がトップへのリンクで h1 ではない（T4-05）', page => {
+    // Arrange・Act
+    const { container } = render(<Header lang="en" page={page} />);
+
+    // Assert：1ページに h1 は1つ（ページの題名は main の中）。サイト名は /{lang}/ へのリンク
+    expect(container.querySelector('h1')).toBeNull();
+    const link = within(screen.getByRole('banner')).getByRole('link', { name: plainText(getMessages('en').siteName) });
+    expect(link.getAttribute('href')).toBe('/en/');
+  });
+
+  test('4.11.7：page を省くとトップと同じ（サイト名が h1。リンクにしない）', () => {
+    // Arrange・Act
+    const { container } = render(<Header lang="ja" />);
+
+    // Assert
+    expect(container.querySelector('h1')).not.toBeNull();
+    expect(container.querySelector('h1 a')).toBeNull();
+  });
+
+  test('F-I18N-03：ほかのページの言語切替は、同じページのほかの言語を指す（T4-05）', () => {
+    // Arrange・Act
+    const { container } = render(<Header lang="zh" page="privacy" />);
+
+    // Assert
+    const hrefs = [...container.querySelectorAll('[data-lang-link]')].map(link => link.getAttribute('href'));
+    expect(hrefs).toEqual(['/ja/privacy/', '/en/privacy/', '/zh/privacy/']);
+  });
 });

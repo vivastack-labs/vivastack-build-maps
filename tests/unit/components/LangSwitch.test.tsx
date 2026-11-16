@@ -40,4 +40,17 @@ describe('LangSwitch', () => {
     expect(container.querySelector('nav')).toBeNull();
     expect(container.querySelector('[data-lang-switch]')).not.toBeNull();
   });
+
+  test.each([
+    ['about', ['/ja/about/', '/en/about/', '/zh/about/']],
+    ['privacy', ['/ja/privacy/', '/en/privacy/', '/zh/privacy/']],
+    ['home', ['/ja/', '/en/', '/zh/']]
+  ] as const)('F-I18N-03：%s のページでは、同じページのほかの言語を指す（T4-05）', (page, expected) => {
+    // Arrange・Act
+    const { container } = render(<LangSwitch lang="en" page={page} />);
+
+    // Assert
+    const hrefs = [...container.querySelectorAll('a[data-lang-link]')].map(link => link.getAttribute('href'));
+    expect(hrefs).toEqual(expected);
+  });
 });

@@ -295,13 +295,13 @@ PC（1024px以上）                          スマホ（768px未満）
 
 | 部分 | 内容 |
 |---|---|
-| Header | タイトル、言語切替、モード切替、ふりがな切替（日本語のページだけ） |
+| Header | タイトル、言語切替、モード切替、ふりがな切替（日本語のページだけ）。トップではタイトルが h1。「このサイトについて」・プライバシーポリシーのページ（`/{lang}/about/`・`/{lang}/privacy/`。T4-05）では、タイトルはトップへのリンクで、ページの題名が `<main>` の中の h1。言語切替は同じページのほかの言語を指す（固定中の県のハッシュはトップだけ） |
 | Map | 地図、「＋」「−」「全体」ボタン、凡例（F-MAP-03） |
 | Card | 上から順に、見出し（地方名・県名・県庁所在地）→ 東京からの距離・行き方 → 名物3つ → 名所3つ → 最大化ボタン → 出典（`<details>`。カードの中）→ 市区町村の一覧（最大化中だけ。カードの外、カードの下に1つ） |
 | 案内文（地図の下） | 768px未満で、パネルが閉じている間だけ、地図のすぐ下に案内文（4.11.1）を出す。パネルが開いている間、768px以上、JavaScriptが無効のときは出さない（768px以上と、JavaScriptが無効のときは、カードの案内文が見える） |
 | Sheet | 下から出るパネル（768px未満）。サーバーのHTMLから、閉じた状態（`data-sheet="closed"`）の画面の下に固定した配置で出す（ハイドレーションでカードが流れから消えてレイアウトがずれるのを防ぐ。CLS）。パネルが開いている間は、ページの下側にパネルの高さぶんの余白を足し、さくいんの後半・フッターが隠れないようにする（全部見える状態も同じ）。パネルの中の Esc は固定を解除する（4.11.2）。ハッシュから復元して開いたとき（利用者の操作の前）は、全部見える状態で始める（4.11.2）。閉じている・一部だけ見える・全部見えるの3つの状態で、一部だけ見える状態は見出し（地方名・県名・県庁所在地・東京からの距離）と最大化ボタン、全部見える状態は画面の高さの約85%（中でスクロールする）。上端のバーに「くわしく／たたむ」「とじる」。JavaScriptが無効のときはパネルにならず、1列の配置のまま、URLのハッシュ（`#pref-NN`）でカードが読める。JavaScriptが有効なのに読み込めなかったときは、ハッシュの県があれば、パネルを全部見える状態にしてカードが読める。`prefers-reduced-motion` のときは動きを付けない |
 | Index | 県名さくいん（8地方ごと） |
-| Footer | 地図データの出典、「AIで作成し、人が確認しています」、「このサイトについて」・プライバシーポリシーへのリンク |
+| Footer | 地図データの出典、「AIで作成し、人が確認しています」、「このサイトについて」・プライバシーポリシーへのリンク（今のページに `aria-current="page"`）。ヘッダーとフッターはページごとに置く（ルートレイアウトは子のページを知らないため。T4-05） |
 
 ---
 
@@ -378,12 +378,12 @@ U3・U13 を決めた（D40・D41）。
 - **Web App Manifest**：言語ごとに `/{lang}/app.webmanifest`（`app/[lang]/app.webmanifest/route.ts` がビルド時に出力する。名前を `manifest.webmanifest` にしないのは、Next.js のメタデータのファイル〔`app/manifest.ts`〕と紛れないため）。`name` はその言語のサイト名（ふりがなの記法は除く）、`short_name` は辞書の `pwa.shortName`（ja「めいぶつ地図」、en「Meibutsu Map」、zh「名产地图」）、`id`・`start_url` は `/{lang}/`（3言語を別のアプリとして追加できる）、`scope` は `/`（言語の切替でアプリの外に出ない）、`display` は `standalone`、`lang` は `<html lang>` と同じ。`background_color`・`theme_color` は明るいときの値（`#ffffff`。`--color-page-bg`）だけなので、ダークモードの端末でも起動画面は白（仮。manifest は端末の配色で切り替えられない。必要になったら、`<meta name="theme-color" media>` と合わせて決める）。HTML の `<link rel="manifest">` は `generateMetadata` の `manifest` で出す。
 - **アイコン（仮）**：日本の形（`geo/data/prefs.topo.json`）を色のついた正方形の上に描いたもの。`public/icons/` に `icon.svg`（ファビコン）・`icon-192.png`・`icon-512.png`・`icon-maskable-512.png`（セーフゾーンの内側に収めたもの）・`apple-touch-icon.png`（180px。iOS のホーム画面）。`node scripts/make-icons.ts` で作り（毎回のビルドでは動かさない）、出力をコミットする。デザインは仮で、差し替えてよい。どれも同じオリジンなので、CSP（5.5）の `default-src 'self'`・`img-src 'self'` の範囲に入る。
 - **オフラインで使える範囲（U3 → D40）**：
-  - アプリの枠組み（3言語の HTML・manifest・`_next/static/` の JS・CSS・アイコン。都道府県の地図とカードの見出し・さくいんはHTMLに含まれる。6.6）：インストールのときにプリキャッシュする（HTML の URL は `/{lang}/`。Workers の静的配信は `/{lang}/index.html` を `/{lang}/` へ転送するので、キーを `index.html` にしない。`manifestTransforms`）。一度開けば、電波がなくても地図と県名が使え、言語の切替（全体の読み込み）も動く。インストールのときに裏で増える通信は、実測（本物のコンテンツのビルド）で圧縮後およそ 0.3MB：3言語の HTML 約 230KB（今開いているページの HTML も、版つきなので読み直す）、アイコン約 70KB、最初のページで使わない JS 約 10KB。`_next/static/` の JS・CSS は版を付けない（名前にハッシュがある）ので、最初のページで HTTP キャッシュに入ったものを使い、読み直さない。カードの内容は HTML に入らない（D38）ので、コンテンツが増えても HTML はほとんど増えない。
+  - アプリの枠組み（3言語の HTML〔トップ・「このサイトについて」・プライバシーポリシー。T4-05〕・manifest・`_next/static/` の JS・CSS・アイコン。都道府県の地図とカードの見出し・さくいんはHTMLに含まれる。6.6）：インストールのときにプリキャッシュする（HTML の URL は `/{lang}/`。Workers の静的配信は `/{lang}/index.html` を `/{lang}/` へ転送するので、キーを `index.html` にしない。`manifestTransforms`）。一度開けば、電波がなくても地図と県名が使え、言語の切替（全体の読み込み）も動く。インストールのときに裏で増える通信は、実測（T4-05 のビルド。HTML はコンテンツでほとんど変わらない）で圧縮後およそ 0.35MB：3言語のトップの HTML 約 240KB（今開いているページの HTML も、版つきなので読み直す）、「このサイトについて」・プライバシーポリシーの HTML（2ページ×3言語）約 40KB、アイコン約 70KB、最初のページで使わない JS 約 10KB。`_next/static/` の JS・CSS は版を付けない（名前にハッシュがある）ので、最初のページで HTTP キャッシュに入ったものを使い、読み直さない。カードの内容は HTML に入らない（D38）ので、コンテンツが増えても HTML はほとんど増えない。
   - 市区町村の地図データ（`/geo/muni/NN.topo.json`）とカードの内容のJSON（`/cards/{lang}/NN.json`。D38）：一度読み込んだものだけ。**NetworkFirst**（オンラインでは今までどおりネットワークから読み、成功した 200 の応答だけをキャッシュに入れる。ネットワークが失敗したときだけキャッシュから返す。つながっているのに通信が進まないとき〔`navigator.onLine` は true〕は、4秒待ってもネットワークの応答がなければキャッシュに切り替える〔`networkTimeoutSeconds`。読み込みの打ち切りの15秒より先に返すため〕。キャッシュがなければ、時間が切れてもネットワークを待ち続けるので、初回の読み込みと大きいデータは失敗しない）。CacheFirst ではカードの内容を直したデプロイが反映されず、StaleWhileRevalidate ではオンラインでも1回古い内容を見せるため。キャッシュの上限は市区町村 47・カード 141（47県×3言語）。
   - プリキャッシュしないもの：RSC の `*.txt`（言語の切替は全体の読み込み）、`404.html`・`404/`・`_not-found/`、`_headers`・`_redirects`。`/`（`/ja/` への 301）はオフラインでは開けない（`start_url` は `/{lang}/` なので、ホーム画面から開くときは困らない）。
   - 市区町村とカードの読み込み（`createResourceLoader`）は `fetch` の前に `navigator.onLine` を見ない。キャッシュがあれば成功し、なければ `fetch` が失敗して `offline`（4.11.5）になる。
 - **ツール（U13 → D41）**：`workbox-build`（devDependency）の `generateSW`。設定だけから `sw.js` を作り、自分で Service Worker のコードを書かない。プリキャッシュの版（ファイルの内容のハッシュ）・古いキャッシュの削除・NetworkFirst が使える。Next.js のバンドラーに依存せず、静的出力の後の工程（`scripts/postbuild.ts`。6.4）にそのまま入る。Serwist（`@serwist/build` の `injectManifest`）は、Service Worker のソースを別に組み立てる工程が1つ増えるので選ばなかった。
-  - `scripts/service-worker.ts` の `writeServiceWorker(dist)` が `dist/sw.js` の1ファイルを作る（`inlineWorkboxRuntime`。`workbox-*.js` を別に置かない。ソースマップなし）。呼ぶのは `writePageCsp`（5.5）の後（プリキャッシュする HTML の版を、配信する HTML〔CSP の `<meta>` を書いた後〕の内容から求めるため）。3言語の HTML がない・大きさの上限などでプリキャッシュから外れたファイルがある（workbox の警告）ときは、ビルドを止めて `dist/` を消す。
+  - `scripts/service-worker.ts` の `writeServiceWorker(dist)` が `dist/sw.js` の1ファイルを作る（`inlineWorkboxRuntime`。`workbox-*.js` を別に置かない。ソースマップなし）。呼ぶのは `writePageCsp`（5.5）の後（プリキャッシュする HTML の版を、配信する HTML〔CSP の `<meta>` を書いた後〕の内容から求めるため）。3言語×3ページの HTML がない・大きさの上限などでプリキャッシュから外れたファイルがある（workbox の警告）ときは、ビルドを止めて `dist/` を消す。
   - `skipWaiting`・`clientsClaim`：最初に開いたページも、インストールが終わったら Service Worker を通る（そうしないと、最初のページで見た県がキャッシュに入らない）。新しいデプロイは、Service Worker の更新の後の次の読み込みで反映される（更新を知らせる画面は作らない）。更新の前から開いているページが、削除された古い JS のファイルを後から読もうとすると失敗するが、再読み込みで直る。
   - 登録は `ServiceWorkerRegistration`（クライアントコンポーネント。ページの読み込みが終わってから `/sw.js` を `scope: '/'` で登録する）。Next.js の JS のチャンク（外部ファイル）に入るので、インラインスクリプトは増えない（5.5）。`pnpm dev`（`NODE_ENV` が `production` でない）と、Service Worker のないブラウザでは何もしない。`public/_headers` の `/sw.js` は `Cache-Control: no-cache`（更新をすぐ見つけるため）。
   - E2E は、既定で Service Worker を使わない（`serviceWorkers: 'block'`。`page.route` で失敗・遅延を作る既存のテストが、Service Worker に横取りされないため）。`tests/e2e/pwa.spec.ts`（Chromium だけ）だけが許可する。
@@ -411,8 +411,9 @@ U3・U13 を決めた（D40・D41）。
 ### 5.6 プライバシー
 
 - アクセス解析は **Cloudflare Web Analytics**（Cookieを使わない）。Google Analyticsは使わない。
-- Cookieの同意バナーは置かない（Cookieを使わないため）。
-- プライバシーポリシーのページを用意する。
+- Cookieの同意バナーは置かない（このサイト自身はCookieを設定しないため）。
+- プライバシーポリシーのページ（`/{lang}/privacy/`）を3言語で用意する（T4-05）。アクセス解析（Cloudflare Web Analytics。Cookieを使わず、利用者を個人として見分けない。集計するのはページのパス・リファラー・国・ブラウザ・OS・端末の種類・表示速度で、Cloudflare の公式の説明のとおり）、このサイト自身はCookieを設定しないこと、端末に保存するもの（モード・ふりがなの設定〔localStorage〕と、オフラインで使うためのキャッシュ〔Service Worker〕。どちらも端末の中だけ）、Cloudflare で配信していること（接続元の IP アドレスなどの通信の情報を Cloudflare が扱う）、外部のサイトの扱い、改定日を書く。保存期間など、確かめていないことは書かない。
+- 運営者の名前と問い合わせ先は載せていない（設計書に決まっていない）。公開（T6-02）の前に決めて、プライバシーポリシーに足す。Web Analytics は T6-02 で入れる前提で、文に「使う」と書いてある。入れない、または集める項目が違うときは、公開の前に文（辞書の `privacy`）を直す。
 
 ---
 
@@ -1396,6 +1397,7 @@ flowchart LR
 | D40 | PWAでオフライン時に使える範囲と manifest | アプリの枠組み（3言語の HTML・manifest・JS・CSS・アイコン）はインストールのときにプリキャッシュし、市区町村の地図データ（`/geo/muni/`）とカードの内容のJSON（`/cards/`）は一度読んだものだけを NetworkFirst でキャッシュする（オンラインでは今と同じ、失敗したときだけキャッシュ。つながっているのに通信が進まないときは、4秒でキャッシュに切り替える）。manifest は言語ごとに `/{lang}/app.webmanifest`（`id`・`start_url` は `/{lang}/`、`scope` は `/`、`display` は `standalone`）。アイコンは日本の形を描いた仮のもの（5.4）。`generateSW` で作る `sw.js` が最初のページから有効になる（`skipWaiting`・`clientsClaim`）ので、更新を知らせる画面は作らない |
 | D41 | Service Worker のツール | `workbox-build` の `generateSW`。`scripts/postbuild.ts` の最後（CSP の書き込みの後）に `dist/sw.js`（1ファイル）を作る。自分で Service Worker のコードを書かず、版の管理・古いキャッシュの削除・NetworkFirst を使う。Serwist は Service Worker のソースを組み立てる工程が増えるので選ばなかった（5.4）。E2E は既定で Service Worker を使わず、`pwa.spec.ts` だけ許可する |
 | D42 | Lighthouse CI の測り方と、ハッシュつきで開いたときのずれの直し方 | `@lhci/cli` を `ci.yml` の「Size budget」の直後に動かす。上限のコンテンツの `dist/` を、スマホの既定の設定で `/ja/`・`/en/`・`/zh/` を3回ずつ測り、中央値で Performance 0.9 以上・LCP 2.5秒以下・CLS 0.1 以下・TBT 200ms 以下（INP の代わり）を確かめる。幅 800px の `/ja/#pref-01` は CLS だけを確かめる。結果は Artifact（14日）に残し、公開のレポートの置き場所は使わない（5.1）。ずれは、`<head>` の初期化スクリプトを広げて、最初の描画の前にハッシュの県を `<html data-hash-pref>` に書き、CSS が `:target` の代わりにこの属性で最初のレイアウトからカードを表示・予約する（47県ぶんの規則。6.6 (2)）。`:target` の規則は JavaScript が無効のときのために残す |
+| D43 | 「このサイトについて」・プライバシーポリシーのページ | `/{lang}/about/`・`/{lang}/privacy/` を3言語で出す。ページは `src/i18n/lang.ts` の `PAGES` に集め、パス・`canonical`・`hreflang`・プリキャッシュ（オフラインでも開ける）はここから作る。ヘッダー・フッターはルートレイアウトから各ページに移し（`PageFrame`）、ページの題名を h1、サイト名をトップへのリンクにする（1ページに h1 は1つ）。説明の文はこども向け・おとな向けに言い分けず、1つの言い方（日本語はふりがなつき）。出典の URL は辞書に入れず `src/lib/sources.ts` の定数にする（4.11.7、5.6、8.3） |
 
 ## 付録B. 参考資料
 

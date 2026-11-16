@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import { alternateUrls, SITE_URL } from '@/lib/site';
+import { alternateUrls, PRIVACY_REVISED_DATE, SITE_URL } from '@/lib/site';
 
 // F-I18N-03・D8・D35：hreflang と canonical は、サイトの絶対 URL
 describe('alternateUrls', () => {
@@ -29,7 +29,34 @@ describe('alternateUrls', () => {
     expect(result.languages).toEqual(alternateUrls('ja').languages);
   });
 
+  test('F-I18N-03・D8：alternateUrls(lang, page) の canonical はそのページ、hreflang は同じページの3言語と x-default（ja）', () => {
+    // Act
+    const about = alternateUrls('zh', 'about');
+    const privacy = alternateUrls('en', 'privacy');
+
+    // Assert
+    expect(about).toEqual({
+      canonical: `${SITE_URL}/zh/about/`,
+      languages: {
+        ja: `${SITE_URL}/ja/about/`,
+        en: `${SITE_URL}/en/about/`,
+        'zh-Hans': `${SITE_URL}/zh/about/`,
+        'x-default': `${SITE_URL}/ja/about/`
+      }
+    });
+    expect(privacy.canonical).toBe(`${SITE_URL}/en/privacy/`);
+    expect(privacy.languages['x-default']).toBe(`${SITE_URL}/ja/privacy/`);
+    expect(alternateUrls('en', 'home')).toEqual(alternateUrls('en'));
+  });
+
   test('D35：SITE_URL は末尾にスラッシュを付けない', () => {
     expect(SITE_URL.endsWith('/')).toBe(false);
+  });
+});
+
+describe('PRIVACY_REVISED_DATE', () => {
+  test('5.6：プライバシーポリシーの改定日は存在する日の YYYY-MM-DD（formatDate が例外にならない）', () => {
+    expect(PRIVACY_REVISED_DATE).toMatch(/^\d{4}-\d{2}-\d{2}$/u);
+    expect(Number.isNaN(Date.parse(PRIVACY_REVISED_DATE))).toBe(false);
   });
 });

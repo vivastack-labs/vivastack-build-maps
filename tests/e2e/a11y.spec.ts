@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 
 import { MODE_STORAGE_KEY } from '../../src/features/mode/settings';
-import { LANGS } from '../../src/i18n/lang';
+import { LANGS, langPath } from '../../src/i18n/lang';
 
 import { expandSheet, settle } from './helpers';
 
@@ -155,6 +155,48 @@ test.describe('5.2：axe（スマホのパネル）', () => {
           await expectNoViolations(page);
         });
       }
+    }
+  }
+});
+
+// T4-05：「このサイトについて」・プライバシーポリシー。文だけのページなので、PC の chromium だけで、3言語 × ライト・ダークを確かめる
+test.describe('5.2：axe（説明のページ）', () => {
+  test.beforeEach(({}, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', '文だけのページは chromium だけで確かめる（同じ検査をくり返さない）');
+  });
+
+  for (const lang of LANGS) {
+    for (const sub of ['about', 'privacy'] as const) {
+      for (const scheme of SCHEMES) {
+        test(`5.2：${lang}・${sub}・${scheme}・axe の違反が0件`, async ({ page }) => {
+          await page.emulateMedia({ colorScheme: scheme });
+          await page.goto(langPath(lang, sub));
+          await expect(page.locator('main h1')).toHaveCount(1);
+          expect(await page.evaluate(() => window.matchMedia('(prefers-color-scheme: dark)').matches), `配色が ${scheme} になっている`).toBe(scheme === 'dark');
+
+          await expectNoViolations(page);
+        });
+      }
+    }
+  }
+});
+
+// T4-05：スマホ（pixel。幅360px）でも、説明のページを ja で確かめる（文字の折り返し・リンクの大きさ）
+test.describe('5.2：axe（説明のページ・スマホ）', () => {
+  test.beforeEach(({}, testInfo) => {
+    test.skip(testInfo.project.name !== 'pixel', 'スマホは pixel だけで確かめる（同じ検査をくり返さない）');
+  });
+
+  for (const sub of ['about', 'privacy'] as const) {
+    for (const scheme of SCHEMES) {
+      test(`5.2：ja・${sub}・${scheme}・スマホで axe の違反が0件`, async ({ page }) => {
+        await page.emulateMedia({ colorScheme: scheme });
+        await page.goto(langPath('ja', sub));
+        await expect(page.locator('main h1')).toHaveCount(1);
+        expect(await page.evaluate(() => window.matchMedia('(prefers-color-scheme: dark)').matches), `配色が ${scheme} になっている`).toBe(scheme === 'dark');
+
+        await expectNoViolations(page);
+      });
     }
   }
 });

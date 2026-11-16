@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { LANGS } from '../../src/i18n/lang';
+import { LANGS, langPath, PAGES } from '../../src/i18n/lang';
 import { loadContent } from '../../src/lib/content';
 import { plainText } from '../../src/lib/ruby';
 
@@ -80,11 +80,14 @@ test.describe('7.1：プレビューのカードの「下書き」の印', () =>
 });
 
 test.describe('R4・11.4 (5)：プレビューには noindex が付く', () => {
+  // トップと、「このサイトについて」・プライバシーポリシー（T4-05）。ページは PAGES の全部
   for (const lang of LANGS) {
-    test(`/${lang}/ に <meta name="robots" content="noindex"> がある`, async ({ page }) => {
-      await page.goto(`/${lang}/`);
+    for (const sitePage of PAGES) {
+      test(`${langPath(lang, sitePage)} に <meta name="robots" content="noindex"> がある`, async ({ page }) => {
+        await page.goto(langPath(lang, sitePage));
 
-      await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
-    });
+        await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+      });
+    }
   }
 });
