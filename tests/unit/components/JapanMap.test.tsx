@@ -227,6 +227,15 @@ describe('JapanMap の入力の確かめ', () => {
 
     expect(container.querySelector('[data-pref-label]')?.getAttribute('class')).toContain('data-[state=pinned]:fill-map-selected-label');
   });
+
+  test('5.2：固定中の県名ラベルは、塗りと同じ色の縁取りを文字の下に付ける（県の形からはみ出しても読める）', () => {
+    const { container } = render(<JapanMap lang="ja" prefectures={prefectures} />);
+
+    const className = container.querySelector('[data-pref-label]')?.getAttribute('class') ?? '';
+    for (const name of ['stroke-map-selected', '[paint-order:stroke]', '[stroke-width:calc(3px/var(--zoom-k,1))]', '[stroke-linejoin:round]']) {
+      expect(className).toContain(`data-[state=pinned]:${name}`);
+    }
+  });
 });
 
 describe('JapanMap の「準備中」の県（T3-02、4.11.4）', () => {

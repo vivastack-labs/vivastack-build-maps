@@ -3,39 +3,22 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, test } from 'vitest';
 
 import { contrastRatio } from '@/lib/contrast';
+import { parseThemes, type ColorTheme } from '@/lib/cssTheme';
 
-// 5.2（T4-03）：app/globals.css の色の変数から、文字と塗りのコントラスト比を計算する。色を足す・変えると、ここで自動的に確かめられる。
-const CSS = readFileSync(new URL('../../../app/globals.css', import.meta.url), 'utf8');
+// 5.2（T4-03）：app/globals.css の色の変数から、文字・塗り・線のコントラスト比を計算する。
+// 読めない値（var()・oklch() など）があれば、ライトの値で通さず例外にする（`parseThemes`）。
+// 自動で確かめるのは、ここに書いた組み合わせだけ。新しい変数や、新しい文字と塗りの組み合わせは、ここに足す。
+const { light, dark } = parseThemes(readFileSync(new URL('../../../app/globals.css', import.meta.url), 'utf8'));
 
 const TEXT_MIN = 4.5; // WCAG 1.4.3
+const GRAPHIC_MIN = 3; // WCAG 1.4.11
 const SLATE_950 = '#020617'; // Tailwind の text-slate-950
-
-/** `{` の位置から、対応する `}` までの中身を返す */
-function blockAfter(source: string, marker: string): string {
-  const start = source.indexOf(marker);
-  if (start < 0) throw new Error(`globals.css に ${marker} がありません`);
-  const open = source.indexOf('{', start);
-  let depth = 0;
-  for (let i = open; i < source.length; i++) {
-    if (source[i] === '{') depth++;
-    if (source[i] === '}' && --depth === 0) return source.slice(open + 1, i);
-  }
-  throw new Error(`globals.css の ${marker} の波括弧が閉じていません`);
-}
-
-/** `--color-NAME: #hex;` を、名前（`--color-` を除く）→ 値の Map にする */
-function colorsIn(block: string): ReadonlyMap<string, string> {
-  return new Map([...block.matchAll(/--color-([a-z0-9-]+):\s*(#[0-9a-fA-F]{3,6})\s*;/gu)].map(m => [m[1] as string, m[2] as string]));
-}
-
-const light = new Map([...CSS.matchAll(/@theme\s*\{/gu)].flatMap(m => [...colorsIn(blockAfter(CSS.slice(m.index), '@theme'))]));
-const dark = new Map([...light, ...colorsIn(blockAfter(CSS, '@media (prefers-color-scheme: dark)'))]);
 
 const REGIONS = ['hokkaido', 'tohoku', 'kanto', 'chubu', 'kinki', 'chugoku', 'shikoku', 'kyushu'] as const;
 const MUNI = ['muni-0', 'muni-1', 'muni-2', 'muni-3', 'muni-4', 'muni-hover'] as const;
 
 /** 名前の色を引く。なければ例外 */
-function color(theme: ReadonlyMap<string, string>, name: string): string {
+function color(theme: ColorTheme, name: string): string {
   const value = theme.get(name);
   if (value === undefined) throw new Error(`色の変数 --color-${name} がありません`);
   return value;
@@ -56,8 +39,16 @@ describe.each([
     expect(ratio('map-label', 'map-pending-stripe')).toBeGreaterThanOrEqual(TEXT_MIN);
   });
 
-  test('固定中の県のラベルと固定中の県の塗りが 4.5:1 以上', () => {
+  // 固定中の県のラベルは、県の形からはみ出して、海・8地方・準備中の地の上に出ることがある。そのため、
+  // 文字（--color-map-selected-label）に、塗り（--color-map-selected）と同じ色の縁取りを付ける（JapanMap の PINNED_LABEL_CLASS）。
+  // はみ出した先でも、文字は縁取りの上に載る。だから、固定中のラベルと海・地方・準備中の地の比は検査せず、縁取り（＝塗りの色）との比と、
+  // ふつうのラベルと海の比（下）を検査する。固定中の県のラベルが縁取りの外に出ることはない（縁取りは文字のすぐ外側にある）
+  test('固定中の県のラベルと、縁取り・塗り（--color-map-selected）が 4.5:1 以上', () => {
     expect(ratio('map-selected-label', 'map-selected')).toBeGreaterThanOrEqual(TEXT_MIN);
+  });
+
+  test('ふつうの県名ラベルと海が 4.5:1 以上（県の形から、海へはみ出すラベル）', () => {
+    expect(ratio('map-label', 'map-sea')).toBeGreaterThanOrEqual(TEXT_MIN);
   });
 
   test('固定中の塗りの上の文字（text-slate-950 #020617。切替のボタン・さくいんの項目）が 4.5:1 以上', () => {
@@ -77,8 +68,19 @@ describe.each([
     expect(ratio('page-text', 'page-bg')).toBeGreaterThanOrEqual(TEXT_MIN);
   });
 
-  test('地図の線・枠が海と 3:1 以上（WCAG 1.4.11）', () => {
-    expect(ratio('map-border', 'map-sea')).toBeGreaterThanOrEqual(3);
-    expect(ratio('map-frame', 'map-sea')).toBeGreaterThanOrEqual(3);
+  test('県境の線・枠と、海・ページの背景が 3:1 以上（WCAG 1.4.11。ボタンの枠も map-border）', () => {
+    for (const background of ['map-sea', 'page-bg']) {
+      expect(ratio('map-border', background)).toBeGreaterThanOrEqual(GRAPHIC_MIN);
+      expect(ratio('map-frame', background)).toBeGreaterThanOrEqual(GRAPHIC_MIN);
+    }
+  });
+
+  // 県は1つずつがボタンなので、同じ地方の中の県と県の境は、線の隣が地方の塗りになる
+  test.each([...REGIONS.map(region => `region-${region}`), 'map-pending', 'map-selected'])('県境の線と %s の塗りが 3:1 以上（WCAG 1.4.11）', fill => {
+    expect(ratio('map-border', fill)).toBeGreaterThanOrEqual(GRAPHIC_MIN);
+  });
+
+  test.each(MUNI)('市区町村の境の線と %s の塗りが 3:1 以上（WCAG 1.4.11）', fill => {
+    expect(ratio('muni-border', fill)).toBeGreaterThanOrEqual(GRAPHIC_MIN);
   });
 });
