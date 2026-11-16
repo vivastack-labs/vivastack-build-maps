@@ -124,6 +124,21 @@ describe('checkLink', () => {
     await expect(checkLink('https://example.com/a', options(fetchRejecting(tls)))).resolves.toEqual({ kind: 'network-error', reason: 'CERT_HAS_EXPIRED' });
   });
 
+  test('12.4 cause が Error で code がなければ、cause のメッセージを理由にする（リダイレクトの回数の超過など）', async () => {
+    const error = new TypeError('fetch failed', { cause: new Error('redirect count exceeded') });
+
+    await expect(checkLink('https://example.com/a', options(fetchRejecting(error)))).resolves.toEqual({ kind: 'network-error', reason: 'redirect count exceeded' });
+  });
+
+  test('12.4 タイムアウトの設定（timeoutMs）が、AbortSignal.timeout に渡される', async () => {
+    const spy = vi.spyOn(AbortSignal, 'timeout');
+
+    await checkLink('https://example.com/a', { ...options(fetchReturning(response(200))), timeoutMs: 1234 });
+
+    expect(spy).toHaveBeenCalledWith(1234);
+    spy.mockRestore();
+  });
+
   test('12.4 cause がない失敗は、メッセージを理由にする。Error でない値も文字列にする', async () => {
     await expect(checkLink('https://example.com/a', options(fetchRejecting(new TypeError('Invalid URL'))))).resolves.toEqual({ kind: 'network-error', reason: 'Invalid URL' });
     await expect(checkLink('https://example.com/a', options(fetchRejecting('boom')))).resolves.toEqual({ kind: 'network-error', reason: 'boom' });
@@ -203,19 +218,26 @@ describe('runChecks', () => {
   const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
   const links = (urls: readonly string[]) => urls.map(url => ({ url, usages: [`u ${url}`] }));
 
-  /** 10ms かかる check。開始の時刻と、同時に動いた最大数を記録する */
-  function recordingCheck() {
+  /** durationMs（既定は 10ms）かかる check。開始・終了の時刻と、同時に動いた最大数（全体・ホストごと）を記録する */
+  function recordingCheck(durationMs = 10) {
     const starts = new Map<string, number>();
-    const state = { running: 0, maxRunning: 0 };
+    const ends = new Map<string, number>();
+    const state = { running: 0, maxRunning: 0, maxRunningPerHost: 0 };
+    const runningByHost = new Map<string, number>();
     const check = async (url: string): Promise<LinkOutcome> => {
+      const host = new URL(url).host;
       starts.set(url, Date.now());
       state.running += 1;
+      runningByHost.set(host, (runningByHost.get(host) ?? 0) + 1);
       state.maxRunning = Math.max(state.maxRunning, state.running);
-      await sleep(10);
+      state.maxRunningPerHost = Math.max(state.maxRunningPerHost, runningByHost.get(host)!);
+      await sleep(durationMs);
       state.running -= 1;
+      runningByHost.set(host, runningByHost.get(host)! - 1);
+      ends.set(url, Date.now());
       return { kind: 'ok', status: 200 };
     };
-    return { check, starts, state };
+    return { check, starts, ends, state };
   }
 
   async function run(urls: readonly string[], settings: { concurrency: number; hostIntervalMs: number }, check: (url: string) => Promise<LinkOutcome>) {
@@ -224,7 +246,7 @@ describe('runChecks', () => {
     return promise;
   }
 
-  test('12.4 結果は入力と同じ順に返し、使われている場所を引き継ぐ。同じ URL を2回確かめない', async () => {
+  test('12.4 結果は入力と同じ順に返し、使われている場所を引き継ぐ', async () => {
     const { check } = recordingCheck();
     const spy = vi.fn(check);
 
@@ -253,6 +275,31 @@ describe('runChecks', () => {
     const times = urls.map(url => starts.get(url)!).sort((x, y) => x - y);
     expect(times[1]! - times[0]!).toBeGreaterThanOrEqual(2000);
     expect(times[2]! - times[1]!).toBeGreaterThanOrEqual(2000);
+  });
+
+  test('12.4 同じホストへは同時に1件だけ送る（応答が間隔より遅くても、重ならない）', async () => {
+    const { check, state } = recordingCheck(5000);
+
+    await run(['https://a.example/1', 'https://a.example/2', 'https://a.example/3'], { concurrency: 4, hostIntervalMs: 2000 }, check);
+
+    expect(state.maxRunningPerHost).toBe(1);
+  });
+
+  test('12.4 同じホストでは、前の応答が終わった時刻から間隔をあける', async () => {
+    const { check, starts, ends } = recordingCheck(500);
+
+    await run(['https://a.example/1', 'https://a.example/2'], { concurrency: 2, hostIntervalMs: 2000 }, check);
+
+    expect(starts.get('https://a.example/2')! - ends.get('https://a.example/1')!).toBeGreaterThanOrEqual(2000);
+  });
+
+  test('12.4 同じホストの URL が続いても、別のホストの URL は待たされない（作業が止まらない）', async () => {
+    const { check, starts } = recordingCheck();
+    const begin = Date.now();
+
+    await run(['https://a.example/1', 'https://a.example/2', 'https://a.example/3', 'https://b.example/1'], { concurrency: 2, hostIntervalMs: 2000 }, check);
+
+    expect(starts.get('https://b.example/1')).toBe(begin);
   });
 
   test('12.4 別のホストは待たない（同時に始まる）', async () => {
@@ -367,19 +414,60 @@ describe('runLinkCheck', () => {
     const err: string[] = [];
     const files = new Map<string, string>();
     const statuses = overrides.statuses ?? statusByUrl;
+    // 待つと、その分だけ時刻が進む（待ちが終わらない無限ループにならないように）
+    const clock = { time: Date.UTC(2026, 10, 17) };
     const fetch = vi.fn<LinkFetch>(async url => response(statuses[url] ?? 200, { url }));
     const deps = {
       contentDir: 'content/prefectures',
       loadContent: overrides.load ?? (() => overrides.prefectures ?? prefectures),
       fetch,
-      now: () => Date.UTC(2026, 10, 17),
-      sleep: async () => undefined,
+      now: () => clock.time,
+      sleep: async (ms: number) => {
+        clock.time += ms;
+      },
       writeOut: (text: string) => void out.push(text),
       writeErr: (line: string) => void err.push(line),
       writeFile: (path: string, text: string) => void files.set(path, text)
     };
     return { deps, out, err, files, fetch };
   }
+
+  test('12.4 2県が同じ URL を使っていても、その URL は1回だけ確かめ、レポートの「使われている場所」に両方を出す', async () => {
+    const shared = 'https://example.com/shared';
+    const { deps, out, fetch } = setup({
+      prefectures: [prefecture('13', 'tokyo', { access: [shared] }), prefecture('26', 'kyoto', { specialties: { 'uji-tea': [shared] } })],
+      statuses: { [shared]: 404 }
+    });
+
+    await runLinkCheck([], deps);
+
+    expect(fetch.mock.calls.map(([url]) => url)).toEqual([shared]);
+    expect(out.join('\n')).toContain('13-tokyo access<br>26-kyoto specialties/uji-tea');
+  });
+
+  test('12.4 タイムアウトは 20 秒で確かめる', async () => {
+    const spy = vi.spyOn(AbortSignal, 'timeout');
+    const { deps } = setup();
+
+    await runLinkCheck(['--pref', '13'], deps);
+
+    expect(spy).toHaveBeenCalledWith(20_000);
+    spy.mockRestore();
+  });
+
+  test('12.4 思わぬ例外は、メッセージを出して終了コード 2（リンク切れの 1 と区別する）', async () => {
+    const { deps, err } = setup();
+
+    const code = await runLinkCheck([], {
+      ...deps,
+      sleep: async () => {
+        throw new Error('sleep が壊れた');
+      }
+    });
+
+    expect(code).toBe(2);
+    expect(err.join('\n')).toContain('sleep が壊れた');
+  });
 
   test('12.4 リンク切れ（404）があれば終了コード 1。レポートを標準出力に出し、進み具合は標準エラーに出す', async () => {
     const { deps, out, err } = setup();
@@ -439,17 +527,26 @@ describe('runLinkCheck', () => {
     expect(out.join('\n')).toContain('出典の URL がありません');
   });
 
-  test.each([[['--unknown']], [['--pref']], [['--out']], [['extra']], [['--pref', 'nowhere']], [['--pref', '--out']], [['--out', '-x']], [['--out=-x']], [['--pref=-1']]])(
-    '12.4 引数の誤り %j は終了コード 2。何も確かめない',
-    async args => {
-      const { deps, fetch, err } = setup();
+  test.each([
+    [['--unknown']],
+    [['--pref']],
+    [['--out']],
+    [['extra']],
+    [['--pref', 'nowhere']],
+    [['--pref', '--out']],
+    [['--out', '-x']],
+    [['--out=-x']],
+    [['--pref=-1']],
+    [['--out=']],
+    [['--out', '']]
+  ])('12.4 引数の誤り %j は終了コード 2。何も確かめない', async args => {
+    const { deps, fetch, err } = setup();
 
-      await expect(runLinkCheck(args, deps)).resolves.toBe(2);
+    await expect(runLinkCheck(args, deps)).resolves.toBe(2);
 
-      expect(fetch).not.toHaveBeenCalled();
-      expect(err.length).toBeGreaterThan(0);
-    }
-  );
+    expect(fetch).not.toHaveBeenCalled();
+    expect(err.length).toBeGreaterThan(0);
+  });
 
   test('12.4 レポートのファイルを書けなければ、メッセージを出して終了コード 2（リンク切れの 1 と区別する）。レポートは標準出力に出ている', async () => {
     const { deps, out, err } = setup();

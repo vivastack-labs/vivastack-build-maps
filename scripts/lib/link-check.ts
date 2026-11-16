@@ -80,7 +80,7 @@ export function parsePrefectureFilter(input: string, prefectures: readonly Prefe
 function failureReason(error: unknown): string {
   if (!(error instanceof Error)) return String(error);
   const cause = error.cause;
-  if (cause instanceof Error && 'code' in cause && typeof cause.code === 'string') return cause.code;
+  if (cause instanceof Error) return 'code' in cause && typeof cause.code === 'string' ? cause.code : cause.message;
   return error.message;
 }
 
@@ -142,34 +142,61 @@ const hostOf = (url: string): string => {
   }
 };
 
+/** ホストごとの送信の状態。busy は送っている最中、readyAt は次に送れる時刻（前の応答が終わった時刻 + 間隔） */
+type HostState = { busy: boolean; readyAt: number };
+
 /**
- * 同時に確かめる数を concurrency までにし、同じホストへの送信の間隔を hostIntervalMs 以上あけて、すべて確かめる。
- * 結果は入力と同じ順に返す。送る時刻はホストごとに先に取り分ける（同時に動く作業の間でも、間隔が詰まらない）。
- * 間隔が効くのは、最初の URL のホストだけ（リダイレクト先のホストへの送信は数えない）。
+ * 同時に確かめる数を concurrency までにし、すべて確かめる。同じホストへは同時に1件だけ送り、
+ * 前の応答が終わってから hostIntervalMs 以上あけて次を送る（応答が遅いホストに重ねて送らない）。
+ * 作業は、今すぐ送れる URL（そのホストが空いていて、間隔も過ぎている）を先に取るので、
+ * 同じホストの URL が続いても、ほかのホストの URL は待たされない。送れるものがなければ、いちばん早く送れる時刻まで待つ。
+ * 結果は入力と同じ順に返す。間隔が効くのは、最初の URL のホストだけ（リダイレクト先のホストへの送信は数えない）。
  */
 export async function runChecks(links: readonly CollectedLink[], { check, concurrency, hostIntervalMs, now, sleep, onResult }: RunOptions): Promise<readonly CheckedLink[]> {
   const results: (CheckedLink | undefined)[] = links.map(() => undefined);
-  const nextSlotByHost = new Map<string, number>();
-  const state = { next: 0, done: 0 };
+  const hosts = new Map<string, HostState>();
+  const hostState = (index: number): HostState => {
+    const host = hostOf(links[index]!.url);
+    const found = hosts.get(host) ?? { busy: false, readyAt: 0 };
+    hosts.set(host, found);
+    return found;
+  };
+  const pending: number[] = links.map((_, index) => index);
+  const waiters: (() => void)[] = [];
+  const wakeAll = (): void => waiters.splice(0).forEach(wake => wake());
+  let done = 0;
 
-  const reserveSlot = (url: string): number => {
-    const host = hostOf(url);
-    const start = Math.max(now(), nextSlotByHost.get(host) ?? 0);
-    nextSlotByHost.set(host, start + hostIntervalMs);
-    return start;
+  const runOne = async (index: number): Promise<void> => {
+    const state = hostState(index);
+    state.busy = true;
+    const checked: CheckedLink = { ...links[index]!, outcome: await check(links[index]!.url) };
+    state.busy = false;
+    state.readyAt = now() + hostIntervalMs;
+    results[index] = checked;
+    done += 1;
+    onResult?.(checked, done, links.length);
+    wakeAll();
+  };
+
+  /** 今すぐ送れるものがなければ、待つ。送れるようになる時刻があればそこまで、すべてのホストが送信中なら、どれかが終わるまで */
+  const waitForTurn = async (): Promise<void> => {
+    const free = pending.map(hostState).filter(state => !state.busy);
+    if (free.length > 0) return sleep(Math.max(0, Math.min(...free.map(state => state.readyAt)) - now()));
+    await new Promise<void>(resolve => waiters.push(resolve));
   };
 
   const worker = async (): Promise<void> => {
-    while (state.next < links.length) {
-      const index = state.next;
-      state.next += 1;
-      const link = links[index]!;
-      const wait = reserveSlot(link.url) - now();
-      if (wait > 0) await sleep(wait);
-      const checked: CheckedLink = { ...link, outcome: await check(link.url) };
-      results[index] = checked;
-      state.done += 1;
-      onResult?.(checked, state.done, links.length);
+    while (pending.length > 0) {
+      const position = pending.findIndex(index => {
+        const state = hostState(index);
+        return !state.busy && state.readyAt <= now();
+      });
+      if (position < 0) {
+        await waitForTurn();
+        continue;
+      }
+      const [index] = pending.splice(position, 1);
+      await runOne(index!);
     }
   };
 
@@ -270,6 +297,7 @@ function parseArgs(args: readonly string[]): Args {
     const value = inline ?? args[(index += 1)];
     if (value === undefined) throw new Error(`${name} の値がありません`);
     if (value.startsWith('-')) throw new Error(`${name} の値が - で始まっています：${value}`);
+    if (name === '--out' && value === '') throw new Error('--out の値が空です');
     if (name === '--pref') parsed.pref = value;
     else parsed.out = value;
   }
@@ -283,6 +311,15 @@ const USAGE = '使い方：pnpm content:links [--pref 26,kyoto] [--out <ファ�
  * リンク切れ（404・410）があれば 1、なければ 0（要確認だけでも 0）、引数・コンテンツの誤りは 2。
  */
 export async function runLinkCheck(args: readonly string[], deps: LinkCheckDeps): Promise<number> {
+  try {
+    return await execute(args, deps);
+  } catch (error) {
+    deps.writeErr(`思わぬ誤りで止まりました：${error instanceof Error ? error.message : String(error)}`);
+    return 2;
+  }
+}
+
+async function execute(args: readonly string[], deps: LinkCheckDeps): Promise<number> {
   const { writeOut, writeErr } = deps;
   let setup: { readonly out: string | undefined; readonly codes: readonly string[]; readonly prefectures: readonly Prefecture[] };
   try {
