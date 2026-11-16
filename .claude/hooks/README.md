@@ -334,13 +334,14 @@ PreToolUse (Bash)
 ```text
 PreToolUse (Bash)
   └─► run(input)
-        ├─► git commit / git push 以外 → null
-        ├─► プロジェクト直下（CLAUDE_PROJECT_DIR → input.cwd → process.cwd()）で
-        │     gitleaks detect --no-git --source . -c <root>/.gitleaks.toml を実行
-        │     ├─► exit 0 (クリーン) → null
-        │     ├─► exit 非 0 (漏洩検出) → block
-        │     └─► ENOENT (gitleaks 未インストール) → null (graceful)
-        └─► block 時はスキャン結果を reason に含める
+        ├─► git commit / git push を含まない → null（つないだコマンドも lib/git-command.js で読む）
+        ├─► プロジェクト直下（CLAUDE_PROJECT_DIR → input.cwd → process.cwd()）で、入れる・送る内容だけを検査する
+        │     commit：gitleaks protect --staged（ステージした差分）と gitleaks protect（まだステージしていない差分。commit -a の分）
+        │     push  ：gitleaks detect --log-opts="--all --not --remotes"（ローカルのすべての ref のうち、どのリモートにもまだないコミット）
+        │     ├─► すべて exit 0 (クリーン) → null
+        │     ├─► どれかが exit 非 0 (漏洩検出) → block
+        │     └─► ENOENT（未インストール）・合計 8 秒での打ち切り・unknown flag → 警告して null (graceful)
+        └─► block 時は詳細を見るコマンド（--redact のまま。引数はクォート済み）を reason に含める
 ```
 
 **返り値**
@@ -357,9 +358,14 @@ null
 - gitleaks がインストールされていなくてもクラッシュしない
 - コミット・push 以外には反応しない
 - `.gitleaks.toml` は `[extend] useDefault = true` で gitleaks の既定ルールを読み込む。`[allowlist]` だけの設定にするとルールが0件になり、何も検出しなくなる
-- `--no-git` では `.gitignore` が効かないため、ビルド結果（`.next/`・`out/`・`dist/`・`coverage/`）と `node_modules/` を `.gitleaks.toml` の `[allowlist] paths` で除外する
-- `paths` の正規表現は、スキャン元からの相対パスに当たる。`--source .` で実行するので、`^dist/` はリポジトリ直下の `dist/` だけに効く（`~/dist/` の下に clone しても検査は止まらない。`src/lib/dist/` のような入れ子も検査する）
-- `tests/gitleaks.test.js` は、gitleaks があれば実物で `.gitleaks.toml` を検査する（`src/` のトークンは検出し、ビルド結果は検出しない。設定の読み込みエラー（`FTL`）は失敗として扱う）
+- 作業ツリー全体を読む `detect --no-git` は使わない。`node_modules/`・`geo/downloads/` を含めて数分かかり、hook の timeout（10 秒）で必ず打ち切られて、何も検査しないまま commit・push のたびに 10 秒待たせていた（2026-11 に 49 回）。全履歴の検査は CI の gitleaks が行う
+- すべての検査を合わせて `SCAN_BUDGET_MS`（8 秒。hook の timeout より短い）で打ち切り、警告して通す（1 回ごとの上限だと、commit と push をつないだときに hook の timeout を超える）
+- push は HEAD だけでなく、ローカルのすべての ref のまだ push していないコミットを見る（`git push origin <別のブランチ>`・`--all`・`--tags` の分。送らないブランチの秘密でも止まるのは安全側の誤り）
+- block の理由に載せるコマンドは `--redact` を外さない（エージェントが実行しても、秘密が transcript に出ない）
+- 見ないもの：同じコマンドで `git add` する、まだ追跡していないファイル（ステージされるのは hook の後）。CI で見つかる
+- `.gitleaks.toml` の `[allowlist] paths`（ビルド結果・`node_modules/`・hook のログ）は、`git add -f` したものと CI の全履歴の検査に効く
+- `paths` の正規表現は、スキャン元からの相対パスに当たる。`-s .` で実行するので、`^dist/` はリポジトリ直下の `dist/` だけに効く（`~/dist/` の下に clone しても検査は止まらない。`src/lib/dist/` のような入れ子も検査する）
+- `tests/gitleaks.test.js` は、gitleaks があれば一時の git リポジトリで実物を動かし、ステージ・未ステージ・未 push のトークンを検出すること、`.gitleaks.toml` の除外が効くことを確かめる
 
 ---
 
