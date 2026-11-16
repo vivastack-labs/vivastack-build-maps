@@ -1212,6 +1212,8 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm content:validate            # 誤りで失敗し、警告はログに出すだけ
+      - run: node scripts/make-max-content.ts --out "$RUNNER_TEMP/max-content"   # 上限の文字数で埋めたダミー（コミットしない）
+      - run: CONTENT_DIR="$RUNNER_TEMP/max-content" pnpm build && pnpm size      # 最初の読み込みが gzip 後 300KB を超えたら失敗（5.1）。dist/ を作り直すので、本物の build より前に置く
       - run: pnpm build                       # （後で）build:preview にする。draft を含め「下書き」と表示、noindex を付ける（build:preview は T3-02 で作った。ここで使うのは T0-06）
       # E2E は開発中はここで実行しない（D30）。e2e.yml で手動で実行する
       - run: pnpm lhci                        # （後で）
