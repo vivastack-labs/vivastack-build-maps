@@ -357,15 +357,16 @@ Lighthouse CIでこの基準値を超えたら、CIを失敗させる（T4-04、
 
 | 区分 | 対象 | 確認のしかた |
 |---|---|---|
-| PC | Chrome / Edge / Firefox / Safari の最新版と、その1つ前の版 | CI（Playwright：`chromium`・`firefox`・`webkit`〔1280px〕。Edge は Chromium と同じエンジン）。1つ前の版と Edge は実機で確認（[device-checklist.md](device-checklist.md)） |
-| 学校の端末 | ChromeOS の Chrome、iPadOS の Safari、Windows の Edge（それぞれ最新版と1つ前の版） | CI（`chromebook`〔Chromium、1366×768〕・`ipad-portrait`・`ipad-landscape`）＋公開前に実機で確認（[device-checklist.md](device-checklist.md)） |
+| PC | Chrome / Edge / Firefox / Safari の最新版と、その1つ前の版 | CI（Playwright：`chromium`・`firefox`・`webkit`〔1280px〕の最新のエンジン。Edge は Chromium と同じエンジン）。Chrome・Edge・Firefox の1つ前の版は、自動更新されるので `browserslist`（ビルドの対象）に任せ、個別には確かめない。macOS の Safari は最新と1つ前を実機で確認（[device-checklist.md](device-checklist.md)） |
+| 学校の端末 | ChromeOS の Chrome、iPadOS の Safari、Windows の Edge（それぞれ最新版と1つ前の版） | CI（`chromebook`〔Chromium、1366×768〕・`ipad-portrait`・`ipad-landscape`）＋公開前に実機で確認（[device-checklist.md](device-checklist.md)）。実機では、iPadOS は最新と1つ前（学校で管理されている iPad を含む）、ChromeOS の Chrome・Windows の Edge は最新（1つ前の版は自動更新なので `browserslist` に任せる） |
 | スマホ | iOS Safari の最新版と1つ前の版、Android Chrome の最新版 | CI（端末のエミュレーション：`iphone`〔402px〕・`pixel`〔360px〕）＋公開前に実機で確認（[device-checklist.md](device-checklist.md)） |
-| タブレット | iPad（縦・横）、Androidタブレット | CI（画面幅768〜1366px：`ipad-portrait`〔768px〕・`android-tablet`〔Galaxy Tab S9 の横。1024px〕・`ipad-landscape`〔1194px〕・`chromebook`〔1366px〕）＋公開前に実機で確認（[device-checklist.md](device-checklist.md)） |
+| タブレット | iPad（縦・横）、Androidタブレット | CI（タッチの端末：`ipad-portrait`〔768px〕・`android-tablet`〔Galaxy Tab S9 の横。1024px〕・`ipad-landscape`〔1194px〕。1366px は PC の `chromebook`〔マウス〕だけで、タッチの 1366px の端末はない）＋公開前に実機で確認（[device-checklist.md](device-checklist.md)） |
 | 画面幅 | 360px以上 | CI（360px：`pixel`、768px：`ipad-portrait`、1024px：`android-tablet`、1366px：`chromebook`。すべてのページで横スクロールが出ないことを、端末の幅と、幅360pxの指定で確かめる） |
 | 動けばよい範囲 | LINE・WeChatなどのアプリ内ブラウザ、上記より古い版 | 確認しない。問題の報告があれば対応を検討する |
 | 対象外 | Internet Explorer、旧Edge（EdgeHTML）、Androidの標準ブラウザ | — |
 
 - 「最新版と1つ前の版」は、Safari・iOS・iPadOSでは**メジャーバージョン**で数える。
+- 1つ前の版を実機で確かめるのは、OSの更新に左右される Safari（macOS）・iOS・iPadOS。Chrome・Edge・Firefox は自動更新されるので、1つ前の版は `browserslist` で対象にするだけで、個別には確かめない。
 - 同じ範囲を `package.json` の `browserslist` に書き、ビルドツールとlintで同じ基準を使う（例：`last 2 Chrome major versions`、`last 2 iOS major versions`）。
 - CI のプロジェクトは9つ（T4-06）。Playwright は同梱の1つの版のエンジンだけを動かすので、「1つ前の版」と Edge の実機は、公開前の確認（[device-checklist.md](device-checklist.md)）で見る。PC だけ・タッチだけのテストは `@pc`・`@touch` のタグで分け、プロジェクトの設定で除く。
 - 学校で管理されているiPadは、OSの更新が遅れることがある。M4の実機確認では、1つ前のiPadOSでも動くことを確かめる。
