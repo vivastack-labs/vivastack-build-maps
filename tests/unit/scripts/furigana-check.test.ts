@@ -214,7 +214,7 @@ describe('runCheck', () => {
 });
 
 describe('compareReadings（実際の辞書）', () => {
-  test('7.2 実際の辞書：空白を含む文（東京 → 京都、JR 東海道新幹線）も比べられる', () => {
+  test('7.2 実際の辞書：空白を含む文（東京 → 京都、JR 東海道新幹線）も比べられる', { timeout: 30_000 }, () => {
     const tokenize = createLinderaTokenizer();
 
     expect(compareReadings('{東京|とうきょう} → {京都|きょうと}', tokenize)).toEqual([]);

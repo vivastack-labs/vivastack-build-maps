@@ -138,7 +138,7 @@ export function runCheck(
     try {
       return checkSource(path, read(path), tokenize);
     } catch (error) {
-      writeErr(`${path}：読めません（${error instanceof Error ? error.message : String(error)}）`);
+      writeErr(`${path}：読めない、または比べられません（${error instanceof Error ? error.message : String(error)}）`);
       return undefined;
     }
   });

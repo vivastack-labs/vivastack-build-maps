@@ -26,7 +26,7 @@ model: opus
 
 ## 手順
 
-1. Bash で使うコマンドは、`pnpm content:validate`・`pnpm content:furigana --check`・`yamllint` の3つだけ（ほかのコマンドは実行しない。ファイルを書き換えるコマンドも使わない）。`source ~/.nvm/nvm.sh && nvm use >/dev/null` のあとに `pnpm content:validate`（`CONTENT_DIR` があれば付ける）と、`yamllint -c content/.yamllint <YAMLのパス>` と、`pnpm content:furigana --check <YAMLのパス>` を実行する。`content:validate` の誤りと警告は、そのまま報告に入れる（誤りは重さ「誤り」、警告は「要確認」）。
+1. Bash で使うコマンドは、`pnpm content:validate`・`pnpm content:furigana --check`・`yamllint` の3つだけ（nvm の準備を除く。ほかのコマンドは実行しない。ファイルを書き換えるコマンドも使わない）。`source ~/.nvm/nvm.sh && nvm use >/dev/null`（nvm の準備）のあとに `pnpm content:validate`（`CONTENT_DIR` があれば付ける）と、`yamllint -c content/.yamllint <YAMLのパス>` と、`pnpm content:furigana --check <YAMLのパス>` を実行する。`content:validate` の誤りと警告は、そのまま報告に入れる（誤りは重さ「誤り」、警告は「要確認」）。
    - `--check` は、YAML の `{漢字|よみ}` の読みを、辞書（IPADIC）の読みと比べて、違うものを1行ずつ出す（`ファイル:行 場所 表記 YAMLの読み／辞書の読み`）。**辞書の読みが誤っていることもある**（函館山 → はこだてさん。日本三景 → にっぽんさんけい）。出た違いは1件ずつ、どちらの読みが正しいかを判断する：YAML が違えば**誤り**、判断できなければ**要確認**（「公式の表記で確かめる」）、辞書が違えば指摘しない。「比べられない」ものは、自分で読みを確かめる。
 2. 項目ごとに、おとな向けの日本語（`description.ja.adult`。行き方は `mode`・`route`）を基準にして、次を確かめる。
    - **事実の一致**：2つの見方で確かめる。

@@ -182,7 +182,7 @@ const REVIEW_ADVICE: Readonly<Record<ReviewKind, string>> = {
   unknown: '辞書にない語（読みを付けていない）。読みを調べて手で付ける',
   'split-compound': '漢字の続きが語に分かれた。複合語の読みを確かめる',
   'after-digit': '数字の後の漢字。数え方の読みを確かめる',
-  notation: 'ふりがなの記法の誤り。文は変えていない。括弧を直してから、もう一度付ける',
+  notation: 'ふりがなの記法の誤り。文は変えていない。記法を直してから、もう一度付ける',
   mismatch: '辞書の語が文と合わない。文は変えていない。ふりがなを手で付ける'
 };
 

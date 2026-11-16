@@ -273,7 +273,7 @@ describe('formatReview', () => {
     expect(formatReview({ surface: '八ヶ岳', reading: 'やつがだけ', kind: 'misaligned' })).toBe('八ヶ岳（やつがだけ）：送り仮名で区切れず、語全体に読みを付けた。区切りと読みを確かめる');
     expect(formatReview({ surface: '麟', kind: 'unknown' })).toBe('麟：辞書にない語（読みを付けていない）。読みを調べて手で付ける');
     expect(formatReview({ surface: '紋織物', reading: 'もんおりぶつ', kind: 'split-compound' })).toBe('紋織物（もんおりぶつ）：漢字の続きが語に分かれた。複合語の読みを確かめる');
-    expect(formatReview({ surface: '{京都', kind: 'notation' })).toBe('{京都：ふりがなの記法の誤り。文は変えていない。括弧を直してから、もう一度付ける');
+    expect(formatReview({ surface: '{京都', kind: 'notation' })).toBe('{京都：ふりがなの記法の誤り。文は変えていない。記法を直してから、もう一度付ける');
     expect(formatReview({ surface: '東京 京都', kind: 'mismatch' })).toBe('東京 京都：辞書の語が文と合わない。文は変えていない。ふりがなを手で付ける');
     expect(formatReview({ surface: '麒麟', kind: 'split-compound' })).toBe('麒麟：漢字の続きが語に分かれた。複合語の読みを確かめる');
     expect(formatReview({ surface: '11月', reading: 'つき', kind: 'after-digit' })).toBe('11月（つき）：数字の後の漢字。数え方の読みを確かめる');

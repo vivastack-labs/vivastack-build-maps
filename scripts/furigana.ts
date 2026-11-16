@@ -9,7 +9,7 @@ import { annotate, formatReview, uniqueReviews, type FuriganaReview, type Furiga
 
 /**
  * lindera の出力（型は any）から、使う項目だけを取り出す。配列でない・表記が文字列でない出力は、エラーにする。
- * 読みなどが文字列でない（辞書にない語は項目がなく、空白は null）ものは、なしとして扱う。
+ * 読みなどが文字列でない（辞書にない語は項目がなく、空白は null か項目なし）ものは、なしとして扱う。
  */
 export function toFuriganaTokens(raw: unknown): readonly FuriganaToken[] {
   if (!Array.isArray(raw)) throw new Error('トークナイザーの出力が配列ではありません');
