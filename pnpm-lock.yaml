@@ -281,6 +281,9 @@ importers:
       json-schema-to-typescript:
         specifier: 16.0.0
         version: 16.0.0
+      lindera-wasm-nodejs-ipadic:
+        specifier: 2.0.0
+        version: 2.0.0
       mapshaper:
         specifier: 0.7.101
         version: 0.7.101(@types/geojson@7946.0.16)(@types/node@26.6.6)
@@ -4456,6 +4459,9 @@ packages:
   lightningcss@1.33.0:
     resolution: {integrity: sha512-WkUDrojuJs0xkgGf2udWxa3yGBRxPtxUkB79i6aCZLRgc7PM8fZe9TosfPDcvEpQZbuFASnHYmRLBLUbmLOIIA==}
     engines: {node: '>= 12.0.0'}
+
+  lindera-wasm-nodejs-ipadic@2.0.0:
+    resolution: {integrity: sha512-ocuJn9MUA7v5wuXRSADgzLu2Hn2//GmAYHARXSkTbMOCk3bv4Rh1L39XjjJ05286HL0YWfpPo67XrxLMJ/zIhQ==}
 
   linkify-it@6.1.0:
     resolution: {integrity: sha512-wJ/TwpSDTLepCrQoYWYIExIKg5Zchex2Nn5yk2mFnB+6PtdkHtyLx742md9csRjjOnGkKIS/RrbY7l8D6gT9Vw==}
@@ -10554,6 +10560,8 @@ snapshots:
       lightningcss-linux-x64-musl: 1.33.0
       lightningcss-win32-arm64-msvc: 1.33.0
       lightningcss-win32-x64-msvc: 1.33.0
+
+  lindera-wasm-nodejs-ipadic@2.0.0: {}
 
   linkify-it@6.1.0:
     dependencies:

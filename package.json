@@ -23,6 +23,7 @@
     "geo:build": "node geo/scripts/build-geo.ts",
     "content:types": "node scripts/content-types.ts",
     "content:validate": "node scripts/validate-content.ts",
+    "content:furigana": "node scripts/furigana.ts",
     "size": "node scripts/measure-size.ts",
     "lhci": "lhci collect --config=lighthouserc.yml && lhci collect --config=lighthouserc.tablet.yml --additive --collect.settings.formFactor=mobile --collect.settings.screenEmulation.mobile --collect.settings.screenEmulation.width=800 --collect.settings.screenEmulation.height=1280 --collect.settings.screenEmulation.deviceScaleFactor=2 && lhci upload --config=lighthouserc.yml && lhci assert --config=lighthouserc.yml"
   },
@@ -76,6 +77,7 @@
     "fflate": "0.8.3",
     "jsdom": "31.0.0",
     "json-schema-to-typescript": "16.0.0",
+    "lindera-wasm-nodejs-ipadic": "2.0.0",
     "mapshaper": "0.7.101",
     "markdownlint-cli2": "^0.24.0",
     "prettier": "3.9.10",
