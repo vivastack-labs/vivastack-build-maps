@@ -117,7 +117,7 @@ T4-04 で作った（開発概要書 5.1、D42）。
 - INP は Lighthouse（実験室の計測）では測れないので、代わりに TBT を基準にした（200ms 以下。Lighthouse のスマホの採点で「良好」になる境目。上限のコンテンツで手元 48〜109ms）。
 - `lighthouserc.tablet.yml`：幅 800px（1列の配置）の `/ja/#pref-01` を3回測り、CLS だけを確かめる（`lighthouserc.yml` の `assertMatrix`）。ハッシュつきで開いたときのずれ（CLS 0.6〜0.9）を、`<head>` の初期化スクリプトが書く `<html data-hash-pref>` で直した（開発計画 5章）ので、戻ったら止める。ハッシュつきの LCP（約 2.9秒）は基準にしない（開発計画 5章に課題として足した）。
 - 最初に読み込むサイズ（300KB以下）は、`pnpm size` を上限のコンテンツで CI に加えて確かめる（PR #60）。Lighthouse も同じ上限のコンテンツの `dist/` を測る（`ci.yml` の「Size budget」の直後。本物の Build の前）。
-- `package.json` の `pnpm lhci`（`@lhci/cli` 0.16.1）が、2つの設定で測り（2回目は `--additive`）、`.lighthouseci/` に保存して、基準値を確かめる。`ci.yml` に加えた。`deploy.yml` は T0-06 で作るので、そのとき `pnpm lhci` を加える。
+- `package.json` の `pnpm lhci`（`@lhci/cli` 0.16.1）が、2つの設定で測り（2回目は `--additive`）、`.lighthouseci/` に保存して、基準値を確かめる。`ci.yml` に加えた。`deploy.yml`（本番のビルド）に `pnpm lhci` を加えるかは、T0-06 で決める（`docs/tasks/m0-setup.md` の T0-06。本物のコンテンツは全部「準備中」で、最悪の場合を測れないため）。
 
 ### 完了条件
 

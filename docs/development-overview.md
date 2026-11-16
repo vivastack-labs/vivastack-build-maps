@@ -1002,7 +1002,7 @@ flowchart TB
 | データ | Vitest＋JSON Schema | 全YAMLのスキーマ、件数（3件ずつ）、全言語・全モードがそろっているか、文字数、ふりがな | CIで必ず実行 |
 | E2E | Playwright（PC＋スマホ＋タブレット。5.3） | ホバー、固定、最大化、拡大縮小・移動、キーボード操作、言語・モードの切替、`/` のリダイレクト | 第4章の主要な要件をすべて確認。開発中は CI では PR ごとに実行せず、手動で実行する（12.1、D30） |
 | アクセシビリティ | @axe-core/playwright | 3言語 × 2モード × ライト・ダーク | 違反0件 |
-| 表示速度 | Lighthouse CI | `/ja/`、`/en/`、`/zh/` | 第5章 5.1 の基準値 |
+| 表示速度 | Lighthouse CI | `/ja/`、`/en/`、`/zh/`、幅 800px の `/ja/#pref-01`（CLS だけ） | 第5章 5.1 の基準値 |
 
 ---
 
@@ -1167,10 +1167,11 @@ flowchart LR
     direction LR
     A1[install] --> A2[lint / typecheck]
     A2 --> A3[unit / data test]
-    A3 --> A4["build<br/>（draft 含む）"]
+    A3 --> A4["上限のコンテンツの build<br/>・size"]
     A4 --> A5[lhci]
-    A5 --> A6["wrangler versions upload<br/>--preview-alias pr-N"]
-    A6 --> A7[PRにURLをコメント]
+    A5 --> A6["build<br/>（draft 含む）"]
+    A6 --> A7["wrangler versions upload<br/>--preview-alias pr-N"]
+    A7 --> A8[PRにURLをコメント]
   end
   subgraph MAIN["main（deploy.yml）"]
     direction LR
@@ -1182,6 +1183,7 @@ flowchart LR
 ```
 
 - 開発中は、PR の E2E・axe を `e2e.yml` で手動で実行する（D30）。`deploy.yml` で E2E を実行するかは T0-06 で決める。
+- `ci.yml` の Lighthouse は、上限のコンテンツの `dist/` を測る（本物のコンテンツは47県とも「準備中」でカードの JSON を読まず、最悪の場合を測れないため。5.1）。`deploy.yml`（本番のビルド）にも `pnpm lhci` を加えるかは T0-06 で決める。
 
 ### 12.3 PR用workflow（`ci.yml`）
 

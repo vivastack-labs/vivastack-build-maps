@@ -131,8 +131,8 @@ function closeOnEscape(event: KeyboardEvent, sheet: SheetState, dispatch: Dispat
  * 根の `data-sheet`（`closed`・`peek`・`full`）は React が描く。サーバーの HTML に `data-sheet="closed"` が出るので、ハイドレーションの前から最初のパネルの配置になり、レイアウトがずれない（CLS）。
  * 中身（`CardSwitch` など）は描き直さない（6.6 (2)）。
  * 動き（`data-sheet-motion`）は、マウントの2フレーム後に有効にする（読み込みの直後に、パネルが下へ滑るのを見せない）。
- * JavaScript が無効のとき（`scripting: none`）は、768px 未満でもパネルにならず、1列の配置のまま `:target` でカードが読める。
- * JavaScript が有効なのに読み込めなかったとき（ハイドレーションしていない）は、`:target` の県があればパネルを全部見える状態にして、カードが読める（`app/globals.css`）。
+ * JavaScript が無効のとき（`scripting: none`）は、768px 未満でもパネルにならず、1列の配置のまま `:target` でカードが読める（ハイドレーションの前は、初期化スクリプトが書く `<html data-hash-pref>` の県のカードも同じ）。
+ * JavaScript が有効なのに読み込めなかったとき（ハイドレーションしていない）は、`:target`・`data-hash-pref` の県があればパネルを全部見える状態にして、カードが読める（`app/globals.css`）。
  * パネルの中の Esc は `escape` を送る。
  * バー（`[data-sheet-bar]`。「くわしく／たたむ」と「とじる」）は JavaScript がないと動かないので `hidden` で出力し、マウントしたら外す。768px 以上では出さない（`md:hidden`）。
  * 「とじる」は `closeCard`（固定も最大化も解除する）を送る。
@@ -146,7 +146,7 @@ export function CardSheet({ labels, children }: Props) {
   const hasInteracted = useHasInteracted();
   // 閉じたら「くわしく」を戻す（次に開いたときは一部だけ見える）。描画の中で状態を直す（effect を使わない）
   if (state.pinned === null && expanded) setExpanded(false);
-  // 利用者の操作の前に開いた（ハッシュの復元。768px 未満）ときは、全部見える状態で始める（T3-07。JavaScript の前の `:target` の見た目と同じで、縮まない）
+  // 利用者の操作の前に開いた（ハッシュの復元。768px 未満）ときは、全部見える状態で始める（T3-07。JavaScript の前の `data-hash-pref`・`:target` の見た目と同じで、縮まない）
   if (state.pinned !== null && !hasInteracted && !expanded && isSheetLayout()) setExpanded(true);
   const sheet = sheetState({ pinned: state.pinned, expanded });
 

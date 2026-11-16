@@ -11,7 +11,7 @@ import { useMapState } from './MapStateProvider';
  * 中身はサーバーで全県ぶんを出力し、ここでは属性だけを切り替える（6.6 (2)）。県がないときは案内文（`[data-card-guide]`）を見せる。
  * 最大化ボタン（`[data-card-maximize]`。F-CARD-08・F-ZOOM-04）は、JavaScript がないと動かないので `hidden` で出力されており、マウントしたら外す。
  * ボタンのクリックは、地図の県のダブルクリックと同じ `doubleClick`（最大化＋固定、同じ県なら元に戻す。固定は残す。4.11.2）を送り、
- * 最大化中の県のボタンは「元の大きさにもどす」の文言にする。マウントすると根に `data-card-ready` を付ける（`:target` の規則を止め、E2E が待つ）。
+ * 最大化中の県のボタンは「元の大きさにもどす」の文言にする。マウントすると根に `data-card-ready` を付ける（ハッシュの県のカードを見せる `:target`・`data-hash-pref` の規則を止め、E2E が待つ）。
  */
 export function CardSwitch({ children }: { readonly children: ReactNode }) {
   const { state, dispatch } = useMapState();
