@@ -116,9 +116,117 @@ describe('annotate', () => {
   });
 
   test('7.2 同じ語・同じ理由の要確認は、1件にまとめる', () => {
-    const tokenize = fake({ surface: '京', reading: 'キョウ', partOfSpeechSubcategory1: '固有名詞' }, { surface: '京', reading: 'キョウ', partOfSpeechSubcategory1: '固有名詞' });
+    const tokenize = fake(
+      { surface: '京', reading: 'キョウ', partOfSpeechSubcategory1: '固有名詞' },
+      { surface: 'の', reading: 'ノ' },
+      { surface: '京', reading: 'キョウ', partOfSpeechSubcategory1: '固有名詞' }
+    );
 
-    expect(annotate('京京', tokenize).reviews).toHaveLength(1);
+    expect(annotate('京の京', tokenize).reviews).toHaveLength(1);
+  });
+
+  describe('語が分かれた漢字（split-compound）', () => {
+    test('7.2 漢字の続きが2つの語に分かれたら、並び全体と付けた読みを要確認に入れる（出力の文は変えない）', () => {
+      // Arrange：IPADIC の実際の出力。正しい読みは「もんおりもの」
+      const tokenize = fake({ surface: '紋織', reading: 'モンオリ' }, { surface: '物', reading: 'ブツ' });
+
+      // Act
+      const result = annotate('紋織物', tokenize);
+
+      // Assert
+      expect(result.text).toBe('{紋織|もんおり}{物|ぶつ}');
+      expect(result.reviews).toEqual([{ surface: '紋織物', reading: 'もんおりぶつ', kind: 'split-compound' }]);
+    });
+
+    test('7.2 読みが合っていても（総本宮）、分かれていれば要確認に入れる', () => {
+      const tokenize = fake({ surface: '総', reading: 'ソウ' }, { surface: '本宮', reading: 'ホングウ' });
+
+      expect(annotate('総本宮', tokenize).reviews).toEqual([{ surface: '総本宮', reading: 'そうほんぐう', kind: 'split-compound' }]);
+    });
+
+    test('7.2 送り仮名で終わる語に漢字が続くときも、並び全体（送り仮名を含む）を出す（先染め・懸造り）', () => {
+      const first = fake({ surface: '先', reading: 'サキ' }, { surface: '染め', reading: 'ゾメ' });
+      const second = fake({ surface: '懸', reading: 'カカ' }, { surface: '造り', reading: 'ツクリ' });
+
+      expect(annotate('先染め', first).reviews).toEqual([{ surface: '先染め', reading: 'さきぞめ', kind: 'split-compound' }]);
+      expect(annotate('懸造り', second).text).toBe('{懸|かか}{造|つく}り');
+      expect(annotate('懸造り', second).reviews).toEqual([{ surface: '懸造り', reading: 'かかつくり', kind: 'split-compound' }]);
+    });
+
+    test('7.2 3つ以上の語に分かれたときは、並び全体で1件にする', () => {
+      const tokenize = fake({ surface: '東', reading: 'ヒガシ' }, { surface: '山', reading: 'ヤマ' }, { surface: '道', reading: 'ミチ' });
+
+      expect(annotate('東山道', tokenize).reviews).toEqual([{ surface: '東山道', reading: 'ひがしやまみち', kind: 'split-compound' }]);
+    });
+
+    test('7.2 前の語が漢字で終わらない（送り仮名で終わる）ときや、間に別の語があるときは、要確認に入れない', () => {
+      const kana = fake({ surface: '焼き', reading: 'ヤキ' }, { surface: '魚', reading: 'サカナ' });
+      const apart = fake({ surface: '京', reading: 'キョウ' }, { surface: 'の', reading: 'ノ' }, { surface: '町', reading: 'マチ' });
+
+      expect(annotate('焼き魚', kana).reviews).toEqual([]);
+      expect(annotate('京の町', apart).reviews).toEqual([]);
+    });
+
+    test('7.2 読みのない語（辞書にない語）が混じるときは、読みを付けずに並び全体を出す', () => {
+      const tokenize = fake({ surface: '麒', reading: 'キ' }, { surface: '麟' });
+
+      const { reviews } = annotate('麒麟', tokenize);
+
+      expect(reviews).toContainEqual({ surface: '麒麟', kind: 'split-compound' });
+      expect(reviews).toContainEqual({ surface: '麟', kind: 'unknown' });
+    });
+
+    test('7.2 同じ並びが何回出ても、要確認は1件にまとめる', () => {
+      const tokenize = fake(
+        { surface: '西', reading: 'ニシ' },
+        { surface: '軍', reading: 'グン' },
+        { surface: 'と', reading: 'ト' },
+        { surface: '西', reading: 'ニシ' },
+        { surface: '軍', reading: 'グン' }
+      );
+
+      expect(annotate('西軍と西軍', tokenize).reviews).toEqual([{ surface: '西軍', reading: 'にしぐん', kind: 'split-compound' }]);
+    });
+  });
+
+  describe('数字の後の漢字（after-digit）', () => {
+    test('7.2 直前が数字の語に漢字があれば、数字を含めて要確認に入れる（出力の文は変えない）', () => {
+      // Arrange：IPADIC の実際の出力。正しい読みは「がつ」
+      const tokenize = fake({ surface: '11' }, { surface: '月', reading: 'ツキ' });
+
+      // Act
+      const result = annotate('11月', tokenize);
+
+      // Assert
+      expect(result.text).toBe('11{月|つき}');
+      expect(result.reviews).toEqual([{ surface: '11月', reading: 'つき', kind: 'after-digit' }]);
+    });
+
+    test('7.2 全角の数字でも要確認に入れる', () => {
+      const tokenize = fake({ surface: '１２' }, { surface: '社', reading: 'シャ' });
+
+      expect(annotate('１２社', tokenize).reviews).toEqual([{ surface: '１２社', reading: 'しゃ', kind: 'after-digit' }]);
+    });
+
+    test('7.2 数字と漢字が1つの語になっているときも、要確認に入れる', () => {
+      const tokenize = fake({ surface: '3日', reading: 'ミッカ' });
+
+      expect(annotate('3日', tokenize).reviews).toContainEqual({ surface: '3日', reading: 'みっか', kind: 'after-digit' });
+    });
+
+    test('7.2 数字の後に漢字がない（ひらがな・カタカナ）、または、数字が前にないときは、要確認に入れない', () => {
+      const kana = fake({ surface: '3' }, { surface: 'ひき', reading: 'ヒキ' });
+      const none = fake({ surface: '月', reading: 'ツキ' });
+
+      expect(annotate('3ひき', kana).reviews).toEqual([]);
+      expect(annotate('月', none).reviews).toEqual([]);
+    });
+
+    test('7.2 読みのない語（辞書にない語）が数字の後にあれば、読みを付けずに出す', () => {
+      const tokenize = fake({ surface: '2' }, { surface: '麟' });
+
+      expect(annotate('2麟', tokenize).reviews).toContainEqual({ surface: '2麟', kind: 'after-digit' });
+    });
   });
 
   test('7.2 空の文は、そのまま返す', () => {
@@ -131,6 +239,9 @@ describe('formatReview', () => {
     expect(formatReview({ surface: '函館山', reading: 'はこだてさん', kind: 'proper-noun' })).toBe('函館山（はこだてさん）：固有名詞。読みを公式の表記で確かめる');
     expect(formatReview({ surface: '八ヶ岳', reading: 'やつがだけ', kind: 'misaligned' })).toBe('八ヶ岳（やつがだけ）：送り仮名で区切れず、語全体に読みを付けた。区切りと読みを確かめる');
     expect(formatReview({ surface: '麟', kind: 'unknown' })).toBe('麟：辞書にない語（読みを付けていない）。読みを調べて手で付ける');
+    expect(formatReview({ surface: '紋織物', reading: 'もんおりぶつ', kind: 'split-compound' })).toBe('紋織物（もんおりぶつ）：漢字の続きが語に分かれた。複合語の読みを確かめる');
+    expect(formatReview({ surface: '麒麟', kind: 'split-compound' })).toBe('麒麟：漢字の続きが語に分かれた。複合語の読みを確かめる');
+    expect(formatReview({ surface: '11月', reading: 'つき', kind: 'after-digit' })).toBe('11月（つき）：数字の後の漢字。数え方の読みを確かめる');
   });
 });
 
@@ -210,6 +321,15 @@ describe('createLinderaTokenizer（実際の辞書）', () => {
     const tokenize = createLinderaTokenizer();
 
     expect(annotate('清水寺の町並み', tokenize).text).toBe('{清水寺|きよみずでら}の{町並|まちな}み');
+  });
+
+  test('7.2 実際の辞書：数字の後の漢字と、分かれた複合語を要確認に入れる', () => {
+    const tokenize = createLinderaTokenizer();
+
+    const { reviews } = annotate('11月に紋織物を見ます。', tokenize);
+
+    expect(reviews).toContainEqual(expect.objectContaining({ surface: '11月', kind: 'after-digit' }));
+    expect(reviews).toContainEqual(expect.objectContaining({ surface: '紋織物', kind: 'split-compound' }));
   });
 
   test('7.2 実際の辞書：辞書にない漢字は、そのまま残して要確認に入れる', () => {
