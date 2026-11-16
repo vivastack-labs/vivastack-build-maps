@@ -179,6 +179,26 @@ const SCENES: readonly Scene[] = [
   { name: 'ja-top-dark', path: '/ja/', prepare: page => page.emulateMedia({ colorScheme: 'dark' }) },
   // T2-05：県（長野県）をクリックして固定した状態。固定した県の塗りと、カードの県名が変わる。最大化は ja-maximized で撮る
   { name: 'ja-pinned', path: '/ja/', prepare: pinPref },
+  // T4-03：ダークの固定中の県名ラベル（暗い文字＋塗りと同じ色の縁取り）と、ほぼ白の県境（WCAG 1.4.11）
+  {
+    name: 'ja-pinned-dark',
+    path: '/ja/',
+    prepare: async page => {
+      await page.emulateMedia({ colorScheme: 'dark' });
+      await pinPref(page);
+    }
+  },
+  // T4-03：ラベルが県の形から海にはみ出す県（神奈川県）。ハッシュから固定を復元する。はみ出した部分も縁取りの上で読める
+  {
+    name: 'ja-pinned-kanagawa-dark',
+    path: '/ja/#pref-14',
+    pcOnly: true,
+    prepare: async page => {
+      await page.emulateMedia({ colorScheme: 'dark' });
+      await page.locator('[data-map-ready]').waitFor({ state: 'attached' });
+      await page.locator('[data-pref="14"][aria-pressed="true"]').first().waitFor({ state: 'attached' });
+    }
+  },
   // T3-01：東京からの距離。固定した県（長野県）のカードに「東京から約 … km」が出る。en・zh で、3言語の文言を確かめる（桁区切りは単体テストで確かめる）
   { name: 'en-pinned', path: '/en/', prepare: pinPref },
   { name: 'zh-pinned', path: '/zh/', prepare: pinPref },
