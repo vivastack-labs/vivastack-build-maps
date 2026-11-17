@@ -7,7 +7,7 @@
 
 ## 必要な環境
 
-- Node.js：`.nvmrc` の版（26）。nvm で入れる。
+- Node.js：`.nvmrc` の版（26）。[nvm](https://github.com/nvm-sh/nvm) で入れる。
 - pnpm：`package.json` の `packageManager` の版。corepack で有効にする（npm・yarn は使わない）。
 - yamllint 1.33.0：`pnpm lint` が使う（Python 製なので、pnpm では入らない。例：`pipx install yamllint==1.33.0`）。
 - Playwright のブラウザ：E2E（`pnpm test:e2e`）を動かすときだけ。入れ方は [AGENTS.md](AGENTS.md) の「E2E の準備」。
@@ -23,6 +23,7 @@ npm install -g corepack    # Node.js 25 以降は corepack が同梱されない
 corepack enable
 pnpm install
 git config --add remote.origin.fetch '^refs/heads/screenshots'   # PRの画像のブランチを、ふだんの fetch・pull で取らない
+git update-ref -d refs/remotes/origin/screenshots   # clone で取った追跡ブランチを消す
 ```
 
 ## よく使うコマンド
@@ -47,7 +48,7 @@ pnpm content:validate  # コンテンツの YAML を検証する
 2. テストを先に書く（TDD）。カバレッジは全体80%以上、ドメインロジックは90%以上。
 3. PR を `main` に向けて出すと、GitHub Actions の CI が動く（`.github/workflows/ci.yml`）。
 4. オーナーが Environment `preview` のデプロイを承認すると、プレビュー（`https://pr-<番号>-maps.vivastack-dev.workers.dev/`）に出て、PR に URL がコメントされる。
-5. `main` に merge すると、本番に自動で出る（`.github/workflows/deploy.yml`）。**手元から `wrangler deploy` はしない。**
+5. `main` に merge すると、本番に自動で出る（`.github/workflows/deploy.yml`）。**手元から `wrangler deploy` はしない**（障害時の切り戻しを除く。開発概要書の第13章）。
 
 E2E は PR ごとには動かさない。画面やルーティングを変えたときは、merge の前に手元（`pnpm test:e2e`）か、手動の workflow（`e2e.yml`）で確かめる。
 
