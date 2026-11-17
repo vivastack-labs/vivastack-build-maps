@@ -30,7 +30,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/25371"
       accessed: "2026-11-17"
-  status: verified
+  status: reviewed
 specialties:
   - id: nishijin-ori
     emoji: "👘"
@@ -50,7 +50,7 @@ specialties:
       - title: "西陣織 ［京都府の伝統的工芸品等］／京都府ホームページ"
         url: "https://www.pref.kyoto.jp/senshoku/nisijin.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: uji-cha
     emoji: "🍵"
     name: {ja: "{宇治茶|うじちゃ}", en: "Uji Tea", zh: "宇治茶"}
@@ -69,7 +69,7 @@ specialties:
       - title: "宇治茶（うじちゃ）｜にっぽん伝統食図鑑：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/traditional-foods/menu/uzitya.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: kyo-tsukemono
     emoji: "🥬"
     name: {ja: "{京漬物|きょうつけもの}", en: "Kyoto Pickles", zh: "京都腌菜"}
@@ -88,7 +88,7 @@ specialties:
       - title: "京漬物（きょうつけもの）｜にっぽん伝統食図鑑：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/traditional-foods/menu/kyo_tukemono.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
 spots:
   - id: kiyomizu-dera
     name: {ja: "{清水寺|きよみずでら}", en: "Kiyomizu-dera Temple", zh: "清水寺"}
@@ -110,7 +110,7 @@ spots:
       - title: "巡る | 音羽山 清水寺"
         url: "https://www.kiyomizudera.or.jp/map.php"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: fushimi-inari-taisha
     name: {ja: "{伏見稲荷大社|ふしみいなりたいしゃ}", en: "Fushimi Inari Taisha", zh: "伏见稻荷大社"}
     description:
@@ -131,7 +131,7 @@ spots:
       - title: "大社マップ｜おいなりさんへ出かけよう｜伏見稲荷大社"
         url: "https://inari.jp/trip/map01/"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: amanohashidate
     name: {ja: "{天橋立|あまのはしだて}", en: "Amanohashidate", zh: "天桥立"}
     description:
@@ -149,4 +149,4 @@ spots:
       - title: "天橋立 - 観る・遊ぶ - 天橋立観光協会"
         url: "https://www.amanohashidate.jp/spot/amanohashidate/"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
