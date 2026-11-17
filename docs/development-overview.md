@@ -5,7 +5,7 @@
 | ドキュメント | docs/development-overview.md |
 | 版 | 0.8（ドラフト） |
 | 作成日 | 2026-11-11 |
-| 更新日 | 2026-11-17（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）。0.11：PWA のオフラインで使える範囲と Service Worker のツールを決めた（5.4、U3・U13、D40・D41）。0.12：アクセシビリティの検査（axe・コントラストの単体テスト）と、ふりがなの読み上げの対処を 5.2 に書いた。0.13：Lighthouse CI の測り方と TBT の基準を 5.1 に書き、ハッシュつきのずれの直し方を決めた〔D42〕。0.14：執筆ルールとレビュー基準を `content/guidelines/` に書き（T5-01）、9.2・9.3 に参照を足した。`status` を `reviewed` にするのは、承認の後にオーナー。0.15：ふりがなの自動付与のツール（`pnpm content:furigana`、`lindera-wasm-nodejs-ipadic`）と、①〜④のスキル・エージェント（`gotouchi-content`・`gotouchi-source-checker`・`gotouchi-derivative-checker`）を決めた〔T5-02〕。0.16：出典のリンク切れチェック（`pnpm content:links`、`link-check.yml`）の上限・分類・終了コード・安全の方針を 12.4 に決めた〔T5-03〕。0.17：リポジトリを public にし、`main` をルールセット2つで守り、GitHub の設定を `pnpm github:setup` で反映するようにした。Cloudflare API Token の最小権限を決め、Access の手順を公式ドキュメントで書いた（11.1〜11.5、13、U5・U14、D44・D45。U7 は T0-06 に移した）〔T0-05〕。0.18：プレビューURLを Cloudflare Access で守るのをやめた（D20 → D46。リポジトリを public にしたので、下書きはすでに公開されている。U7 は不要になった）〔T0-06〕） |
+| 更新日 | 2026-11-17（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）。0.11：PWA のオフラインで使える範囲と Service Worker のツールを決めた（5.4、U3・U13、D40・D41）。0.12：アクセシビリティの検査（axe・コントラストの単体テスト）と、ふりがなの読み上げの対処を 5.2 に書いた。0.13：Lighthouse CI の測り方と TBT の基準を 5.1 に書き、ハッシュつきのずれの直し方を決めた〔D42〕。0.14：執筆ルールとレビュー基準を `content/guidelines/` に書き（T5-01）、9.2・9.3 に参照を足した。`status` を `reviewed` にするのは、承認の後にオーナー。0.15：ふりがなの自動付与のツール（`pnpm content:furigana`、`lindera-wasm-nodejs-ipadic`）と、①〜④のスキル・エージェント（`gotouchi-content`・`gotouchi-source-checker`・`gotouchi-derivative-checker`）を決めた〔T5-02〕。0.16：出典のリンク切れチェック（`pnpm content:links`、`link-check.yml`）の上限・分類・終了コード・安全の方針を 12.4 に決めた〔T5-03〕。0.17：リポジトリを public にし、`main` をルールセット2つで守り、GitHub の設定を `pnpm github:setup` で反映するようにした。Cloudflare API Token の最小権限を決め、Access の手順を公式ドキュメントで書いた（11.1〜11.5、13、U5・U14、D44・D45。U7 は T0-06 に移した）〔T0-05〕。0.18：プレビューURLを Cloudflare Access で守るのをやめた（D20 → D46。リポジトリを public にしたので、下書きはすでに公開されている。U7 は不要になった）。PR のプレビューと `main` の本番へのデプロイ（12.1〜12.3。Token の job は `main` の道具と PR の `dist/` だけを扱う。11.2）〔T0-06〕） |
 | リポジトリ | vivastack-labs/vivastack-build-maps（リポジトリ直下がアプリ本体） |
 | 公開URL | `https://maps.vivastack-dev.workers.dev/{ja,en,zh}/` |
 | ステータス | 検討フェーズの決定事項を反映。「要検証」とした項目は実装時に確定する |
@@ -1033,7 +1033,14 @@ flowchart TB
 - シークレットは、リポジトリ、`.env`、ログ、PRのコメントには一切書かない。
 - 登録は `gh secret set <名前> [--env <Environment>] -R vivastack-labs/vivastack-build-maps` で行い、値は画面の入力（`? Paste your secret`）で渡す。`--body` や `echo <値> |` で渡すと、値がシェルの履歴に残る。Environment の Secret は、Environment を先に作らないと登録できない（`pnpm github:setup --apply`。11.5）。
 - `CLOUDFLARE_API_TOKEN` は、`preview` と `production` に同じ Token を置く（D45）。Cloudflare の Token は Worker ごとに絞れない（アカウントのすべての Worker を変えられる）ので、分けても得るものがない。T0-05 で3つとも登録した（2026-11-17）。
-- Environment `preview` は、デプロイの前にオーナーの承認を必須にする（D45）。Team `maps-reviewers` は Write 権限を持つので、ブランチを push して workflow に `environment: preview` を書けば Token を取り出せるため。承認する前に、その実行（run）のコミットと `main` の差が `/content/prefectures/` の下だけであることを確かめる。それ以外の変更（`.github/workflows/`・`package.json`・`pnpm-lock.yaml`・`scripts/`・`next.config.ts`・`wrangler.jsonc` など）があれば、中身をすべて読んでから承認する。`preview` の job は、push されたブランチのスクリプトと依存を、Token が使える同じ job の中で動かすため、workflow を変えなくても Token を取り出せる。承認するのは run に紐づいたコミットで、PR の最新とは限らない。この確認は、`preview` の job が Actions のキャッシュを復元しないことを前提にする（`setup-node` の `cache:`・`actions/cache` を使わない。T0-06）。キャッシュは承認の要らない `ci.yml` の run でも保存されるので、前の run で細工したキャッシュを、差が `/content/prefectures/` だけのコミットで使わせることができるため。オーナーは自分の push も承認できる（`prevent_self_review: false`）。
+- Environment `preview` は、デプロイの前にオーナーの承認を必須にする（D45）。Team `maps-reviewers` は Write 権限を持つので、ブランチを push して workflow に `environment: preview` を書けば Token を取り出せるため（`pull_request` の workflow は PR のブランチの定義で動く）。
+  - Token を使う `preview` の job は、道具（`package.json`・lockfile・`wrangler.jsonc`・wrangler）を `main`（PR の base）から取り、PR からは静的ファイル（`check` が作った `dist/` の Artifact）だけを受け取る（T0-06）。PR のスクリプト・依存は Token のある job では動かない。`check` は Actions のキャッシュを使わない（前の run で細工したキャッシュで `dist/` を作らせないため）。
+  - そのため承認の前に確かめるのは、(1) PR の変更（Files changed。その run のコミットまで）に `.github/` がないこと、(2) 公開してよい内容か、の2つ。`.github/` の変更があれば、中身をすべて読んでから承認する。コンテンツの PR は `/content/prefectures/` だけを変えるので、それ以外のファイルがあれば理由を確かめる。
+  - 承認するのは run に紐づいたコミット（PR の head と `main` を merge した結果）で、PR の最新とは限らない。`dist/` の Artifact は7日で消えるので、それより後に承認するときは run をやり直す（Re-run all jobs）。
+  - オーナーは自分の push も承認できる（`prevent_self_review: false`）。
+  - `preview` は `main` の `wrangler.jsonc` と wrangler の版を使うので、PR で `wrangler.jsonc` を変えても、プレビューには反映されない（反映を確かめるのは merge の後の本番）。
+  - URL の取り出しと PR へのコメントは、承認の後に動く `preview-comment` の job が、PR のコード（`scripts/preview-*.ts`）で行う。この job は Secrets を持たず、`pull-requests: write` だけを持つ（Write 権限の人が自分で書ける workflow と同じ権限なので、承認の対象にしない）。
+  - 残るリスク：本番（`deploy.yml`）も `preview` も、Token は依存から切り離した job に置いたが、依存が汚染されると、ビルドした `dist/`（公開する内容）は細工されうる。lockfile を `--frozen-lockfile` で使い、Dependabot の更新の PR を読んでから merge することで受ける。
 - ローカルからのデプロイ作業は `wrangler login`（OAuth）で行い、トークンを手元に保存しない。
 
 ### 11.3 Cloudflare API Tokenの権限
@@ -1167,9 +1174,9 @@ pnpm exec wrangler dev   # dist/ を Workers と同じ動きでローカル確�
 
 | ファイル | 実行タイミング | 内容 |
 |---|---|---|
-| `.github/workflows/ci.yml` | `main` 向けのPR | チェック一式 → プレビューへデプロイ → PRにURLをコメント |
+| `.github/workflows/ci.yml` | `main` 向けのPR | チェック一式 → プレビューへデプロイ（オーナーの承認の後）→ PRにURLをコメント |
 | `.github/workflows/e2e.yml` | **手動で実行**（`workflow_dispatch`） | E2E（Playwright）。プロジェクト（`all` か1つ）を選べる。開発中は PR ごとには実行しない（D30） |
-| `.github/workflows/deploy.yml` | `main` へのpush | チェック一式 → 本番へデプロイ |
+| `.github/workflows/deploy.yml` | `main` へのpush | typecheck・test・`content:validate`・build（`reviewed` だけ）→ 本番へデプロイ（T0-06） |
 | `.github/workflows/link-check.yml` | **手動で実行**（`workflow_dispatch`） | 全コンテンツの出典URLのリンク切れチェック。結果はレポートとして残す |
 
 - リポジトリ全体がアプリなので、パスでの絞り込みは基本的にしない。
@@ -1187,26 +1194,27 @@ flowchart LR
     A2 --> A3[unit / data test]
     A3 --> A4["上限のコンテンツの build<br/>・size"]
     A4 --> A5[lhci]
-    A5 --> A6["build<br/>（draft 含む）"]
-    A6 --> A7["wrangler versions upload<br/>--preview-alias pr-N"]
+    A5 --> A6a["build<br/>（本番用。確かめるだけ）"]
+    A6a --> A6["build:preview<br/>（draft 含む）"]
+    A6 --> AP{{オーナーの承認<br/>（preview）}}
+    AP --> A7["wrangler versions upload<br/>--preview-alias pr-N"]
     A7 --> A8[PRにURLをコメント]
   end
   subgraph MAIN["main（deploy.yml）"]
     direction LR
-    B1[install] --> B2[lint / typecheck / test]
+    B1[install] --> B2["typecheck / test<br/>content:validate"]
     B2 --> B3["build<br/>（reviewed のみ）"]
-    B3 --> B4[e2e / axe / lhci]
-    B4 --> B5[wrangler deploy]
+    B3 --> B5[wrangler deploy]
   end
 ```
 
-- 開発中は、PR の E2E・axe を `e2e.yml` で手動で実行する（D30）。`deploy.yml` で E2E を実行するかは T0-06 で決める。
-- `ci.yml` の Lighthouse は、上限のコンテンツの `dist/` を測る（本物のコンテンツは47県とも「準備中」でカードの JSON を読まず、最悪の場合を測れないため。5.1）。`deploy.yml`（本番のビルド）にも `pnpm lhci` を加えるかは T0-06 で決める。
+- 開発中は、PR の E2E・axe を `e2e.yml` で手動で実行する（D30）。`deploy.yml` でも E2E は実行しない（T0-06 で決定。本番に出るのは、merge の前に `e2e.yml` で確かめた `main` だけ）。
+- `ci.yml` の Lighthouse は、上限のコンテンツの `dist/` を測る（本物のコンテンツは47県とも「準備中」でカードの JSON を読まず、最悪の場合を測れないため。5.1）。`deploy.yml`（本番のビルド）には `pnpm lhci` を加えない（T0-06 で決定。本物のコンテンツは今「準備中」で、測る意味が小さい。公開〔T6〕の前に決め直す）。
 
 ### 12.3 PR用workflow（`ci.yml`）
 
 実際の設定は `.github/workflows/ci.yml`。T0-04 で `check`・`gitleaks` を作った。
-`（後で）` を付けた手順・jobは、後のタスクで加える（`content:validate` は T1-07、`lhci` は T4-04 で加えた。`build:preview` と `preview` job は T0-06）。
+`content:validate` は T1-07、`lhci` は T4-04、`build:preview` と `preview`・`preview-comment` job は T0-06 で加えた。
 
 ```yaml
 # .github/workflows/ci.yml（概略。Action はコミットSHAで固定する）
@@ -1228,7 +1236,7 @@ jobs:
     steps:
       - uses: actions/checkout@<SHA>          # fetch-depth: 0（文書だけかの判定に使う）
       - uses: pnpm/action-setup@<SHA>         # 版は package.json の packageManager
-      - uses: actions/setup-node@<SHA>        # node-version-file: .nvmrc、cache: pnpm
+      - uses: actions/setup-node@<SHA>        # node-version-file: .nvmrc、package-manager-cache: false（キャッシュを使わない。11.2）
       - run: pipx install yamllint==1.33.0    # pnpm lint が使う
       - run: pnpm install --frozen-lockfile
       - run: git diff --name-only --no-renames "$BASE...$HEAD" | node scripts/docs-only.ts >> "$GITHUB_OUTPUT"
@@ -1240,7 +1248,9 @@ jobs:
       - run: node scripts/make-max-content.ts --out "$RUNNER_TEMP/max-content"   # 上限の文字数で埋めたダミー（コミットしない）
       - run: CONTENT_DIR="$RUNNER_TEMP/max-content" pnpm build && pnpm size      # 最初の読み込みが gzip 後 300KB を超えたら失敗（5.1）。dist/ を作り直すので、本物の build より前に置く
       - run: pnpm lhci                        # 上の上限のコンテンツの dist/ を Lighthouse で測り、基準値（5.1）を下回ったら失敗（T4-04）。結果は Artifact に残す
-      - run: pnpm build                       # （後で）build:preview にする。draft を含め「下書き」と表示、noindex を付ける（build:preview は T3-02 で作った。ここで使うのは T0-06）
+      - run: pnpm build                       # 本番用のビルドが壊れていないことを確かめる
+      - run: pnpm build:preview               # draft を含め「下書き」と表示、noindex を付ける（T3-02）
+      - uses: actions/upload-artifact@<SHA>   # dist/ を dist-preview に（7日）
       # E2E は開発中はここで実行しない（D30）。e2e.yml で手動で実行する
 
   gitleaks:                     # ブランチ保護で必須にするチェック
@@ -1250,31 +1260,34 @@ jobs:
       - run: （公式のバイナリをダウンロードし、SHA-256 を確かめる）
       - run: gitleaks git --redact --no-banner --exit-code 1 .
 
-  preview:                      # （後で）T0-06
-    needs: check
-    runs-on: ubuntu-latest
+  preview:                      # Token を使う。オーナーの承認の後に動く（11.2）
+    needs: check                # 文書だけ・fork・Dependabot の PR では飛ばす
     environment: preview
-    permissions:
-      contents: read
-      pull-requests: write
+    permissions: { contents: read }
+    steps:
+      - uses: actions/checkout@<SHA>          # ref: PR の base（main）。PR のコードは動かさない
+      - run: pnpm install --frozen-lockfile --ignore-scripts   # main の lockfile の wrangler
+      - uses: actions/download-artifact@<SHA> # dist-preview を dist/ に（PR から受け取るのは静的ファイルだけ）
+      - run: pnpm exec wrangler versions upload --preview-alias "pr-$PR_NUMBER" --message "..."
+        env: { CLOUDFLARE_API_TOKEN: ..., CLOUDFLARE_ACCOUNT_ID: ..., WRANGLER_OUTPUT_FILE_PATH: ... }   # Token はこのステップだけ
+      - uses: actions/upload-artifact@<SHA>   # wrangler の出力ファイル（ND-JSON）を wrangler-output に（2日）
+
+  preview-comment:              # Secrets なし。PR のコードで URL を取り出してコメントする
+    needs: preview
+    permissions: { contents: read, pull-requests: write }
     steps:
       - uses: actions/checkout@<SHA>
-      - uses: actions/download-artifact@<SHA>
-        with: { name: dist, path: dist }
-      - uses: cloudflare/wrangler-action@<SHA>
-        id: wrangler
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: versions upload --preview-alias pr-${{ github.event.pull_request.number }}
-      # wrangler の出力からプレビューURLを取り出し、PRにコメントする（実装時に詳細化）
+      - uses: actions/download-artifact@<SHA> # wrangler-output
+      - run: node scripts/preview-url.ts "$RUNNER_TEMP/wrangler-output/wrangler-output.ndjson" >> "$GITHUB_OUTPUT"
+      - run: node scripts/preview-comment.ts  # 印（<!-- preview-url -->）のある bot のコメントを書き換える。なければ作る
 ```
 
 - gitleaks は `gitleaks/gitleaks-action` を使わない。組織のリポジトリではライセンスキー（`GITLEAKS_LICENSE`）の登録が要るため。公式のリリースのバイナリを、SHA-256 を確かめてから実行する。
 - `e2e.yml`（手動）は、選んだプロジェクトが使うブラウザだけを `playwright install --with-deps` で入れ、`pnpm test:e2e` を実行する。サーバーは `webServer` の `pnpm build` → `wrangler dev`。E2E は CI では `workers: 1`・`retries: 2` で動く（`playwright.config.ts`）。`all`・`chromium` のときは続けてプレビュー用のビルドの E2E（`pnpm test:e2e:preview`。T3-02）も動かす。失敗したときのレポートは Actions の Artifact（`playwright-report`、14日。プレビューの分は `playwright-report-preview/`・`test-results-preview/` に分けて、同じ Artifact に入る）に残る。
-- 本番用のworkflow（`deploy.yml`）も同じ構成にする。違いは、`on: push`（`main`）、`environment: production`、`pnpm build`（reviewedのみ）、`command: deploy` の4点。
-- フォークからのPRにはSecretsが渡らないため、プレビューへのデプロイは行われない（このリポジトリではフォークからのPRを想定しない）。
-- プレビューURLの形式（`<alias>-<worker名>.<サブドメイン>.workers.dev`。このアプリでは `pr-N-maps.vivastack-dev.workers.dev` の見込み）と、出力から取り出す方法は実装時に確認する。
+- 本番用の workflow（`deploy.yml`）は、`build`（環境なし・キャッシュなし。install → typecheck → test → `content:validate` → `pnpm build`〔reviewed のみ〕→ `dist/` を Artifact に）と `deploy`（`environment: production`。`--ignore-scripts` で入れた wrangler で、Artifact の `dist/` を `wrangler deploy`）の2つの job に分ける。依存が動く手順と Token を別の VM にするため。`concurrency` は1つで、待っている古い実行は新しい実行で取り消されうる（最新の `main` が出る）。
+- フォークからのPRと Dependabot の PR には Environment の Secrets が渡らないので、`preview` を飛ばす（`head.repo.full_name == github.repository`、`github.actor != 'dependabot[bot]'`）。
+- プレビューURLの形式：別名は `https://pr-<PR番号>-maps.vivastack-dev.workers.dev/`（その PR の最新の承認したコミット）、バージョンは `https://<バージョンIDの先頭8文字>-maps.vivastack-dev.workers.dev/`（そのコミットに固定）。
+- 取り出し方：`WRANGLER_OUTPUT_FILE_PATH` を付けると、wrangler（4.160.0）は ND-JSON の1行 `{"type":"version-upload","version":1,"preview_url","preview_alias_url","version_id",…,"timestamp"}` を書く。標準出力の `Version Preview URL:` は表示用なので使わない。`scripts/lib/preview-url.ts` が、ホストを `<英数字…>-maps.vivastack-dev.workers.dev`・ポートなしに限って取り出す（`$GITHUB_OUTPUT` と PR のコメントへの注入を防ぐ）。プレビューが無効で URL がないときは失敗する。
 
 ### 12.4 リンク切れチェック（手動実行）
 
@@ -1351,7 +1364,7 @@ flowchart LR
 
 | 段階 | 内容 | 完了条件 |
 |---|---|---|
-| M0 準備 | Next.jsの雛形をリポジトリ直下に作る、既存ファイルの調整（`README.md` の本文、`AGENTS.md` のコマンド）、CIの骨組み、Cloudflareの事前設定（DNS、Token、Access）、要検証項目（11.3、11.4）の確認 | 空のページがプレビューと本番にデプロイできる |
+| M0 準備 | Next.jsの雛形をリポジトリ直下に作る、既存ファイルの調整（`README.md` の本文、`AGENTS.md` のコマンド）、CIの骨組み、Cloudflare・GitHubの事前設定（Token、Secrets、ルールセット。D44〜D46）、要検証項目（11.3、11.4）の確認 | 空のページがプレビューと本番にデプロイできる |
 | M1 地図データ | N03の変換スクリプト、読みがな・ローマ字、`prefs` と `muni` のTopoJSON。コンテンツのスキーマ・検証・ふりがなのパーサーと、47県の基本情報のYAML（M5の前提） | 47都道府県と全市区町村（区を含む）を確認でき、サイズが基準値以内。全県の基本情報がスキーマの検証を通る |
 | M2 地図コア | 地図表示、拡大縮小・移動、最大化、市区町村、ツールチップ、さくいん、キーボード操作 | F-MAP / F-ZOOM / F-MUNI / F-TIP / F-IDX / F-KB のE2Eが通る |
 | M3 カード・多言語・モード | カード、出典表示、言語切替、モード・ふりがな切替、UI文言 | F-CARD / F-I18N / F-MODE / F-SRC のE2Eが通る |

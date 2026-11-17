@@ -22,7 +22,7 @@
 
 ### PR のプレビュー URL
 
-- PR に、CI がプレビュー URL をコメントする。形式は `https://pr-<PR番号>-maps.vivastack-dev.workers.dev/ja/` の見込み（**T0-06 で確定**）。
+- PR に、CI がプレビュー URL をコメントする（ja・en・zh）。形式は `https://pr-<PR番号>-maps.vivastack-dev.workers.dev/ja/`（その PR の最新のプレビュー）。コメントには、コミットに固定した URL（`https://<8文字>-maps.vivastack-dev.workers.dev/ja/`）も載る。
 - プレビュー URL は、ログインなしで開ける（Cloudflare Access では守らない。開発概要書 D46）。リポジトリが public なので、レビュー前の内容はもともと GitHub で読める。プレビュー URL は推測できるので、秘密の URL として扱わない。
 - プレビューは、オーナーが CI のデプロイを承認してから出る（`preview` の Environment。開発概要書 11.2）。PR にプレビュー URL のコメントがまだなければ、オーナーの承認を待つ。
 - プレビューは、すべての状態の項目を出す。`reviewed` でない項目のカードには、**「下書き」の印**が付く。レビューの段階では、すべての項目が `verified` なので、**「下書き」の印は全件に付くのが正しい**（`reviewed` にした後で消える）。ページには `noindex` が付き、検索には出ない。
