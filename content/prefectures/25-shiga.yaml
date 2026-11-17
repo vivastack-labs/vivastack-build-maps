@@ -17,5 +17,137 @@ capital:
     zh: "大津市"
   lat: 35.004289
   lon: 135.868005
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}とJR", en: "Shinkansen and JR", zh: "新干线和JR"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {京都駅|きょうとえき} → {大津駅|おおつえき}"
+    en: "Tokyo Station → Kyoto Station → Otsu Station"
+    zh: "东京站 → 京都站 → 大津站"
+  # 東京始発の「のぞみ25号」（毎日運転）：東京 10:30 発 → 京都 12:44 着。京都で、JR琵琶湖線の新快速（3456M、毎日運転）
+  # 京都 13:00 発 → 大津 13:09 着に乗り換える（東京 10:30 発 → 大津 13:09 着で159分。乗り換えの待ち時間16分を含む）。JR時刻表2026年11月号に基づく時刻
+  durationMin: 159
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/25371"
+      accessed: "2026-11-17"
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/173051"
+      accessed: "2026-11-17"
+  status: verified
+specialties:
+  - id: funazushi
+    emoji: "🐟"
+    name: {ja: "ふなずし", en: "Funazushi", zh: "鲫鱼寿司"}
+    description:
+      ja:
+        kids: "フナをご{飯|はん}と{長|なが}い{間|あいだ}つけて{作|つく}るおすしだよ。お{祝|いわ}いの{日|ひ}に{食|た}べるんだ。"
+        adult: "フナを{塩|しお}で{漬|つ}けてからご{飯|はん}と{重|かさ}ね、{半年|はんとし}{以上|いじょう}かけて{発酵|はっこう}させるなれずしです。\
+          お{祝|いわ}いの{席|せき}などで{食|た}べられます。"
+      en:
+        kids: "Funa fish are kept with rice for a long time to make this sushi, which people eat on celebration days."
+        adult: "Funa (crucian carp) is salted, layered with rice, and fermented for at least six months into narezushi, a sushi eaten at celebrations."
+      zh:
+        kids: "把鲫鱼和米饭一起放很长时间做成的寿司，在喜庆的日子吃。"
+        adult: "把鲫鱼用盐腌后与米饭层叠，发酵半年以上做成的发酵寿司，常在庆祝的场合食用。"
+    sources:
+      - title: "ふなずし 滋賀県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/funa_zushi_shiga.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: omi-gyu
+    emoji: "🐄"
+    name: {ja: "{近江牛|おうみぎゅう}", en: "Omi Beef", zh: "近江牛"}
+    description:
+      ja:
+        kids: "{彦根|ひこね}のお{殿様|とのさま}が{将軍|しょうぐん}に{贈|おく}るために{育|そだ}てた、\
+          {日本|にほん}{三大|さんだい}{和牛|わぎゅう}の{一|ひと}つといわれるよ。"
+        adult: "{彦根藩|ひこねはん}が{将軍家|しょうぐんけ}へ{献上|けんじょう}するため{育|そだ}てた{牛|うし}で、\
+          {約|やく}400{年前|ねんまえ}から{続|つづ}き、{日本|にほん}{三大|さんだい}{和牛|わぎゅう}の{一|ひと}つとも{呼|よ}ばれます。"
+      en:
+        kids: "Hikone's lord raised these cattle for the shogun. People call them one of Japan's three great wagyu beef cattle."
+        adult: "Bred by the Hikone domain for the shogun, Omi beef dates back about 400 years and is called one of Japan's big three wagyu."
+      zh:
+        kids: "彦根藩主为献给将军而养的牛，被称为日本三大和牛之一。"
+        adult: "彦根藩为献给将军家而饲养的牛，已有约400年历史，被称为日本三大和牛之一。"
+    sources:
+      - title: "第56号：近江牛：農林水産省"
+        url: "https://www.maff.go.jp/j/shokusan/gi_act/register/0056/index.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: hinona-zuke
+    emoji: "🥬"
+    name: {ja: "{日野菜漬|ひのなづ}け", en: "Hinona Pickles", zh: "日野菜腌菜"}
+    description:
+      ja:
+        kids: "{日野町|ひのちょう}{生|う}まれといわれるかぶのつけもの。10{月|がつ}から12{月|がつ}ごろにとれるよ。"
+        adult: "{日野町|ひのちょう}が{発祥|はっしょう}とされる{細長|ほそなが}いかぶの{一種|いっしゅ}、{日野菜|ひのな}の{旬|しゅん}は\
+          10{月|がつ}から12{月末|がつまつ}ごろで、{漬物|つけもの}にされます。"
+      en:
+        kids: "Pickles made from a turnip said to come from Hino Town, picked from October to December."
+        adult: "Hinona, a slender turnip said to have originated in Hino Town, is in season from October to late December and is pickled."
+      zh:
+        kids: "用据说原产于日野町的芜菁做成的腌菜，10月到12月收获。"
+        adult: "日野菜是据说发源于日野町的细长芜菁，10月到12月底当季，可做成腌菜。"
+    sources:
+      - title: "日野菜漬け 滋賀県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/hinona_zuke_shiga.html"
+        accessed: "2026-11-17"
+    status: verified
+spots:
+  - id: biwako
+    name: {ja: "{琵琶湖|びわこ}", en: "Lake Biwa", zh: "琵琶湖"}
+    description:
+      ja:
+        kids: "{日本一|にほんいち}{大|おお}きい{淡水|たんすい}の{湖|みずうみ}で、{県|けん}の{約|やく}6{分|ぶん}の1の{広|ひろ}さだよ。"
+        adult: "{滋賀県|しがけん}の{面積|めんせき}の{約|やく}6{分|ぶん}の1を{占|し}める、{日本最大|にほんさいだい}の{淡水湖|たんすいこ}です。"
+      en:
+        kids: "This is Japan's largest freshwater lake, about one sixth of Shiga Prefecture in size."
+        adult: "Japan's largest freshwater lake takes up about a sixth of Shiga Prefecture's area."
+      zh:
+        kids: "日本最大的淡水湖，面积约占滋贺县的六分之一。"
+        adult: "占滋贺县面积约六分之一的日本最大淡水湖。"
+    sources:
+      - title: "琵琶湖の概要｜滋賀県"
+        url: "https://www.pref.shiga.lg.jp/ippan/kankyoshizen/biwako/gaiyou.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: hikone-castle
+    name: {ja: "{彦根城|ひこねじょう}", en: "Hikone Castle", zh: "彦根城"}
+    description:
+      ja:
+        kids: "{山|やま}の{上|うえ}に、{国宝|こくほう}の{天守|てんしゅ}が{建|た}っているお{城|しろ}だよ。"
+        adult: "{山頂|さんちょう}に{三重|さんじゅう}{三階|さんがい}の{国宝|こくほう}の{天守|てんしゅ}が{立|た}ち、1604{年|ねん}から\
+          {約|やく}20{年|ねん}をかけて{築|きず}かれた{城|しろ}です。"
+      en:
+        kids: "A castle on a hill whose keep is a national treasure."
+        adult: "Its three-story national treasure keep stands on the hilltop; construction began in 1604 and took about 20 years."
+      zh:
+        kids: "山顶上建着国宝天守阁的城堡。"
+        adult: "山顶有三重三层的国宝天守阁，1604年起历时约20年建成。"
+    sources:
+      - title: "彦根城内の文化財／彦根市"
+        url: "https://www.city.hikone.lg.jp/kakuka/kanko_bunka/8/2_1/3/4581.html"
+        accessed: "2026-11-17"
+      - title: "彦根城の観覧案内／彦根市"
+        url: "https://www.city.hikone.lg.jp/kakuka/kanko_bunka/8/2_1/3/4586.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: enryaku-ji
+    name: {ja: "{比叡山延暦寺|ひえいざんえんりゃくじ}", en: "Hieizan Enryakuji", zh: "比叡山延历寺"}
+    description:
+      ja:
+        kids: "{山|やま}の{上|うえ}から{琵琶湖|びわこ}が{見|み}える、{世界|せかい}{遺産|いさん}のお{寺|てら}だよ。"
+        adult: "{京都|きょうと}との{境|さかい}の{比叡山|ひえいざん}の{寺|てら}で、{琵琶湖|びわこ}を{望|のぞ}み、\
+          1994{年|ねん}に{世界文化遺産|せかいぶんかいさん}となりました。"
+      en:
+        kids: "From this mountain temple, you can see Lake Biwa. It is a World Heritage site."
+        adult: "This Mount Hiei temple on the Kyoto border overlooks Lake Biwa and is a 1994 World Heritage site."
+      zh:
+        kids: "在山上的寺院，能看到琵琶湖，是世界遗产。"
+        adult: "与京都交界的比叡山寺院，俯瞰琵琶湖，1994年列入世界遗产。"
+    sources:
+      - title: "延暦寺の概要｜延暦寺について | 天台宗総本山 比叡山延暦寺 [Hieizan Enryakuji]"
+        url: "https://www.hieizan.or.jp/about/about.html"
+        accessed: "2026-11-17"
+    status: verified
