@@ -1,0 +1,96 @@
+---
+# 12.1〜12.3：main に merge したら、本番（https://maps.vivastack-dev.workers.dev/。D35）にデプロイする（T0-06）。
+# build（検査とビルド。依存のコードが動く。環境なし・Token なし）→ deploy（Environment production。Token を持つ）の2つの job に分ける。
+# 依存のコードが動く手順（test など）と Token を、別の VM にするため。
+# Environment production は main だけが使える（T0-05）。Token（CLOUDFLARE_API_TOKEN）は Environment production の Secret で、
+# wrangler deploy のステップの env だけに渡す。E2E・Lighthouse は入れない（E2E は e2e.yml を merge の前に手動で、Lighthouse は ci.yml が測る。D30）。
+# Action はコミットSHAで固定する（5.5）。横のコメントはタグ（Dependabot が SHA と一緒に更新する）
+name: deploy
+
+"on":
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  # 本番へのデプロイは1つずつ。動いている実行は取り消さない（途中で止めると、反映が中途半端になりうる）。
+  # 待っている古い実行は、新しい実行で取り消されうる（最新の main が出る）
+  group: deploy-production
+  cancel-in-progress: false
+
+defaults:
+  run:
+    # -o pipefail を付けるため、shell を明示する
+    shell: bash
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+  WRANGLER_SEND_METRICS: "false"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115  # v6.1.1
+      # 11.2：Actions のキャッシュを使わない（package-manager-cache: false）
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # D44：別々に通った PR の組み合わせで壊れることがあるので、本番に出す前に、型・単体テスト・コンテンツ・ビルドを確かめる。
+      # 整形（lint）は本番の動きに関係しないので入れない
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit test
+        run: pnpm test
+      - name: Validate content
+        run: pnpm content:validate
+      # 本番用のビルド（reviewed の項目だけを出す）
+      - name: Build
+        run: pnpm build
+      - name: Upload production build
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: dist-production
+          path: dist/
+          include-hidden-files: false
+          if-no-files-found: error
+          retention-days: 1
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    steps:
+      # wrangler.jsonc と wrangler の版は、この main のコミットのもの。dist は build job の Artifact
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115  # v6.1.1
+      # 11.2：Token を使える job では、Actions のキャッシュを復元しない
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      # インストールスクリプトは動かさない（Token を持つ job で、依存のスクリプトを動かさない）
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          name: dist-production
+          path: dist
+      - name: Deploy to Workers
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler deploy

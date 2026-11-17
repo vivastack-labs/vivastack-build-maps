@@ -145,7 +145,7 @@
 - Cloudflare：
   - workers.dev のサブドメイン `vivastack-dev` は登録済み（11.4 (1)。D35。DNS のレコードと Route は作らない）。
   - API Token：11.3 の権限から始め、T0-06 のデプロイが通る最小の組み合わせに絞る（開発計画 5章 U5 の推奨案）。有効期限は1年。
-  - Zero Trust を有効にし、Access でプレビューURLを保護する（本番の workers.dev URL は一般公開なので保護しない。D35）。許可するのはオーナーとレビュアーのメールアドレスだけ（11.4 (5)）。→ **T0-06 に移した**（オーナーの判断。Worker `maps` の Access タブで「Previews only」にするのは Worker ができてからで、確かめるのも T0-06 になるため）。T0-05 では、公式ドキュメントの手順を 11.4 (5) に書いた。
+  - Zero Trust を有効にし、Access でプレビューURLを保護する（本番の workers.dev URL は一般公開なので保護しない。D35）。許可するのはオーナーとレビュアーのメールアドレスだけ（11.4 (5)）。→ **T0-06 に移した**（オーナーの判断）。その後 T0-06 で、Access を使わないことに決めた（D46）。
 - GitHub：
   - Environments（`preview` / `production`）と Secrets（11.2）。
   - ブランチ保護（11.5）。
@@ -175,7 +175,7 @@
 - **種別**：ci
 - **依存関係**：T0-04、T0-05
 - **目的**：PRごとにプレビューURLで確認でき、`main` に merge したら本番に自動で出るようにする。
-- **参照仕様**：6.1、12.1〜12.3、11.4 (2)・(5)、D35、R4
+- **参照仕様**：6.1、12.1〜12.3、11.2、11.4 (2)・(5)、11.5、D35、D44〜D46、R4・R5
 
 ### 実装内容
 
@@ -186,16 +186,16 @@
 - `deploy.yml` の本番のビルド（`reviewed` のみ）の後に、`pnpm lhci`（T4-04）を加えるか決める。`ci.yml` では、上限のコンテンツの `dist/` を測っている（開発概要書 5.1、12.2）。本物のコンテンツのビルドを測る場合、`dist/` の作り方と、基準値が同じでよいかを決める。
 - `pnpm build:preview`：`BUILD_TARGET=preview` でビルドする（`next build` と `scripts/postbuild.ts`）。`noindex`（`<meta name="robots" content="noindex">`）と、コンテンツの絞り込み（すべての項目を出し、`reviewed` でない項目に `draft` の値を付ける。画面の「下書き」の印は T3-03）を加えたもの。T3-02 で作った（`package.json` の `build`・`build:preview`、`src/lib/publish.ts`、`app/[lang]/layout.tsx` の `generateMetadata`）。ここ（T0-06）では、`ci.yml` の `preview` job が使う `pnpm build:preview` の出力に `noindex` が付くことを確かめる。
 - プレビューURLの形式と、wrangler の出力から取り出す方法を開発概要書 12.3 に書く。
-- **Access（U7。T0-05 から移した）**：開発概要書 11.4 (5) の手順で、Zero Trust を始め（Free プラン。支払いの情報の入力が要る）、One-time PIN とポリシー `maps-reviewers` を作る。Worker `maps` ができたら（最初のデプロイの直後に）、Worker の Access タブで「Previews only」にする。無料枠の人数と、手順が公式ドキュメントのとおりかを確かめて、11.1・11.4 (5)・U7 を直す。今のコンテンツは47県とも「準備中」なので、設定までの間にプレビューが見えても、出ていくものはない。
-- **`preview` の承認**：Environment `preview` は、デプロイの前にオーナーの承認が要る（D45。11.2）。`preview` job は、オーナーが Actions の画面（または PR の「Review deployments」）で承認するまで待つ。承認の前に、run のコミットと `main` の差が `/content/prefectures/` だけかを確かめる手順（開発概要書 11.2）を、PR へのプレビューURLのコメントの説明に合わせて書く。Token は wrangler のステップの `env` だけに渡す（ほかのステップに見せない）。`preview` job では Actions のキャッシュを復元しない（`setup-node` に `cache:` を付けず、`actions/cache` も使わない）。承認の要らない `ci.yml` の run が保存したキャッシュを、Token が使える job で動かさないため（11.2）。
+- **Access は使わない**（D46。オーナーが決定）：プレビューURLは認証なしで開ける。リポジトリが public で、レビュー前のコンテンツはすでに GitHub で読めるため。`noindex` と「下書き」の印は残す。
+- **`preview` の承認**：Environment `preview` は、デプロイの前にオーナーの承認が要る（D45。11.2）。`preview` job は、オーナーが Actions の画面（または PR の「Review deployments」）で承認するまで待つ。→ 実装（T0-06）：Token を使う `preview` job は、道具を `main`（PR の base）から取り（`pnpm install --frozen-lockfile --ignore-scripts`）、PR からは `check` が作った `dist/` の Artifact だけを受け取る。Token は wrangler のステップの `env` だけ。`check`・`preview`・`deploy.yml` は Actions のキャッシュを使わない（`package-manager-cache: false`）。URL の取り出しと PR へのコメントは、Secrets のない `preview-comment` job が PR のコードで行う。承認の前に確かめるのは、PR の変更に `.github/` がないことと、公開してよい内容か（開発概要書 11.2）。
 - **fork からの PR**：リポジトリは public（D44）。fork からの PR の workflow には Secrets が渡らないので、`preview` job は fork の PR では飛ばす（`github.event.pull_request.head.repo.full_name == github.repository` のときだけ動かす）。fork からの PR の workflow は、外部の人すべてで承認が要る設定にしてある（11.5）。
 - `preview` job は `environment: preview`、`deploy.yml` は `environment: production`（Token は Environment の Secret。Account ID はリポジトリの Secret。11.2・D45）。
-- 決まったプレビューURLの形式と、Access のログインの手順を、`content/guidelines/review-checklist.md` の「プレビューの開き方」に反映する（T5-01 で、決まっていない点に「T0-06 で確定」と印を付けてある）。
+- 決まったプレビューURLの形式を、`content/guidelines/review-checklist.md` の「プレビューの開き方」に反映する（T5-01 で、決まっていない点に「T0-06 で確定」と印を付けてある。Access のログインの記述は D46 で外した）。
 
 ### 完了条件
 
-- このタスクのPRのプレビューURLで、Access の認証の後に3言語の空のページが表示される。
-- merge 後、`https://maps.vivastack-dev.workers.dev/ja/` に空のページが表示され、`/` が `/ja/` にリダイレクトされる（M0 の完了条件）。Access の認証なしで開ける。
+- このタスクのPRのプレビューURLで、3言語の空のページが表示される（オーナーが `preview` のデプロイを承認した後。認証なし。D46）。
+- merge 後、`https://maps.vivastack-dev.workers.dev/ja/` に空のページが表示され、`/` が `/ja/` にリダイレクトされる（M0 の完了条件）。
 
 ### テスト条件
 
