@@ -4,6 +4,8 @@
 - ブランチ：`docs/T0-07-readme-agents-changelog`
 - 参照仕様：開発概要書 6.5、10.1、11.6
 
+この計画は、PR で実際に作った内容に合わせて直してある。承認したときから変えた点は、末尾の「承認後に変えたこと」にある。
+
 ## 目的
 
 新しく参加する人とエージェントが、`README.md` と `AGENTS.md` だけを読んで開発を始められるようにする。
@@ -67,12 +69,12 @@
 
 ## 完了条件の確かめ方
 
-| 完了条件 | 確かめ方 |
-|---|---|
-| `README.md`・`AGENTS.md` のコマンドが `package.json` のスクリプトと一致している | 上のスクラッチパッドのスクリプト |
-| markdownlint が通る | `pnpm lint` |
-| README の手順で install → test → build が通る（テスト条件） | スクラッチパッドに `git clone --branch docs/T0-07-readme-agents-changelog <このリポジトリ>` で clone し、README の手順のとおりに `pnpm install` → `pnpm test` → `pnpm build` |
-| （T0-06 から引き継いだ確認）文書だけの PR で重い手順を飛ばす | この PR の CI の `check` のログで、typecheck・test・build などが skipped、`preview`・`preview-comment` が skipped |
+| 完了条件 | 確かめ方 | 結果 |
+|---|---|---|
+| `README.md`・`AGENTS.md` のコマンドが `package.json` のスクリプトと一致している | 上のスクラッチパッドのスクリプト | 一致（README は10種類、AGENTS.md は20種類。`lint:*` 以外のスクリプトはすべて AGENTS.md にある） |
+| markdownlint が通る | `pnpm lint` | 通る |
+| README の手順で install → test → build が通る（テスト条件） | スクラッチパッドに `git clone --branch docs/T0-07-readme-agents-changelog <このリポジトリ>` で clone し、README の手順のとおりに `pnpm install` → `pnpm test` → `pnpm build` | 通る（`nvm install` で Node.js v26.13.1 が入った。テスト 2049件、カバレッジ 96.7%）。この端末の nvm と pnpm のストアを使ったので、まっさらな環境ではない。`npm install -g corepack` を飛ばすと `corepack: command not found` で止まる（README の手順どおりなら通る） |
+| （T0-06 から引き継いだ確認）文書だけの PR で重い手順を飛ばす | この PR の CI の `check` のログで、typecheck・test・build などが skipped、`preview`・`preview-comment` が skipped | PR の CI で確かめる。変えたファイルはすべて `scripts/docs-only.ts` で `docs_only=true` |
 
 ## 判断が必要な点
 
@@ -84,3 +86,15 @@
 | 4 | README と AGENTS.md の分け方 | README は入口（概要・環境・セットアップ・よく使うコマンド・流れ・リンク）。全部のコマンドと細かい注意は `AGENTS.md` だけに書き、README からリンクする | 同じ説明を2か所に書くと、片方だけが古くなる。`AGENTS.md` はエージェントが毎回読むので、そちらを正にする |
 | 5 | ライセンス | README に書かない（このタスクでは決めない） | `LICENSE` はまだない。リポジトリを public にしたので、いずれ決める必要がある（コードとコンテンツで分けるかなど）。オーナーの判断なので、別に決める |
 | 6 | `cc-v4-pro.sh` | このタスクでは触らず、README にも載せない | アプリとは関係がない個人用のスクリプトで、秘密は含まれていない。消すか残すかはオーナーの判断 |
+
+## 承認後に変えたこと
+
+| 項目 | 承認したとき | 実際 | 理由 |
+|---|---|---|---|
+| `AGENTS.md` の古い記述 | 「M0 の前」などを探して直す | 当てはまらない記述は見つからなかった。足したのは、デプロイは CI だけ（障害時の切り戻しを除く）、README との分け方、`pnpm lint` の中身（`lint:*`）、CHANGELOG を書き足すタイミング | 実物を見た結果 |
+| CHANGELOG を書き足すタイミング | 決めていなかった | PR ごとには書かず、マイルストーンが終わったとき（最後のタスクの PR）と公開のときに `[Unreleased]` にまとめて書き足す。`AGENTS.md`・開発概要書 10.1・`CHANGELOG.md` の冒頭に書いた | レビューの指摘：どこにも更新の指示がなく、10.1 の「リリースごと」とも合っていなかった。PR ごとに書くと手間が大きく、リリースごとだけでは公開までずっと空になる |
+| CHANGELOG の見出し | Added・Changed・Security | Added・Security（Changed は消した） | レビューの指摘：プレフィックスなしの配信や島の扱いは、出していた状態からの変化ではない |
+| 11.6 | Playwright の入れ方を README に合わせる | コードブロックを消し、README の「セットアップ」と AGENTS.md の「コマンド」へのリンクにした（表は残す） | レビューの指摘：README・AGENTS.md と3か所目の重複になっていた |
+| 手元からのデプロイの記述 | 触る予定はなかった | 11.2 の「ローカルからのデプロイ作業は `wrangler login` で行う」を、手元からはデプロイしない（切り戻しの `wrangler rollback` だけはオーナーが `wrangler login` で行い、Token を手元に保存しない）に直した。13章にも同じことを書いた | レビューの指摘：「デプロイは CI だけ」と食い違っていた |
+| 開発概要書の「版」 | 触る予定はなかった | 0.8 → 0.19 | 更新日の履歴は 0.18 まで進んでいたのに、版の欄が 0.8 のままだった |
+| README のセットアップ | clone → nvm → corepack → install → `git config` | `git update-ref -d refs/remotes/origin/screenshots` と、nvm の入れ方のリンクを足した | レビューの指摘：clone の時点で screenshots ブランチを取ってしまう。nvm がない人に入れ方を示す |
