@@ -79,3 +79,7 @@ E2E は PR ごとには動かさない。画面やルーティングを変えた
 - [content/guidelines/writing.md](content/guidelines/writing.md)・[review-checklist.md](content/guidelines/review-checklist.md)：コンテンツの執筆ルールとレビューの基準
 - [AGENTS.md](AGENTS.md)：Claude Code と Codex の共通の指示（コマンド・ディレクトリ・規約）
 - [CHANGELOG.md](CHANGELOG.md)：変更履歴
+
+## ライセンス
+
+[MIT License](LICENSE)。コード・文書・コンテンツ（`content/`）が対象。地図データ（`geo/`・`public/geo/`）は、国土数値情報（国土交通省）などを加工して作ったもので、使うときは元のデータの出典の表示が要る（[geo/README.md](geo/README.md) の「出典」）。
