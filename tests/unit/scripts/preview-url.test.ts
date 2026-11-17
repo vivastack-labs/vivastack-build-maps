@@ -3,8 +3,8 @@ import { describe, expect, test } from 'vitest';
 import { PREVIEW_WORKER_NAME, parsePreviewUrls, previewAliasUrl, previewPageUrls, runPreviewUrl, type PreviewUrlDeps } from '../../../scripts/lib/preview-url';
 
 const FIXTURE = readFileSync('tests/fixtures/wrangler/version-upload.ndjson', 'utf8');
-const VERSION_ID = '1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d';
-const PREVIEW = 'https://1a2b3c4d-maps.vivastack-dev.workers.dev';
+const VERSION_ID = '8e319cb0-21b9-44fc-a4da-b71cf0212d86';
+const PREVIEW = 'https://8e319cb0-maps.vivastack-dev.workers.dev';
 const ALIAS = 'https://pr-70-maps.vivastack-dev.workers.dev';
 
 /** version-upload の1行（URL などは上書きできる） */
