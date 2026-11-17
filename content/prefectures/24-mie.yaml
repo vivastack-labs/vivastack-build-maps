@@ -119,15 +119,15 @@ spots:
         adult: "{伊勢神宮|いせじんぐう}に{参|まい}った{人々|ひとびと}が{峠|とうげ}をいくつも{越|こ}えて{熊野|くまの}へ{向|む}かった{約|やく}170kmの{古道|こどう}です。"
       en:
         kids: "This is an old road that people long ago walked from Ise to Kumano."
-        adult: "People who visited Ise Jingu crossed many passes on this road of about 170 km to Kumano."
+        adult: "After visiting Ise Jingu, people crossed many passes on this old road of about 170 km to Kumano."
       zh:
         kids: "这是很久以前的人们从伊势走到熊野的古道。"
-        adult: "参拜过伊势神宫的人们翻过许多山岭前往熊野的约170公里古道。"
+        adult: "参拜伊势神宫的人们沿这条约170公里的古道翻山越岭前往熊野。"
     sources:
       - title: "熊野古道伊勢路について | 青の鼓動、感じる。東紀州観光手帖"
         url: "https://kumanokodo-iseji.jp/kumanokodo-iseji/"
         accessed: "2026-11-17"
-    status: draft
+    status: verified
   - id: gozaisho-dake
     name: {ja: "{御在所岳|ございしょだけ}", en: "Mount Gozaisho", zh: "御在所岳"}
     description:
