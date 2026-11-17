@@ -16,5 +16,139 @@ capital:
     zh: "神户市"
   lat: 34.691177
   lon: 135.183258
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {新神戸駅|しんこうべえき}"
+    en: "Tokyo Station → Shin-Kobe Station"
+    zh: "东京站 → 新神户站"
+  # 東京始発の「のぞみ25号」（毎日運転）：東京 10:30 発 → 新神戸 13:14 着（164分。乗り換えなし）。JR時刻表2026年11月号に基づく時刻
+  durationMin: 164
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/25371"
+      accessed: "2026-11-17"
+  status: verified
+specialties:
+  - id: ikanago-kugini
+    emoji: "🐟"
+    name: {ja: "イカナゴのくぎ{煮|に}", en: "Ikanago Kugini", zh: "玉筋鱼钉煮"}
+    description:
+      ja:
+        kids: "イカナゴの{子|こ}を{甘辛|あまから}く{煮|に}たよ。{曲|ま}がったくぎに{見|み}えるから、この{名前|なまえ}なんだ。"
+        adult: "2{月|がつ}{末|まつ}ごろ{漁|りょう}が{始|はじ}まる{稚魚|ちぎょ}をしょうゆや{砂糖|さとう}で{炊|た}いた{佃煮|つくだに}で、\
+          {形|かたち}が{曲|ま}がったくぎに{似|に}ているのが{名|な}の{由来|ゆらい}です。"
+      en:
+        kids: "Young sand lance are simmered sweet and salty and look like bent nails, which gave the dish its name."
+        adult: "Young sand lance, caught from late February, are simmered sweet-salty, and the finished fish look like bent nails, hence the name."
+      zh:
+        kids: "把玉筋鱼的幼鱼炖得甜咸，炖好后像弯曲的钉子，所以叫这个名字。"
+        adult: "2月底前后开渔的玉筋鱼幼鱼炖成甜咸口味的佃煮，成品看起来像弯曲的钉子，因此得名。"
+    sources:
+      - title: "イカナゴのくぎ煮 兵庫県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/40_1_hyogo.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: izushi-sara-soba
+    emoji: "🍜"
+    name: {ja: "{出石|いずし}{皿|さら}そば", en: "Izushi Sara Soba", zh: "出石盘荞麦面"}
+    description:
+      ja:
+        kids: "{小|ちい}さなお{皿|さら}にもったそばを、{何枚|なんまい}も{食|た}べるよ。5{枚|まい}で1{人前|にんまえ}なんだ。"
+        adult: "{豊岡市|とよおかし}{出石|いずし}に{伝|つた}わるそばで、{直径|ちょっけい}13cmほどの{小皿|こざら}5{枚|まい}を\
+          {一人前|いちにんまえ}とし、つゆに{薬味|やくみ}を{加|くわ}えて{食|た}べます。"
+      en:
+        kids: "Soba noodles are served on small plates, and you eat many plates of them. Five plates make one serving."
+        adult: "A specialty of Izushi: soba (buckwheat noodles) on small plates about 13 cm wide, five to a serving, eaten with dipping sauce and condiments."
+      zh:
+        kids: "小盘子盛的荞麦面，要吃好几盘，5盘是一人份。"
+        adult: "丰冈市出石的荞麦面，用直径约13厘米的小盘盛装，5盘为一人份，蘸汁加佐料食用。"
+    sources:
+      - title: "出石皿そば 兵庫県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/40_10_hyogo.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: akashi-yaki
+    emoji: "🐙"
+    name: {ja: "{明石焼|あかしやき}", en: "Akashiyaki", zh: "明石烧"}
+    description:
+      ja:
+        kids: "たこを{入|い}れて{焼|や}いたものを、だしにつけて{食|た}べるよ。"
+        adult: "{明石市|あかしし}で{古|ふる}くから{玉子焼|たまごやき}と{呼|よ}ばれてきた{料理|りょうり}で、\
+          {卵|たまご}の{多|おお}い{生地|きじ}でタコを{焼|や}き、だしにつけて{食|た}べます。"
+      en:
+        kids: "Bites with octopus inside are dipped in broth and eaten."
+        adult: "Long called tamagoyaki in Akashi, these egg-rich cakes with octopus are dipped in broth to eat."
+      zh:
+        kids: "放了章鱼烤成的小吃，蘸着高汤吃。"
+        adult: "明石市自古称为“玉子烧”的料理，用蛋多的面糊加入章鱼烤熟，蘸高汤食用。"
+    sources:
+      - title: "明石焼／玉子焼 兵庫県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/40_2_hyogo.html"
+        accessed: "2026-11-17"
+    status: verified
+spots:
+  - id: himeji-castle
+    name: {ja: "{姫路城|ひめじじょう}", en: "Himeji Castle", zh: "姬路城"}
+    description:
+      ja:
+        kids: "{日本|にほん}で{初|はじ}めて{世界遺産|せかいいさん}になったお{城|しろ}だよ。"
+        adult: "{法隆寺|ほうりゅうじ}と{並|なら}び、1993{年|ねん}に{日本初|にほんはつ}の{世界文化遺産|せかいぶんかいさん}と\
+          なった{城|しろ}で、{天守|てんしゅ}は5{重|じゅう}7{階|かい}です。"
+      en:
+        kids: "This is the first castle in Japan to become a World Heritage site."
+        adult: "Listed with Horyu-ji in 1993 among Japan's first World Cultural Heritage sites, it has a five-tier, seven-floor keep."
+      zh:
+        kids: "日本第一座成为世界遗产的城堡。"
+        adult: "1993年与法隆寺成为日本首批世界文化遗产，天守为5重7层。"
+    sources:
+      - title: "世界文化遺産・国宝姫路城 | 姫路城公式サイト"
+        url: "https://www.city.himeji.lg.jp/castle/0000007744.html"
+        accessed: "2026-11-17"
+      - title: "姫路城の歴史 | 姫路城公式サイト"
+        url: "https://www.city.himeji.lg.jp/castle/0000007750.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: takeda-castle-ruins
+    name: {ja: "{竹田城跡|たけだじょうあと}", en: "Takeda Castle Ruins", zh: "竹田城遗址"}
+    description:
+      ja:
+        kids: "{雲|くも}の{海|うみ}に{浮|う}かんで{見|み}えることがある「{天空|てんくう}の{城|しろ}」だよ。"
+        adult: "{晩秋|ばんしゅう}に{雲海|うんかい}が{出|で}やすく、{浮|う}かぶ{姿|すがた}が「{天空|てんくう}の{城|しろ}」と{呼|よ}ばれる、\
+          {昔|むかし}の{石垣|いしがき}が{残|のこ}る{山城|やまじろ}です。"
+      en:
+        kids: "Sometimes seen floating above clouds, it is called the \"Castle in the Sky.\""
+        adult: "Often seen above clouds in late autumn, this mountaintop \"Castle in the Sky\" keeps its old stone walls."
+      zh:
+        kids: "有时浮在云海之上，被称为“天空之城”的山城。"
+        adult: "晚秋易现云海，浮于其上的山城被称为“天空之城”，旧石墙犹存。"
+    sources:
+      - title: "一般、料金、見学のルールなど - 竹田城跡公式ホームページ - 朝来市公式ホームページ"
+        url: "https://www.city.asago.hyogo.jp/site/takeda/3095.html"
+        accessed: "2026-11-17"
+      - title: "雲海シーズンの登城方法及び駐車場についてのご案内 - 竹田城跡公式ホームページ - 朝来市公式ホームページ"
+        url: "https://www.city.asago.hyogo.jp/site/takeda/17618.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: arima-onsen
+    name: {ja: "{有馬温泉|ありまおんせん}", en: "Arima Onsen", zh: "有马温泉"}
+    description:
+      ja:
+        kids: "{金泉|きんせん}と{銀泉|ぎんせん}、2しゅるいのお{湯|ゆ}がわく{温泉|おんせん}だよ。"
+        adult: "{日本|にほん}の{三古泉|さんこせん}の{一|ひと}つで、{鉄分|てつぶん}と{塩分|えんぶん}を{含|ふく}む{金泉|きんせん}と、\
+          {炭酸|たんさん}などを{含|ふく}む{銀泉|ぎんせん}があります。"
+      en:
+        kids: "Two kinds of hot spring water, called gold and silver, flow here."
+        adult: "One of Japan's three ancient hot springs, with iron-and-salt gold water and carbonated silver water."
+      zh:
+        kids: "这里涌出金泉和银泉两种不同的温泉水。"
+        adult: "日本三古泉之一，有含铁和盐分的金泉和含碳酸等的银泉。"
+    sources:
+      - title: "有馬温泉について – 有馬温泉"
+        url: "https://www.arima-onsen.com/about"
+        accessed: "2026-11-17"
+      - title: "泉質 – 有馬温泉"
+        url: "https://www.arima-onsen.com/about/spring_quality"
+        accessed: "2026-11-17"
+    status: verified
