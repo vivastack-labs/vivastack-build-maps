@@ -24,11 +24,11 @@ access:
     ja: "{東京駅|とうきょうえき} → {京都駅|きょうとえき}"
     en: "Tokyo Station → Kyoto Station"
     zh: "东京站 → 京都站"
-  # 東京始発の「のぞみ25号」（毎日運転）：東京 10:30 発 → 京都 12:44 着（134分。乗り換えなし）
+  # 東京始発の「のぞみ25号」（毎日運転）：東京 10:30 発 → 京都 12:44 着（134分。乗り換えなし）。2026年10月3日改正のダイヤ
   durationMin: 134
   sources:
     - title: "列車時刻表 | JRおでかけネット"
-      url: "https://timetable.jr-odekake.net/train-timetable/25371?date=20261117"
+      url: "https://timetable.jr-odekake.net/train-timetable/25371"
       accessed: "2026-11-17"
   status: verified
 specialties:
