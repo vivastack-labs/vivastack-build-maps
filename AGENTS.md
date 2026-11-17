@@ -6,8 +6,8 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 
 - 「ご当地めいぶつ日本地図」：47都道府県の名物・名所を日本地図から探せる Web アプリ（ja / en / zh、こども／おとなモード、ふりがな ON/OFF）。
 - 設計・要件・決定事項は [docs/development-overview.md](docs/development-overview.md) にある。作業の前に関係する章を読み、要件ID（例：`F-MAP-01`）で対応を確認する。
-- タスクの一覧・順番・進み具合は [docs/development-plan.md](docs/development-plan.md)、タスクごとの定義（目的・参照仕様・実装内容・完了条件・テスト条件・依存関係）は `docs/tasks/` にある。タスクに着手するときは、その定義を読み、タスクのID（例：`T0-01`）をPRの本文に書く。終わったら「状態」を更新する。
-- 進み具合はここには書かない（`docs/development-plan.md` だけを更新する）。PRごとに GitHub Actions の CI（`.github/workflows/ci.yml`）が動き、オーナーが Environment `preview` のデプロイを承認すると、プレビュー（`https://pr-<番号>-maps.vivastack-dev.workers.dev/`）に出て、PR に URL がコメントされる。`main` に merge すると `.github/workflows/deploy.yml` が本番に出す（T0-06）。E2E は開発中は PR ごとに動かさず、`.github/workflows/e2e.yml` を手動で実行する（D30）。
+- タスクの一覧・順番・進み具合は [docs/development-plan.md](docs/development-plan.md)、タスクごとの定義（目的・参照仕様・実装内容・完了条件・テスト条件・依存関係）は `docs/tasks/` にある。タスクに着手するときは、その定義を読み、タスクのID（例：`T0-01`）をPRの本文に書く。終わったら「状態」を更新する。`CHANGELOG.md` は PR ごとには書かず、マイルストーンが終わったとき（そのマイルストーンの最後のタスクの PR）と、公開のときに、`[Unreleased]` にまとめて書き足す。
+- 進み具合はここには書かない（`docs/development-plan.md` だけを更新する）。PRごとに GitHub Actions の CI（`.github/workflows/ci.yml`）が動き、オーナーが Environment `preview` のデプロイを承認すると、プレビュー（`https://pr-<番号>-maps.vivastack-dev.workers.dev/`）に出て、PR に URL がコメントされる。`main` に merge すると `.github/workflows/deploy.yml` が本番に出す（T0-06）。デプロイは CI だけで行い、手元から `wrangler deploy`・`wrangler versions upload` はしない（障害時の切り戻し〔開発概要書 第13章〕を除く。Token は GitHub の Environment の Secret だけにある）。E2E は開発中は PR ごとに動かさず、`.github/workflows/e2e.yml` を手動で実行する（D30）。
 
 ## 技術スタック
 
@@ -20,6 +20,8 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 
 ## コマンド
 
+[README.md](README.md) は人が最初に読む入口で、よく使うコマンドだけを載せている。コマンドの全部と細かい注意は、このファイルを正とする（`package.json` のスクリプトを足したら、ここに足す。README には、入口として要るものだけを足す）。
+
 Node.js は `.nvmrc` の版（26）を使う。Node.js 25 以降は corepack が同梱されないので、先に `npm install -g corepack` で入れる。
 
 ```bash
@@ -28,7 +30,7 @@ corepack enable
 pnpm install
 git config --add remote.origin.fetch '^refs/heads/screenshots'   # 初回だけ。PRの画像のブランチを、ふだんの fetch・pull で取らない
 pnpm dev          # http://localhost:3000/ja/（3000番が使用中なら別の番号で起動する）。BUILD_TARGET が未設定なので本番と同じ絞り込み（本物のコンテンツは名物・名所が未作成で、47県とも「準備中」）。下書きを見るときは BUILD_TARGET=preview pnpm dev
-pnpm lint         # ESLint・Prettier・markdownlint・yamllint
+pnpm lint         # ESLint・Prettier・markdownlint・yamllint（中身は lint:eslint・lint:prettier・lint:md・lint:yaml。1つずつ動かすときはこちら）
 pnpm typecheck    # tsc --noEmit
 pnpm test         # Vitest（カバレッジの基準を下回ると失敗する）
 pnpm test:e2e     # Playwright（PC・スマホ・タブレットの9プロジェクト。本番用のビルド）

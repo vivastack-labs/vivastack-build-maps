@@ -3,9 +3,9 @@
 | 項目 | 内容 |
 |---|---|
 | ドキュメント | docs/development-overview.md |
-| 版 | 0.8（ドラフト） |
+| 版 | 0.19（ドラフト） |
 | 作成日 | 2026-11-11 |
-| 更新日 | 2026-11-17（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）。0.11：PWA のオフラインで使える範囲と Service Worker のツールを決めた（5.4、U3・U13、D40・D41）。0.12：アクセシビリティの検査（axe・コントラストの単体テスト）と、ふりがなの読み上げの対処を 5.2 に書いた。0.13：Lighthouse CI の測り方と TBT の基準を 5.1 に書き、ハッシュつきのずれの直し方を決めた〔D42〕。0.14：執筆ルールとレビュー基準を `content/guidelines/` に書き（T5-01）、9.2・9.3 に参照を足した。`status` を `reviewed` にするのは、承認の後にオーナー。0.15：ふりがなの自動付与のツール（`pnpm content:furigana`、`lindera-wasm-nodejs-ipadic`）と、①〜④のスキル・エージェント（`gotouchi-content`・`gotouchi-source-checker`・`gotouchi-derivative-checker`）を決めた〔T5-02〕。0.16：出典のリンク切れチェック（`pnpm content:links`、`link-check.yml`）の上限・分類・終了コード・安全の方針を 12.4 に決めた〔T5-03〕。0.17：リポジトリを public にし、`main` をルールセット2つで守り、GitHub の設定を `pnpm github:setup` で反映するようにした。Cloudflare API Token の最小権限を決め、Access の手順を公式ドキュメントで書いた（11.1〜11.5、13、U5・U14、D44・D45。U7 は T0-06 に移した）〔T0-05〕。0.18：プレビューURLを Cloudflare Access で守るのをやめた（D20 → D46。リポジトリを public にしたので、下書きはすでに公開されている。U7 は不要になった）。PR のプレビューと `main` の本番へのデプロイ（12.1〜12.3。Token の job は `main` の道具と PR の `dist/` だけを扱う。11.2）〔T0-06〕） |
+| 更新日 | 2026-11-17（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）。0.11：PWA のオフラインで使える範囲と Service Worker のツールを決めた（5.4、U3・U13、D40・D41）。0.12：アクセシビリティの検査（axe・コントラストの単体テスト）と、ふりがなの読み上げの対処を 5.2 に書いた。0.13：Lighthouse CI の測り方と TBT の基準を 5.1 に書き、ハッシュつきのずれの直し方を決めた〔D42〕。0.14：執筆ルールとレビュー基準を `content/guidelines/` に書き（T5-01）、9.2・9.3 に参照を足した。`status` を `reviewed` にするのは、承認の後にオーナー。0.15：ふりがなの自動付与のツール（`pnpm content:furigana`、`lindera-wasm-nodejs-ipadic`）と、①〜④のスキル・エージェント（`gotouchi-content`・`gotouchi-source-checker`・`gotouchi-derivative-checker`）を決めた〔T5-02〕。0.16：出典のリンク切れチェック（`pnpm content:links`、`link-check.yml`）の上限・分類・終了コード・安全の方針を 12.4 に決めた〔T5-03〕。0.17：リポジトリを public にし、`main` をルールセット2つで守り、GitHub の設定を `pnpm github:setup` で反映するようにした。Cloudflare API Token の最小権限を決め、Access の手順を公式ドキュメントで書いた（11.1〜11.5、13、U5・U14、D44・D45。U7 は T0-06 に移した）〔T0-05〕。0.18：プレビューURLを Cloudflare Access で守るのをやめた（D20 → D46。リポジトリを public にしたので、下書きはすでに公開されている。U7 は不要になった）。PR のプレビューと `main` の本番へのデプロイ（12.1〜12.3。Token の job は `main` の道具と PR の `dist/` だけを扱う。11.2）〔T0-06〕。0.19：`README.md` を書き直し（6.5）、ローカル開発環境（11.6）に yamllint・`pnpm lint`・`pnpm typecheck`・Playwright の入れ方・デプロイは CI だけで行うこと〔障害時の切り戻しだけ手元〕を足し、コードブロックを README・AGENTS.md への参照に置き換えた。10.1 に CHANGELOG を書くタイミングを足した）〔T0-07〕） |
 | リポジトリ | vivastack-labs/vivastack-build-maps（リポジトリ直下がアプリ本体） |
 | 公開URL | `https://maps.vivastack-dev.workers.dev/{ja,en,zh}/` |
 | ステータス | 検討フェーズの決定事項を反映。「要検証」とした項目は実装時に確定する |
@@ -600,7 +600,7 @@ vivastack-build-maps/
 ├─ .gitleaks.toml .gitleaksignore  ← （既存）シークレット検出の設定
 ├─ AGENTS.md                       ← Claude Code と Codex の共通の指示（エージェント向けの指示はここに書く）
 ├─ CLAUDE.md                       ← `@AGENTS.md` で AGENTS.md を読み込む。Claude Code 固有の内容だけを追記する
-├─ README.md                       ← （既存）見出しはリポジトリ名に変更済み。本文はM0でこのアプリ向けに書き直す
+├─ README.md                       ← 人が最初に読む入口（概要・必要な環境・セットアップ・よく使うコマンド・開発の流れ）。M0（T0-07）でこのアプリ向けに書き直した
 ├─ CHANGELOG.md                    ← （既存）Keep a Changelog 形式
 ├─ wrangler.jsonc
 ├─ next.config.ts
@@ -995,7 +995,7 @@ flowchart TB
 - 1つの機能を1つのPRにする。`main` に直接pushしない。
 - 開発の進め方は `.claude/rules/` のルールに従う（計画 → TDD → コードレビュー → コミット。詳細は `development-workflow.md`）。
 - コミットメッセージは `<type>: <description>` の形式にする（type は feat / fix / refactor / docs / test / chore / perf / ci。`.claude/rules/git-workflow.md`）。
-- リリースごとの変更は `CHANGELOG.md`（Keep a Changelog 形式）に記録する。
+- 変更の記録は `CHANGELOG.md`（Keep a Changelog 形式）に書く。PR ごとには書かない。マイルストーンが終わったとき（そのマイルストーンの最後のタスクの PR）と、公開のときに、`[Unreleased]` にまとめて書き足す。版の番号は公開（T6-02）のときに付ける。
 
 ### 10.2 テスト戦略
 
@@ -1041,7 +1041,7 @@ flowchart TB
   - `preview` は `main` の `wrangler.jsonc` と wrangler の版を使うので、PR で `wrangler.jsonc` を変えても、プレビューには反映されない（反映を確かめるのは merge の後の本番）。
   - URL の取り出しと PR へのコメントは、承認の後に動く `preview-comment` の job が、PR のコード（`scripts/preview-*.ts`）で行う。この job は Secrets を持たず、`pull-requests: write` だけを持つ（Write 権限の人が自分で書ける workflow と同じ権限なので、承認の対象にしない）。
   - 残るリスク：本番（`deploy.yml`）も `preview` も、Token は依存から切り離した job に置いたが、依存が汚染されると、ビルドした `dist/`（公開する内容）は細工されうる。lockfile を `--frozen-lockfile` で使い、Dependabot の更新の PR を読んでから merge することで受ける。
-- ローカルからのデプロイ作業は `wrangler login`（OAuth）で行い、トークンを手元に保存しない。
+- 手元からはデプロイしない（本番・プレビューとも CI だけ。第12章）。障害時の切り戻し（第13章の `wrangler rollback`）だけは、オーナーが手元で `wrangler login`（OAuth）で行い、Token を手元に保存しない。
 
 ### 11.3 Cloudflare API Tokenの権限
 
@@ -1149,22 +1149,13 @@ flowchart TB
 | パッケージ管理 | pnpm（corepackで有効にする。Node.js 25 以降は corepack が同梱されないので、先に `npm install -g corepack` で入れる） |
 | wrangler | v4（devDependencyとして入れる） |
 | mapshaper | npm（devDependency） |
-| Playwright | `pnpm exec playwright install --with-deps` |
+| yamllint | 1.33.0（`pnpm lint` が使う。Python 製で pnpm では入らないので、`pipx install yamllint==1.33.0` などで入れる。CI の版と同じ） |
+| Playwright | E2E を動かすときだけ、`pnpm exec playwright install chromium firefox webkit`。Linux（WSL を含む）では、システムのライブラリも要る（`AGENTS.md` の「E2E の準備」） |
 | Claude Code | リポジトリ直下で起動する。`.claude/settings.json` の許可リストに `Bash(pnpm *)` を追加済み |
 
-```bash
-# WSL（bash）
-cd ~/works/vivastack-build-maps
-nvm install            # .nvmrc の版を入れる
-npm install -g corepack   # Node.js 25 以降は同梱されない
-corepack enable
-pnpm install
-pnpm dev              # http://localhost:3000/ja/
-pnpm test             # Vitest
-pnpm test:e2e         # Playwright
-pnpm build            # 静的出力を作り、dist/ を組み立てる
-pnpm exec wrangler dev   # dist/ を Workers と同じ動きでローカル確認する
-```
+手順は `README.md` の「セットアップ」、コマンドの一覧と細かい注意は `AGENTS.md` の「コマンド」に書く（同じ説明を2か所以上に書かない）。
+
+- デプロイは CI だけで行う（12.1〜12.3）。手元から `wrangler deploy` はしない（障害時の切り戻し〔第13章〕を除く）。
 
 ---
 
@@ -1324,7 +1315,7 @@ jobs:
 | API Tokenの更新 | 年1回（期限が切れる前。今の Token は 2027-11-17 まで） | 新しいトークンを発行する（11.3 の権限・期限1年）→ `gh secret set CLOUDFLARE_API_TOKEN --env preview` と `--env production` で更新する（11.2）→ デプロイが通ることを確かめる → 古いトークンを削除する |
 | GitHub の設定 | 変えるとき | `scripts/github-settings.ts` を直す PR を出し、merge の後に `pnpm github:setup`（確かめるだけ）→ `pnpm github:setup --apply` を実行する（11.5） |
 | 依存パッケージの更新 | 週1回 | DependabotのPRをCIで確認してmergeする |
-| 切り戻し | 障害時 | `wrangler rollback` で1つ前のバージョンに戻すか、Gitで元に戻すコミットを入れて再デプロイする |
+| 切り戻し | 障害時 | `wrangler rollback` で1つ前のバージョンに戻すか、Gitで元に戻すコミットを入れて再デプロイする。`wrangler rollback` は、オーナーが手元で `wrangler login`（OAuth）で行う（Token は手元に保存しない。11.2）。手元から行うデプロイ作業はこれだけ |
 
 ---
 
