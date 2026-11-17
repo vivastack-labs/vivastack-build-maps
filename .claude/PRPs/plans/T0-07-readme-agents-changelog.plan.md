@@ -74,7 +74,7 @@
 | `README.md`・`AGENTS.md` のコマンドが `package.json` のスクリプトと一致している | 上のスクラッチパッドのスクリプト | 一致（README は10種類、AGENTS.md は20種類。`lint:*` 以外のスクリプトはすべて AGENTS.md にある） |
 | markdownlint が通る | `pnpm lint` | 通る |
 | README の手順で install → test → build が通る（テスト条件） | スクラッチパッドに `git clone --branch docs/T0-07-readme-agents-changelog <このリポジトリ>` で clone し、README の手順のとおりに `pnpm install` → `pnpm test` → `pnpm build` | 通る（`nvm install` で Node.js v26.13.1 が入った。テスト 2049件、カバレッジ 96.7%）。この端末の nvm と pnpm のストアを使ったので、まっさらな環境ではない。`npm install -g corepack` を飛ばすと `corepack: command not found` で止まる（README の手順どおりなら通る） |
-| （T0-06 から引き継いだ確認）文書だけの PR で重い手順を飛ばす | この PR の CI の `check` のログで、typecheck・test・build などが skipped、`preview`・`preview-comment` が skipped | PR の CI で確かめる。変えたファイルはすべて `scripts/docs-only.ts` で `docs_only=true` |
+| （T0-06 から引き継いだ確認）文書だけの PR で重い手順を飛ばす | この PR の CI の `check` のログで、typecheck・test・build などが skipped、`preview`・`preview-comment` が skipped | 確かめた（PR #71、run 44032283855）。`check` は Lint だけを実行し、ほかの重い手順は skipped。`preview`・`preview-comment` も skipped。`check`・`gitleaks` は成功 |
 
 ## 判断が必要な点
 

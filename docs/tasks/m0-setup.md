@@ -154,7 +154,7 @@
 - ブランチ保護で必須にするチェックの名前は `check` と `gitleaks`（T0-04 の `ci.yml`）。
 - ブランチ保護で「Dismiss stale pull request approvals when new commits are pushed」と「Require approval of the most recent reviewable push」は有効にしない。コンテンツの PR は、レビュアーの承認の後に、オーナーが `status` を `reviewed` にするコミットを足してから merge する（9.2 ⑧）ので、有効にすると承認が外れる。有効にするなら、`status` のコミットの後に、レビュアーに承認し直してもらう（`content/guidelines/review-checklist.md`）。
 - **プランの制約**（T0-04 で確認）：リポジトリは private、組織は Free プランで、ブランチ保護と Environments・Environment の Secrets を使えない（開発概要書 11.5、U14）。→ **T0-05 でオーナーが public にした**（D44）。GitHub の設定は `pnpm github:setup` で反映する（11.5）。
-- 文書だけの PR で、`check` が lint だけを実行して typecheck・test・build・e2e を飛ばすこと（T0-04 で merge 後に確かめることにした点）は、この PR がスクリプトを含むので確かめられない。次の文書だけの PR（T0-07 など）で確かめる。
+- 文書だけの PR で、`check` が lint だけを実行して typecheck・test・build・e2e を飛ばすこと（T0-04 で merge 後に確かめることにした点）は、この PR がスクリプトを含むので確かめられない。次の文書だけの PR（T0-07 など）で確かめる。→ T0-07 の PR（#71、run 44032283855）で確かめた：`check` は Lint だけを実行し、Typecheck・Unit test・Validate content・Size budget・Lighthouse CI・Build・Build preview は skipped、`preview`・`preview-comment` も skipped、`check`・`gitleaks` は成功（必須のチェックが通り、merge できる）。
 
 ### 完了条件
 
