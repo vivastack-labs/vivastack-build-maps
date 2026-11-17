@@ -1,5 +1,8 @@
 ---
-# 12.1〜12.3：main 向けのPRごとにチェックを実行する（T0-04）。プレビューへのデプロイは T0-06 で加える。
+# 12.1〜12.3：main 向けのPRごとにチェックを実行し（T0-04）、プレビュー（Workers のバージョンごとの URL）にデプロイする（T0-06）。
+# check（検査とビルド）→ preview（Environment preview の承認 → wrangler versions upload。Token を持つ）
+# → preview-comment（PR にコメント。書き込みの権限を持つ）。
+# Token を持つ job と書き込みの権限を持つ job は分ける（最小の権限）。
 # Action はコミットSHAで固定する（5.5）。横のコメントはタグ（Dependabot が SHA と一緒に更新する）
 name: ci
 
@@ -27,6 +30,9 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      # 文書だけの PR では preview を飛ばす
+      docs_only: ${{ steps.changes.outputs.docs_only }}
     steps:
       # 文書だけの変更かを、PRの分岐点からの差分で見るため、全履歴を取る
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -35,10 +41,12 @@ jobs:
           persist-credentials: false
       # pnpm の版は package.json の packageManager から決まる
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115  # v6.1.1
+      # 11.2：Actions のキャッシュを使わない（package-manager-cache: false）。この job は PR のコードを動かし、
+      # その結果（dist-preview）を Token を持つ preview job が使うので、PR がキャッシュを汚して dist-preview を細工する経路を断つ
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
           node-version-file: .nvmrc
-          cache: pnpm
+          package-manager-cache: false
       # pnpm lint の yamllint は Python 製で、pnpm では入らない。手元と同じ版にする
       - name: Install yamllint
         run: pipx install yamllint==1.33.0
@@ -103,6 +111,119 @@ jobs:
       - name: Build
         if: steps.changes.outputs.docs_only != 'true'
         run: pnpm build
+      # 12.3：プレビュー用のビルド（すべての項目に「下書き」の印・noindex。D30・T3-02）を preview job に渡す。
+      # 本物の Build（上）は、本番用のビルドが壊れていないことを merge の前に確かめるために残す。
+      # dist/ を作り直すので、本物の Build より後に置く。Token を持つ preview job が、このビルドの結果を使う（Token はここに渡さない）
+      - name: Build preview
+        if: steps.changes.outputs.docs_only != 'true'
+        run: pnpm build:preview
+      - name: Upload preview build
+        if: steps.changes.outputs.docs_only != 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: dist-preview
+          path: dist/
+          include-hidden-files: false
+          if-no-files-found: error
+          # preview の承認を待てるのは最大30日。承認に7日以上かかったら、Actions の画面で Re-run all jobs を実行する（11.2）
+          retention-days: 7
+
+  # 12.3：プレビューにデプロイする（wrangler versions upload。本番には出ない）。
+  # Environment preview の承認（オーナー）を待ってから動く。Token（CLOUDFLARE_API_TOKEN）は Environment preview の Secret で、
+  # wrangler のステップの env だけに渡す。書き込みの権限は持たない（PR のコメントは preview-comment が付ける）。
+  # Token の job は、main の道具（スクリプト・package.json・lockfile・wrangler.jsonc・wrangler の版）と、PR の静的ファイル（dist）だけを扱い、
+  # PR のコードは一切動かさない（checkout は main の側の base.sha。dist は check が作った Artifact）。
+  # 動かさない場合：文書だけの PR、fork の PR（Secrets が渡らない）、Dependabot の PR（Environment の Secrets が渡らない）
+  preview:
+    needs: check
+    if: >-
+      needs.check.outputs.docs_only != 'true'
+      && github.event.pull_request.head.repo.full_name == github.repository
+      && github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: preview
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115  # v6.1.1
+      # 11.2：Token を使える job では、Actions のキャッシュを復元しない（package-manager-cache: false）。
+      # 承認の要らない check の run が保存したキャッシュを、承認の後の Token が使える job で読むと、キャッシュ汚染の経路になる
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      # インストールスクリプトは動かさない（Token を持つ job で、依存のスクリプトを動かさない）
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+      # dist/ は、作業ディレクトリの直下（.env など wrangler が読むファイルと同じ場所）ではなく、dist の下にだけ置く
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          name: dist-preview
+          path: dist
+      # --preview-alias：PR の最新のコミットを指す URL（pr-<番号>-maps.<サブドメイン>.workers.dev）。
+      # 出力ファイル（WRANGLER_OUTPUT_FILE_PATH。ND-JSON）は、preview-comment job が読む。PR の番号・SHA は env 経由で渡す
+      - name: Upload version to Workers
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-output.ndjson
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          pnpm exec wrangler versions upload \
+            --preview-alias "pr-${PR_NUMBER}" \
+            --message "PR #${PR_NUMBER} ${HEAD_SHA}"
+      # preview-comment job に URL を渡す（中身に秘密はない）。tests/fixtures/wrangler/version-upload.ndjson を実物に合わせるのにも使う
+      - name: Upload wrangler output
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: wrangler-output
+          path: ${{ runner.temp }}/wrangler-output.ndjson
+          include-hidden-files: false
+          if-no-files-found: error
+          retention-days: 2
+
+  # 12.3：PR にプレビューの URL のコメントを付ける（付いていれば書き換える）。書き込みの権限（pull-requests: write）だけを持ち、Secrets は渡さない。
+  # scripts/preview-url.ts・preview-comment.ts は外の依存（node_modules）を使わないので、pnpm install はしない。キャッシュも使わない
+  preview-comment:
+    needs: preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          name: wrangler-output
+          path: ${{ runner.temp }}/wrangler-output
+      # URL は https の workers.dev の形だけを通す（scripts/lib/preview-url.ts）。取り出せなければ失敗する
+      - name: Read preview URLs
+        id: urls
+        run: node scripts/preview-url.ts "${RUNNER_TEMP}/wrangler-output/wrangler-output.ndjson" >> "$GITHUB_OUTPUT"
+      # HEAD_SHA は PR の head、MERGE_SHA は実際にビルドした main との merge のコミット（コメントに併記する）
+      - name: Comment preview URLs on the PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          MERGE_SHA: ${{ github.sha }}
+          ALIAS_URL: ${{ steps.urls.outputs.alias_url }}
+          PREVIEW_URL: ${{ steps.urls.outputs.preview_url }}
+          VERSION_ID: ${{ steps.urls.outputs.version_id }}
+        run: node scripts/preview-comment.ts
 
   # 5.5：シークレットの混入を全履歴で検査する（.gitleaks.toml・.gitleaksignore を使う）。
   # gitleaks-action は Organization のリポジトリではライセンスキーが要るので、公式のバイナリを使う
