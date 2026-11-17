@@ -79,7 +79,8 @@ const MAIN_REVIEW_RULESET = {
       }
     },
     // 更新の制限：バイパスできる人（admin・組織のオーナー）だけが main を更新できる。つまり merge はオーナーだけ（レビュアーの Team は承認までで、merge できない）
-    { type: 'update', parameters: { update_allows_fetch_and_merge: false } }
+    // parameters は付けない：既定の update_allows_fetch_and_merge: false を、GitHub は応答で省くので、付けると比べるたびに差が出る
+    { type: 'update' }
   ]
 };
 

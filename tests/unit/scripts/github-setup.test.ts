@@ -16,12 +16,14 @@ type Write = { readonly method: WriteMethod; readonly path: string; readonly bod
 
 /**
  * GitHub が返すルールセットの形。設定を広げただけにしない：OrganizationAdmin の actor_id は null、
- * pull_request に allowed_merge_methods、required_status_checks に do_not_enforce_on_create が付き、id・source_type・_links なども付く
+ * pull_request に allowed_merge_methods、required_status_checks に do_not_enforce_on_create が付き、id・source_type・_links なども付く。
+ * update は parameters を付けずに返る（既定の update_allows_fetch_and_merge: false を省く。T0-05 の --apply の後に実物で確かめた）
  */
 function realShape(ruleset: (typeof GITHUB_SETTINGS.rulesets)[number], id: number) {
   const rules = ruleset.rules.map(rule => {
     if (rule.type === 'pull_request') return { ...rule, parameters: { ...rule.parameters, allowed_merge_methods: ['merge', 'squash', 'rebase'] } };
     if (rule.type === 'required_status_checks') return { ...rule, parameters: { ...rule.parameters, do_not_enforce_on_create: false } };
+    if (rule.type === 'update') return { type: 'update' };
     return rule;
   });
   return {
@@ -306,7 +308,7 @@ describe('runGithubSetup：ルールセット', () => {
     expect(body.enforcement).toBe('active');
     expect(body.conditions).toEqual({ ref_name: { include: ['~DEFAULT_BRANCH'], exclude: [] } });
     expect(body.rules.map((rule: { type: string }) => rule.type)).toEqual(['pull_request', 'update']);
-    expect(body.rules[1]).toEqual({ type: 'update', parameters: { update_allows_fetch_and_merge: false } });
+    expect(body.rules[1]).toEqual({ type: 'update' });
     expect(body.rules[0].parameters).toEqual({
       required_approving_review_count: 1,
       require_code_owner_review: true,
