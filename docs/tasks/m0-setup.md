@@ -135,36 +135,38 @@
 
 ## T0-05 Cloudflare・GitHubの事前設定
 
-- **種別**：手作業（オーナー）
+- **種別**：手作業（オーナー）＋ chore（GitHub の設定を反映するスクリプト `pnpm github:setup`）
 - **依存関係**：なし（ブランチ保護の設定だけは T0-04 の後。必須にするチェックの名前が決まるため）
-- **目的**：デプロイに必要な外部サービスの設定を済ませ、要確認の事項（U5・U7）を確定する。
-- **参照仕様**：第11章、U5、U7
+- **目的**：デプロイに必要な外部サービスの設定を済ませ、要確認の事項（U5・U7・U14）を確定する（U7 は T0-06 に移した）。
+- **参照仕様**：第11章、U5、U7、U14
 
 ### 実装内容
 
 - Cloudflare：
   - workers.dev のサブドメイン `vivastack-dev` は登録済み（11.4 (1)。D35。DNS のレコードと Route は作らない）。
   - API Token：11.3 の権限から始め、T0-06 のデプロイが通る最小の組み合わせに絞る（開発計画 5章 U5 の推奨案）。有効期限は1年。
-  - Zero Trust を有効にし、Access でプレビューURLを保護する（本番の workers.dev URL は一般公開なので保護しない。D35）。許可するのはオーナーとレビュアーのメールアドレスだけ（11.4 (5)）。
+  - Zero Trust を有効にし、Access でプレビューURLを保護する（本番の workers.dev URL は一般公開なので保護しない。D35）。許可するのはオーナーとレビュアーのメールアドレスだけ（11.4 (5)）。→ **T0-06 に移した**（オーナーの判断。Worker `maps` の Access タブで「Previews only」にするのは Worker ができてからで、確かめるのも T0-06 になるため）。T0-05 では、公式ドキュメントの手順を 11.4 (5) に書いた。
 - GitHub：
   - Environments（`preview` / `production`）と Secrets（11.2）。
   - ブランチ保護（11.5）。
   - Team `maps-reviewers` と、リポジトリへの Write 権限。
-- 結果を開発概要書（11.3、11.4 (5)、第16章の U5・U7）に書く docs のPRを出す。
+- 結果を開発概要書（11.3、11.4 (5)、第16章の U5・U7・U14）に書く docs のPRを出す。
 - ブランチ保護で必須にするチェックの名前は `check` と `gitleaks`（T0-04 の `ci.yml`）。
 - ブランチ保護で「Dismiss stale pull request approvals when new commits are pushed」と「Require approval of the most recent reviewable push」は有効にしない。コンテンツの PR は、レビュアーの承認の後に、オーナーが `status` を `reviewed` にするコミットを足してから merge する（9.2 ⑧）ので、有効にすると承認が外れる。有効にするなら、`status` のコミットの後に、レビュアーに承認し直してもらう（`content/guidelines/review-checklist.md`）。
-- **プランの制約**（T0-04 で確認）：リポジトリは private、組織は Free プランで、ブランチ保護と Environments・Environment の Secrets を使えない（開発概要書 11.5、U14）。先に U14（GitHub Team に変える / public にする / ブランチ保護なしで運用する）を決める。Environments を使えないままなら、Secrets はリポジトリの Secrets に置くことになり、11.2 を直す。
-- この docs のPRは文書だけなので、`check` は lint だけを実行して、typecheck・test・build・e2e を飛ばすはず（T0-04 で merge 後に確かめることにした点）。PRで確かめる。
+- **プランの制約**（T0-04 で確認）：リポジトリは private、組織は Free プランで、ブランチ保護と Environments・Environment の Secrets を使えない（開発概要書 11.5、U14）。→ **T0-05 でオーナーが public にした**（D44）。GitHub の設定は `pnpm github:setup` で反映する（11.5）。
+- 文書だけの PR で、`check` が lint だけを実行して typecheck・test・build・e2e を飛ばすこと（T0-04 で merge 後に確かめることにした点）は、この PR がスクリプトを含むので確かめられない。次の文書だけの PR（T0-07 など）で確かめる。
 
 ### 完了条件
 
 - 11.2 の Secrets が、決めた Environment に登録されている。
-- 開発概要書の U5・U7 が決定になり、11.3・11.4 (5) の「要検証」「要確認」が消えている。
+- 開発概要書の U5・U14 が決定になり、11.3・11.4 (5) の「要検証」「要確認」が消えている（U7 は T0-06 に移し、11.4 (5) には公式ドキュメントの手順を書く）。
+- `pnpm github:setup --apply` の後、もう一度 `pnpm github:setup` を実行すると、書き込みの予定がない。
 
 ### テスト条件
 
-- 自動テストはない（外部サービスの設定のため）。
-- 確認の方法：T0-06 のデプロイが成功することで確かめる。権限を絞ったTokenで `wrangler deploy` と `wrangler versions upload` が通ること、プレビューURLを開くと Access の認証画面が出ることを確かめる。
+- Cloudflare の設定には自動テストはない（外部サービスの設定のため）。
+- 単体：`pnpm github:setup` のロジック（`scripts/lib/github-setup.ts`。`gh api` を置き換える）と、必須のチェックの名前が `ci.yml` の job にあること。
+- 確認の方法：権限を絞ったTokenで、捨てる Worker 名（`maps-token-check`）に `wrangler deploy`・`wrangler versions upload`・`wrangler delete` が通ること（T0-05 でオーナーが確かめた。開発概要書 11.3）。本番のデプロイは T0-06 で確かめる。
 
 ---
 
@@ -184,7 +186,11 @@
 - `deploy.yml` の本番のビルド（`reviewed` のみ）の後に、`pnpm lhci`（T4-04）を加えるか決める。`ci.yml` では、上限のコンテンツの `dist/` を測っている（開発概要書 5.1、12.2）。本物のコンテンツのビルドを測る場合、`dist/` の作り方と、基準値が同じでよいかを決める。
 - `pnpm build:preview`：`BUILD_TARGET=preview` でビルドする（`next build` と `scripts/postbuild.ts`）。`noindex`（`<meta name="robots" content="noindex">`）と、コンテンツの絞り込み（すべての項目を出し、`reviewed` でない項目に `draft` の値を付ける。画面の「下書き」の印は T3-03）を加えたもの。T3-02 で作った（`package.json` の `build`・`build:preview`、`src/lib/publish.ts`、`app/[lang]/layout.tsx` の `generateMetadata`）。ここ（T0-06）では、`ci.yml` の `preview` job が使う `pnpm build:preview` の出力に `noindex` が付くことを確かめる。
 - プレビューURLの形式と、wrangler の出力から取り出す方法を開発概要書 12.3 に書く。
-- 決まったプレビューURLの形式と、Access のログインの手順（T0-05 で確かめた内容）を、`content/guidelines/review-checklist.md` の「プレビューの開き方」に反映する（T5-01 で、決まっていない点に「T0-06 で確定」と印を付けてある）。
+- **Access（U7。T0-05 から移した）**：開発概要書 11.4 (5) の手順で、Zero Trust を始め（Free プラン。支払いの情報の入力が要る）、One-time PIN とポリシー `maps-reviewers` を作る。Worker `maps` ができたら（最初のデプロイの直後に）、Worker の Access タブで「Previews only」にする。無料枠の人数と、手順が公式ドキュメントのとおりかを確かめて、11.1・11.4 (5)・U7 を直す。今のコンテンツは47県とも「準備中」なので、設定までの間にプレビューが見えても、出ていくものはない。
+- **`preview` の承認**：Environment `preview` は、デプロイの前にオーナーの承認が要る（D45。11.2）。`preview` job は、オーナーが Actions の画面（または PR の「Review deployments」）で承認するまで待つ。承認の前に、run のコミットと `main` の差が `/content/prefectures/` だけかを確かめる手順（開発概要書 11.2）を、PR へのプレビューURLのコメントの説明に合わせて書く。Token は wrangler のステップの `env` だけに渡す（ほかのステップに見せない）。`preview` job では Actions のキャッシュを復元しない（`setup-node` に `cache:` を付けず、`actions/cache` も使わない）。承認の要らない `ci.yml` の run が保存したキャッシュを、Token が使える job で動かさないため（11.2）。
+- **fork からの PR**：リポジトリは public（D44）。fork からの PR の workflow には Secrets が渡らないので、`preview` job は fork の PR では飛ばす（`github.event.pull_request.head.repo.full_name == github.repository` のときだけ動かす）。fork からの PR の workflow は、外部の人すべてで承認が要る設定にしてある（11.5）。
+- `preview` job は `environment: preview`、`deploy.yml` は `environment: production`（Token は Environment の Secret。Account ID はリポジトリの Secret。11.2・D45）。
+- 決まったプレビューURLの形式と、Access のログインの手順を、`content/guidelines/review-checklist.md` の「プレビューの開き方」に反映する（T5-01 で、決まっていない点に「T0-06 で確定」と印を付けてある）。
 
 ### 完了条件
 
