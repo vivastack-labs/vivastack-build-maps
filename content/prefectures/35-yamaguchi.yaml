@@ -124,7 +124,7 @@ spots:
       - title: "秋吉台｜日本最大級のカルスト台地【公式】山口県観光/旅行サイト おいでませ山口へ"
         url: "https://yamaguchi-tourism.jp/spot/detail_14537.html"
         accessed: "2026-11-17"
-    status: draft
+    status: verified
   - id: rurikoji-gojunoto
     name: {ja: "{瑠璃光寺|るりこうじ}{五重塔|ごじゅうのとう}", en: "Rurikoji Five-Story Pagoda", zh: "琉璃光寺五重塔"}
     description:
