@@ -94,7 +94,7 @@ flowchart LR
 | T0-04 | ci | PR用のCI（チェックだけ） | 完了 |
 | T0-05 | 手作業 | Cloudflare・GitHubの事前設定 | 完了 |
 | T0-06 | ci | プレビュー・本番へのデプロイ | 完了 |
-| T0-07 | docs | README・AGENTS.md・CHANGELOGの更新 | 作業中 |
+| T0-07 | docs | README・AGENTS.md・CHANGELOGの更新 | 完了 |
 
 ### 3.2 M1 地図データ・コンテンツ基盤（[tasks/m1-geo-content.md](tasks/m1-geo-content.md)）
 
@@ -167,7 +167,7 @@ flowchart LR
 | T5-01 | docs | 執筆ルールとレビュー基準 | 完了 |
 | T5-02 | feat | 生成スキルと検証エージェント | 完了 |
 | T5-03 | ci | 出典のリンク切れチェック | 完了 |
-| T5-04 | feat | 1県目（試行） | 未着手 |
+| T5-04 | feat | 1県目（試行） | 作業中 |
 | T5-05 | feat | 残りの46県（県ごとに繰り返す） | 未着手 |
 
 T5-05 の県ごとの進み具合は、YAMLの `status` で分かるので、この文書では管理しない。
