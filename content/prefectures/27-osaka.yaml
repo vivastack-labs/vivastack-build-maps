@@ -17,5 +17,129 @@ capital:
     zh: "大阪市"
   lat: 34.686352
   lon: 135.519769
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {新大阪駅|しんおおさかえき}"
+    en: "Tokyo Station → Shin-Osaka Station"
+    zh: "东京站 → 新大阪站"
+  # 東京始発の「のぞみ25号」（毎日運転）：東京 10:30 発 → 新大阪 13:00 着（150分。乗り換えなし）。JR時刻表2026年11月号に基づく時刻
+  durationMin: 150
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/25371"
+      accessed: "2026-11-17"
+  status: verified
+specialties:
+  - id: takoyaki
+    emoji: "🐙"
+    name: {ja: "たこ{焼|や}き", en: "Takoyaki", zh: "章鱼烧"}
+    description:
+      ja:
+        kids: "たこが{入|はい}っていて、ソースや{青|あお}のりをかけて{食|た}べるよ。"
+        adult: "{小麦粉|こむぎこ}やだし、{卵|たまご}、ゆでだこなどで{作|つく}る{大阪|おおさか}の{味|あじ}で、\
+          {戦後|せんご}にソースや{青|あお}のりをかける{形|かたち}になったとされます。"
+      en:
+        kids: "Takoyaki has octopus inside, and people eat it with sauce and green seaweed flakes on top."
+        adult: "Made from flour, broth, eggs, boiled octopus and more, this Osaka dish reportedly gained its sauce and green seaweed topping after the war."
+      zh:
+        kids: "里面有章鱼，淋上酱汁、撒上青海苔来吃。"
+        adult: "用面粉、高汤、鸡蛋和煮章鱼等做成的大阪风味，据说战后形成淋酱汁、撒青海苔的样式。"
+    sources:
+      - title: "たこ焼き 大阪府 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/39_15_osaka.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: senshu-mizunasu
+    emoji: "🍆"
+    name: {ja: "{泉州|せんしゅう}{水|みず}なす", en: "Senshu Mizunasu Eggplant", zh: "泉州水茄"}
+    description:
+      ja:
+        kids: "{水|みず}がたっぷりで{甘|あま}い、{夏|なつ}がいちばんよい{時期|じき}のなすだよ。{浅漬|あさづ}けにするよ。"
+        adult: "{江戸|えど}{時代|じだい}の{初|はじ}めごろから{泉州|せんしゅう}で{育|そだ}てられたとされる、\
+          みずみずしく{甘|あま}いなすです。{夏|なつ}が{旬|しゅん}で、{浅漬|あさづ}けにします。"
+      en:
+        kids: "These eggplants are full of water and sweet, best in summer, and made into light pickles."
+        adult: "Said to have been grown in Senshu since the early Edo period, this juicy, sweet eggplant is best in summer and made into light pickles."
+      zh:
+        kids: "水分满满、甜甜的茄子，夏天正当季，会做成浅渍。"
+        adult: "据说自江户时代初期起就在泉州种植，是水灵带甜的茄子，夏季当季，可做成浅渍。"
+    sources:
+      - title: "泉州水なすの浅漬 大阪府 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/39_1_osaka.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: sakai-uchihamono
+    emoji: "🔪"
+    name: {ja: "{堺打刃物|さかいうちはもの}", en: "Sakai Uchihamono Knives", zh: "堺打刃物"}
+    description:
+      ja:
+        kids: "むかしからの{技|わざ}で{作|つく}る{刃物|はもの}だよ。{切|き}れ{味|あじ}がよいと{言|い}われているんだ。"
+        adult: "{堺|さかい}の{刃物|はもの}づくりは{安土桃山時代|あづちももやまじだい}の{煙草庖丁|たばこぼうちょう}に{始|はじ}まり、\
+          {昔|むかし}ながらの{火造|ひづく}りや{研|と}ぎで{切|き}れ{味|あじ}が{知|し}られています。"
+      en:
+        kids: "Blades made with traditional skills are said to cut well."
+        adult: "Sakai's blade-making began with tobacco knives in the Azuchi-Momoyama period, and its traditional forging and sharpening have made Sakai knives known for their sharpness."
+      zh:
+        kids: "用传统技艺制成的刀具，据说很锋利。"
+        adult: "堺的刀具制造始于安土桃山时代的烟草刀，凭传统锻造和研磨工艺以锋利闻名。"
+    sources:
+      - title: "堺打刃物／大阪府（おおさかふ）ホームページ [Osaka Prefectural Government]"
+        url: "https://www.pref.osaka.lg.jp/o110070/mono/dento/dento16.html"
+        accessed: "2026-11-17"
+    status: verified
+spots:
+  - id: osaka-castle
+    name: {ja: "{大阪城|おおさかじょう}", en: "Osaka Castle", zh: "大阪城"}
+    description:
+      ja:
+        kids: "{市民|しみん}がお{金|かね}を{出|だ}して、3{代目|だいめ}の{天守閣|てんしゅかく}を{建|た}てたよ。"
+        adult: "{現在|げんざい}の{天守閣|てんしゅかく}は3{代目|だいめ}で、1931{年|ねん}に{市民|しみん}の{寄付|きふ}で\
+          {復興|ふっこう}され、{博物館|はくぶつかん}になっています。"
+      en:
+        kids: "Townspeople gave money to build the third castle tower."
+        adult: "The current castle keep, the third, was rebuilt in 1931 with citizens' donations and is a museum."
+      zh:
+        kids: "市民捐款建起了第三代天守阁。"
+        adult: "现在的天守阁是第三代，1931年靠市民捐款重建，现为博物馆。"
+    sources:
+      - title: "大阪城天守閣"
+        url: "https://www.osakacastle.net/"
+        accessed: "2026-11-17"
+    status: verified
+  - id: nintoku-tenno-ryo-kofun
+    name: {ja: "{仁徳天皇陵古墳|にんとくてんのうりょうこふん}", en: "Nintoku-tenno-ryo Kofun", zh: "仁德天皇陵古坟"}
+    description:
+      ja:
+        kids: "{三重|さんじゅう}の{濠|ほり}に{囲|かこ}まれた、{大|おお}きなお{墓|はか}だよ。"
+        adult: "{百舌鳥古墳群|もずこふんぐん}で{最大|さいだい}の{古墳|こふん}で、{墳丘長|ふんきゅうちょう}は486m、{三重|さんじゅう}の{濠|ほり}まで{入|い}れると840mです。"
+      en:
+        kids: "This huge tomb is surrounded by a triple moat."
+        adult: "The Mozu Kofun Group's largest tomb has a 486 m mound, or 840 m including its triple moat."
+      zh:
+        kids: "被三重壕沟环绕的巨大古坟。"
+        adult: "百舌鸟古坟群中最大，坟丘长486米，含三重壕沟全长840米。"
+    sources:
+      - title: "百舌鳥古墳群の特徴"
+        url: "https://www.city.sakai.lg.jp/kanko/rekishi/sei/kohun_siru/kohun_gaiyo/tokucho.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: dotonbori
+    name: {ja: "{道頓堀|どうとんぼり}", en: "Dotonbori", zh: "道顿堀"}
+    description:
+      ja:
+        kids: "{大|おお}きな{立体|りったい}の{看板|かんばん}が{立|た}ち{並|なら}ぶ{川|かわ}ぞいの{町|まち}だよ。"
+        adult: "{名|な}は1612{年|ねん}に{川|かわ}を{開|ひら}いた{安井道頓|やすいどうとん}にちなみ、\
+          {大|おお}きな{立体|りったい}の{看板|かんばん}が{並|なら}びます。"
+      en:
+        kids: "Huge three-dimensional signs stand in rows along this river in Osaka."
+        adult: "Named after Yasui Doton, who dug the waterway in 1612, the area has many large three-dimensional signs."
+      zh:
+        kids: "巨大的立体招牌排列在河边的街区。"
+        adult: "因1612年开凿河道的安井道顿得名，有许多巨大的立体招牌。"
+    sources:
+      - title: "道頓堀 観光ガイド｜巨大看板とグルメを満喫！大阪ミナミの人気スポット"
+        url: "https://osaka-info.jp/spot/dotonbori/"
+        accessed: "2026-11-17"
+    status: verified
