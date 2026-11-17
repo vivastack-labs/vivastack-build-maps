@@ -93,8 +93,8 @@ flowchart LR
 | T0-03 | chore | `dist/` の組み立てとローカルの Workers 確認 | 完了 |
 | T0-04 | ci | PR用のCI（チェックだけ） | 完了 |
 | T0-05 | 手作業 | Cloudflare・GitHubの事前設定 | 完了 |
-| T0-06 | ci | プレビュー・本番へのデプロイ | 作業中 |
-| T0-07 | docs | README・AGENTS.md・CHANGELOGの更新 | 未着手 |
+| T0-06 | ci | プレビュー・本番へのデプロイ | 完了 |
+| T0-07 | docs | README・AGENTS.md・CHANGELOGの更新 | 作業中 |
 
 ### 3.2 M1 地図データ・コンテンツ基盤（[tasks/m1-geo-content.md](tasks/m1-geo-content.md)）
 
