@@ -17,5 +17,136 @@ capital:
     zh: "京都市"
   lat: 35.021096
   lon: 135.755292
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {京都駅|きょうとえき}"
+    en: "Tokyo Station → Kyoto Station"
+    zh: "东京站 → 京都站"
+  # 東京始発の「のぞみ25号」（毎日運転）：東京 10:30 発 → 京都 12:44 着（134分。乗り換えなし）。2026年10月3日改正のダイヤ
+  durationMin: 134
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/25371"
+      accessed: "2026-11-17"
+  status: reviewed
+specialties:
+  - id: nishijin-ori
+    emoji: "👘"
+    name: {ja: "{西陣織|にしじんおり}", en: "Nishijin Textiles", zh: "西阵织"}
+    description:
+      ja:
+        kids: "{先|さき}に{色|いろ}をそめた{糸|いと}で、もようを{織|お}り{上|あ}げる、{上等|じょうとう}な{絹|きぬ}の{布|ぬの}だよ。"
+        adult: "{応仁|おうにん}の{乱|らん}で{西軍|せいぐん}が{陣|じん}を{置|お}いた{地|ち}に{名|な}を{残|のこ}す、\
+          {先|さき}に{糸|いと}を{染|そ}めてから{模様|もよう}を{織|お}り{出|だ}す{高級|こうきゅう}な{絹織物|きぬおりもの}です。"
+      en:
+        kids: "This fine silk cloth is woven with patterns using threads that are dyed first."
+        adult: "Named after the place where the Western Army set up camp in the Onin War, this luxury silk is woven with patterns from pre-dyed threads."
+      zh:
+        kids: "用先染好颜色的线织出花纹，是上等的丝绸布料。"
+        adult: "其名称源自应仁之乱时西军布阵之地，是用先染色的丝线织出花纹的高级丝织品。"
+    sources:
+      - title: "西陣織 ［京都府の伝統的工芸品等］／京都府ホームページ"
+        url: "https://www.pref.kyoto.jp/senshoku/nisijin.html"
+        accessed: "2026-11-17"
+    status: reviewed
+  - id: uji-cha
+    emoji: "🍵"
+    name: {ja: "{宇治茶|うじちゃ}", en: "Uji Tea", zh: "宇治茶"}
+    description:
+      ja:
+        kids: "{覆|おお}いの{下|した}で{育|そだ}てた{新芽|しんめ}は、しぶみが{少|すく}なくて、{抹茶|まっちゃ}などになるよ。"
+        adult: "{覆|おお}いの{下|した}で{日光|にっこう}を{弱|よわ}めて{育|そだ}てた{新芽|しんめ}は、\
+          {渋|しぶ}みが{少|すく}なくうま{味|み}が{多|おお}く、{抹茶|まっちゃ}や{玉露|ぎょくろ}になります。"
+      en:
+        kids: "New tea leaves grown under covers are less bitter and become teas like matcha, a powdered green tea."
+        adult: "Grown under covers that soften the sunlight, the new leaves are less bitter and full of umami, and become powdered matcha or gyokuro tea."
+      zh:
+        kids: "在遮盖下长大的新芽不太涩，可以做成抹茶等。"
+        adult: "在覆盖物下减弱日照培育的新芽，涩味少、鲜味足，可制成抹茶和玉露。"
+    sources:
+      - title: "宇治茶（うじちゃ）｜にっぽん伝統食図鑑：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/traditional-foods/menu/uzitya.html"
+        accessed: "2026-11-17"
+    status: reviewed
+  - id: kyo-tsukemono
+    emoji: "🥬"
+    name: {ja: "{京漬物|きょうつけもの}", en: "Kyoto Pickles", zh: "京都腌菜"}
+    description:
+      ja:
+        kids: "うすく{切|き}ったかぶの{千枚漬|せんまいづけ}や、すっぱいすぐき{漬|づけ}は、11{月|がつ}ごろから{作|つく}るよ。"
+        adult: "{薄|うす}く{切|き}ったかぶの{千枚漬|せんまいづけ}や{酸味|さんみ}のあるすぐき{漬|づけ}などがあり、\
+          どちらも11{月|がつ}ごろから{作|つく}られます。"
+      en:
+        kids: "Thinly sliced turnip pickles and sour suguki pickles are made from around November."
+        adult: "Kyoto pickles include senmaizuke, made from thinly sliced turnips, and sour suguki pickles, and both are made from around November."
+      zh:
+        kids: "用薄薄的芜菁片做的千枚渍和酸酸的酸茎渍，从11月左右开始做。"
+        adult: "包括用切成薄片的芜菁做的千枚渍和带酸味的酸茎渍等，两者都从11月左右开始制作。"
+    sources:
+      - title: "京漬物（きょうつけもの）｜にっぽん伝統食図鑑：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/traditional-foods/menu/kyo_tukemono.html"
+        accessed: "2026-11-17"
+    status: reviewed
+spots:
+  - id: kiyomizu-dera
+    name: {ja: "{清水寺|きよみずでら}", en: "Kiyomizu-dera Temple", zh: "清水寺"}
+    description:
+      ja:
+        kids: "{崖|がけ}に{建|た}つお{堂|どう}に、{高|たか}さ{約|やく}13mの{舞台|ぶたい}があるよ。"
+        adult: "778{年|ねん}に{開|ひら}かれた{寺|てら}で、{崖|がけ}に{建|た}つ{国宝|こくほう}の{本堂|ほんどう}には\
+          {高|たか}さ{約|やく}13mの{舞台|ぶたい}があります。"
+      en:
+        kids: "The temple hall on a cliff has a stage about 13 m high."
+        adult: "Founded in 778, the temple has a cliffside National Treasure hall with a stage about 13 m high."
+      zh:
+        kids: "建在悬崖上的殿堂，有高约13米的舞台。"
+        adult: "开创于778年的寺院，悬崖上的国宝本堂有高约13米的舞台。"
+    sources:
+      - title: "歴史 | 音羽山 清水寺"
+        url: "https://www.kiyomizudera.or.jp/history.php"
+        accessed: "2026-11-17"
+      - title: "巡る | 音羽山 清水寺"
+        url: "https://www.kiyomizudera.or.jp/map.php"
+        accessed: "2026-11-17"
+    status: reviewed
+  - id: fushimi-inari-taisha
+    name: {ja: "{伏見稲荷大社|ふしみいなりたいしゃ}", en: "Fushimi Inari Taisha", zh: "伏见稻荷大社"}
+    description:
+      ja:
+        kids: "{人々|ひとびと}がおさめた{赤|あか}い{鳥居|とりい}が、ずらりと{並|なら}ぶよ。"
+        adult: "{稲荷|いなり}{神社|じんじゃ}の{総本宮|そうほんぐう}で、{信仰|しんこう}する{人々|ひとびと}が{奉納|ほうのう}した\
+          {朱|しゅ}の{鳥居|とりい}が{並|なら}ぶ{千本鳥居|せんぼんとりい}で{知|し}られます。"
+      en:
+        kids: "Many red torii gates given by worshippers stand in long rows."
+        adult: "This head shrine of Inari shrines is known for Senbon Torii, rows of vermilion gates offered by believers."
+      zh:
+        kids: "人们供奉的红色鸟居一排排地立着。"
+        adult: "稻荷神社的总本宫，以信众供奉的朱红鸟居排成的千本鸟居闻名。"
+    sources:
+      - title: "伏見稲荷大社とは｜伏見稲荷大社"
+        url: "https://inari.jp/about/"
+        accessed: "2026-11-17"
+      - title: "大社マップ｜おいなりさんへ出かけよう｜伏見稲荷大社"
+        url: "https://inari.jp/trip/map01/"
+        accessed: "2026-11-17"
+    status: reviewed
+  - id: amanohashidate
+    name: {ja: "{天橋立|あまのはしだて}", en: "Amanohashidate", zh: "天桥立"}
+    description:
+      ja:
+        kids: "{長|なが}さ{約|やく}3.6kmの{砂|すな}の{道|みち}に、{松|まつ}がずらりと{並|なら}ぶよ。"
+        adult: "{宮津湾|みやづわん}の{長|なが}さ{約|やく}3.6kmの{砂州|さす}で、{約|やく}5,400{本|ぽん}の{松|まつ}が{並|なら}ぶ\
+          {日本三景|にほんさんけい}の{一|ひと}つです。"
+      en:
+        kids: "Pine trees line this road of sand about 3.6 km long."
+        adult: "About 3.6 km long, this Miyazu Bay sandbar with some 5,400 pines is one of Japan's Three Views."
+      zh:
+        kids: "长约3.6公里的沙路上，排满了松树。"
+        adult: "宫津湾约3.6公里的沙洲上有约5400棵松，为日本三景之一。"
+    sources:
+      - title: "天橋立 - 観る・遊ぶ - 天橋立観光協会"
+        url: "https://www.amanohashidate.jp/spot/amanohashidate/"
+        accessed: "2026-11-17"
+    status: reviewed

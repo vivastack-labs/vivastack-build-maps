@@ -111,12 +111,6 @@ describe('T1-08: 47県の基本情報', () => {
     const outside = prefectures.filter(({ capital: { lat, lon } }) => lat < CAPITAL_BOUNDS.minLat || lat > CAPITAL_BOUNDS.maxLat || lon < CAPITAL_BOUNDS.minLon || lon > CAPITAL_BOUNDS.maxLon);
     expect(outside.map(pref => pref.code)).toEqual([]);
   });
-
-  test('T1-08: 名物・名所は空で、行き方はない（未作成）', () => {
-    // 名物・名所・行き方を書くのは T5。1県目（T5-04）の PR でこのテストを外す（docs/tasks/m5-content.md）
-    const written = prefectures.filter(pref => pref.specialties.length > 0 || pref.spots.length > 0 || pref.access);
-    expect(written.map(pref => pref.code)).toEqual([]);
-  });
 });
 
 describe('D32: 県庁の位置を地図データと照合する', () => {

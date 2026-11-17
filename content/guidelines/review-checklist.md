@@ -158,7 +158,7 @@ PR の **Conversation** タブの一番下のコメント欄に貼って **Comme
 3. **Start a review**（レビューを始める）で、まとめて出す。**Add single comment** は、その場で1件ずつ通知されるので、使わない。
 4. すべて確かめたら、レビューを送るボタンで **Approve**（承認）か **Request changes** を選んで送る。ボタンの名前は、画面の版によって **Finish your review**・**Review changes**・**Submit review** と違う。
 
-（画面の名前は、T5-04 の試行で確かめて直す。）
+（画面の名前は、レビュアーが初めてレビューする PR〔T5-05 の最初の県〕で確かめて直す。T5-04 はオーナーがレビュアーを兼ね、Suggested changes を使わなかったので、確かめられなかった。）
 
 ### 提案の取り込みと、再確認
 
