@@ -1,6 +1,6 @@
 ---
 # 12.1：E2E（Playwright）を手動で実行する（T0-04）。
-# 開発中は、Actions の分数（private・Free は月2,000分）を抑えるため、PR ごとには実行しない。
+# 開発中は、PR ごとには実行しない（D30。時間がかかるため。public にしたので分数の上限はない）。
 # 本番リリース後の扱いは別に決める（U15）。Actions の画面の「Run workflow」か、
 # gh workflow run e2e.yml --ref <ブランチ> -f project=<プロジェクト> で実行する
 name: e2e
