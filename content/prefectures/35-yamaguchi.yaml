@@ -17,5 +17,131 @@ capital:
     zh: "山口市"
   lat: 34.185792
   lon: 131.471497
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}とJR", en: "Shinkansen + JR", zh: "新干线和JR"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {新山口駅|しんやまぐちえき} → {山口駅|やまぐちえき}"
+    en: "Tokyo Station → Shin-Yamaguchi Station → Yamaguchi Station"
+    zh: "东京站 → 新山口站 → 山口站"
+  # 東京始発の「のぞみ23号」（毎日運転）：東京 10:12 発 → 新山口 14:33 着。新山口で JR山口線の「普通 山口行」（669D。毎日運転）に乗り換え：新山口 15:03 発 → 山口 15:29 着。
+  # 東京 10:12 発 → 山口 15:29 着で 317分（乗り換えの待ち時間 30分を含む）。JR時刻表2026年11月号に基づく時刻
+  durationMin: 317
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/23051"
+      accessed: "2026-11-17"
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/86581"
+      accessed: "2026-11-17"
+  status: verified
+specialties:
+  - id: fuku-sashi
+    emoji: "🐡"
+    name: {ja: "ふく{刺|さ}し", en: "Fugu Sashimi", zh: "河豚刺身"}
+    description:
+      ja:
+        kids: "ふぐを{下関|しものせき}では「ふく」とよぶよ。うすいさしみを{冬|ふゆ}に{食|た}べるんだ。"
+        adult: "{下関|しものせき}ではふぐを{福|ふく}に{通|つう}じる「ふく」の{名|な}で{呼|よ}び、{薄|うす}く{切|き}った{刺身|さしみ}が{冬|ふゆ}に{親|した}しまれます。"
+      en:
+        kids: "In Shimonoseki, people call fugu (pufferfish) \"fuku.\" The thinly sliced sashimi is eaten in winter."
+        adult: "In Shimonoseki, fugu (pufferfish) is called \"fuku,\" after the word for good fortune, and its thinly sliced sashimi is a winter treat."
+      zh:
+        kids: "在下关，人们把河豚叫作“fuku”。冬天吃切成薄片的生鱼片。"
+        adult: "在下关，河豚取“福”之意被称为“fuku”，切成薄片的生鱼片是冬季的美味。"
+    sources:
+      - title: "ふく刺し 山口県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/43_16_yamaguchi.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: kawara-soba
+    emoji: "🍜"
+    name: {ja: "{瓦|かわら}そば", en: "Kawara Soba", zh: "瓦片荞麦面"}
+    description:
+      ja:
+        kids: "あつい{瓦|かわら}の{上|うえ}に{茶|ちゃ}そばをのせて、つゆにつけて{食|た}べるよ。"
+        adult: "{川棚温泉|かわたなおんせん}で1961{年|ねん}に{考|かんが}え{出|だ}され、{熱|ねっ}した{瓦|かわら}に{茶|ちゃ}そばと{牛肉|ぎゅうにく}などをのせ、つゆにつけて{食|た}べます。"
+      en:
+        kids: "Green tea soba noodles are served on a hot roof tile, and you dip them in sauce."
+        adult: "Created in Kawatana hot spring town in 1961, it features green tea soba noodles, beef, and more on a heated roof tile, with dipping sauce."
+      zh:
+        kids: "把茶荞麦面放在烫热的瓦片上，蘸着汤汁吃。"
+        adult: "1961年诞生于川棚温泉，把茶荞麦面和牛肉等放在烧热的瓦片上，蘸汤汁食用。"
+    sources:
+      - title: "瓦そば 山口県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/43_30_yamaguchi.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: hagi-yaki
+    emoji: "🏺"
+    name: {ja: "{萩焼|はぎやき}", en: "Hagi Ware", zh: "萩烧"}
+    description:
+      ja:
+        kids: "{使|つか}っているうちに、お{茶|ちゃ}がしみて{色|いろ}が{変|か}わっていく{器|うつわ}だよ。"
+        adult: "{萩藩|はぎはん}の{御用窯|ごようがま}として{始|はじ}まり、{使|つか}ううちに{茶|ちゃ}がしみて{色合|いろあ}いが{変|か}わる「{萩|はぎ}の{七化|ななば}け」で{知|し}られる{焼|や}き{物|もの}です。"
+      en:
+        kids: "This pottery slowly changes color as tea soaks into it with use."
+        adult: "Begun at the Hagi domain's official kilns, Hagi ware is known for \"Hagi no nanabake,\" color changes as tea soaks in with use."
+      zh:
+        kids: "这种陶器用着用着，茶水渗进去，颜色就会改变。"
+        adult: "萩烧起初是萩藩官窑烧制的陶器，以使用中茶水渗入、色泽变化的“萩之七变化”闻名。"
+    sources:
+      - title: "萩焼について - 萩市ホームページ"
+        url: "https://www.city.hagi.lg.jp/soshiki/49/h11464.html"
+        accessed: "2026-11-17"
+    status: verified
+spots:
+  - id: kintaikyo
+    name: {ja: "{錦帯橋|きんたいきょう}", en: "Kintaikyo Bridge", zh: "锦带桥"}
+    description:
+      ja:
+        kids: "{木|き}でできた{橋|はし}で、まん{中|なか}の3つがアーチだよ。"
+        adult: "{約|やく}200mの5{連|れん}の{木造|もくぞう}の{橋|はし}で、{中央|ちゅうおう}の3つはアーチ{橋|きょう}。1673{年|ねん}に{創建|そうけん}されました。"
+      en:
+        kids: "This wooden bridge has three arches in the middle."
+        adult: "First built in 1673, this wooden bridge of about 200 m has five spans, the middle three arched."
+      zh:
+        kids: "这是木头做的桥，中间有3个拱。"
+        adult: "约200米长、5跨的木桥，中间3跨为拱桥，1673年始建。"
+    sources:
+      - title: "岩国のシンボル・錦帯橋の歴史と、時代を超えて受け継がれる思い｜特集｜【公式】山口県観光/旅行サイト おいでませ山口へ"
+        url: "https://yamaguchi-tourism.jp/feature/kintaikyo-history"
+        accessed: "2026-11-17"
+    status: verified
+  - id: akiyoshidai
+    name: {ja: "{秋吉台|あきよしだい}", en: "Akiyoshidai Plateau", zh: "秋吉台"}
+    description:
+      ja:
+        kids: "{台地|だいち}の{下|した}に、とても{長|なが}い{鍾乳洞|しょうにゅうどう}があるよ。"
+        adult: "{日本最大級|にほんさいだいきゅう}のカルスト{台地|だいち}で、{地下|ちか}に{延長|えんちょう}10kmを{超|こ}える{鍾乳洞|しょうにゅうどう}の{秋芳洞|しゅうほうどう}があります。"
+      en:
+        kids: "Under this plateau lies a very long limestone cave."
+        adult: "This is one of Japan's largest karst plateaus, with Akiyoshido Cave, over 10 km long, beneath it."
+      zh:
+        kids: "这片台地的下面，有一个非常长的钟乳洞。"
+        adult: "日本最大级的喀斯特台地，地下有长逾10公里的钟乳洞秋芳洞。"
+    sources:
+      - title: "秋吉台｜日本最大級のカルスト台地【公式】山口県観光/旅行サイト おいでませ山口へ"
+        url: "https://yamaguchi-tourism.jp/spot/detail_14537.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: rurikoji-gojunoto
+    name: {ja: "{瑠璃光寺|るりこうじ}{五重塔|ごじゅうのとう}", en: "Rurikoji Five-Story Pagoda", zh: "琉璃光寺五重塔"}
+    description:
+      ja:
+        kids: "{国宝|こくほう}の{五重塔|ごじゅうのとう}だよ。{大内義弘|おおうちよしひろ}をしのんで{建|た}てられたよ。"
+        adult: "{大内義弘|おおうちよしひろ}の{供養|くよう}のため{弟|おとうと}の{盛見|もりはる}が{建|た}てた{国宝|こくほう}の{五重塔|ごじゅうのとう}で、{日本三名塔|にほんさんめいとう}の{一|ひと}つです。"
+      en:
+        kids: "This is a national treasure pagoda, built in memory of Ouchi Yoshihiro."
+        adult: "In memory of his elder brother Yoshihiro, Moriharu built this national treasure, one of Japan's three great pagodas."
+      zh:
+        kids: "这是国宝五重塔，是为纪念大内义弘而建的。"
+        adult: "国宝五重塔，大内盛见为供养兄长义弘而建，是日本三名塔之一。"
+    sources:
+      - title: "瑠璃光寺五重塔 - 山口市の歴史文化資源 - 山口市ウェブサイト"
+        url: "https://www.city.yamaguchi.lg.jp/rs/rekibunshigen/r1026.html"
+        accessed: "2026-11-17"
+      - title: "国宝 瑠璃光寺五重塔｜日本三名塔【公式】山口県観光/旅行サイト"
+        url: "https://yamaguchi-tourism.jp/spot/detail_15401.html"
+        accessed: "2026-11-17"
+    status: verified
