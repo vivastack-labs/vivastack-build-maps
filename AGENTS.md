@@ -53,6 +53,7 @@ pnpm geo:build    # 地図データを作り直す（年1回、手で実行。�
 pnpm vitest run tests/unit/i18n/lang.test.ts   # 1ファイルだけ動かす（カバレッジなし）
 pnpm vitest run -t "F-I18N-01"                 # テスト名で絞る（テスト名に要件IDが入っている）
 pnpm vitest run --project data                 # データの検査（tests/data/）だけを動かす
+node --test .codex/hooks/run.test.js            # Codex hooks の結合テスト（外部 API・音声再生なし）
 pnpm test:e2e --project=chromium               # E2E を1プロジェクトだけ動かす
 pnpm test:e2e --grep @touch                      # タッチのテスト（@touch）だけ動かす（PC のテストは --grep @pc）。タグを付けたテストは、反対の種類のプロジェクトでは動かない
 gh workflow run e2e.yml --ref <ブランチ> -f project=all   # CI で E2E を手動で動かす（UI・ルーティングを変えたPRは merge の前に）

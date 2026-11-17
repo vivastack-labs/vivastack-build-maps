@@ -68,6 +68,13 @@ jobs:
       # ESLint・Prettier・markdownlint・yamllint。文書だけのPRでも実行する
       - name: Lint
         run: pnpm lint
+      # .codex/ の変更は docs-only に含まれるため、hooks の回帰テストは常に動かす
+      - name: Codex hooks test
+        run: |
+          node --test --experimental-test-coverage \
+            --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 \
+            --test-coverage-include='**/.codex/hooks/*.js' --test-coverage-exclude='**/*.test.js' \
+            .codex/hooks/run.test.js
       - name: Typecheck
         if: steps.changes.outputs.docs_only != 'true'
         run: pnpm typecheck
