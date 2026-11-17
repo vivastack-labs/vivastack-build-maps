@@ -76,11 +76,11 @@ specialties:
     description:
       ja:
         kids: "うわぐすりをぬらずに{高|たか}い{温度|おんど}で{焼|や}いて、{灰|はい}や{炭|すみ}で{模様|もよう}ができるよ。"
-        adult: "{釉薬|ゆうやく}をかけずに1200〜1300{度|ど}で{焼|や}き{締|し}め、{灰|はい}や{炭|すみ}が{模様|もよう}を{生|う}む{焼|や}き{物|もの}で、\
-          {備前市|びぜんし}の{伊部|いんべ}が{産地|さんち}です。"
+        adult: "{釉薬|ゆうやく}をかけずに1200〜1300{度|ど}で{焼|や}き、{灰|はい}や{炭|すみ}が{模様|もよう}を{生|う}み、\
+          {備前市|びぜんし}の{伊部|いんべ}が{代表的|だいひょうてき}な{産地|さんち}です。"
       en:
         kids: "This pottery has no glaze, is fired at a very high temperature, and gets patterns from ash and charcoal."
-        adult: "Bizen ware, centered on Inbe in Bizen City, is fired at 1,200 to 1,300°C without glaze, and ash and charcoal create its patterns."
+        adult: "Fired at 1,200 to 1,300°C without glaze, it gets patterns from ash and charcoal. Inbe in Bizen City is its best-known production area."
       zh:
         kids: "这种陶器不上釉，在很高的温度下烧制，灰和炭会让它出现花纹。"
         adult: "以备前市伊部为代表产地，不上釉，在1200至1300度下烧制，灰和炭形成花纹。"
@@ -88,7 +88,7 @@ specialties:
       - title: "備前焼とは｜岡山観光WEB【公式】- 岡山県の観光・旅行情報ならココ！"
         url: "https://www.okayama-kanko.jp/feature/bizenyaki/1"
         accessed: "2026-11-17"
-    status: draft
+    status: verified
 spots:
   - id: korakuen
     name: {ja: "{岡山後楽園|おかやまこうらくえん}", en: "Okayama Korakuen Garden", zh: "冈山后乐园"}
@@ -134,7 +134,7 @@ spots:
         adult: "{天守|てんしゅ}が{残|のこ}る12の{城|しろ}で{山城|やまじろ}はここだけ。{臥牛山|がぎゅうざん}の{山頂|さんちょう}{近|ちか}く、{標高|ひょうこう}430mに{建|た}ちます。"
       en:
         kids: "A rare castle on a high mountain that still has its castle tower."
-        adult: "It is the only mountain castle among the twelve with surviving towers, at 430 m on Mount Gagyu."
+        adult: "The only mountain castle of the 12 with original keeps, at 430 m near Mount Gagyu's summit."
       zh:
         kids: "高山上保留着天守的稀有城堡。"
         adult: "12座现存天守中唯一的山城，位于卧牛山顶附近，海拔430米。"
@@ -142,4 +142,4 @@ spots:
       - title: "天守が残る唯一の山城｜岡山観光WEB【公式】- 岡山県の観光・旅行情報ならココ！"
         url: "https://www.okayama-kanko.jp/feature/matsuyamacastle/1"
         accessed: "2026-11-17"
-    status: draft
+    status: verified
