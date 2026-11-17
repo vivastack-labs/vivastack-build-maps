@@ -17,5 +17,137 @@ capital:
     zh: "奈良市"
   lat: 34.685381
   lon: 135.832853
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}とJR", en: "Shinkansen + JR", zh: "新干线和JR"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {京都駅|きょうとえき} → {奈良駅|ならえき}"
+    en: "Tokyo Station → Kyoto Station → Nara Station"
+    zh: "东京站 → 京都站 → 奈良站"
+  # 東京始発の「のぞみ25号」（毎日運転）：東京 10:30 発 → 京都 12:44 着。京都で JR奈良線の「Ｄみやこ路快速617号」（毎日運転）に乗り換え：京都 13:04 発 → 奈良 13:51 着。
+  # 東京 10:30 発 → 奈良 13:51 着で 201分（乗り換えの待ち時間 20分を含む）。JR時刻表2026年11月号に基づく時刻
+  durationMin: 201
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/25371"
+      accessed: "2026-11-17"
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/25671"
+      accessed: "2026-11-17"
+  status: verified
+specialties:
+  - id: kakinoha-zushi
+    emoji: "🍣"
+    name: {ja: "{柿|かき}の{葉寿司|はずし}", en: "Persimmon Leaf Sushi", zh: "柿叶寿司"}
+    description:
+      ja:
+        kids: "サバのすしを{柿|かき}の{葉|は}でつつみ{一晩|ひとばん}おくよ。{五條|ごじょう}や{吉野|よしの}の{夏祭|なつまつ}りで{食|た}べるんだ。"
+        adult: "{柿|かき}の{葉|は}で{包|つつ}んで{一晩|ひとばん}{置|お}くと{香|かお}りが{酢飯|すめし}に{移|うつ}る、\
+          {塩|しお}でしめたサバの{押|お}しずしで、{五條|ごじょう}や{吉野|よしの}の{夏祭|なつまつ}りの{料理|りょうり}です。"
+      en:
+        kids: "Mackerel sushi is wrapped in persimmon leaves and left overnight. People in Gojo and Yoshino eat it at summer festivals."
+        adult: "Pressed sushi of salt-cured mackerel, wrapped in persimmon leaves overnight so the rice takes on their scent; a summer festival dish in Gojo and Yoshino."
+      zh:
+        kids: "用柿叶包鲭鱼寿司，放一晚。五条和吉野的夏日祭典上会吃。"
+        adult: "将盐腌鲭鱼押寿司用柿叶包好放一晚，叶香渗入醋饭，是五条和吉野夏季祭典的料理。"
+    sources:
+      - title: "柿の葉寿司 奈良県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/kakinoha_zushi_nara.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: chagayu
+    emoji: "🥣"
+    name: {ja: "{茶粥|ちゃがゆ}", en: "Tea Porridge", zh: "茶粥"}
+    description:
+      ja:
+        kids: "ほうじ{茶|ちゃ}でごはんを{煮|に}たおかゆだよ。「おかいさん」ともよばれるんだ。"
+        adult: "ほうじ{茶|ちゃ}で{冷|ひ}やごはんを{煮|に}るおかゆで、{地元|じもと}では「おかいさん」とも{呼|よ}ばれ、\
+          {県内全域|けんないぜんいき}で{食|た}べられてきました。"
+      en:
+        kids: "Cooked rice is simmered in roasted green tea to make a porridge. It is also called okaisan."
+        adult: "A porridge of cold rice simmered in roasted green tea, also called okaisan locally and eaten across Nara Prefecture."
+      zh:
+        kids: "用焙茶煮米饭做成的粥，也叫“okaisan”。"
+        adult: "用焙茶煮冷米饭做成的粥，当地也称“okaisan”，在全县各地都有人吃。"
+    sources:
+      - title: "茶粥 奈良県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/chagayu_nara.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: miwa-somen
+    emoji: "🍜"
+    name: {ja: "{三輪|みわ}そうめん", en: "Miwa Somen", zh: "三轮素面"}
+    description:
+      ja:
+        kids: "{三輪|みわ}にはそうめんの{神|かみ}さまがいて、{夏|なつ}はつめたく{冬|ふゆ}はあたたかく{食|た}べるよ。"
+        adult: "{素麺|そうめん}の{守護神|しゅごしん}をまつる{大神神社|おおみわじんじゃ}がある{三輪|みわ}では、\
+          {冷|つめ}たくして{夏|なつ}に、{温|あたた}かい「にゅうめん」で{冬|ふゆ}に{食|た}べます。"
+      en:
+        kids: "Miwa has a god who protects somen noodles. People eat them cold in summer and warm in winter."
+        adult: "In Miwa, home to Ohmiwa Shrine and its somen guardian deity, the noodles are eaten cold in summer and as warm nyumen soup in winter."
+      zh:
+        kids: "三轮有守护素面的神明，夏天吃凉的，冬天吃热的。"
+        adult: "三轮有供奉素面守护神的大神神社，夏天吃凉素面，冬天吃热汤素面“nyumen”。"
+    sources:
+      - title: "にゅうめん 奈良県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/nyuumen_nara.html"
+        accessed: "2026-11-17"
+    status: verified
+spots:
+  - id: todaiji
+    name: {ja: "{東大寺|とうだいじ}", en: "Todaiji Temple", zh: "东大寺"}
+    description:
+      ja:
+        kids: "{高|たか}さ14.98mの{大仏|だいぶつ}さまがいるお{寺|てら}だよ。"
+        adult: "{再建|さいけん}された{大仏殿|だいぶつでん}には{像高|ぞうこう}14.98mの{大仏|だいぶつ}があり、\
+          {落慶供養|らっけいくよう}は1709{年|ねん}でした。"
+      en:
+        kids: "A temple with a Great Buddha statue 14.98 meters tall."
+        adult: "The rebuilt Great Buddha Hall, home to a 14.98 m Great Buddha, was dedicated in 1709."
+      zh:
+        kids: "有一尊高14.98米大佛的寺院。"
+        adult: "重建的大佛殿有高14.98米的大佛，1709年举行落成法会。"
+    sources:
+      - title: "大仏殿 - 東大寺"
+        url: "https://www.todaiji.or.jp/information/daibutsuden/"
+        accessed: "2026-11-17"
+      - title: "東大寺の歴史 - 東大寺"
+        url: "https://www.todaiji.or.jp/history/"
+        accessed: "2026-11-17"
+    status: verified
+  - id: nara-park
+    name: {ja: "{奈良公園|ならこうえん}", en: "Nara Park", zh: "奈良公园"}
+    description:
+      ja:
+        kids: "シカにあえる{公園|こうえん}だよ。{鹿|しか}せんべいをあげられるんだ。"
+        adult: "{国|くに}の{天然記念物|てんねんきねんぶつ}の{野生|やせい}のシカが{暮|く}らし、\
+          {与|あた}えてよい{食|た}べ{物|もの}は{鹿|しか}せんべいだけです。"
+      en:
+        kids: "You can meet deer here and give them special deer crackers."
+        adult: "Wild deer, a national natural monument, live here; visitors may feed them only deer crackers."
+      zh:
+        kids: "可以见到鹿的公园，还能喂鹿仙贝。"
+        adult: "这里生活着国家指定天然纪念物的野生鹿，只能喂鹿仙贝。"
+    sources:
+      - title: "奈良公園クイックガイド ≫ 奈良公園の鹿｜Deer"
+        url: "https://www.pref.nara.lg.jp/site/park/1003.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: yoshinoyama
+    name: {ja: "{吉野山|よしのやま}", en: "Mount Yoshino", zh: "吉野山"}
+    description:
+      ja:
+        kids: "{春|はる}の4{月|がつ}に、たくさんの{桜|さくら}がさく{山|やま}だよ。"
+        adult: "{信仰|しんこう}の{桜|さくら}シロヤマザクラは3{万本|まんぼん}ほどとされ、\
+          4{月|がつ}{上旬|じょうじゅん}から{中旬|ちゅうじゅん}が{見|み}ごろです。"
+      en:
+        kids: "Many cherry trees bloom on this mountain in April."
+        adult: "Shiroyamazakura, sacred cherry trees said to number about 30,000, are at their best in early to mid-April."
+      zh:
+        kids: "春天4月，山上开满许多樱花。"
+        adult: "受人信仰的白山樱据说约有3万棵，4月上旬至中旬最美。"
+    sources:
+      - title: "吉野山と桜／吉野町公式ホームページ"
+        url: "https://www.town.yoshino.nara.jp/promotion/kankojoho/yoshinoyama/sakuranohanashi/1407.html"
+        accessed: "2026-11-17"
+    status: verified
