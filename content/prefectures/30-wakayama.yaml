@@ -17,5 +17,135 @@ capital:
     zh: "和歌山市"
   lat: 34.225874
   lon: 135.167836
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}と{特急|とっきゅう}", en: "Shinkansen and limited express", zh: "新干线和特快列车"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {新大阪駅|しんおおさかえき} → {和歌山駅|わかやまえき}"
+    en: "Tokyo Station → Shin-Osaka Station → Wakayama Station"
+    zh: "东京站 → 新大阪站 → 和歌山站"
+  # 東京始発の「のぞみ25号」（毎日運転）：東京 10:30 発 → 新大阪 13:00 着。新大阪で特急「くろしお13号」（毎日運転）に乗り換え：
+  # 新大阪 13:13 発 → 和歌山 14:15 着。東京 10:30 発から和歌山 14:15 着まで225分（乗り換えの待ち時間13分を含む）。
+  # JR時刻表2026年11月号に基づく時刻（くろしおは2026年10月3日の改正日）
+  durationMin: 225
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/25371"
+      accessed: "2026-11-17"
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/144501"
+      accessed: "2026-11-17"
+  status: verified
+specialties:
+  - id: mehari-zushi
+    emoji: "🍙"
+    name: {ja: "めはり{寿司|ずし}", en: "Mehari-zushi", zh: "目张寿司"}
+    description:
+      ja:
+        kids: "{高菜|たかな}のつけもので{包|つつ}んだおにぎりだよ。{仕事|しごと}に{出|で}る{人|ひと}のお{弁当|べんとう}だったんだ。"
+        adult: "{県|けん}{南部|なんぶ}の{郷土|きょうど}{料理|りょうり}で、おにぎりを{塩漬|しおづ}けの{高菜|たかな}で{包|つつ}みます。\
+          {海|うみ}や{山|やま}で{働|はたら}く{人|ひと}が{持|も}って{出|で}る{弁当|べんとう}でした。"
+      en:
+        kids: "A rice ball wrapped in salted takana greens. It was a lunch for people going out to work."
+        adult: "A southern Wakayama dish: a rice ball wrapped in salted takana (mustard greens), once a lunch for people working at sea or in the mountains."
+      zh:
+        kids: "用腌高菜包起来的饭团，是外出干活的人带的便当。"
+        adult: "县南部的乡土料理，用盐渍高菜包裹饭团，是在海上和山里劳作的人带出门的便当。"
+    sources:
+      - title: "めはりずし 和歌山県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/mehari_zushi_wakayama.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: umeboshi
+    emoji: "🍚"
+    name: {ja: "{梅干|うめぼ}し", en: "Umeboshi", zh: "腌梅干"}
+    description:
+      ja:
+        kids: "{梅|うめ}を{漬|つ}けた{梅干|うめぼ}しだよ。{和歌山県|わかやまけん}でとれる{梅|うめ}は{日本|にほん}の6{割|わり}くらいなんだ。"
+        adult: "{全国|ぜんこく}でとれる{梅|うめ}の{約|やく}6{割|わり}は{和歌山県産|わかやまけんさん}で、\
+          みなべ{町|ちょう}や{田辺市|たなべし}を{中心|ちゅうしん}に{梅干|うめぼ}しがつくられます。"
+      en:
+        kids: "Umeboshi are pickled plums. Wakayama grows about 60 percent of Japan's plums."
+        adult: "Umeboshi, or pickled plums, are made mainly in Minabe and Tanabe, and Wakayama accounts for about 60 percent of Japan's plum production."
+      zh:
+        kids: "这是用梅子腌渍的梅干。和歌山县的梅子产量约占日本的六成。"
+        adult: "梅干以みなべ町、田边市为中心制作，和歌山县的梅子产量约占全国的六成。"
+    sources:
+      - title: "梅干し 和歌山県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/umeboshi_wakayama.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: kinzanji-miso
+    emoji: "🥫"
+    name: {ja: "{金山寺味噌|きんざんじみそ}", en: "Kinzanji Miso", zh: "金山寺酱"}
+    description:
+      ja:
+        kids: "ごはんにのせて{食|た}べる{味噌|みそ}だよ。1249{年|ねん}に{中国|ちゅうごく}から{伝|つた}わったそうだよ。"
+        adult: "1249{年|ねん}に{僧|そう}の{覚心|かくしん}が{中国|ちゅうごく}から{製法|せいほう}を{持|も}ち{帰|かえ}ったといわれる{味噌|みそ}で、\
+          ご{飯|はん}にのせて、おかずとして{食|た}べます。"
+      en:
+        kids: "This miso is eaten on rice. It is said to have come from China in 1249."
+        adult: "The monk Kakushin is said to have brought this miso's recipe from China in 1249. It is eaten on rice as a side dish."
+      zh:
+        kids: "这种酱放在米饭上吃。据说1249年从中国传来。"
+        adult: "据说是僧人觉心在1249年从中国带回制法的酱，放在米饭上当作配菜食用。"
+    sources:
+      - title: "金山寺味噌 和歌山県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/kinzanji_miso_wakayama.html"
+        accessed: "2026-11-17"
+    status: verified
+spots:
+  - id: koyasan
+    name: {ja: "{高野山|こうやさん}", en: "Mount Koya", zh: "高野山"}
+    description:
+      ja:
+        kids: "{弘法大師|こうぼうだいし}が{開|ひら}いた、117のお{寺|てら}がある{山|やま}だよ。"
+        adult: "{真言密教|しんごんみっきょう}の{聖地|せいち}で、{弘法大師|こうぼうだいし}が{山|やま}を{開|ひら}き、{現在|げんざい}は117の{寺|てら}が{集|あつ}まっています。"
+      en:
+        kids: "This mountain, founded by Kobo Daishi, has 117 temples."
+        adult: "A sacred site of Shingon Buddhism founded by Kobo Daishi, it now has 117 temples."
+      zh:
+        kids: "弘法大师开创的山，山上有117座寺院。"
+        adult: "真言密教的圣地，由弘法大师开创，现在聚集着117座寺院。"
+    sources:
+      - title: "高野山真言宗 総本山金剛峯寺"
+        url: "https://www.koyasan.or.jp/"
+        accessed: "2026-11-17"
+      - title: "総本山金剛峯寺とは | 高野山真言宗 総本山金剛峯寺"
+        url: "https://www.koyasan.or.jp/kongobuji/"
+        accessed: "2026-11-17"
+    status: verified
+  - id: nachi-falls
+    name: {ja: "{那智|なち}の{滝|たき}", en: "Nachi Falls", zh: "那智瀑布"}
+    description:
+      ja:
+        kids: "{神様|かみさま}としておがまれる{滝|たき}で、{高|たか}さは133mだよ。"
+        adult: "{高|たか}さ133mの{滝|たき}で、{飛瀧神社|ひろうじんじゃ}では、この{滝|たき}そのものを{御神体|ごしんたい}として{拝|おが}みます。"
+      en:
+        kids: "People pray to this 133 m waterfall as a god."
+        adult: "This 133 m waterfall is itself worshipped as the goshintai, or sacred object, of Hiro Shrine."
+      zh:
+        kids: "人们把这座瀑布当作神明来参拜，高133米。"
+        adult: "高133米的瀑布，飞泷神社把瀑布本身作为神体来参拜。"
+    sources:
+      - title: "飛瀧神社(那智御瀧) | 熊野那智大社 飛瀧神社 那智御瀧"
+        url: "https://kumanonachitaisha.or.jp/pavilion/waterfall/"
+        accessed: "2026-11-17"
+    status: verified
+  - id: shirarahama
+    name: {ja: "{白良浜|しららはま}", en: "Shirarahama Beach", zh: "白良滨"}
+    description:
+      ja:
+        kids: "{白|しろ}い{砂|すな}が620mほど{続|つづ}く{浜|はま}で、{白浜|しらはま}の{名|な}のもとだよ。"
+        adult: "{約|やく}620mにわたって{白|しろ}い{砂|すな}が{続|つづ}く{浜|はま}で、{白浜|しらはま}という{地名|ちめい}のもとになりました。"
+      en:
+        kids: "White sand stretches for about 620 m on this beach, which gave Shirahama its name."
+        adult: "White sand stretches along about 620 m of this beach, which gave the town of Shirahama its name."
+      zh:
+        kids: "白沙绵延约620米的海滩，是白滨名字的由来。"
+        adult: "白色沙滩绵延约620米，白滨这个地名由此而来。"
+    sources:
+      - title: "白良浜 - 南紀白浜観光協会"
+        url: "https://www.nankishirahama.jp/spot/527/"
+        accessed: "2026-11-17"
+    status: verified
