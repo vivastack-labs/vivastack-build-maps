@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# main 以外のローカルブランチを、紐づく PR の状態で分類する。
+# main・develop 以外のローカルブランチを、紐づく PR の状態で分類する。
 # 出力（タブ区切り）：branch  pr  state  local_only  action  reason
 #   state      : MERGED / CLOSED / OPEN / NONE（PR なし）
 #   local_only : どのリモートにもないコミットの数
@@ -8,6 +8,7 @@
 set -euo pipefail
 
 MAIN_BRANCH="${MAIN_BRANCH:-main}"
+DEVELOP_BRANCH="${DEVELOP_BRANCH:-develop}"
 
 git fetch --prune --quiet
 
@@ -15,6 +16,7 @@ printf 'branch\tpr\tstate\tlocal_only\taction\treason\n'
 
 git for-each-ref --format='%(refname:short)' refs/heads/ | while read -r branch; do
   [ "$branch" = "$MAIN_BRANCH" ] && continue
+  [ "$branch" = "$DEVELOP_BRANCH" ] && continue
 
   head_oid=$(git rev-parse "$branch")
   local_only=$(git rev-list --count "$branch" --not --remotes)

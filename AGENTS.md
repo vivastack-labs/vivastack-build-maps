@@ -7,7 +7,7 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 - 「ご当地めいぶつ日本地図」：47都道府県の名物・名所を日本地図から探せる Web アプリ（ja / en / zh、こども／おとなモード、ふりがな ON/OFF）。
 - 設計・要件・決定事項は [docs/development-overview.md](docs/development-overview.md) にある。作業の前に関係する章を読み、要件ID（例：`F-MAP-01`）で対応を確認する。
 - タスクの一覧・順番・進み具合は [docs/development-plan.md](docs/development-plan.md)、タスクごとの定義（目的・参照仕様・実装内容・完了条件・テスト条件・依存関係）は `docs/tasks/` にある。タスクに着手するときは、その定義を読み、タスクのID（例：`T0-01`）をPRの本文に書く。終わったら「状態」を更新する。`CHANGELOG.md` は PR ごとには書かず、マイルストーンが終わったとき（そのマイルストーンの最後のタスクの PR）と、公開のときに、`[Unreleased]` にまとめて書き足す。
-- 進み具合はここには書かない（`docs/development-plan.md` だけを更新する）。PRごとに GitHub Actions の CI（`.github/workflows/ci.yml`）が動き、オーナーが Environment `preview` のデプロイを承認すると、プレビュー（`https://pr-<番号>-maps.vivastack-dev.workers.dev/`）に出て、PR に URL がコメントされる。`main` に merge すると `.github/workflows/deploy.yml` が本番に出す（T0-06）。デプロイは CI だけで行い、手元から `wrangler deploy`・`wrangler versions upload` はしない（障害時の切り戻し〔開発概要書 第13章〕を除く。Token は GitHub の Environment の Secret だけにある）。E2E は開発中は PR ごとに動かさず、`.github/workflows/e2e.yml` を手動で実行する（D30）。
+- 進み具合はここには書かない（`docs/development-plan.md` だけを更新する）。`main` 向けの PR ごとに GitHub Actions の CI（`.github/workflows/ci.yml`）が動き、オーナーが Environment `preview` のデプロイを承認すると、プレビュー（`https://pr-<番号>-maps.vivastack-dev.workers.dev/`）に出て、PR に URL がコメントされる。`main` に merge すると `.github/workflows/deploy.yml` が本番に出す（T0-06）。デプロイは CI だけで行い、手元から `wrangler deploy`・`wrangler versions upload` はしない（障害時の切り戻し〔開発概要書 第13章〕を除く。Token は GitHub の Environment の Secret だけにある）。E2E は開発中は PR ごとに動かさず、`.github/workflows/e2e.yml` を手動で実行する（D30）。
 
 ## 技術スタック
 
@@ -126,7 +126,7 @@ pnpm は、`pnpm-workspace.yaml` の `allowBuilds` で、esbuild・workerd の�
 - **確認事項**：ユーザーに確認や判断を求めるときは、必ず推奨案とその理由を付ける（例：「A と B のどちらにしますか。推奨は A（理由：〜）」）。選択肢を並べるだけにしない。
 - **言語**：ユーザーへの回答、ドキュメント、PR の本文、コミットメッセージは日本語で書く。PR のタイトルだけは英語で書く（形式は「コミット」の項目）。
 - **TDD**：テストを先に書く（Red → Green → Refactor）。テスト名やコメントに要件IDを入れる。カバレッジは全体80%以上、ドメインロジックは90%以上。→ `testing.md`
-- **ブランチと PR**：`main` に直接 push しない。1機能＝1ブランチ＝1PR。→ `git-workflow.md`
+- **ブランチと PR**：`main`・`develop` に直接 push しない。1機能＝1ブランチ＝1PR。データ整備の間（T5-05）は、`develop` から feature ブランチを切り、PR は **`develop` 向け**に出す（`gh pr create --base develop`）。CI（`ci.yml`）・プレビュー・必須のレビューは `main` 向けの PR だけで動く（`develop` には保護がなく、`develop` 向けの PR では何も動かない）。E2E もこの間は動かさない。データ整備が終わったら、`develop` → `main` の PR をまとめて出し、CI・E2E・レビューはそこで行う。→ `git-workflow.md`
 - **コミット**：`<type>: <description>`（feat / fix / refactor / docs / test / chore / perf / ci）。`<type>` は英語のまま、`<description>` と本文は日本語で書く（例：`docs: 操作仕様を追加`）。PR のタイトルも `<type>: <description>` の形式にするが、`<description>` は英語で書く（例：`docs: add interaction spec`）。
 - **コーディング**：イミュータブルに書く、小さな関数・ファイル、境界での入力検証、export には JSDoc。→ `coding-style.md`
 - **セキュリティ**：シークレットをリポジトリ・ログ・PR に書かない（gitleaks で検査）。→ `security.md`
