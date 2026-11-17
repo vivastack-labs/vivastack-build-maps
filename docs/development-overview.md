@@ -5,7 +5,7 @@
 | ドキュメント | docs/development-overview.md |
 | 版 | 0.8（ドラフト） |
 | 作成日 | 2026-11-11 |
-| 更新日 | 2026-11-17（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）。0.11：PWA のオフラインで使える範囲と Service Worker のツールを決めた（5.4、U3・U13、D40・D41）。0.12：アクセシビリティの検査（axe・コントラストの単体テスト）と、ふりがなの読み上げの対処を 5.2 に書いた。0.13：Lighthouse CI の測り方と TBT の基準を 5.1 に書き、ハッシュつきのずれの直し方を決めた〔D42〕。0.14：執筆ルールとレビュー基準を `content/guidelines/` に書き（T5-01）、9.2・9.3 に参照を足した。`status` を `reviewed` にするのは、承認の後にオーナー。0.15：ふりがなの自動付与のツール（`pnpm content:furigana`、`lindera-wasm-nodejs-ipadic`）と、①〜④のスキル・エージェント（`gotouchi-content`・`gotouchi-source-checker`・`gotouchi-derivative-checker`）を決めた〔T5-02〕。0.16：出典のリンク切れチェック（`pnpm content:links`、`link-check.yml`）の上限・分類・終了コード・安全の方針を 12.4 に決めた〔T5-03〕。0.17：リポジトリを public にし、`main` をルールセット2つで守り、GitHub の設定を `pnpm github:setup` で反映するようにした。Cloudflare API Token の最小権限を決め、Access の手順を公式ドキュメントで書いた（11.1〜11.5、13、U5・U14、D44・D45。U7 は T0-06 に移した）〔T0-05〕） |
+| 更新日 | 2026-11-17（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）。0.11：PWA のオフラインで使える範囲と Service Worker のツールを決めた（5.4、U3・U13、D40・D41）。0.12：アクセシビリティの検査（axe・コントラストの単体テスト）と、ふりがなの読み上げの対処を 5.2 に書いた。0.13：Lighthouse CI の測り方と TBT の基準を 5.1 に書き、ハッシュつきのずれの直し方を決めた〔D42〕。0.14：執筆ルールとレビュー基準を `content/guidelines/` に書き（T5-01）、9.2・9.3 に参照を足した。`status` を `reviewed` にするのは、承認の後にオーナー。0.15：ふりがなの自動付与のツール（`pnpm content:furigana`、`lindera-wasm-nodejs-ipadic`）と、①〜④のスキル・エージェント（`gotouchi-content`・`gotouchi-source-checker`・`gotouchi-derivative-checker`）を決めた〔T5-02〕。0.16：出典のリンク切れチェック（`pnpm content:links`、`link-check.yml`）の上限・分類・終了コード・安全の方針を 12.4 に決めた〔T5-03〕。0.17：リポジトリを public にし、`main` をルールセット2つで守り、GitHub の設定を `pnpm github:setup` で反映するようにした。Cloudflare API Token の最小権限を決め、Access の手順を公式ドキュメントで書いた（11.1〜11.5、13、U5・U14、D44・D45。U7 は T0-06 に移した）〔T0-05〕。0.18：プレビューURLを Cloudflare Access で守るのをやめた（D20 → D46。リポジトリを public にしたので、下書きはすでに公開されている。U7 は不要になった）〔T0-06〕） |
 | リポジトリ | vivastack-labs/vivastack-build-maps（リポジトリ直下がアプリ本体） |
 | 公開URL | `https://maps.vivastack-dev.workers.dev/{ja,en,zh}/` |
 | ステータス | 検討フェーズの決定事項を反映。「要検証」とした項目は実装時に確定する |
@@ -441,17 +441,15 @@ flowchart LR
     W["Worker: maps<br/>Static Assets only"]
     R["workers.dev<br/>maps.vivastack-dev.workers.dev"]
     V["Preview URL<br/>*-maps.vivastack-dev.workers.dev"]
-    ACC[Cloudflare Access]
     WA[Web Analytics]
     R --> W
-    ACC -.保護.-> V
   end
 
   REPO -->|push| PR
   GA -->|"wrangler versions upload<br/>--preview-alias pr-N"| V
   GA -->|wrangler deploy| W
   U[利用者] -->|HTTPS| R
-  RV[コンテンツレビュアー] -->|Access認証| V
+  RV[コンテンツレビュアー] -->|HTTPS（認証なし。noindex）| V
   W -.-> WA
 ```
 
@@ -957,7 +955,7 @@ flowchart TB
 |---|---|---|
 | ①〜④ | Claude Code | `.claude/` 以下のスキル `gotouchi-content`（①③と全体の流れ）と、検証用のサブエージェント `gotouchi-source-checker`（②）・`gotouchi-derivative-checker`（④） |
 | ⑤⑥ | Claude Code / GitHub Actions | PR、CI、プレビューURL |
-| ⑦ | コンテンツレビュアー（チームメンバー） | プレビューURL（Access経由）、PRのSuggested changesと承認 |
+| ⑦ | コンテンツレビュアー（チームメンバー） | プレビューURL、PRのSuggested changesと承認 |
 | ⑧ | オーナー | レビュアーの承認の後、同じPRで `status` を `verified` から `reviewed` にするコミットを足し（Claude Code に頼んでもよい）、PRをmerge する |
 
 ### 9.3 執筆ルール
@@ -981,7 +979,7 @@ flowchart TB
 | 担当 | `vivastack-labs` 組織のメンバー。GitHub Team（例：`@vivastack-labs/maps-reviewers`）にまとめる |
 | 権限 | Teamにリポジトリの **Write** 権限を付ける。PRの承認はレビュアーが行い、mergeはオーナーが行う（承認とmergeを別の人にする） |
 | 確認範囲 | 全件（事実、出典、文字数、ふりがな、表現の適切さ、翻訳） |
-| 作業環境 | PRのプレビューURL（Cloudflare Accessで制限）で、実際のカード表示を見ながら確認する |
+| 作業環境 | PRのプレビューURLで、実際のカード表示を見ながら確認する（認証なしで開ける。D46） |
 | 修正方法 | PRへのコメント（Suggested changes） |
 | 基準 | `content/guidelines/review-checklist.md` |
 
@@ -1020,7 +1018,6 @@ flowchart TB
 |---|---|---|
 | GitHub | `vivastack-labs/vivastack-build-maps`、Actionsの有効化、Environments（`preview` / `production`） | レビュアーは `vivastack-labs` 組織のメンバー（GitHub Teamで管理）。リポジトリは public、組織は Free プラン（D44）。public なので、Free でもルールセット・Environments・Environment の Secrets を使える（11.5） |
 | Cloudflare | 既存アカウント、Workers Freeプラン、workers.devのサブドメイン（`vivastack-dev`。登録済み） | 本番もプレビューURLも workers.dev 上に出す（D35）。ゾーンは使わない |
-| Cloudflare Zero Trust（Access） | 無料プランで組織を作り、プレビューURLを保護する | Free プランでも、始めるときに支払いの情報の入力が要る（課金はされない。公式の手順）。無料枠の人数は T0-06 で確かめる（U7） |
 | Cloudflare Web Analytics | `maps.vivastack-dev.workers.dev` を登録 | 自動設定はプロキシ経由のサイト（自分のゾーン）向けで、workers.dev では使えない見込み。計測用のJSスニペットをHTMLに埋め込む（D35。**要確認**） |
 | Claude Code | Pro / Maxプランのサブスクリプション（またはAPIキー） | 開発とコンテンツ生成に使う。CIではAIを動かさないので、GitHubにAnthropicのAPIキーは置かない |
 
@@ -1103,20 +1100,13 @@ flowchart TB
   Cache-Control: public, max-age=31536000, immutable
 ```
 
-**(5) Cloudflare Access（プレビューURLの保護）**
+**(5) プレビューURL（保護しない。D46）**
 
-- 公式ドキュメントでは、Accessで「本番の workers.dev URL、プレビューURL、またはその両方を保護できる」とされている。本番も workers.dev で一般公開する（D35）ので、**プレビューURLだけ**を保護する（本番の workers.dev URL は保護しない）。
-- 許可するのは、オーナーとレビュアーのメールアドレスだけにする。ログインはメールのワンタイムPINで行う。
 - 公式ドキュメントでは、プレビューURLは「Version URLs」と呼ばれている。形は `<バージョンの先頭>-maps.vivastack-dev.workers.dev`、別名（`--preview-alias`）は `<別名>-maps.vivastack-dev.workers.dev`。
+- プレビューURLは Cloudflare Access で守らず、だれでも開ける（D46。T0-06 でオーナーが決定）。T0-05 でリポジトリを public にした（D44）ので、レビュー前のコンテンツ（YAML）と PR のブランチは、すでに GitHub で読める。Access で守れるのはサイトの見た目で表示した下書きだけで、中身は守れない。Zero Trust を始めるときの支払いの情報の登録と、レビュアーの毎回のログインもなくなる。
+- 代わりの対策：プレビューのページはすべて `noindex`（T3-02）、`reviewed` でない項目には「下書き」の印（T3-03）。別名 `pr-<番号>` は推測できるので、プレビューURLを秘密の URL として扱わない。
+- 以前の案（Access で「Previews only」を守る）の手順は、2026-11-17 の公式ドキュメントで、Zero Trust を始める（チーム名・Free プラン・支払いの情報）→ One-time PIN → Access のポリシー（Include → Emails）→ Worker の Access タブで「Previews only」だった。守る必要が出たら、この順で設定する。
 - 手順（公式ドキュメント。2026-11-17 に確かめた。T0-06 で実際に行い、違いがあれば直す）：
-  1. Zero Trust を始める：ダッシュボードの Zero Trust → チーム名を決める → Free プランを選ぶ → 支払いの情報を入れる（Free プランでも要るが、課金はされない）。
-  2. Settings → Authentication で、ログインの方法に One-time PIN を足す（最初は Cloudflare のアカウントでのログインだけで、レビュアーは Cloudflare のアカウントを持たない）。
-  3. Access のポリシー `maps-reviewers` を作る：Action は Allow、Include → Emails にオーナーとレビュアーのメールアドレス。Include を「Login Methods：One-time PIN」だけにしない（メールアドレスを持つ誰でも通ってしまう）。
-  4. Worker `maps` ができてから（T0-06 の最初のデプロイの後）、Workers & Pages → `maps` → Access → Protect this Worker behind Access → **Previews only** → 3 のポリシーを選ぶ → Apply Access。Worker の画面で新しく作れる許可は「Cloudflare account」「Email domain」だけなので、個別のメールアドレスは 3 のポリシーで指定する。
-  5. プレビューURLでは認証の画面が出て、本番の URL（`https://maps.vivastack-dev.workers.dev/ja/`）は認証なしで開けることを確かめる。公式ドキュメントに、Worker を守ると workers.dev も守られると読める記述があるため、必ず確かめる。
-- アカウントのすべての Worker を守る「Protect all Workers」は使わない。同じアカウントのほかの Worker のプレビューにもかかるため。
-- U7 は T0-06 に移した（T0-05 でオーナーが判断）。4 は Worker `maps` ができる T0-06 でしかできず、確かめるのも T0-06 になるため。無料枠の人数と、手順が公式ドキュメントのとおりかは T0-06 で確かめて、本書を直す。
-- プレビューのページはすべて `noindex` にする。
 
 ### 11.5 GitHubの事前設定
 
@@ -1137,7 +1127,7 @@ flowchart TB
   - Secrets（11.2）と、Team のメンバーは扱わない。レビュアーは GitHub の画面で Team に招待する。Team を作ると、作った人は自動でメンバーになる。スクリプトは、実行した人（オーナー）がメンバーなら外す（オーナーに `/content/prefectures/` のレビューの依頼が行かないように）。ほかのメンバーには触れない。
   - Team を作る・権限を付けるには、`gh` に `admin:org` が要る（`gh auth refresh -h github.com -s admin:org`）。作業の後は `gh auth refresh -h github.com -r admin:org` で外してよい。
 - ルールセットを2つに分ける理由（D44）：オーナーは1人で、自分の PR を自分で承認できない。承認だけをオーナーがバイパスでき、CI はだれもバイパスできないようにする（クラシックのブランチ保護で admin を対象から外すと、CI の失敗も無視して merge できてしまう）。そのため、オーナーの PR には CODEOWNERS の承認が実質効かない（1人で開発するため受け入れる）。
-- merge はオーナーだけ（D44）：`main-review` の更新の制限（update）で、レビュアー（Write）どうしが承認し合っても merge できない。そのため、オーナーはレビュアーが承認した PR でも、merge のたびに「Merge without waiting for requirements to be met (bypass rules)」を選ぶ（CI〔`main-ci`〕は通っていないと merge できない）。9.2 ⑧（承認の後にオーナーが `status` を `reviewed` にして merge する）を設定で守る。組織のオーナーが増えたら、OrganizationAdmin のバイパスを見直す。
+- merge はオーナーだけ（D44）：`main-review` の更新の制限（update）で、レビュアー（Write）どうしが承認し合っても merge できない。そのため、オーナーはレビュアーが承認した PR でも、merge のたびに「Merge without waiting for requirements to be met (bypass rules)」を選ぶ（CI〔`main-ci`〕は通っていないと merge できない）。GitHub のアプリ（スマホ）にはこのバイパスの merge のボタンがないので、ブラウザ版の GitHub で merge するか、`gh pr merge <番号> --merge --admin` を使う（T0-05 の PR で確かめた）。9.2 ⑧（承認の後にオーナーが `status` を `reviewed` にして merge する）を設定で守る。組織のオーナーが増えたら、OrganizationAdmin のバイパスを見直す。
 - 反映の順番は Environment → ルールセット → Team → Actions → セキュリティ。途中で止まっても「Team は Write、`preview` は承認なし」の状態を残さないため。レビュアーを Team に招待するのは、`pnpm github:setup` が「変更なし」になってから。
 - 「merge の前に `main` に追いつく」（strict）は無効。県ごとの PR（T5-05）が並ぶと、1つ merge するたびにほかの PR の CI をやり直すことになる。県ごとに別の YAML を変えるので、ぶつかることは少ない。
 - 「Dismiss stale pull request approvals when new commits are pushed」と「Require approval of the most recent reviewable push」は無効。承認の後にオーナーが `status` を `reviewed` にするコミットを足す（9.2 ⑧）ので、有効にすると承認が外れる。
@@ -1332,7 +1322,7 @@ jobs:
 | R1 | AIが作ったコンテンツに誤りがある | 信用を失う。子ども向けなので影響が大きい | 出典の確認、検証エージェント、チームのレビュアーによる全件レビュー。reviewedの項目だけを本番に出す |
 | R2 | 行き方・所要時間がすぐ古くなる | 誤った案内になる | 「目安」と明記する。年1回見直す |
 | R3 | 出典ページのリンク切れ・内容の変更 | 出典が確認できなくなる | 確認日を記録する。手動のリンク切れチェック |
-| R4 | プレビューURLの公開 | レビュー前のコンテンツが外に出る | Cloudflare Access、`noindex` |
+| R4 | プレビューURLの公開 | レビュー前のコンテンツが外に出る | `noindex`、「下書き」の印。リポジトリが public なので、中身はすでに公開されている（D44・D46）。Access では守らない |
 | R5 | API Tokenの漏えい | 不正にデプロイされる | 最小権限、アプリ専用、Environment Secrets、有効期限、ActionのSHA固定（必須）、`preview` のデプロイはオーナーの承認が必須（Write 権限の人が workflow を書き換えて Token を取り出すのを防ぐ。11.2）、fork の PR には Secrets が渡らない |
 | R6 | 地図データが重い | スマホで表示が遅い | 県ごとに分けて必要なときに読み込む、形の簡略化、Lighthouse CIの基準値 |
 | R7 | Next.jsの静的出力の構成とパス | パスの不整合で表示されない | `basePath` を使わず（D35）、`dist/` を配信する `wrangler dev` に対するE2Eテストで確認する |
@@ -1381,7 +1371,7 @@ flowchart LR
 | U4 | ~~スタイルの方式（CSS Modules / Tailwind CSS）~~ | 決定（D26）：Tailwind CSS v4。第6章 6.2 | — |
 | U5 | ~~API Tokenの最小権限~~ | 決定（D45）：`Account / Workers Scripts: Edit` だけ。第11章 11.3 | — |
 | U6 | ~~`workers_dev: false` と `preview_urls: true` を同時に設定できるか~~ | 不要になった（D35）：本番を workers.dev で公開するので `workers_dev: true`。第11章 11.4 (2) | — |
-| U7 | Accessの設定手順、Zero Trust無料プランの条件 | 公式ドキュメントの手順を第11章 11.4 (5) に書いた。T0-06 で実際に設定して確かめる（T0-05 から移した） | M0 |
+| U7 | ~~Accessの設定手順、Zero Trust無料プランの条件~~ | 不要になった（D46）：プレビューURLを Access で守らない。第11章 11.4 (5) | — |
 | U8 | ~~basePathを指定したときの静的出力の構成~~ | 決定（D29）：第6章 6.4 | — |
 | U9 | ~~政令指定都市の区がN03に区単位で入っているか~~ | 決定（D31）：第8章 8.2 | — |
 | U10 | ~~総務省コードと国土地理院データの利用条件~~ | 決定（D32）：第8章 8.1 | — |
@@ -1417,7 +1407,7 @@ flowchart LR
 | D17 | 地図データ | 国土数値情報 N03 2026年版 |
 | D18 | 開発体制 | オーナー＋Claude Code、TDD。期限は設けない |
 | D19 | リポジトリ | `vivastack-labs/vivastack-build-maps`（単独リポジトリ。直下がアプリ本体） |
-| D20 | プレビューの保護 | Cloudflare Access |
+| D20 | プレビューの保護 | ~~Cloudflare Access~~ → D46 で取りやめ |
 | D21 | アクセス解析 | Cloudflare Web Analytics |
 | D22 | コンテンツ生成用スキルの置き場所 | リポジトリ直下の `.claude/skills/`（生成）と `.claude/agents/`（検証）。既存のスキル・エージェントと名前が重ならないようにする |
 | D23 | モード・ふりがなの初期表示とCSP | `<head>` の小さなインラインスクリプトで、描画の前に localStorage の値を `<html>` に反映し、切替はCSSだけで行う。インラインスクリプトは、ビルド後に集めたSHA-256をCSPに書き込んで許可する（6.6） |
@@ -1443,6 +1433,7 @@ flowchart LR
 | D43 | 「このサイトについて」・プライバシーポリシーのページ | `/{lang}/about/`・`/{lang}/privacy/` を3言語で出す。ページは `src/i18n/lang.ts` の `PAGES` に集め、パス・`canonical`・`hreflang`・プリキャッシュ（オフラインでも開ける）はここから作る。ヘッダー・フッターはルートレイアウトから各ページに移し（`PageFrame`）、ページの題名を h1、サイト名をトップへのリンクにする（1ページに h1 は1つ）。説明の文はこども向け・おとな向けに言い分けず、1つの言い方（日本語はふりがなつき）。出典の URL は辞書に入れず `src/lib/sources.ts` の定数にする（4.11.7、5.6、8.3） |
 | D44 | GitHub のプランとブランチ保護 | リポジトリを public にする（組織は Free のまま）。`main` はルールセット2つで守る：`main-ci`（PR・`check`・`gitleaks` を必須。バイパスなし）、`main-review`（CODEOWNERS の承認を必須。`main` の更新を制限し、merge はバイパスできるオーナーだけ。リポジトリの admin と組織の admin は PR でバイパスできる）。Team `maps-reviewers` が CODEOWNERS で持つのは `/content/prefectures/` だけ。設定は `pnpm github:setup` で反映する（11.5。U14。T0-05） |
 | D45 | Cloudflare API Token の権限 | `Account / Workers Scripts: Edit` だけ（対象はこのアカウント、期限1年）。`preview`・`production` の Environment Secrets に同じ Token を置き、Account ID はリポジトリの Secret にする。`preview` のデプロイはオーナーの承認を必須にする（Token は Worker ごとに絞れないので、Token を分けても守れないため）（11.2・11.3。U5。T0-05） |
+| D46 | プレビューURLの保護をやめる | プレビューURLを Cloudflare Access で守らない（D20 を取りやめ）。リポジトリが public（D44）で、レビュー前のコンテンツは GitHub で読めるため。`noindex` と「下書き」の印は残す（11.4 (5)、R4。U7 は不要。T0-06 でオーナーが決定） |
 
 ## 付録B. 参考資料
 
