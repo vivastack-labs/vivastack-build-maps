@@ -17,5 +17,131 @@ capital:
     zh: "津市"
   lat: 34.730248
   lon: 136.508271
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}とJR", en: "Shinkansen + JR", zh: "新干线和JR"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {名古屋駅|なごやえき} → {津駅|つえき}"
+    en: "Tokyo Station → Nagoya Station → Tsu Station"
+    zh: "东京站 → 名古屋站 → 津站"
+  # 東京始発の「のぞみ25号」（毎日運転）：東京 10:30 発 → 名古屋 12:09 着。名古屋で JR関西本線の快速「みえ9号」（毎日運転）に乗り換え：名古屋 12:37 発 → 津 13:29 着。
+  # 東京 10:30 発 → 津 13:29 着で 179分（乗り換えの待ち時間 28分を含む）。JR時刻表2026年11月号に基づく時刻
+  durationMin: 179
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/25371"
+      accessed: "2026-11-17"
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/79631"
+      accessed: "2026-11-17"
+  status: verified
+specialties:
+  - id: ise-udon
+    emoji: "🍜"
+    name: {ja: "{伊勢|いせ}うどん", en: "Ise Udon", zh: "伊势乌冬面"}
+    description:
+      ja:
+        kids: "{太|ふと}くてやわらかい{麺|めん}に{黒|くろ}いたれをかけるよ。{伊勢参|いせまい}りの{人|ひと}に{出|だ}したそうだよ。"
+        adult: "{太|ふと}くやわらかい{麺|めん}に{黒|くろ}いたれをかけ、{江戸時代|えどじだい}に{参宮客|さんぐうきゃく}へすぐ{出|だ}せるようゆでおく{店|みせ}ができたとされます。"
+      en:
+        kids: "Thick, soft noodles are topped with a dark sauce. They are said to have been served to Ise pilgrims."
+        adult: "Thick, soft noodles are topped with a dark sauce; in Edo times, shops are said to have kept noodles boiled to serve Ise pilgrims quickly."
+      zh:
+        kids: "又粗又软的面条浇上黑色酱汁，据说以前是端给伊势参拜的人吃的。"
+        adult: "粗软面条浇上黑色酱汁，据说江户时代有店事先煮好面条，让伊势参拜者能立刻吃到。"
+    sources:
+      - title: "伊勢うどん 三重県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/iseudon_mie.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: tekone-zushi
+    emoji: "🍣"
+    name: {ja: "てこねずし", en: "Tekone-zushi", zh: "手捏寿司"}
+    description:
+      ja:
+        kids: "{漁師|りょうし}が{手|て}でまぜたのが{名前|なまえ}のもと。たれづけカツオをすしめしにのせるよ。"
+        adult: "{伊勢|いせ}・{志摩|しま}では、{漁師|りょうし}が{魚|さかな}を{手|て}で{混|ま}ぜたのが{名|な}の{由来|ゆらい}とされ、たれに{漬|つ}けたカツオなどを{酢飯|すめし}にのせます。"
+      en:
+        kids: "Fishermen mixed fish by hand, which gave this dish its name. Bonito soaked in sauce is set on vinegared rice."
+        adult: "In Ise-Shima, the name is said to come from fishermen mixing fish by hand; bonito and the like, marinated in sauce, top vinegared rice."
+      zh:
+        kids: "渔夫用手拌鱼，这就是名字的由来。把泡过酱汁的鲣鱼放在醋饭上。"
+        adult: "在伊势、志摩，名字据说来自渔夫用手拌鱼，把酱汁腌过的鲣鱼等放在醋饭上食用。"
+    sources:
+      - title: "てこねずし 三重県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/tekone_zushi_mie.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: iga-kumihimo
+    emoji: "🧵"
+    name: {ja: "{伊賀|いが}くみひも", en: "Iga Kumihimo", zh: "伊贺编绳"}
+    description:
+      ja:
+        kids: "{絹|きぬ}の{糸|いと}をくんで{作|つく}る、きものの{帯|おび}にしめるひもだよ。"
+        adult: "{絹糸|きぬいと}を{組台|くみだい}で{編|あ}み{上|あ}げる{帯締|おびじ}めなどで{知|し}られ、{伊賀市|いがし}と{名張市|なばりし}で{作|つく}られる{伝統的工芸品|でんとうてきこうげいひん}です。"
+      en:
+        kids: "These cords are braided from silk thread. They are worn over a kimono sash."
+        adult: "Known for obi cords braided from silk thread on kumidai braiding stands, this traditional craft is made in Iga and Nabari."
+      zh:
+        kids: "用丝线编成的绳子，系在和服腰带上。"
+        adult: "以用组台将丝线编成的和服腰带绳等闻名，是在伊贺市和名张市制作的传统工艺品。"
+    sources:
+      - title: "三重県｜伝統産業・地場産業：経済産業大臣指定伝統的工芸品 伊賀くみひも"
+        url: "https://www.pref.mie.lg.jp/CHISHI/HP/72498045141.htm"
+        accessed: "2026-11-17"
+    status: verified
+spots:
+  - id: ise-jingu
+    name: {ja: "{伊勢神宮|いせじんぐう}", en: "Ise Jingu", zh: "伊势神宫"}
+    description:
+      ja:
+        kids: "お{宮|みや}が125あり、20{年|ねん}に{一度|いちど}かみさまがうつるよ。"
+        adult: "125{社|しゃ}から{成|な}り、20{年|ねん}に{一度|いちど}{社殿|しゃでん}を{新|あたら}しくする{式年遷宮|しきねんせんぐう}で{天照大御神|あまてらすおおみかみ}が{遷|うつ}ります。"
+      en:
+        kids: "It has 125 shrines, and a deity moves to a new home every 20 years."
+        adult: "It has 125 shrines; every 20 years, buildings are renewed and the deity Amaterasu moves in."
+      zh:
+        kids: "有125座宫社，每20年神明会迁到新宫。"
+        adult: "有125座宫社，每20年重建社殿，天照大神迁入新殿。"
+    sources:
+      - title: "神宮について｜伊勢神宮"
+        url: "https://www.isejingu.or.jp/about/"
+        accessed: "2026-11-17"
+      - title: "式年遷宮とは｜第63回神宮式年遷宮｜式年遷宮｜伊勢神宮"
+        url: "https://www.isejingu.or.jp/sengu/the63rd/about.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: kumano-kodo-iseji
+    name: {ja: "{熊野古道|くまのこどう}{伊勢路|いせじ}", en: "Kumano Kodo Iseji Route", zh: "熊野古道伊势路"}
+    description:
+      ja:
+        kids: "むかしの{人|ひと}が{伊勢|いせ}から{熊野|くまの}まで{歩|ある}いた{古|ふる}い{道|みち}だよ。"
+        adult: "{伊勢神宮|いせじんぐう}に{参|まい}った{人々|ひとびと}が{峠|とうげ}をいくつも{越|こ}えて{熊野|くまの}へ{向|む}かった{約|やく}170kmの{古道|こどう}です。"
+      en:
+        kids: "This is an old road that people long ago walked from Ise to Kumano."
+        adult: "People who visited Ise Jingu crossed many passes on this road of about 170 km to Kumano."
+      zh:
+        kids: "这是很久以前的人们从伊势走到熊野的古道。"
+        adult: "参拜过伊势神宫的人们翻过许多山岭前往熊野的约170公里古道。"
+    sources:
+      - title: "熊野古道伊勢路について | 青の鼓動、感じる。東紀州観光手帖"
+        url: "https://kumanokodo-iseji.jp/kumanokodo-iseji/"
+        accessed: "2026-11-17"
+    status: draft
+  - id: gozaisho-dake
+    name: {ja: "{御在所岳|ございしょだけ}", en: "Mount Gozaisho", zh: "御在所岳"}
+    description:
+      ja:
+        kids: "ロープウェイで{上|あ}がれて、{春|はる}から6{月|がつ}ごろ{花|はな}がさくよ。"
+        adult: "{鈴鹿山脈|すずかさんみゃく}の{主|おも}な{山|やま}で、ロープウェイで{山頂|さんちょう}へ{行|い}け、{花|はな}は3{月下旬|がつげじゅん}から6{月|がつ}ごろさきます。"
+      en:
+        kids: "Take a ropeway up this mountain; flowers bloom from spring to around June."
+        adult: "This major Suzuka Mountains peak has a summit ropeway; flowers bloom from late March to around June."
+      zh:
+        kids: "可以乘缆车上山，春天到6月前后会开花。"
+        adult: "铃鹿山脉的主要山峰，可乘缆车到山顶，3月下旬至6月前后开花。"
+    sources:
+      - title: "御在所岳 | 観光スポット | 観光三重(かんこうみえ)"
+        url: "https://www.kankomie.or.jp/spot/1579"
+        accessed: "2026-11-17"
+    status: verified
