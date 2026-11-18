@@ -17,5 +17,128 @@ capital:
     zh: "青森市"
   lat: 40.824819
   lon: 140.740614
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {新青森駅|しんあおもりえき}"
+    en: "Tokyo Station → Shin-Aomori Station"
+    zh: "东京站 → 新青森站"
+  # はやぶさ15号：東京10:18発、新青森13:29着。JR東日本の2026年11月時刻表。
+  # 月別の時刻表 URL と所要時間は、年に1回確認する。
+  durationMin: 191
+  sources:
+    - title: "時刻表　停車駅一覧（新幹線はやぶさ 15号（東京－新青森）／新幹線こまち 15号（東京－盛岡－秋田））：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/train/110/111151.html"
+      accessed: "2026-11-18"
+  status: verified
+specialties:
+  - id: apple
+    emoji: "🍎"
+    name: {ja: "りんご", en: "Apples", zh: "苹果"}
+    description:
+      ja:
+        kids: "{青森県|あおもりけん}ではいろいろなりんごが{育|そだ}つよ。ふじは11{月|がつ}にとれるんだ。"
+        adult: "{青森県|あおもりけん}では、りんごの{品種|ひんしゅ}によって{収穫|しゅうかく}{時期|じき}が{異|こと}なり、ふじは11{月|がつ}に{収穫|しゅうかく}されます。"
+      en:
+        kids: "Aomori grows different apples. Fuji apples are harvested in November."
+        adult: "In Aomori, apple harvest times vary by variety; Fuji apples are harvested in November."
+      zh:
+        kids: "青森种植不同品种的苹果，富士苹果在11月收获。"
+        adult: "青森县的苹果收获时间因品种而异，富士苹果在11月收获。"
+    sources:
+      - title: "18年10月号 文字情報：農林水産省"
+        url: "https://www.maff.go.jp/j/pr/aff/1810/characterinformation.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: senbei-jiru
+    emoji: "🍲"
+    name: {ja: "せんべい{汁|じる}", en: "Senbei-jiru", zh: "仙贝汤"}
+    description:
+      ja:
+        kids: "{八戸|はちのへ}に{伝|つた}わる、せんべいを{野菜|やさい}などと{煮|に}た{汁|しる}だよ。"
+        adult: "{八戸|はちのへ}に{伝|つた}わる{汁物|しるもの}で、{南部|なんぶ}せんべいを{割|わ}り{入|い}れ、{鶏|とり}だしや{野菜|やさい}とともに{煮込|にこ}みます。"
+      en:
+        kids: "A Hachinohe soup with pieces of senbei crackers simmered with vegetables."
+        adult: "A soup from Hachinohe made by simmering pieces of Nanbu senbei crackers with chicken stock and vegetables."
+      zh:
+        kids: "八户流传的汤，把仙贝和蔬菜等一起煮。"
+        adult: "八户流传的汤，把南部仙贝掰碎，与鸡汤和蔬菜一起煮。"
+    sources:
+      - title: "せんべい汁 青森県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/senbei_jiru_aomori.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: ichigo-ni
+    emoji: "🥣"
+    name: {ja: "いちご{煮|に}", en: "Ichigo-ni", zh: "海胆鲍鱼汤"}
+    description:
+      ja:
+        kids: "ウニとアワビが{入|はい}ったお{吸|す}い{物|もの}だよ。お{祝|いわ}いの{日|ひ}にも{食|た}べるんだ。"
+        adult: "ウニとアワビを{使|つか}ったお{吸|す}い{物|もの}です。{八戸|はちのへ}などの{沿岸|えんがん}に{伝|つた}わり、{祝|いわ}い{事|ごと}にも{食|た}べられます。"
+      en:
+        kids: "A clear soup with sea urchin and abalone, also eaten for celebrations."
+        adult: "A clear soup of sea urchin and abalone, passed down along the coast around Hachinohe and eaten for celebrations."
+      zh:
+        kids: "海胆和鲍鱼做成的清汤，庆祝时也会吃。"
+        adult: "用海胆和鲍鱼做的清汤，流传于八户等沿海地区，也在庆祝时食用。"
+    sources:
+      - title: "いちご煮 青森県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/ichigoni_aomori.html"
+        accessed: "2026-11-18"
+    status: verified
+spots:
+  - id: sannai-maruyama
+    emoji: "🏠"
+    name: {ja: "{三内丸山遺跡|さんないまるやまいせき}", en: "Sannai-Maruyama Site", zh: "三内丸山遗址"}
+    description:
+      ja:
+        kids: "むかしの{村|むら}の{跡|あと}で、{土器|どき}や{建物|たてもの}の{跡|あと}が{見|み}つかったよ。"
+        adult: "{縄文|じょうもん}{時代|じだい}の{大|おお}きな{集落|しゅうらく}の{跡|あと}で、{土器|どき}や{石器|せっき}のほか、{建物|たてもの}の{跡|あと}も{見|み}つかっています。"
+      en:
+        kids: "An old village site where pottery and remains of buildings were found."
+        adult: "The remains of a large Jomon-period settlement, where pottery, stone tools and building remains have been found."
+      zh:
+        kids: "古代村落的遗址，发现了陶器和建筑遗迹。"
+        adult: "大型绳文时代聚落遗址，发现了陶器、石器和建筑遗迹。"
+    sources:
+      - title: "三内丸山遺跡とは | 特別史跡「三内丸山遺跡」"
+        url: "https://sannaimaruyama.pref.aomori.jp/about/iseki/"
+        accessed: "2026-11-18"
+    status: verified
+  - id: hirosaki-castle
+    emoji: "🏯"
+    name: {ja: "{弘前城|ひろさきじょう}", en: "Hirosaki Castle", zh: "弘前城"}
+    description:
+      ja:
+        kids: "{今|いま}も{残|のこ}るお{城|しろ}の{建物|たてもの}は、{国|くに}が{大切|たいせつ}に{守|まも}っているよ。"
+        adult: "{今|いま}も{残|のこ}る{天守|てんしゅ}は{国|くに}の{重要|じゅうよう}{文化財|ぶんかざい}です。{城|しろ}のある{弘前|ひろさき}{公園|こうえん}には{門|もん}やお{濠|ほり}もあります。"
+      en:
+        kids: "The castle building still stands and is protected by the national government."
+        adult: "The surviving castle tower is a nationally designated Important Cultural Property; Hirosaki Park also has gates and moats."
+      zh:
+        kids: "现存的城堡建筑受到国家保护。"
+        adult: "现存天守是国家重要文化财产，弘前公园内还有城门和护城河。"
+    sources:
+      - title: "弘前公園／弘前城｜スポット・体験｜【公式】青森県観光情報サイト Amazing AOMORI"
+        url: "https://aomori-tourism.com/spot/detail_205.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: oirase-gorge
+    emoji: "🌊"
+    name: {ja: "{奥入瀬渓流|おいらせけいりゅう}", en: "Oirase Gorge", zh: "奥入濑溪流"}
+    description:
+      ja:
+        kids: "{湖|みずうみ}から{流|なが}れ{出|で}る{川|かわ}で、{滝|たき}やきれいな{流|なが}れを{見|み}られるよ。"
+        adult: "{十和田湖|とわだこ}から{流|なが}れ{出|で}る{渓流|けいりゅう}で、{焼山|やけやま}まで{約|やく}14kmにわたり、{滝|たき}や{清流|せいりゅう}が{見|み}られます。"
+      en:
+        kids: "A stream flowing from a lake, with waterfalls and clear water."
+        adult: "Flowing from Lake Towada for about 14 km to Yakeyama, this stream features waterfalls and clear water."
+      zh:
+        kids: "从湖中流出的溪流，可以看到瀑布和清澈的水。"
+        adult: "从十和田湖流出的溪流延伸约14公里至烧山，可见清流和瀑布。"
+    sources:
+      - title: "さあ、緑の世界へ飛び込もう！｜特集｜【公式】青森県観光情報サイト Amazing AOMORI"
+        url: "https://aomori-tourism.com/feature/detail_28.html"
+        accessed: "2026-11-18"
+    status: verified
