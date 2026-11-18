@@ -81,3 +81,84 @@ Node.js は `.nvmrc` の26を使う。依存パッケージはこの worktree �
 ## 承認後に変えたこと
 
 なし。
+
+## 実装と独立検証の記録
+
+- 2026-11-18 13:04 JST に制作開始。変更は本計画と `32-shimane.yaml` に限定した。
+- 名物は出雲そば・しじみ汁・赤天。名所は出雲大社・松江城・石見銀山。
+- 行き方は羽田空港 → 出雲空港の飛行機。JAL279便（09:50発・11:15着）から85分。
+  対象期間は2026-10-25〜11-30。空港への移動・搭乗手続きは含めず、便・期間・計算をYAMLコメントにも残した。
+- メインと独立した `gotouchi-source-checker` が全出典を実際に開いて照合した。
+  表示題名・確認日（2026-11-18）・事実・原文の写し・季節・宣伝を確認した。
+- ②初回：しじみ汁の本文にパッチ由来の記号と空白が混入した誤り1件、要確認0件。他6項目は通過。
+  正しいYAMLの折り返しに直し、②の2回目で通過。事実・出典は変えていない。
+- ④初回：石見銀山の英語で坑道が鉱山だったように読める誤り1件、
+  出雲大社の英語で神社と神楽殿の主語が曖昧な要確認1件。他5項目は通過。
+  英語おとな向けの2文を直し、④の2回目で両項目が通過。おとな向け日本語と出典は変更していない。
+- ②④の通過と最終差分をメインが確認後、7項目すべてを `verified` にした。
+  人のレビューとオーナーによる `reviewed` への変更・merge は残作業。
+
+### ②で確定した基準本文と出典
+
+| 項目 | 基準本文（ふりがなを除く） | 実際に開いた出典 | ② | ④ |
+| --- | --- | --- | --- | --- |
+| access | 飛行機／羽田空港 → 出雲空港／85分 | [就航路線・時刻表](https://www.izumo-airport.co.jp/flight/flight-time) | 初回通過 | 初回通過 |
+| specialties/izumo-soba | 殻ごと挽いたそば粉で作るため、色が濃く香りも強めです。つゆを直接かけて食べます。 | [そば](https://www.kankou-shimane.com/gourmet/soba) | 初回通過 | 初回通過 |
+| specialties/shijimi-soup | 宍道湖などの海水と淡水が混じる湖で育つヤマトシジミを使い、水から煮てだしを引き出します。 | [しじみ](https://www.kankou-shimane.com/gourmet/shijimi) | 2回目通過 | 初回通過 |
+| specialties/akaten | 浜田の名物で、魚のすり身に唐辛子を加えて揚げたものです。ピリッとした辛さがあります。 | [赤天の記事](https://www.kankou-shimane.com/bihadaken-uruoi/report/souvenir/41/) | 初回通過 | 初回通過 |
+| spots/izumo-oyashiro | 人との縁を結ぶ神様をまつります。神楽殿には大きなしめ縄があります。 | [出雲大社](https://www.kankou-shimane.com/destination/20240) | 初回通過 | 2回目通過 |
+| spots/matsue-castle | 1611年に完成した天守が残っています。2015年に国宝に指定されました。 | [松江城天守の国宝指定](https://www.pref.shimane.lg.jp/life/bunka/bunkazai/event/kokuhou/) | 初回通過 | 初回通過 |
+| spots/iwami-ginzan | 銀を採っていた鉱山で、龍源寺間歩の壁にはノミで掘った跡が残ります。 | [龍源寺間歩（石見銀山）](https://www.kankou-shimane.com/destination/20238) | 初回通過 | 2回目通過 |
+
+### 文字数・語数
+
+各セルは「こども／おとな」。既存の `countLength` で数え、全36文が7.3の範囲内。
+
+| 項目 | ja（字） | en（語） | zh（字） |
+| --- | --- | --- | --- |
+| 出雲そば | 28／40 | 13／20 | 23／33 |
+| しじみ汁 | 25／44 | 15／23 | 24／31 |
+| 赤天 | 26／42 | 13／16 | 22／30 |
+| 出雲大社 | 17／33 | 10／16 | 16／24 |
+| 松江城 | 23／37 | 9／16 | 18／27 |
+| 石見銀山 | 24／33 | 12／16 | 19／28 |
+
+### ふりがな・固有語・絵文字の確認
+
+- `--check` は20文・差分7件・比較不可0件。YAML誤り0件、未確認の読み0件。
+- 「混じる」は「まじる」、味の「辛い・辛さ」は「からい・からさ」。辞書の「こん・つら」は文脈に合わない。
+- 出雲大社「いずもおおやしろ」と龍源寺間歩「りゅうげんじまぶ」は上表の出典のカナ表記。
+- 神楽殿「かぐらでん」は[公式観光記事](https://www.kankou-shimane.com/pickup/36835.html)の②節で確認。
+- 宍道湖「しんじこ」は[公式観光スポット](https://www.kankou-shimane.com/destination/20270)のカナ表記で確認。
+- 英語公式名は[出雲大社](https://www.kankou-shimane.com/en/destinations/9282)・
+  [松江城](https://www.kankou-shimane.com/en/destinations/9289)・
+  [龍源寺間歩](https://www.kankou-shimane.com/en/destinations/9280)で確認。
+- ヤマトシジミの簡体字「大和蚬」は[松江市公式観光中国語](https://cn.visit-matsue.com/discover/city_centre/lake_shinji)で確認。
+- 使用絵文字はすべて Emoji 1.0（2015年）。ZWJ・国旗は使わない。
+  Emojipedia の[🍜](https://emojipedia.org/steaming-bowl/)・[🐚](https://emojipedia.org/spiral-shell)・
+  [🐟](https://emojipedia.org/fish)・[✈️](https://emojipedia.org/airplane)を開いて確認。
+
+### 機械検査・ビルド
+
+- `pnpm content:validate`：47県、誤り0件・警告0件。`verified` への変更後も成功。
+- `pnpm content:furigana --check content/prefectures/32-shimane.yaml`：上記7件の差分は確認済み。
+- `yamllint -c content/.yamllint content/prefectures/32-shimane.yaml`：誤り・警告0件。
+- `pnpm lint`：成功。既存の `.yamllint` と `.agents/skills/playwright/agents/openai.yaml` に文書開始記号がない警告が各1件。
+  今回の変更外にある既存警告のため設定は変えない。
+- `pnpm typecheck`：成功。`pnpm vitest run tests/data/content.test.ts`：54件成功。
+- `pnpm test`：98ファイル・2,048件成功。全体の statements 96.72%・branches 93.97%・functions 96.70%・lines 96.94%。
+  全体80%・ドメイン90%の設定をすべて通過。
+- テスト初回はsandbox内のgit子プロセスが `EPERM` で2件失敗。必要な権限で標準コマンドを再実行して成功した。
+- `pnpm build`：成功。本番の3言語の `dist/cards/{ja,en,zh}/32.json` は名物・名所が空で、行き方を含まない。
+  未承認コンテンツが本番に出ないことを確認した。
+- ビルド初回は内部のローカルポート利用が `EPERM` で失敗。権限を得た再実行でも失敗が残り、
+  失敗時の `.next` を `/tmp` に退避後、標準コマンドを必要な権限で実行すると成功した。
+  同梱のTurbopackキャッシュ資料を確認した。追跡対象の設定は変えていない。
+- `pnpm build:preview`：成功。3言語とも行き方1・名物3・名所3を出力し、7項目が `draft: true`、HTMLが `noindex` であることを確認。
+- E2Eはデータ整備中の規約に従い未実行。スクリーンショットは承認済みの省略方針どおりで、実データのJSONを検査した。
+- ①〜④と内容の機械確認は13:04〜13:17 JST（約13分）。
+- 最終の `pnpm lint`・`pnpm typecheck`・`pnpm content:validate` と、`verified` の最終差分での `pnpm test` も成功。
+  テスト件数とカバレッジは上記と同じ。
+- `code-reviewer` の独立した最終レビューは指摘なし（CRITICAL・HIGH・MEDIUM・LOW 各0件）。
+  基本情報、status、本番の絞り込み、プレビュー3言語、検証記録と最終テスト結果の一致を確認した。
+  ブラウザでの実表示・E2E・人によるコンテンツレビューは未確認。出典の再照合は専門検証役の記録を採用した。
