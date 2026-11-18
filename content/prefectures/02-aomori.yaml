@@ -25,12 +25,13 @@ access:
     en: "Tokyo Station → Shin-Aomori Station"
     zh: "东京站 → 新青森站"
   # はやぶさ15号：東京10:18発、新青森13:29着。JR東日本の2026年11月時刻表。
+  # 月別の時刻表 URL と所要時間は、年に1回確認する。
   durationMin: 191
   sources:
     - title: "時刻表　停車駅一覧（新幹線はやぶさ 15号（東京－新青森）／新幹線こまち 15号（東京－盛岡－秋田））：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/110/111151.html"
       accessed: "2026-11-18"
-  status: draft
+  status: verified
 specialties:
   - id: apple
     emoji: "🍎"
