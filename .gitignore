@@ -103,3 +103,7 @@ next-env.d.ts
 
 # Lighthouse CI の結果（T4-04）
 .lighthouseci/
+
+# Codex handoff records and orchestration runtime state
+.codex/sessions/
+.codex/orchestration/
