@@ -34,7 +34,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/59481"
       accessed: "2026-11-18"
-  status: verified
+  status: reviewed
 specialties:
   - id: matsuba-gani
     emoji: "🦀"
@@ -54,7 +54,7 @@ specialties:
       - title: "松葉がに/とりネット/鳥取県公式サイト"
         url: "https://www.pref.tottori.lg.jp/178131.htm"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: nijisseiki-nashi
     emoji: "🍐"
     name: {ja: "{二十世紀梨|にじっせいきなし}", en: "Nijisseiki Pears", zh: "二十世纪梨"}
@@ -73,7 +73,7 @@ specialties:
       - title: "梨/とりネット/鳥取県公式サイト"
         url: "https://www.pref.tottori.lg.jp/178199.htm"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: inshu-washi
     emoji: "📜"
     name: {ja: "{因州和紙|いんしゅうわし}", en: "Inshu Washi Paper", zh: "因州和纸"}
@@ -95,7 +95,7 @@ specialties:
       - title: "伝統工芸品と伝統工芸士/とっとりの工芸品/とりネット/鳥取県公式サイト"
         url: "https://www.pref.tottori.lg.jp/95607.htm"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
 spots:
   - id: tottori-sakyu
     name: {ja: "{鳥取砂丘|とっとりさきゅう}", en: "Tottori Sand Dunes", zh: "鸟取沙丘"}
@@ -113,7 +113,7 @@ spots:
       - title: "鳥取砂丘ってどこにあるの？/砂丘事務所/とりネット/鳥取県公式サイト"
         url: "https://www.pref.tottori.lg.jp/153169.htm"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: nageiredo
     name: {ja: "{三徳山|みとくさん}{投入堂|なげいれどう}", en: "Mount Mitoku Nageiredo Hall", zh: "三德山投入堂"}
     description:
@@ -130,7 +130,7 @@ spots:
       - title: "三徳山三佛寺|三徳山 公式ホームページ"
         url: "https://www.mitokusan.jp/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: daisen
     name: {ja: "{大山|だいせん}", en: "Mount Daisen", zh: "大山"}
     description:
@@ -147,4 +147,4 @@ spots:
       - title: "環境省_大山"
         url: "https://chushikoku.env.go.jp/park/daisen/viewpoint/mt_daisen/index.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed

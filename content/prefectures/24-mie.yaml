@@ -34,7 +34,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/79631"
       accessed: "2026-11-17"
-  status: verified
+  status: reviewed
 specialties:
   - id: ise-udon
     emoji: "🍜"
@@ -53,7 +53,7 @@ specialties:
       - title: "伊勢うどん 三重県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/iseudon_mie.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: tekone-zushi
     emoji: "🍣"
     name: {ja: "てこねずし", en: "Tekone-zushi", zh: "手捏寿司"}
@@ -71,7 +71,7 @@ specialties:
       - title: "てこねずし 三重県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/tekone_zushi_mie.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: iga-kumihimo
     emoji: "🧵"
     name: {ja: "{伊賀|いが}くみひも", en: "Iga Kumihimo", zh: "伊贺编绳"}
@@ -89,7 +89,7 @@ specialties:
       - title: "三重県｜伝統産業・地場産業：経済産業大臣指定伝統的工芸品 伊賀くみひも"
         url: "https://www.pref.mie.lg.jp/CHISHI/HP/72498045141.htm"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
 spots:
   - id: ise-jingu
     name: {ja: "{伊勢神宮|いせじんぐう}", en: "Ise Jingu", zh: "伊势神宫"}
@@ -110,7 +110,7 @@ spots:
       - title: "式年遷宮とは｜第63回神宮式年遷宮｜式年遷宮｜伊勢神宮"
         url: "https://www.isejingu.or.jp/sengu/the63rd/about.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: kumano-kodo-iseji
     name: {ja: "{熊野古道|くまのこどう}{伊勢路|いせじ}", en: "Kumano Kodo Iseji Route", zh: "熊野古道伊势路"}
     description:
@@ -127,7 +127,7 @@ spots:
       - title: "熊野古道伊勢路について | 青の鼓動、感じる。東紀州観光手帖"
         url: "https://kumanokodo-iseji.jp/kumanokodo-iseji/"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: gozaisho-dake
     name: {ja: "{御在所岳|ございしょだけ}", en: "Mount Gozaisho", zh: "御在所岳"}
     description:
@@ -144,4 +144,4 @@ spots:
       - title: "御在所岳 | 観光スポット | 観光三重(かんこうみえ)"
         url: "https://www.kankomie.or.jp/spot/1579"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed

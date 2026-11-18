@@ -30,7 +30,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/25371"
       accessed: "2026-11-17"
-  status: verified
+  status: reviewed
 specialties:
   - id: takoyaki
     emoji: "🐙"
@@ -50,7 +50,7 @@ specialties:
       - title: "たこ焼き 大阪府 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/39_15_osaka.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: senshu-mizunasu
     emoji: "🍆"
     name: {ja: "{泉州|せんしゅう}{水|みず}なす", en: "Senshu Mizunasu Eggplant", zh: "泉州水茄"}
@@ -69,7 +69,7 @@ specialties:
       - title: "泉州水なすの浅漬 大阪府 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/39_1_osaka.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: sakai-uchihamono
     emoji: "🔪"
     name: {ja: "{堺打刃物|さかいうちはもの}", en: "Sakai Uchihamono Knives", zh: "堺打刃物"}
@@ -88,7 +88,7 @@ specialties:
       - title: "堺打刃物／大阪府（おおさかふ）ホームページ [Osaka Prefectural Government]"
         url: "https://www.pref.osaka.lg.jp/o110070/mono/dento/dento16.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
 spots:
   - id: osaka-castle
     name: {ja: "{大阪城|おおさかじょう}", en: "Osaka Castle", zh: "大阪城"}
@@ -107,7 +107,7 @@ spots:
       - title: "大阪城天守閣"
         url: "https://www.osakacastle.net/"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: nintoku-tenno-ryo-kofun
     name: {ja: "{仁徳天皇陵古墳|にんとくてんのうりょうこふん}", en: "Nintoku-tenno-ryo Kofun", zh: "仁德天皇陵古坟"}
     description:
@@ -124,7 +124,7 @@ spots:
       - title: "百舌鳥古墳群の特徴"
         url: "https://www.city.sakai.lg.jp/kanko/rekishi/sei/kohun_siru/kohun_gaiyo/tokucho.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: dotonbori
     name: {ja: "{道頓堀|どうとんぼり}", en: "Dotonbori", zh: "道顿堀"}
     description:
@@ -142,4 +142,4 @@ spots:
       - title: "道頓堀 観光ガイド｜巨大看板とグルメを満喫！大阪ミナミの人気スポット"
         url: "https://osaka-info.jp/spot/dotonbori/"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed

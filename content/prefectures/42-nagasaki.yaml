@@ -30,7 +30,7 @@ access:
     - title: "東京（羽田）-長崎 時刻表"
       url: "https://www.solaseedair.jp/timetable/naga-hane/index.html"
       accessed: 2026-11-18
-  status: verified
+  status: reviewed
 specialties:
   - id: nagasaki-champon
     emoji: "🍜"
@@ -49,7 +49,7 @@ specialties:
       - title: "中華料理（ちゃんぽん・皿うどん）"
         url: "https://www.nagasaki-tabinet.com/eat/133"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
   - id: castella
     emoji: "🍰"
     name: {ja: "カステラ", en: "Castella", zh: "长崎蛋糕"}
@@ -70,7 +70,7 @@ specialties:
       - title: "長崎旅行の定番お土産大特集"
         url: "https://www.nagasaki-tabinet.com/feature/souvenirs"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
   - id: hasami-ware
     emoji: "🍚"
     name: {ja: "{波佐見焼|はさみやき}", en: "Hasami Ware", zh: "波佐见烧"}
@@ -88,7 +88,7 @@ specialties:
       - title: "波佐見焼"
         url: "https://www.nagasaki-tabinet.com/eat/62925"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
 spots:
   - id: oura-cathedral
     name: {ja: "{大浦天主堂|おおうらてんしゅどう}", en: "Oura Cathedral", zh: "大浦天主堂"}
@@ -106,7 +106,7 @@ spots:
       - title: "大浦天主堂"
         url: "https://www.at-nagasaki.jp/spot/102"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
   - id: peace-park
     name: {ja: "{平和公園|へいわこうえん}", en: "Peace Park", zh: "和平公园"}
     description:
@@ -123,7 +123,7 @@ spots:
       - title: "平和公園（平和祈念像・平和の泉）"
         url: "https://www.at-nagasaki.jp/spot/130"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
   - id: kujukushima
     name: {ja: "{九十九島|くじゅうくしま}", en: "Kujukushima Islands", zh: "九十九岛"}
     description:
@@ -143,4 +143,4 @@ spots:
       - title: "数字で見る九十九島"
         url: "https://kujukushima-visitorcenter.jp/about99islands/page_1441/"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed

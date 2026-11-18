@@ -34,7 +34,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/25671"
       accessed: "2026-11-17"
-  status: verified
+  status: reviewed
 specialties:
   - id: kakinoha-zushi
     emoji: "🍣"
@@ -54,7 +54,7 @@ specialties:
       - title: "柿の葉寿司 奈良県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/kakinoha_zushi_nara.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: chagayu
     emoji: "🥣"
     name: {ja: "{茶粥|ちゃがゆ}", en: "Tea Porridge", zh: "茶粥"}
@@ -73,7 +73,7 @@ specialties:
       - title: "茶粥 奈良県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/chagayu_nara.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: miwa-somen
     emoji: "🍜"
     name: {ja: "{三輪|みわ}そうめん", en: "Miwa Somen", zh: "三轮素面"}
@@ -92,7 +92,7 @@ specialties:
       - title: "にゅうめん 奈良県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/nyuumen_nara.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
 spots:
   - id: todaiji
     name: {ja: "{東大寺|とうだいじ}", en: "Todaiji Temple", zh: "东大寺"}
@@ -114,7 +114,7 @@ spots:
       - title: "東大寺の歴史 - 東大寺"
         url: "https://www.todaiji.or.jp/history/"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: nara-park
     name: {ja: "{奈良公園|ならこうえん}", en: "Nara Park", zh: "奈良公园"}
     description:
@@ -132,7 +132,7 @@ spots:
       - title: "奈良公園クイックガイド ≫ 奈良公園の鹿｜Deer"
         url: "https://www.pref.nara.lg.jp/site/park/1003.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: yoshinoyama
     name: {ja: "{吉野山|よしのやま}", en: "Mount Yoshino", zh: "吉野山"}
     description:
@@ -150,4 +150,4 @@ spots:
       - title: "吉野山と桜／吉野町公式ホームページ"
         url: "https://www.town.yoshino.nara.jp/promotion/kankojoho/yoshinoyama/sakuranohanashi/1407.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed

@@ -35,7 +35,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/144501"
       accessed: "2026-11-17"
-  status: verified
+  status: reviewed
 specialties:
   - id: mehari-zushi
     emoji: "🍙"
@@ -55,7 +55,7 @@ specialties:
       - title: "めはりずし 和歌山県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/mehari_zushi_wakayama.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: umeboshi
     emoji: "🍚"
     name: {ja: "{梅干|うめぼ}し", en: "Umeboshi", zh: "腌梅干"}
@@ -74,7 +74,7 @@ specialties:
       - title: "梅干し 和歌山県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/umeboshi_wakayama.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: kinzanji-miso
     emoji: "🥫"
     name: {ja: "{金山寺味噌|きんざんじみそ}", en: "Kinzanji Miso", zh: "金山寺酱"}
@@ -93,7 +93,7 @@ specialties:
       - title: "金山寺味噌 和歌山県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/kinzanji_miso_wakayama.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
 spots:
   - id: koyasan
     name: {ja: "{高野山|こうやさん}", en: "Mount Koya", zh: "高野山"}
@@ -114,7 +114,7 @@ spots:
       - title: "総本山金剛峯寺とは | 高野山真言宗 総本山金剛峯寺"
         url: "https://www.koyasan.or.jp/kongobuji/"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: nachi-falls
     name: {ja: "{那智|なち}の{滝|たき}", en: "Nachi Falls", zh: "那智瀑布"}
     description:
@@ -131,7 +131,7 @@ spots:
       - title: "飛瀧神社(那智御瀧) | 熊野那智大社 飛瀧神社 那智御瀧"
         url: "https://kumanonachitaisha.or.jp/pavilion/waterfall/"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: shirarahama
     name: {ja: "{白良浜|しららはま}", en: "Shirarahama Beach", zh: "白良滨"}
     description:
@@ -148,4 +148,4 @@ spots:
       - title: "白良浜 - 南紀白浜観光協会"
         url: "https://www.nankishirahama.jp/spot/527/"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed

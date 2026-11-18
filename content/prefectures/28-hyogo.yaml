@@ -29,7 +29,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/25371"
       accessed: "2026-11-17"
-  status: verified
+  status: reviewed
 specialties:
   - id: ikanago-kugini
     emoji: "🐟"
@@ -49,7 +49,7 @@ specialties:
       - title: "イカナゴのくぎ煮 兵庫県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/40_1_hyogo.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: izushi-sara-soba
     emoji: "🍜"
     name: {ja: "{出石|いずし}{皿|さら}そば", en: "Izushi Sara Soba", zh: "出石盘荞麦面"}
@@ -68,7 +68,7 @@ specialties:
       - title: "出石皿そば 兵庫県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/40_10_hyogo.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: akashi-yaki
     emoji: "🐙"
     name: {ja: "{明石焼|あかしやき}", en: "Akashiyaki", zh: "明石烧"}
@@ -87,7 +87,7 @@ specialties:
       - title: "明石焼／玉子焼 兵庫県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/40_2_hyogo.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
 spots:
   - id: himeji-castle
     name: {ja: "{姫路城|ひめじじょう}", en: "Himeji Castle", zh: "姬路城"}
@@ -109,7 +109,7 @@ spots:
       - title: "姫路城の歴史 | 姫路城公式サイト"
         url: "https://www.city.himeji.lg.jp/castle/0000007750.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: takeda-castle-ruins
     name: {ja: "{竹田城跡|たけだじょうあと}", en: "Takeda Castle Ruins", zh: "竹田城遗址"}
     description:
@@ -130,7 +130,7 @@ spots:
       - title: "雲海シーズンの登城方法及び駐車場についてのご案内 - 竹田城跡公式ホームページ - 朝来市公式ホームページ"
         url: "https://www.city.asago.hyogo.jp/site/takeda/17618.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: arima-onsen
     name: {ja: "{有馬温泉|ありまおんせん}", en: "Arima Onsen", zh: "有马温泉"}
     description:
@@ -151,4 +151,4 @@ spots:
       - title: "泉質 – 有馬温泉"
         url: "https://www.arima-onsen.com/about/spring_quality"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed

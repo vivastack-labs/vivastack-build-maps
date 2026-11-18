@@ -35,7 +35,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/691"
       accessed: "2026-11-18"
-  status: verified
+  status: reviewed
 specialties:
   - id: taimeshi
     emoji: "🐟"
@@ -54,7 +54,7 @@ specialties:
       - title: "鯛めし 愛媛県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/taimeshi_ehime.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: imotaki
     emoji: "🍲"
     name: {ja: "いもたき", en: "Imotaki Taro Hot Pot", zh: "芋炊锅"}
@@ -73,7 +73,7 @@ specialties:
       - title: "いもたき 愛媛県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/imotaki_ehime.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: kankitsu
     emoji: "🍊"
     name: {ja: "{愛媛|えひめ}のかんきつ", en: "Ehime Citrus", zh: "爱媛柑橘"}
@@ -91,7 +91,7 @@ specialties:
       - title: "四国地方 愛媛県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/area_stories/ehime.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
 spots:
   - id: dogo-onsen-honkan
     name: {ja: "{道後温泉本館|どうごおんせんほんかん}", en: "Dogo Onsen Honkan", zh: "道后温泉本馆"}
@@ -109,7 +109,7 @@ spots:
       - title: "道後温泉本館 | 外湯紹介 | 【公式サイト】道後温泉"
         url: "https://dogo.jp/onsen/honkan"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: shimanami-kaido
     name: {ja: "しまなみ{海道|かいどう}", en: "Shimanami Kaido", zh: "岛波海道"}
     description:
@@ -126,7 +126,7 @@ spots:
       - title: "しまなみ海道サイクリングロード | ナショナルサイクルルート | GOOD CYCLE JAPAN | 国土交通省"
         url: "https://www.mlit.go.jp/road/bicycleuse/good-cycle-japan/national_cycle_route/shimanami.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: uchiko-machinami
     name: {ja: "{内子|うちこ}の{町並|まちな}み", en: "Uchiko Old Townscape", zh: "内子老街"}
     description:
@@ -143,4 +143,4 @@ spots:
       - title: "八日市・護国の町並み | 内子のおすすめ観光スポット | 内子町観光グルメ情報"
         url: "https://www.we-love-uchiko.jp/spot/preservation_district/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed

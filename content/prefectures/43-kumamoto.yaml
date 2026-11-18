@@ -35,7 +35,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/316381"
       accessed: "2026-11-18"
-  status: verified
+  status: reviewed
 specialties:
   - id: karashi-renkon
     emoji: "🥢"
@@ -54,7 +54,7 @@ specialties:
       - title: "からし蓮根 熊本県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/karashi_renkon_kumamoto.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: ikinari-dango
     emoji: "🍠"
     name: {ja: "いきなり{団子|だんご}", en: "Ikinari Dango Sweet Potato Buns", zh: "番薯团子"}
@@ -72,7 +72,7 @@ specialties:
       - title: "いきなり団子 熊本県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/ikinari_dango_kumamoto.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: taipien
     emoji: "🍜"
     name: {ja: "{太平燕|たいぴーえん}", en: "Taipien Glass Noodle Soup", zh: "太平燕"}
@@ -90,7 +90,7 @@ specialties:
       - title: "太平燕 熊本県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/taipiien_kumamoto.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
 spots:
   - id: kumamoto-jo
     emoji: "🏯"
@@ -109,7 +109,7 @@ spots:
       - title: "歴史 | 【公式】熊本城"
         url: "https://castle.kumamoto-guide.jp/history/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: aso-san
     emoji: "🌋"
     name: {ja: "{阿蘇山|あそさん}", en: "Mount Aso", zh: "阿苏山"}
@@ -127,7 +127,7 @@ spots:
       - title: "公園の特徴_阿蘇くじゅう国立公園_環境省"
         url: "https://www.env.go.jp/park/aso/point/index.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: tsujunkyo
     emoji: "🌉"
     name: {ja: "{通潤橋|つうじゅんきょう}", en: "Tsujun Bridge", zh: "通润桥"}
@@ -145,4 +145,4 @@ spots:
       - title: "通潤橋（つうじゅんきょう）の概要 / 山都町"
         url: "https://www.town.kumamoto-yamato.lg.jp/kiji0036125/index.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
