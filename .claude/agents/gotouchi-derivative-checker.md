@@ -5,7 +5,7 @@ description: >
   おとな向けの日本語と同じ事実かを確かめる（開発概要書 9.2 の④）。モードの書き分け・翻訳・ふりがなの読み・文字数も見て、
   決まった形の報告を返す。YAML は書き換えない。gotouchi-content スキルの手順④から呼ぶ。
 tools: ["Read", "Grep", "Glob", "Bash"]
-model: opus
+model: sonnet
 ---
 
 # gotouchi-derivative-checker：派生版が、おとな向けの日本語と合っているかを確かめる
