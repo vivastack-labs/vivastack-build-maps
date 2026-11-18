@@ -17,5 +17,124 @@ capital:
     zh: "佐贺市"
   lat: 33.249412
   lon: 130.298502
-specialties: []
-spots: []
+access:
+  emoji: "✈️"
+  mode: {ja: "{飛行機|ひこうき}", en: "Plane", zh: "飞机"}
+  route:
+    ja: "{羽田空港|はねだくうこう} → {九州佐賀国際空港|きゅうしゅうさがこくさいくうこう}"
+    en: "Haneda Airport → Kyushu Saga International Airport"
+    zh: "羽田机场 → 九州佐贺国际机场"
+  # ANA451便（羽田7:15発、佐賀9:15着）の所要時間。
+  durationMin: 120
+  sources:
+    - title: "時刻表・運航状況 東京（羽田）"
+      url: "https://www.pref.saga.lg.jp/airport/kiji00312891/index.html"
+      accessed: 2026-11-18
+  status: verified
+specialties:
+  - id: yobuko-squid
+    emoji: "🦑"
+    name: {ja: "{呼子|よぶこ}のイカの{活|い}き{造|づく}り", en: "Yobuko Squid Sashimi", zh: "呼子鲜鱿鱼刺身"}
+    description:
+      ja:
+        kids: "イカの{身|み}が{透|す}き{通|とお}っていて、かむとコリコリするよ。"
+        adult: "{呼子|よぶこ}では{生|い}けすから{出|だ}したイカを{手早|てばや}くさばきます。{身|み}は{透|す}き{通|とお}り、かむと{歯|は}ごたえがあります。"
+      en:
+        kids: "The squid is see-through and has a firm bite when you chew it."
+        adult: "In Yobuko, squid is lifted from a tank and prepared right away. Its flesh is translucent and firm to the bite."
+      zh:
+        kids: "鱿鱼肉看起来透亮，嚼起来脆脆的。"
+        adult: "在呼子，人们捞出暂养池里的鱿鱼后马上处理。鱿鱼肉透亮，嚼起来有脆劲。"
+    sources:
+      - title: "食べずには帰れない！佐賀の愛されグルメ"
+        url: "https://www.asobo-saga.jp/articles/detail/e396848c-7559-41f0-b188-bb0149354b97"
+        accessed: 2026-11-18
+    status: verified
+  - id: saga-beef
+    emoji: "🥩"
+    name: {ja: "{佐賀牛|さがぎゅう}", en: "Saga Beef", zh: "佐贺牛肉"}
+    description:
+      ja:
+        kids: "{赤|あか}いお{肉|にく}の{中|なか}に、{細|こま}かな{脂|あぶら}がすじのように{入|はい}っているよ。"
+        adult: "{赤身|あかみ}に{細|こま}かな{脂|あぶら}が{入|はい}った{霜降|しもふ}り{肉|にく}です。{佐賀|さが}で{育|そだ}った{黒毛和種|くろげわしゅ}のうち、{肉質|にくしつ}の{基準|きじゅん}を{満|み}たすものです。"
+      en:
+        kids: "Look for little streaks of fat running through the red meat."
+        adult: "Fine veins of fat run through the lean meat. This beef meets quality standards and comes from Japanese Black cattle raised in Saga."
+      zh:
+        kids: "红红的牛肉里有一条条细细的油脂。"
+        adult: "瘦肉中有细密的脂肪。牛肉取自佐贺饲养的日本黑毛牛，肉质须达标。"
+    sources:
+      - title: "佐賀牛について"
+        url: "https://sagagyu.jp/about/"
+        accessed: 2026-11-18
+    status: verified
+  - id: arita-ware
+    emoji: "🍽️"
+    name: {ja: "{有田焼|ありたやき}", en: "Arita Ware", zh: "有田烧"}
+    description:
+      ja:
+        kids: "{青|あお}いもようや、{色|いろ}とりどりの{絵|え}がついた{焼|や}きものがあるよ。"
+        adult: "{有田町|ありたちょう}とその{周辺|しゅうへん}で{作|つく}られる{磁器|じき}です。{藍色|あいいろ}の{模様|もよう}を{描|えが}く{染付|そめつけ}や、{何色|なんしょく}も{使|つか}う{色絵|いろえ}があります。"
+      en:
+        kids: "Look for pottery decorated with blue patterns or pictures in lots of colors."
+        adult: "Made in Arita and the surrounding area, this porcelain includes pieces with indigo patterns and others painted in several colors."
+      zh:
+        kids: "有的瓷器画着蓝色花纹，有的画着五颜六色的图案。"
+        adult: "这种瓷器产自有田町及周边地区，有靛蓝纹样，也有多色彩绘。"
+    sources:
+      - title: "有田焼(ありたやき)とは"
+        url: "https://www.arita.jp/aritaware/"
+        accessed: 2026-11-18
+    status: verified
+spots:
+  - id: yoshinogari-historical-park
+    name: {ja: "{吉野ヶ里|よしのがり}{歴史公園|れきしこうえん}", en: "Yoshinogari Historical Park", zh: "吉野里历史公园"}
+    description:
+      ja:
+        kids: "{昔|むかし}の{村|むら}のやぐらや{住|す}まいが{再現|さいげん}されているよ。"
+        adult: "{弥生時代|やよいじだい}の{集落跡|しゅうらくあと}にある{公園|こうえん}で、{物見|ものみ}やぐらや{竪穴住居|たてあなじゅうきょ}が{復元|ふくげん}されています。"
+      en:
+        kids: "See rebuilt watchtowers and homes from a village long ago."
+        adult: "The park stands on a Yayoi village site, with reconstructed watchtowers and pit dwellings."
+      zh:
+        kids: "这里复原了古村的瞭望塔和住屋。"
+        adult: "公园位于弥生时代的村落遗址，复原了瞭望塔和半地下式住屋。"
+    sources:
+      - title: "吉野ヶ里歴史公園（よしのがりれきしこうえん）"
+        url: "https://www.asobo-saga.jp/spots/detail/a7d4ec11-8a9b-4517-8cee-a9a466a436e7"
+        accessed: 2026-11-18
+    status: verified
+  - id: saga-castle-history-museum
+    name: {ja: "{佐賀城|さがじょう}{本丸|ほんまる}{歴史館|れきしかん}", en: "Saga Castle History Museum", zh: "佐贺城本丸历史馆"}
+    description:
+      ja:
+        kids: "{畳|たたみ}のろうかが45メートルも{続|つづ}くよ。"
+        adult: "{佐賀城|さがじょう}の{本丸御殿|ほんまるごてん}を{一部|いちぶ}{再現|さいげん}した{歴史館|れきしかん}です。{畳|たたみ}の{廊下|ろうか}が45メートル{続|つづ}きます。"
+      en:
+        kids: "The hallway has tatami mats and stretches for 45 meters!"
+        adult: "The museum reconstructs part of Saga Castle's main palace and has a 45-meter hallway with tatami mats."
+      zh:
+        kids: "铺着榻榻米的走廊足有45米长呢！"
+        adult: "历史馆复原了佐贺城本丸宫殿的一部分，有45米长的榻榻米走廊。"
+    sources:
+      - title: "施設案内"
+        url: "https://saga-museum.jp/sagajou/facility/index.html"
+        accessed: 2026-11-18
+    status: verified
+  - id: niji-no-matsubara
+    name: {ja: "{虹|にじ}の{松原|まつばら}", en: "Rainbow Pine Grove", zh: "虹之松原"}
+    description:
+      ja:
+        kids: "{海|うみ}のそばに{約|やく}4.5キロも{松林|まつばやし}が{続|つづ}くよ。"
+        adult: "{海岸|かいがん}に{約|やく}4.5キロ{続|つづ}く{松林|まつばやし}です。{約|やく}400{年|ねん}{前|まえ}、{風|かぜ}や{砂|すな}を{防|ふせ}ぐために{植|う}えられました。"
+      en:
+        kids: "The pine grove stretches for about 4.5 kilometers along the sea!"
+        adult: "This roughly 4.5-kilometer coastal pine grove was planted about 400 years ago to block wind and sand."
+      zh:
+        kids: "海边的这片松林绵延约4.5公里呢！"
+        adult: "海边松林绵延约4.5公里，约400年前为防风挡沙而栽植。"
+    sources:
+      - title: "虹の松原の再生・保全活動を行っています"
+        url: "https://www.city.karatsu.lg.jp/page/42113.html"
+        accessed: 2026-11-18
+    status: verified
