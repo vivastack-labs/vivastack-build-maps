@@ -17,5 +17,127 @@ capital:
     zh: "福冈市"
   lat: 33.606041
   lon: 130.417854
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {博多駅|はかたえき}"
+    en: "Tokyo Station → Hakata Station"
+    zh: "东京站 → 博多站"
+  # 東京始発の「のぞみ25号」（毎日運転）：東京 10:30 発 → 博多 15:30 着（300分。乗り換えなし）。JR時刻表2026年11月号に基づく時刻
+  durationMin: 300
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/25371"
+      accessed: "2026-11-18"
+  status: verified
+specialties:
+  - id: mizutaki
+    emoji: "🍲"
+    name: {ja: "{若鶏|わかどり}の{水炊|みずた}き", en: "Mizutaki Chicken Hot Pot", zh: "鸡肉水炊锅"}
+    description:
+      ja:
+        kids: "{鶏肉|とりにく}のスープで{野菜|やさい}を{煮|に}るなべだよ。お{祭|まつ}りでも{食|た}べるんだ。"
+        adult: "{若鶏|わかどり}を{骨|ほね}ごと{煮|に}て{取|と}ったスープで{野菜|やさい}や{豆腐|とうふ}を{煮|に}る{鍋|なべ}です。{博多祇園山笠|はかたぎおんやまかさ}の{行事|ぎょうじ}でも{食|た}べられます。"
+      en:
+        kids: "A pot of vegetables cooked in chicken soup. People eat it at a festival, too."
+        adult: "Vegetables and tofu simmered in soup from young chicken boiled on the bone. It is also eaten at Hakata Gion Yamakasa festival events."
+      zh:
+        kids: "用鸡汤煮蔬菜的火锅，节日里也会吃。"
+        adult: "用带骨嫩鸡熬成的汤煮蔬菜和豆腐的火锅，博多祇园山笠的活动中也会吃。"
+    sources:
+      - title: "若鶏の水炊き 福岡県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/wakadori_no_mizutaki_fukuoka.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: goma-saba
+    emoji: "🐟"
+    name: {ja: "{博多|はかた}の{胡麻鯖|ごまさば}", en: "Hakata Goma Saba Sesame Mackerel", zh: "博多芝麻鲭鱼"}
+    description:
+      ja:
+        kids: "{生|なま}のサバをごまのたれであえた{料理|りょうり}だよ。ごはんにのせて{食|た}べるよ。"
+        adult: "{薄|うす}めに{切|き}った{生|なま}のサバを、ごまと{醤油|しょうゆ}のたれで{和|あ}えます。ごはんにのせて{食|た}べるほか、お{茶漬|ちゃづ}けにもします。"
+      en:
+        kids: "Raw mackerel mixed with sesame sauce. People eat it on rice."
+        adult: "Thinly sliced raw mackerel tossed in a sesame and soy sauce dressing, eaten on rice or as ochazuke, rice with tea poured over it."
+      zh:
+        kids: "用芝麻酱汁拌生鲭鱼的菜，放在米饭上吃。"
+        adult: "把切得稍薄的生鲭鱼用芝麻和酱油调成的酱汁拌匀，可放在米饭上或做成茶泡饭。"
+    sources:
+      - title: "博多の胡麻鯖 福岡県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/hakatano_gomasaba_fukuoka.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: hakata-ori
+    emoji: "🧵"
+    name: {ja: "{博多織|はかたおり}", en: "Hakata-ori Textiles", zh: "博多织"}
+    description:
+      ja:
+        kids: "{厚|あつ}くてしっかりした{布|ぬの}だよ。{締|し}めてもほどけにくい{帯|おび}になるんだ。"
+        adult: "{宋|そう}から{伝|つた}わった{技法|ぎほう}がもとといわれる{絹|きぬ}の{織物|おりもの}で、{厚|あつ}く{張|は}りがあり、{締|し}めたあとほどけにくい{帯|おび}になります。"
+      en:
+        kids: "Thick, sturdy cloth for sashes. Once tied, they stay tied and do not come loose."
+        adult: "A silk textile said to be rooted in techniques from Song China. It is thick and firm, making obi sashes that stay tight."
+      zh:
+        kids: "又厚又结实的布料，做成的腰带系上后不容易松开。"
+        adult: "据说源于宋朝传来的技法的丝织品，厚实挺括，做成腰带系上后不易松开。"
+    sources:
+      - title: "博多織 | 旅の特集 | 【公式】福岡県の観光/旅行情報サイト「クロスロードふくおか」"
+        url: "https://www.crossroadfukuoka.jp/feature/traditionalcrafts/hakataori"
+        accessed: "2026-11-18"
+    status: verified
+spots:
+  - id: dazaifu-tenmangu
+    emoji: "⛩️"
+    name: {ja: "{太宰府天満宮|だざいふてんまんぐう}", en: "Dazaifu Tenmangu Shrine", zh: "太宰府天满宫"}
+    description:
+      ja:
+        kids: "{勉強|べんきょう}の{神様|かみさま}がまつられている{神社|じんじゃ}だよ。"
+        adult: "{学問|がくもん}の{神様|かみさま}とされる{菅原道真|すがわらのみちざね}の{墓所|ぼしょ}の{上|うえ}に{社殿|しゃでん}が{建|た}つ{神社|じんじゃ}です。"
+      en:
+        kids: "A shrine for the god of learning and study."
+        adult: "This shrine's buildings stand over the grave of Sugawara no Michizane, revered as the god of learning."
+      zh:
+        kids: "这是供奉学问之神的神社。"
+        adult: "这座神社的社殿建在被奉为学问之神的菅原道真的墓上。"
+    sources:
+      - title: "御由緒｜太宰府天満宮"
+        url: "https://www.dazaifutenmangu.or.jp/about/goyuisho"
+        accessed: "2026-11-18"
+    status: verified
+  - id: yanagawa-kawakudari
+    emoji: "🛶"
+    name: {ja: "{柳川|やながわ}の{川下|かわくだ}り", en: "Yanagawa Canal Cruise", zh: "柳川游船"}
+    description:
+      ja:
+        kids: "{小|ちい}さな{舟|ふね}に{乗|の}って、{町|まち}の{水路|すいろ}をめぐるよ。"
+        adult: "{船頭|せんどう}が{竿|さお}で{操|あやつ}る{舟|ふね}に{乗|の}り、{人々|ひとびと}が{掘|ほ}って{作|つく}った{水路|すいろ}「{掘割|ほりわり}」をめぐります。"
+      en:
+        kids: "Ride a small boat along the waterways of the town."
+        adult: "Ride a boat steered with a pole by a boatman along the horiwari, canals dug by local people."
+      zh:
+        kids: "坐上小船，游览小镇的水路。"
+        adult: "乘坐船夫用篙撑行的小船，游览当地人挖成的水路“掘割”。"
+    sources:
+      - title: "川下り(お堀めぐり) | 柳川市観光公式サイト"
+        url: "https://www.yanagawa-net.com/ohori/"
+        accessed: "2026-11-18"
+    status: verified
+  - id: mojiko-retro
+    emoji: "⚓"
+    name: {ja: "{門司港|もじこう}レトロ", en: "Mojiko Retro", zh: "门司港怀旧区"}
+    description:
+      ja:
+        kids: "{古|ふる}い{建物|たてもの}が{残|のこ}る、{昔|むかし}の{港町|みなとまち}だよ。"
+        adult: "{明治|めいじ}から{昭和|しょうわ}の{初|はじ}めに{建|た}てられた{建物|たてもの}が{残|のこ}る、{貿易|ぼうえき}で{栄|さか}えた{港町|みなとまち}です。"
+      en:
+        kids: "An old port town where historic buildings still stand."
+        adult: "A port town that thrived on trade, with buildings from the Meiji to early Showa eras still standing."
+      zh:
+        kids: "保留着老建筑的昔日港口小镇。"
+        adult: "因贸易而繁荣的港口城镇，保留着明治至昭和初期建造的建筑。"
+    sources:
+      - title: "門司港レトロについて/門司港レトロインフォメーション"
+        url: "https://www.mojiko.info/about/index.html"
+        accessed: "2026-11-18"
+    status: verified
