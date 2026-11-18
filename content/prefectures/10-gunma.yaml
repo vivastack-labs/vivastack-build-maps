@@ -17,5 +17,127 @@ capital:
     zh: "前桥市"
   lat: 36.390862
   lon: 139.060307
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {高崎駅|たかさきえき}"
+    en: "Tokyo Station → Takasaki Station"
+    zh: "东京站 → 高崎站"
+  # とき315号：東京10:15発、高崎11:03着。JR東日本2026年11月時刻表。
+  durationMin: 48
+  sources:
+    - title: "時刻表　停車駅一覧（新幹線とき 315号（東京－新潟））：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/train/085/087491.html"
+      accessed: "2026-11-19"
+  status: verified
+specialties:
+  - id: okkirikomi
+    emoji: "🍜"
+    name: {ja: "おっきりこみ", en: "Okkirikomi", zh: "群马宽面锅"}
+    description:
+      ja:
+        kids: "{幅|はば}の{広|ひろ}い{麺|めん}を{野菜|やさい}やきのこと{煮込|にこ}む、{群馬|ぐんま}の{料理|りょうり}だよ。"
+        adult: "{群馬|ぐんま}の{家庭|かてい}で{親|した}しまれる{煮込|にこ}み{料理|りょうり}です。{幅広|はばひろ}の{小麦|こむぎ}{麺|めん}に{野菜|やさい}やきのこが{入|はい}り、{味付|あじつ}けは{家|いえ}ごとに{違|ちが}います。"
+      en:
+        kids: "A Gunma dish of wide noodles simmered with vegetables and mushrooms."
+        adult: "A Gunma noodle dish with wide wheat noodles simmered with vegetables and mushrooms. Seasonings vary from home to home."
+      zh:
+        kids: "群马的料理，把宽面条和蔬菜、蘑菇一起炖煮。"
+        adult: "群马的面食，将小麦宽面与蔬菜和蘑菇一起炖煮，调味因家庭而异。"
+    sources:
+      - title: "おきりこみ／おっきりこみ 群馬県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/32_1_gunma.html"
+        accessed: "2026-11-19"
+    status: draft
+  - id: yaki-manju
+    emoji: "🍡"
+    name: {ja: "{焼|や}きまんじゅう", en: "Yaki Manju", zh: "烤馒头"}
+    description:
+      ja:
+        kids: "{焼|や}いたまんじゅうを{甘|あま}いみそだれで{食|た}べるよ。お{祭|まつ}りの{屋台|やたい}にもあるよ。"
+        adult: "{群馬|ぐんま}の{祭|まつ}りの{屋台|やたい}にも{並|なら}ぶおやつです。まんじゅうは{串|くし}に{刺|さ}して{焼|や}き、{甘|あま}い{味噌|みそ}だれで{味|あじ}わいます。"
+      en:
+        kids: "Grilled buns are eaten with sweet miso (soybean paste) sauce and sold at festival stalls."
+        adult: "A Gunma snack of grilled skewered buns with sweet miso, or soybean paste, sauce, also sold at festival stalls."
+      zh:
+        kids: "烤馒头配甜味噌酱吃，祭典的摊位上也有卖。"
+        adult: "群马的小吃，把馒头串起来烤，配甜味噌酱吃，在祭典摊位也能买到。"
+    sources:
+      - title: "焼きまんじゅう 群馬県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/32_26_gunma.html"
+        accessed: "2026-11-19"
+    status: verified
+  - id: konnyaku-miso-oden
+    emoji: "🍢"
+    name: {ja: "こんにゃく{味噌|みそ}おでん", en: "Konnyaku Miso Oden", zh: "味噌魔芋关东煮"}
+    description:
+      ja:
+        kids: "ゆでたこんにゃくをみそだれで{食|た}べるよ。{冬|ふゆ}によく{作|つく}られるんだ。"
+        adult: "{群馬|ぐんま}で{冬|ふゆ}によく{作|つく}る{郷土|きょうど}{料理|りょうり}です。ゆでたこんにゃくを{味噌|みそ}だれで{楽|たの}しみ、たれの{味|あじ}は{家庭|かてい}によって{様々|さまざま}です。"
+      en:
+        kids: "Boiled konnyaku jelly is eaten with miso (soybean paste) sauce, often made in winter."
+        adult: "A Gunma dish often made in winter: boiled konnyaku jelly with miso (soybean paste) sauce, whose flavor varies by household."
+      zh:
+        kids: "把煮熟的魔芋蘸味噌酱吃，冬天经常做。"
+        adult: "群马冬天常做的乡土料理，煮熟的魔芋配味噌酱，酱汁因家庭而异。"
+    sources:
+      - title: "こんにゃく味噌おでん 群馬県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/32_23_gunma.html"
+        accessed: "2026-11-19"
+    status: draft
+spots:
+  - id: tomioka-silk-mill
+    emoji: "🏭"
+    name: {ja: "{富岡製糸場|とみおかせいしじょう}", en: "Tomioka Silk Mill", zh: "富冈制丝厂"}
+    description:
+      ja:
+        kids: "{繭|まゆ}から{糸|いと}を{取|と}る{機械|きかい}があった、{昔|むかし}の{工場|こうじょう}だよ。"
+        adult: "1872{年|ねん}に{開|ひら}いた{製糸|せいし}{工場|こうじょう}です。{繭|まゆ}から{生糸|きいと}を{取|と}る{機械|きかい}があり、{技術|ぎじゅつ}{者|しゃ}を{育|そだ}てました。"
+      en:
+        kids: "An old factory that had machines to draw silk thread from cocoons."
+        adult: "Opened in 1872, this silk mill used machines to draw raw silk from cocoons and trained technicians."
+      zh:
+        kids: "过去的工厂，曾用机器从蚕茧中抽丝。"
+        adult: "1872年开工的制丝厂，用机器抽取生丝并培养技术人员。"
+    sources:
+      - title: "富岡製糸場を知る | しるくるとみおか 富岡市観光公式ホームページ"
+        url: "https://www.tomioka-silk.jp/_tomioka-silk-mill/about/"
+        accessed: "2026-11-19"
+    status: verified
+  - id: kusatsu-yubatake
+    emoji: "♨️"
+    name: {ja: "{草津温泉|くさつおんせん}の{湯畑|ゆばたけ}", en: "Kusatsu Yubatake", zh: "草津温泉汤畑"}
+    description:
+      ja:
+        kids: "お{湯|ゆ}が{湧|わ}く{場所|ばしょ}だよ。{外|そと}の{空気|くうき}でお{湯|ゆ}を{冷|さ}ますよ。"
+        adult: "{草津|くさつ}の{湯畑|ゆばたけ}では{温泉|おんせん}が{湧|わ}き{出|で}します。{湯|ゆ}を{湯樋|ゆどい}に{流|なが}し、{外|そと}の{空気|くうき}で{冷|さ}ます{仕組|しく}みです。"
+      en:
+        kids: "Hot spring water rises here and is cooled by outside air."
+        adult: "At Kusatsu's Yubatake, hot spring water flows through channels and cools in the open air."
+      zh:
+        kids: "这里的温泉水涌出后，用外面的空气冷却。"
+        adult: "草津温泉的汤畑涌出温泉水，水流经导水槽，在室外空气中冷却。"
+    sources:
+      - title: "Route 3 草津温泉周遊（20～21ページ）：群馬県"
+        url: "https://www.pref.gunma.jp/uploaded/attachment/40545.pdf"
+        accessed: "2026-11-19"
+    status: verified
+  - id: fukiware-falls
+    emoji: "💧"
+    name: {ja: "{吹割|ふきわれ}の{滝|たき}", en: "Fukiware Falls", zh: "吹割瀑布"}
+    description:
+      ja:
+        kids: "{岩|いわ}が{割|わ}れたような{滝|たき}。{冬|ふゆ}はしばらく{見|み}られないよ。"
+        adult: "{岩|いわ}が{割|わ}れたような{姿|すがた}から{名|な}づけられた{滝|たき}です。{冬|ふゆ}の{一定|いってい}{期間|きかん}は{見学|けんがく}できません。"
+      en:
+        kids: "This rock-splitting waterfall closes for part of winter."
+        adult: "This waterfall is named for its rock-splitting appearance. It closes to visitors for part of winter."
+      zh:
+        kids: "瀑布仿佛劈开岩石，冬季部分时间关闭。"
+        adult: "瀑布因如同劈开岩石的样子而得名，冬季部分时间关闭。"
+    sources:
+      - title: "吹割の滝 | 自然 | 沼田市観光協会"
+        url: "https://numata-kankou.jp/fukiwarenotaki/index.html"
+        accessed: "2026-11-19"
+    status: draft
