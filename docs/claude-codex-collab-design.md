@@ -29,7 +29,7 @@
 | 並行作業 | 県ごとに worktree（`vivastack-build-maps.wt/hiroshima` など）。メインのセッションが背景のエージェントに任せる | Claude が止まると全部の worktree が同時に止まる。worktree ごとに引き継ぐ |
 | スキル | `next-task`・`gotouchi-content` は `.claude/skills/` と `.agents/skills/` の両方にある（D22） | Codex は引き継いだ後も `.agents/skills/` の手順に従う（Claude のスキルは参照だけ） |
 | エージェント | Claude：`.claude/agents/`。Codex：`.codex/agents/` に `gotouchi-source-checker`・`gotouchi-derivative-checker`・`code-reviewer`・`security-reviewer`・`task-implementer`・`general-purpose` | 引き継いだ側が②④・レビューを自分のエージェントで行う。「Claude に戻ってからやること」は作らない |
-| 実装計画 | Claude：`.claude/PRPs/plans/`。Codex：`.codex/plans/`（Codex の `next-task` は Claude 側に書き込まない） | 引き継いだタスクの計画の扱いは 6.2 の4 |
+| 実装計画 | Claude：`.claude/PRPs/plans/`。Codex：`.codex/plans/`（Codex の `next-task` は Claude 側に書き込まない。引き継いだタスクだけは例外） | 引き継いだタスクの計画は、元の場所のまま Codex が更新する（6.2 の4） |
 | Codex の hooks | `.codex/hooks.json` → `run.js`（`.claude/hooks/scripts/` を再利用）。`--no-verify`・force push の拒否、gitleaks、設定ファイルの保護 | **security-trigger がまだ無い**。Codex が単独でコミットする前提なので、足すことを導入の条件にする（9章） |
 | セッションの記録 | Claude：`~/.claude/vivastack-cc-workflows/sessions/`、会話は `~/.claude/projects/<パス>/*.jsonl`（各行に `cwd`・`gitBranch`）。Codex：`.codex/hooks/state/sessions/` | Codex は Claude の記録を読まない。これが今の引き継ぎの穴（逆向きは要らない） |
 | 既存のコマンド | `save-session`・`resume-session`（保存先が `~/.claude/`。Claude 同士の再開用） | 新しいコマンドは `/handoff` にする |

@@ -16,6 +16,9 @@ Codex の実装・レビューのルールは `.codex/rules/index.md` と該当�
 Claude 側は参照だけにし、新しい計画は `.codex/plans/` へ保存する。
 状態判定には既存の2つのスクリプトを読み取り専用の資源として再利用する。
 スクリプト自体を変更せず、Claude の設定・計画・状態へは書き込まない。
+例外として、Claude Code から引き継いだタスク（`.handoff/HANDOFF.md` の持ち主が `codex`）の
+計画だけは、`.claude/PRPs/plans/` の元の場所のまま更新する（1タスクの計画を2つにしないため。
+`docs/claude-codex-collab-design.md` 6.2）。
 
 ## 1. main を最新にする
 
@@ -74,7 +77,8 @@ python3 -I .claude/skills/next-task/scripts/task_status.py
 Next.jsを触るならインストール版の同梱ドキュメントも読む。
 
 `.codex/plans/<タスクID>-<slug>.plan.md` に次を書く。過去の Claude 側の計画は参考に
-読めるが、新規作成も既存計画の更新も Codex 側へ保存する。
+読めるが、新規作成も既存計画の更新も Codex 側へ保存する。ただし Claude Code から
+引き継いだタスクは、`.claude/PRPs/plans/` の計画をその場所のまま更新し、写しを作らない。
 
 - 先に書くテスト：ファイル・テスト名・要件IDと、タスクの各テスト条件との対応
 - 作る／変えるファイルと順番
