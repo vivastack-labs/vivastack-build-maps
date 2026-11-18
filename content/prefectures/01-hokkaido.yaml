@@ -17,5 +17,130 @@ capital:
     zh: "札幌市"
   lat: 43.064585
   lon: 141.346804
-specialties: []
-spots: []
+access:
+  emoji: "✈️"
+  mode: {ja: "{飛行機|ひこうき}・{快速列車|かいそくれっしゃ}", en: "Plane and rapid train", zh: "飞机和快速列车"}
+  route:
+    ja: "{羽田空港|はねだくうこう} → {新千歳空港|しんちとせくうこう} → {札幌駅|さっぽろえき}"
+    en: "Haneda Airport → New Chitose Airport → Sapporo Station"
+    zh: "羽田机场 → 新千岁机场 → 札幌站"
+  # 飛行機約100分と快速エアポート最速37分の合計。乗り継ぎ・待ち時間は含まない。
+  durationMin: 137
+  sources:
+    - title: "札幌（新千歳空港）発着の飛行機・航空券 | 運航路線・就航地 | 旅行の計画 | 北海道発着の飛行機予約・空席照会｜AIRDO（エア・ドゥ）"
+      url: "https://www.airdo.jp/plan/destinations/sapporo/"
+      accessed: "2026-11-18"
+    - title: "札幌↔新千歳空港間 快速「エアポート」最速37分／特別快速「エアポート」最速33分｜JR北海道- Hokkaido Railway Company"
+      url: "https://www.jrhokkaido.co.jp/airport/"
+      accessed: "2026-11-18"
+  status: verified
+specialties:
+  - id: jingisukan
+    emoji: "🥩"
+    name: {ja: "ジンギスカン", en: "Jingisukan", zh: "成吉思汗烤肉"}
+    description:
+      ja:
+        kids: "{羊|ひつじ}の{肉|にく}と{野菜|やさい}を{焼|や}いて{食|た}べるよ。まん{中|なか}が{高|たか}い{鍋|なべ}も{使|つか}うんだ。"
+        adult: "{羊肉|ひつじにく}と{野菜|やさい}を{焼|や}いて{食|た}べる{料理|りょうり}で、{中央|ちゅうおう}が{盛|も}り{上|あ}がった{専用|せんよう}の{鍋|なべ}を{使|つか}うこともあります。"
+      en:
+        kids: "Sheep meat and vegetables are grilled, sometimes on a pan raised in the middle."
+        adult: "Jingisukan is grilled mutton or lamb and vegetables, sometimes cooked on a special pan raised in the middle."
+      zh:
+        kids: "把羊肉和蔬菜烤着吃，有时用中间凸起的锅。"
+        adult: "把羊肉和蔬菜烤着吃，有时会使用中央凸起的专用锅。"
+    sources:
+      - title: "ジンギスカン／成吉思汗 北海道 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/jingisukan_hokkaido.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: ishikari-nabe
+    emoji: "🍲"
+    name: {ja: "{石狩鍋|いしかりなべ}", en: "Ishikari Nabe", zh: "石狩锅"}
+    description:
+      ja:
+        kids: "さけと{野菜|やさい}をこんぶのだしで{煮|に}て、みそで{味|あじ}をつける{鍋|なべ}だよ。"
+        adult: "{石狩|いしかり}{地方|ちほう}の{漁師|りょうし}{料理|りょうり}とされ、{鮭|さけ}と{野菜|やさい}を{昆布|こんぶ}だしで{煮|に}て{味噌|みそ}で{味付|あじつ}けする{鍋|なべ}です。"
+      en:
+        kids: "A hot pot of salmon and vegetables simmered in kelp stock and seasoned with miso."
+        adult: "A hot pot said to originate with Ishikari fishermen, simmering salmon and vegetables in kelp stock seasoned with miso."
+      zh:
+        kids: "用海带汤煮鲑鱼和蔬菜，再用味噌调味的火锅。"
+        adult: "据说源于石狩地区渔民，用海带汤煮鲑鱼和蔬菜，再以味噌调味的火锅。"
+    sources:
+      - title: "石狩鍋 北海道 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/ishikarinabe_hokkaido.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: chanchan-yaki
+    emoji: "🐟"
+    name: {ja: "{鮭|さけ}のちゃんちゃん{焼|や}き", en: "Salmon Chanchan-yaki", zh: "鲑鱼酱烧"}
+    description:
+      ja:
+        kids: "さけと{季節|きせつ}の{野菜|やさい}をいっしょに{蒸|む}し{焼|や}きにして、みそで{味|あじ}をつけるよ。"
+        adult: "{石狩|いしかり}{地方|ちほう}に{伝|つた}わる{料理|りょうり}で、みそ{味|あじ}のさけと{季節|きせつ}の{野菜|やさい}を{一緒|いっしょ}に{蒸|む}し{焼|や}きにします。"
+      en:
+        kids: "Salmon and seasonal vegetables are steamed and grilled together, then seasoned with miso."
+        adult: "A regional Ishikari dish of salmon and seasonal vegetables steamed and grilled together, seasoned with miso."
+      zh:
+        kids: "把鲑鱼和时令蔬菜一起焖烤，再用味噌调味。"
+        adult: "石狩地区的乡土料理，把鲑鱼和时令蔬菜焖烤，再用味噌调味。"
+    sources:
+      - title: "鮭のチャンチャン焼き 北海道 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/sakenochanchanyaki_hokkaido.html"
+        accessed: "2026-11-18"
+    status: verified
+spots:
+  - id: mount-hakodate
+    emoji: "🌃"
+    name: {ja: "{函館山|はこだてやま}", en: "Mount Hakodate", zh: "函馆山"}
+    description:
+      ja:
+        kids: "{山|やま}の{上|うえ}から、{海|うみ}にはさまれたまちの{夜景|やけい}を{見|み}られるよ。"
+        adult: "ロープウェイで{山頂|さんちょう}へ{上|あ}がると、{海|うみ}に{挟|はさ}まれた{函館|はこだて}の{街|まち}の{夜景|やけい}を{眺|なが}められます。"
+      en:
+        kids: "From the summit, see the night lights of a city between the seas."
+        adult: "Take the ropeway to the summit for a night view of Hakodate between the seas."
+      zh:
+        kids: "从山顶可以看到夹在海之间的城市夜景。"
+        adult: "乘缆车登上山顶，可眺望夹在海之间的函馆市区夜景。"
+    sources:
+      - title: "函館山山頂展望台｜観光スポット｜【公式】北海道の観光・旅行情報サイト HOKKAIDO LOVE!"
+        url: "https://www.visit-hokkaido.jp/spot/detail_10033.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: blue-pond
+    emoji: "💧"
+    name: {ja: "{白金|しろがね}{青|あお}い{池|いけ}", en: "Shirogane Blue Pond", zh: "白金青池"}
+    description:
+      ja:
+        kids: "{青|あお}い{池|いけ}に{木|き}が{立|た}ち、{冬|ふゆ}には{雪|ゆき}におおわれるよ。"
+        adult: "{火山|かざん}{泥流|でいりゅう}を{防|ふせ}ぐ{工事|こうじ}でできた{池|いけ}です。{青|あお}い{水|みず}に{枯|か}れ{木|き}が{立|た}ち、{冬|ふゆ}には{雪|ゆき}に{覆|おお}われます。"
+      en:
+        kids: "Trees stand in the blue pond, which is covered in snow in winter."
+        adult: "Created by work to prevent volcanic mudflows, this blue pond has dead trees and is snow-covered in winter."
+      zh:
+        kids: "蓝色池水中立着树木，冬天会被雪覆盖。"
+        adult: "防火山泥流的工程形成了蓝色池塘，水中立着枯树，冬天覆雪。"
+    sources:
+      - title: "白金青い池｜観光スポット｜【公式】北海道の観光・旅行情報サイト HOKKAIDO LOVE!"
+        url: "https://www.visit-hokkaido.jp/spot/detail_10511.html"
+        accessed: "2026-11-18"
+    status: draft
+  - id: shiretoko-five-lakes
+    emoji: "🏞️"
+    name: {ja: "{知床五湖|しれとこごこ}", en: "Shiretoko Five Lakes", zh: "知床五湖"}
+    description:
+      ja:
+        kids: "{森|もり}の{中|なか}に{五|いつ}つの{湖|みずうみ}があるよ。{冬|ふゆ}はお{休|やす}みだよ。"
+        adult: "{原生林|げんせいりん}の{中|なか}に{五|いつ}つの{湖|みずうみ}があり、{湖面|こめん}に{山々|やまやま}が{映|うつ}ります。{冬|ふゆ}は{閉園|へいえん}します。"
+      en:
+        kids: "Five lakes lie in a forest. The park is closed in winter."
+        adult: "Five lakes in an old-growth forest reflect mountains. The park closes in winter."
+      zh:
+        kids: "森林里有五个湖，冬天闭园。"
+        adult: "原始森林中有五个湖，湖面映出群山，冬天闭园。"
+    sources:
+      - title: "知床五湖｜観光スポット｜【公式】北海道の観光・旅行情報サイト HOKKAIDO LOVE!"
+        url: "https://www.visit-hokkaido.jp/spot/detail_10404.html"
+        accessed: "2026-11-18"
+    status: draft
