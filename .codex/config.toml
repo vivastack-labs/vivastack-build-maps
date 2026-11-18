@@ -1,6 +1,13 @@
 # Claude Code 側の .mcp.json と同じ補助ツール。バージョン変更時は両方を揃える。
 # 信頼済みのプロジェクトでのみ読み込まれる。認証情報は記載しない。
 # ライフサイクル hooks は隣の hooks.json。利用前に /hooks で確認・信頼する。
+developer_instructions = """
+このリポジトリでは AGENTS.md の共通規約に加え、作業の前に .codex/rules/index.md を読み、
+作業に該当する Codex 用ルールを読む。Claude 側の資源は参照だけにし、変更しない。
+next-task は .agents/skills/next-task/SKILL.md、役割の定義は .codex/agents/*.toml を使う。
+Claude 用のツール名・モデル名・保存先を、そのまま Codex で実行しない。
+"""
+
 [mcp_servers.context7]
 command = "npx"
 args = ["-y", "@upstash/context7-mcp@2.1.8"]

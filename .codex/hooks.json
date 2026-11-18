@@ -1,12 +1,21 @@
 {
-  "description": "CostLens: Claude hooks の共通処理を Codex のイベント形式で利用する。",
+  "description": "ご当地めいぶつ日本地図: Claude hooks を変更せず、Codex のイベント形式で利用する。",
   "hooks": {
-    "SessionStart": [{ "hooks": [{ "type": "command", "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/run.js\"", "timeout": 10, "statusMessage": "Loading CostLens session context" }] }],
-    "PreToolUse": [{ "matcher": "Bash|apply_patch|Edit|Write|MultiEdit", "hooks": [{ "type": "command", "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/run.js\"", "timeout": 15, "statusMessage": "Checking repository guards" }] }],
+    "SessionStart": [
+      { "hooks": [{ "type": "command", "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/run.js\"", "timeout": 15, "statusMessage": "セッションの作業情報を読み込み中" }] }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|apply_patch|Edit|Write|MultiEdit",
+        "hooks": [{ "type": "command", "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/run.js\"", "timeout": 15, "statusMessage": "Checking repository guards" }]
+      }
+    ],
     "PostToolUse": [{ "hooks": [{ "type": "command", "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/run.js\"", "timeout": 30, "statusMessage": "Checking edited files" }] }],
     "PreCompact": [{ "hooks": [{ "type": "command", "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/run.js\"", "timeout": 10 }] }],
     "PostCompact": [{ "hooks": [{ "type": "command", "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/run.js\"", "timeout": 10 }] }],
-    "Stop": [{ "hooks": [{ "type": "command", "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/run.js\"", "timeout": 60, "statusMessage": "Saving session and checking files" }] }],
+    "Stop": [
+      { "hooks": [{ "type": "command", "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/run.js\"", "timeout": 270, "statusMessage": "編集ファイルの整形・検査と作業情報の保存" }] }
+    ],
     "SessionEnd": [{ "hooks": [{ "type": "command", "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/run.js\"", "timeout": 3 }] }],
     "PermissionRequest": [{ "hooks": [{ "type": "command", "command": "node \"$(git rev-parse --show-toplevel)/.codex/hooks/run.js\"", "timeout": 10 }] }]
   }

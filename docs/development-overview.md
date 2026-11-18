@@ -953,10 +953,10 @@ flowchart TB
 
 | 手順 | 担当 | 使うもの |
 |---|---|---|
-| ①〜④ | Claude Code | `.claude/` 以下のスキル `gotouchi-content`（①③と全体の流れ）と、検証用のサブエージェント `gotouchi-source-checker`（②）・`gotouchi-derivative-checker`（④） |
-| ⑤⑥ | Claude Code / GitHub Actions | PR、CI、プレビューURL |
+| ①〜④ | Claude Code / Codex | `gotouchi-content`（①③と全体の流れ。Claude Code：`.claude/skills/`、Codex：`.agents/skills/`）と、`gotouchi-source-checker`（②）・`gotouchi-derivative-checker`（④。Claude Code：`.claude/agents/`、Codex：`.codex/agents/`） |
+| ⑤⑥ | Claude Code / Codex / GitHub Actions | PR、CI、プレビューURL |
 | ⑦ | コンテンツレビュアー（チームメンバー） | プレビューURL、PRのSuggested changesと承認 |
-| ⑧ | オーナー | レビュアーの承認の後、同じPRで `status` を `verified` から `reviewed` にするコミットを足し（Claude Code に頼んでもよい）、PRをmerge する |
+| ⑧ | オーナー | レビュアーの承認の後、同じPRで `status` を `verified` から `reviewed` にするコミットを足し（Claude Code / Codex に頼んでもよい）、PRをmerge する |
 
 ### 9.3 執筆ルール
 
@@ -1379,7 +1379,7 @@ flowchart LR
 | U8 | ~~basePathを指定したときの静的出力の構成~~ | 決定（D29）：第6章 6.4 | — |
 | U9 | ~~政令指定都市の区がN03に区単位で入っているか~~ | 決定（D31）：第8章 8.2 | — |
 | U10 | ~~総務省コードと国土地理院データの利用条件~~ | 決定（D32）：第8章 8.1 | — |
-| U11 | ~~コンテンツ生成用スキルの置き場所~~ | 決定（D22）：リポジトリ直下の `.claude/skills/` と `.claude/agents/` | — |
+| U11 | ~~コンテンツ生成用スキルの置き場所~~ | 決定（D22）：Claude Code は `.claude/skills/` と `.claude/agents/`、Codex は `.agents/skills/` と `.codex/agents/` | — |
 | U12 | ~~市区町村名のローマ字の書き方~~ | 決定（D33）：第7章 7.4.1 | — |
 | U13 | ~~Service Worker のツール~~ | 決定（D41）：workbox-build の `generateSW`。第5章 5.4 | — |
 | U14 | ~~GitHub のプランの制約（private・Free ではブランチ保護と Environments を使えない）~~ | 決定（D44）：リポジトリを public にした。`main` はルールセット2つで守る。第11章 11.5 | — |
@@ -1413,7 +1413,7 @@ flowchart LR
 | D19 | リポジトリ | `vivastack-labs/vivastack-build-maps`（単独リポジトリ。直下がアプリ本体） |
 | D20 | プレビューの保護 | ~~Cloudflare Access~~ → D46 で取りやめ |
 | D21 | アクセス解析 | Cloudflare Web Analytics |
-| D22 | コンテンツ生成用スキルの置き場所 | リポジトリ直下の `.claude/skills/`（生成）と `.claude/agents/`（検証）。既存のスキル・エージェントと名前が重ならないようにする |
+| D22 | コンテンツ生成用スキルの置き場所 | リポジトリ直下で、Claude Code は `.claude/skills/`（生成）と `.claude/agents/`（検証）、Codex は `.agents/skills/`（生成）と `.codex/agents/`（検証）を使う。各環境の gotouchi-content が①〜④を進め、検証を通った項目を verified にする。reviewed は人の承認後にオーナーが変更する |
 | D23 | モード・ふりがなの初期表示とCSP | `<head>` の小さなインラインスクリプトで、描画の前に localStorage の値を `<html>` に反映し、切替はCSSだけで行う。インラインスクリプトは、ビルド後に集めたSHA-256をCSPに書き込んで許可する（6.6） |
 | D24 | 都道府県の地図とカードの内容 | ビルド時にHTMLに出力する（地図はSVGのパス、カードはサーバーコンポーネント。サーバーコンポーネントの結果はHTMLの本体とRSCのデータに1回ずつ入る）。JSは表示の切替だけを行う。市区町村は実行時に読み込む。M3でサイズを実測した結果、基準値を超えたので、カードの内容（行き方・名物・名所・出典）は県ごとのJSONに切り替えた（D38、6.6 (2)） |
 | D25 | 対応環境 | PC（Chrome / Edge / Firefox / Safari）、学校の端末（ChromeOS・iPadOS・Windows）、スマホ、タブレット。原則として最新版と1つ前の版（Android Chrome は最新版）。画面幅360px以上。CIで確認し、学校の端末・スマホ・タブレットは公開前に実機でも確認する（5.3） |
