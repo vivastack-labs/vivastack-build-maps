@@ -17,5 +17,135 @@ capital:
     zh: "高知市"
   lat: 33.559694
   lon: 133.530753
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}と{特急|とっきゅう}", en: "Shinkansen and limited express", zh: "新干线和特快列车"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {岡山駅|おかやまえき} → {高知駅|こうちえき}"
+    en: "Tokyo Station → Okayama Station → Kochi Station"
+    zh: "东京站 → 冈山站 → 高知站"
+  # 東京始発の「のぞみ25号」（毎日運転）：東京 10:30 発 → 岡山 13:47 着。岡山で特急「南風13号」（43D。毎日運転）に乗り換え：
+  # 岡山 14:05 発 → 高知 16:39 着。東京 10:30 発から高知 16:39 着まで369分（乗り換えの待ち時間18分を含む）。
+  # JR時刻表2026年11月号に基づく時刻
+  durationMin: 369
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/25371"
+      accessed: "2026-11-18"
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/150771"
+      accessed: "2026-11-18"
+  status: verified
+specialties:
+  - id: katsuo-no-tataki
+    emoji: "🐟"
+    name: {ja: "かつおのたたき", en: "Katsuo no Tataki Seared Bonito", zh: "炙烤鲣鱼"}
+    description:
+      ja:
+        kids: "カツオをあぶって{切|き}り、{塩|しお}でたたいてからたれをかける{料理|りょうり}だよ。"
+        adult: "カツオをあぶって{厚|あつ}く{切|き}り、{塩|しお}で{叩|たた}いてからたれをかけます。{名前|なまえ}は{叩|たた}く{工程|こうてい}からといわれます。"
+      en:
+        kids: "Bonito is seared, sliced, and patted with salt before sauce goes on."
+        adult: "Bonito is seared, cut into thick slices, patted with salt, and topped with sauce. The name, tataki, is said to come from this patting."
+      zh:
+        kids: "把鲣鱼烤一下再切开，用盐拍打后浇上酱汁。"
+        adult: "将鲣鱼炙烤后切成厚片，撒盐拍打再浇上酱汁。据说日文名来自“拍打”。"
+    sources:
+      - title: "かつおのたたき 高知県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/katuonotataki_kochi.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: sawachi-ryori
+    emoji: "🍱"
+    name: {ja: "{皿鉢料理|さわちりょうり}", en: "Sawachi Platter Feast", zh: "皿钵料理"}
+    description:
+      ja:
+        kids: "{大|おお}きなお{皿|さら}にいろいろな{料理|りょうり}をもりつけるよ。{宴会|えんかい}で{食|た}べるんだ。"
+        adult: "{大皿|おおざら}に{刺身|さしみ}やすし、{煮物|にもの}などを{盛|も}り{合|あ}わせる{料理|りょうり}の{形|かたち}で、「おきゃく」と{呼|よ}ぶ{宴会|えんかい}に{欠|か}かせません。"
+      en:
+        kids: "Many kinds of food are arranged on a big plate and eaten at parties."
+        adult: "A style of serving sashimi, sushi, simmered dishes, and more on large platters, essential at the banquets called okyaku."
+      zh:
+        kids: "在大盘子里盛上各种菜，是宴会上吃的。"
+        adult: "用大盘拼盛生鱼片、寿司、炖菜等，是称为“okyaku”的宴会上不可少的料理。"
+    sources:
+      - title: "皿鉢料理 高知県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/sawachiryori_kochi.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: monobe-yuzu
+    emoji: "🍋"
+    name: {ja: "{物部|ものべ}ゆず", en: "Monobe Yuzu Citrus", zh: "物部柚子"}
+    description:
+      ja:
+        kids: "{香美市|かみし}の、{見|み}た{目|め}がきれいなゆずだよ。{10月|じゅうがつ}から{黄色|きいろ}くなるよ。"
+        adult: "{香美市|かみし}で{作|つく}られる{青果用|せいかよう}のゆずで、{傷|きず}の{少|すく}ない{美|うつく}しい{外見|がいけん}に{特長|とくちょう}があります。{10月|じゅうがつ}{以降|いこう}に{黄色|きいろ}く{色|いろ}づきます。"
+      en:
+        kids: "Pretty yuzu citrus from Kami City. They turn yellow from October."
+        adult: "Yuzu citrus grown in Kami City to be sold fresh, known for a beautiful skin with few blemishes. They turn yellow from October on."
+      zh:
+        kids: "香美市产的漂亮日本柚子，十月以后会变黄。"
+        adult: "香美市种植的鲜食用日本柚子，特点是伤痕少、外观美。十月以后会变成黄色。"
+    sources:
+      - title: "第96号：物部ゆず：農林水産省"
+        url: "https://www.maff.go.jp/j/shokusan/gi_act/register/0096/index.html"
+        accessed: "2026-11-18"
+    status: verified
+spots:
+  - id: kochi-jo
+    emoji: "🏯"
+    name: {ja: "{高知城|こうちじょう}", en: "Kochi Castle", zh: "高知城"}
+    description:
+      ja:
+        kids: "{江戸時代|えどじだい}の{建物|たてもの}がそのまま{残|のこ}るお{城|しろ}だよ。"
+        adult: "{天守|てんしゅ}や{本丸御殿|ほんまるごてん}など、{本丸|ほんまる}の{建物|たてもの}が{江戸時代|えどじだい}のまますべて{残|のこ}る{唯一|ゆいいつ}の{城|しろ}です。"
+      en:
+        kids: "A castle whose Edo-period buildings still stand today."
+        adult: "The only castle where all main-compound buildings, including the keep and palace, survive from the Edo period."
+      zh:
+        kids: "江户时代的建筑原样保留下来的城。"
+        adult: "天守和本丸御殿等本丸建筑全部保留江户时代原貌的唯一城堡。"
+    sources:
+      - title: "高知城 公式ホームページ | Kochi Castle Official Website | Kochi Castle Official Website"
+        url: "https://kochipark.jp/kochijyo/"
+        accessed: "2026-11-18"
+    status: verified
+  - id: shimanto-gawa
+    emoji: "🏞️"
+    name: {ja: "{四万十川|しまんとがわ}", en: "Shimanto River", zh: "四万十川"}
+    description:
+      ja:
+        kids: "{四国|しこく}でいちばん{長|なが}い{川|かわ}で、{大水|おおみず}で{沈|しず}む{橋|はし}があるよ。"
+        adult: "{四国|しこく}で{最|もっと}も{長|なが}い{川|かわ}で、{大水|おおみず}で{沈|しず}むことを{想定|そうてい}した{欄干|らんかん}のない{沈下橋|ちんかばし}が{架|か}かります。"
+      en:
+        kids: "Shikoku's longest river, with bridges that sink under water in big floods."
+        adult: "Shikoku's longest river, crossed by chinkabashi, bridges without railings designed to go underwater in floods."
+      zh:
+        kids: "四国最长的河，有发大水时会被淹没的桥。"
+        adult: "四国最长的河流，架着预设洪水时会被淹没、没有栏杆的沉下桥。"
+    sources:
+      - title: "【お願い】四万十川（沈下橋）へお越しのお客様へ | 一般社団法人 四万十市観光協会"
+        url: "https://www.shimanto-kankou.com/kanko/shimanto-river/shimantoriver.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: muroto-misaki
+    emoji: "🌊"
+    name: {ja: "{室戸岬|むろとみさき}", en: "Cape Muroto", zh: "室户岬"}
+    description:
+      ja:
+        kids: "{地震|じしん}で{盛|も}り{上|あ}がった{海岸|かいがん}が{見|み}られる{岬|みさき}だよ。"
+        adult: "{室戸|むろと}ユネスコ{世界|せかい}ジオパークの{岬|みさき}で、{地震|じしん}で{隆起|りゅうき}した{海岸|かいがん}やマグマの{跡|あと}が{見|み}られます。"
+      en:
+        kids: "A cape where you can see a coastline lifted up by earthquakes."
+        adult: "A cape in the Muroto UNESCO Global Geopark, with coastline uplifted by earthquakes and traces of magma."
+      zh:
+        kids: "可以看到因地震而隆起的海岸的海角。"
+        adult: "室户世界地质公园内的海角，可见地震隆起的海岸和岩浆痕迹。"
+    sources:
+      - title: "室戸岬 | 室戸ユネスコ世界ジオパーク"
+        url: "https://www.muroto-geo.jp/geomap/%e5%ae%a4%e6%88%b8%e5%b2%ac/"
+        accessed: "2026-11-18"
+      - title: "室戸世界ジオパークとは？ | 室戸ユネスコ世界ジオパーク"
+        url: "https://www.muroto-geo.jp/about/"
+        accessed: "2026-11-18"
+    status: verified
