@@ -30,7 +30,7 @@ access:
     - title: "就航路線・時刻表"
       url: "https://www.izumo-airport.co.jp/flight/flight-time"
       accessed: "2026-11-18"
-  status: verified
+  status: reviewed
 specialties:
   - id: izumo-soba
     emoji: "🍜"
@@ -49,7 +49,7 @@ specialties:
       - title: "そば"
         url: "https://www.kankou-shimane.com/gourmet/soba"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: shijimi-soup
     emoji: "🐚"
     name: {ja: "しじみ{汁|じる}", en: "Shijimi Clam Soup", zh: "蚬贝汤"}
@@ -68,7 +68,7 @@ specialties:
       - title: "しじみ"
         url: "https://www.kankou-shimane.com/gourmet/shijimi"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: akaten
     emoji: "🐟"
     name: {ja: "{赤天|あかてん}", en: "Akaten Fish Cakes", zh: "赤天鱼饼"}
@@ -86,7 +86,7 @@ specialties:
       - title: "日本海をのぞむ港町・浜田のソウルフードが今や島根を代表する名物に"
         url: "https://www.kankou-shimane.com/bihadaken-uruoi/report/souvenir/41/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
 spots:
   - id: izumo-oyashiro
     name: {ja: "{出雲大社|いずもおおやしろ}", en: "Izumo Oyashiro Shrine", zh: "出云大社"}
@@ -104,7 +104,7 @@ spots:
       - title: "出雲大社"
         url: "https://www.kankou-shimane.com/destination/20240"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: matsue-castle
     name: {ja: "{松江城|まつえじょう}", en: "Matsue Castle", zh: "松江城"}
     description:
@@ -121,7 +121,7 @@ spots:
       - title: "松江城天守の国宝指定"
         url: "https://www.pref.shimane.lg.jp/life/bunka/bunkazai/event/kokuhou/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: iwami-ginzan
     name: {ja: "{石見銀山|いわみぎんざん}", en: "Iwami Ginzan Silver Mine", zh: "石见银山"}
     description:
@@ -138,4 +138,4 @@ spots:
       - title: "龍源寺間歩（石見銀山）"
         url: "https://www.kankou-shimane.com/destination/20238"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed

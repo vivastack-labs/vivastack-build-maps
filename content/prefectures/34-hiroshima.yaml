@@ -30,7 +30,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/25371"
       accessed: "2026-11-17"
-  status: verified
+  status: reviewed
 specialties:
   - id: kaki-dotenabe
     emoji: "🦪"
@@ -50,7 +50,7 @@ specialties:
       - title: "かきの土手鍋 広島県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/42_4_hiroshima.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: okonomiyaki
     emoji: "🥞"
     name: {ja: "{広島|ひろしま}のお{好|この}み{焼|や}き", en: "Hiroshima Okonomiyaki", zh: "广岛御好烧"}
@@ -69,7 +69,7 @@ specialties:
       - title: "お好み焼き 広島県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/42_7_hiroshima.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: kumano-fude
     emoji: "🖌️"
     name: {ja: "{熊野筆|くまのふで}", en: "Kumano Brushes", zh: "熊野笔"}
@@ -88,7 +88,7 @@ specialties:
       - title: "広島初の伝統的工芸品。世界からも注目される熊野筆ってどんな筆？ | 徹底解剖！ひろしまラボ - 広島県"
         url: "https://www.pref.hiroshima.lg.jp/lab/topics/20211020/01/"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
 spots:
   - id: itsukushima-shrine
     name: {ja: "{厳島神社|いつくしまじんじゃ}", en: "Itsukushima Shrine", zh: "严岛神社"}
@@ -106,7 +106,7 @@ spots:
       - title: "御由緒 拝観 嚴島神社【公式サイト】国宝・世界文化遺産"
         url: "https://www.itsukushimajinja.jp/jp/history.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: genbaku-dome
     name: {ja: "{原爆|げんばく}ドーム", en: "Atomic Bomb Dome", zh: "原爆圆顶"}
     description:
@@ -123,7 +123,7 @@ spots:
       - title: "原爆（げんばく）ドーム｜広島市公式ウェブサイト"
         url: "https://www.city.hiroshima.lg.jp/atomicbomb-peace/1036664/1021115/1015065.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: senkoji-park
     name: {ja: "{千光寺公園|せんこうじこうえん}", en: "Senkoji Park", zh: "千光寺公园"}
     description:
@@ -140,4 +140,4 @@ spots:
       - title: "千光寺公園 - 観光情報 - 尾道市ホームページ"
         url: "https://www.city.onomichi.hiroshima.jp/site/onomichikanko/1316.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed

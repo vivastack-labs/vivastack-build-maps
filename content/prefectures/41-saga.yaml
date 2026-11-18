@@ -30,7 +30,7 @@ access:
     - title: "時刻表・運航状況 東京（羽田）"
       url: "https://www.pref.saga.lg.jp/airport/kiji00312891/index.html"
       accessed: 2026-11-18
-  status: verified
+  status: reviewed
 specialties:
   - id: yobuko-squid
     emoji: "🦑"
@@ -49,7 +49,7 @@ specialties:
       - title: "食べずには帰れない！佐賀の愛されグルメ"
         url: "https://www.asobo-saga.jp/articles/detail/e396848c-7559-41f0-b188-bb0149354b97"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
   - id: saga-beef
     emoji: "🥩"
     name: {ja: "{佐賀牛|さがぎゅう}", en: "Saga Beef", zh: "佐贺牛肉"}
@@ -67,7 +67,7 @@ specialties:
       - title: "佐賀牛について"
         url: "https://sagagyu.jp/about/"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
   - id: arita-ware
     emoji: "🍽️"
     name: {ja: "{有田焼|ありたやき}", en: "Arita Ware", zh: "有田烧"}
@@ -85,7 +85,7 @@ specialties:
       - title: "有田焼(ありたやき)とは"
         url: "https://www.arita.jp/aritaware/"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
 spots:
   - id: yoshinogari-historical-park
     name: {ja: "{吉野ヶ里|よしのがり}{歴史公園|れきしこうえん}", en: "Yoshinogari Historical Park", zh: "吉野里历史公园"}
@@ -103,7 +103,7 @@ spots:
       - title: "吉野ヶ里歴史公園（よしのがりれきしこうえん）"
         url: "https://www.asobo-saga.jp/spots/detail/a7d4ec11-8a9b-4517-8cee-a9a466a436e7"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
   - id: saga-castle-history-museum
     name: {ja: "{佐賀城|さがじょう}{本丸|ほんまる}{歴史館|れきしかん}", en: "Saga Castle History Museum", zh: "佐贺城本丸历史馆"}
     description:
@@ -120,7 +120,7 @@ spots:
       - title: "施設案内"
         url: "https://saga-museum.jp/sagajou/facility/index.html"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
   - id: niji-no-matsubara
     name: {ja: "{虹|にじ}の{松原|まつばら}", en: "Rainbow Pine Grove", zh: "虹之松原"}
     description:
@@ -137,4 +137,4 @@ spots:
       - title: "虹の松原の再生・保全活動を行っています"
         url: "https://www.city.karatsu.lg.jp/page/42113.html"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed

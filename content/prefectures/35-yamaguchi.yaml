@@ -34,7 +34,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/86581"
       accessed: "2026-11-17"
-  status: verified
+  status: reviewed
 specialties:
   - id: fuku-sashi
     emoji: "🐡"
@@ -53,7 +53,7 @@ specialties:
       - title: "ふく刺し 山口県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/43_16_yamaguchi.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: kawara-soba
     emoji: "🍜"
     name: {ja: "{瓦|かわら}そば", en: "Kawara Soba", zh: "瓦片荞麦面"}
@@ -71,7 +71,7 @@ specialties:
       - title: "瓦そば 山口県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/43_30_yamaguchi.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: hagi-yaki
     emoji: "🏺"
     name: {ja: "{萩焼|はぎやき}", en: "Hagi Ware", zh: "萩烧"}
@@ -89,7 +89,7 @@ specialties:
       - title: "萩焼について - 萩市ホームページ"
         url: "https://www.city.hagi.lg.jp/soshiki/49/h11464.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
 spots:
   - id: kintaikyo
     name: {ja: "{錦帯橋|きんたいきょう}", en: "Kintaikyo Bridge", zh: "锦带桥"}
@@ -107,7 +107,7 @@ spots:
       - title: "岩国のシンボル・錦帯橋の歴史と、時代を超えて受け継がれる思い｜特集｜【公式】山口県観光/旅行サイト おいでませ山口へ"
         url: "https://yamaguchi-tourism.jp/feature/kintaikyo-history"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: akiyoshidai
     name: {ja: "{秋吉台|あきよしだい}", en: "Akiyoshidai Plateau", zh: "秋吉台"}
     description:
@@ -124,7 +124,7 @@ spots:
       - title: "秋吉台｜日本最大級のカルスト台地【公式】山口県観光/旅行サイト おいでませ山口へ"
         url: "https://yamaguchi-tourism.jp/spot/detail_14537.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: rurikoji-gojunoto
     name: {ja: "{瑠璃光寺|るりこうじ}{五重塔|ごじゅうのとう}", en: "Rurikoji Five-Story Pagoda", zh: "琉璃光寺五重塔"}
     description:
@@ -144,4 +144,4 @@ spots:
       - title: "国宝 瑠璃光寺五重塔｜日本三名塔【公式】山口県観光/旅行サイト"
         url: "https://yamaguchi-tourism.jp/spot/detail_15401.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed

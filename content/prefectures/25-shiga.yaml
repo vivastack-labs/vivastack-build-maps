@@ -34,7 +34,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/173051"
       accessed: "2026-11-17"
-  status: verified
+  status: reviewed
 specialties:
   - id: funazushi
     emoji: "🐟"
@@ -54,7 +54,7 @@ specialties:
       - title: "ふなずし 滋賀県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/funa_zushi_shiga.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: omi-gyu
     emoji: "🐄"
     name: {ja: "{近江牛|おうみぎゅう}", en: "Omi Beef", zh: "近江牛"}
@@ -74,7 +74,7 @@ specialties:
       - title: "第56号：近江牛：農林水産省"
         url: "https://www.maff.go.jp/j/shokusan/gi_act/register/0056/index.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: hinona-zuke
     emoji: "🥬"
     name: {ja: "{日野菜漬|ひのなづ}け", en: "Hinona Pickles", zh: "日野菜腌菜"}
@@ -93,7 +93,7 @@ specialties:
       - title: "日野菜漬け 滋賀県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/hinona_zuke_shiga.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
 spots:
   - id: biwako
     name: {ja: "{琵琶湖|びわこ}", en: "Lake Biwa", zh: "琵琶湖"}
@@ -111,7 +111,7 @@ spots:
       - title: "琵琶湖の概要｜滋賀県"
         url: "https://www.pref.shiga.lg.jp/ippan/kankyoshizen/biwako/gaiyou.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: hikone-castle
     name: {ja: "{彦根城|ひこねじょう}", en: "Hikone Castle", zh: "彦根城"}
     description:
@@ -132,7 +132,7 @@ spots:
       - title: "彦根城の観覧案内／彦根市"
         url: "https://www.city.hikone.lg.jp/kakuka/kanko_bunka/8/2_1/3/4586.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: enryaku-ji
     name: {ja: "{比叡山延暦寺|ひえいざんえんりゃくじ}", en: "Hieizan Enryakuji", zh: "比叡山延历寺"}
     description:
@@ -150,4 +150,4 @@ spots:
       - title: "延暦寺の概要｜延暦寺について | 天台宗総本山 比叡山延暦寺 [Hieizan Enryakuji]"
         url: "https://www.hieizan.or.jp/about/about.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed

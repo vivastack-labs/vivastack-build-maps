@@ -30,7 +30,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/25371"
       accessed: "2026-11-18"
-  status: verified
+  status: reviewed
 specialties:
   - id: mizutaki
     emoji: "🍲"
@@ -49,7 +49,7 @@ specialties:
       - title: "若鶏の水炊き 福岡県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/wakadori_no_mizutaki_fukuoka.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: goma-saba
     emoji: "🐟"
     name: {ja: "{博多|はかた}の{胡麻鯖|ごまさば}", en: "Hakata Goma Saba Sesame Mackerel", zh: "博多芝麻鲭鱼"}
@@ -67,7 +67,7 @@ specialties:
       - title: "博多の胡麻鯖 福岡県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/hakatano_gomasaba_fukuoka.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: hakata-ori
     emoji: "🧵"
     name: {ja: "{博多織|はかたおり}", en: "Hakata-ori Textiles", zh: "博多织"}
@@ -85,7 +85,7 @@ specialties:
       - title: "博多織 | 旅の特集 | 【公式】福岡県の観光/旅行情報サイト「クロスロードふくおか」"
         url: "https://www.crossroadfukuoka.jp/feature/traditionalcrafts/hakataori"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
 spots:
   - id: dazaifu-tenmangu
     emoji: "⛩️"
@@ -104,7 +104,7 @@ spots:
       - title: "御由緒｜太宰府天満宮"
         url: "https://www.dazaifutenmangu.or.jp/about/goyuisho"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: yanagawa-kawakudari
     emoji: "🛶"
     name: {ja: "{柳川|やながわ}の{川下|かわくだ}り", en: "Yanagawa Canal Cruise", zh: "柳川游船"}
@@ -122,7 +122,7 @@ spots:
       - title: "川下り(お堀めぐり) | 柳川市観光公式サイト"
         url: "https://www.yanagawa-net.com/ohori/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: mojiko-retro
     emoji: "⚓"
     name: {ja: "{門司港|もじこう}レトロ", en: "Mojiko Retro", zh: "门司港怀旧区"}
@@ -140,4 +140,4 @@ spots:
       - title: "門司港レトロについて/門司港レトロインフォメーション"
         url: "https://www.mojiko.info/about/index.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed

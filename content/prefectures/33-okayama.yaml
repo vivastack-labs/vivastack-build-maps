@@ -30,7 +30,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/25371"
       accessed: "2026-11-17"
-  status: verified
+  status: reviewed
 specialties:
   - id: barazushi
     emoji: "🍣"
@@ -50,7 +50,7 @@ specialties:
       - title: "まつりずし／ばらずし 岡山県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/41_1_okayama.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: mamakari
     emoji: "🐟"
     name: {ja: "ママカリの{酢漬|すづ}け", en: "Mamakari Pickled in Vinegar", zh: "醋渍借饭鱼"}
@@ -69,7 +69,7 @@ specialties:
       - title: "ママカリの酢漬け 岡山県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/41_3_okayama.html"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: bizenyaki
     emoji: "🏺"
     name: {ja: "{備前焼|びぜんやき}", en: "Bizen Ware", zh: "备前烧"}
@@ -88,7 +88,7 @@ specialties:
       - title: "備前焼とは｜岡山観光WEB【公式】- 岡山県の観光・旅行情報ならココ！"
         url: "https://www.okayama-kanko.jp/feature/bizenyaki/1"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
 spots:
   - id: korakuen
     name: {ja: "{岡山後楽園|おかやまこうらくえん}", en: "Okayama Korakuen Garden", zh: "冈山后乐园"}
@@ -107,7 +107,7 @@ spots:
       - title: "岡山後楽園｜スポット｜岡山観光WEB【公式】- 岡山県の観光・旅行情報ならココ！"
         url: "https://www.okayama-kanko.jp/spot/10001"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: kurashiki-bikan
     name: {ja: "{倉敷美観地区|くらしきびかんちく}", en: "Kurashiki Bikan Historical Quarter", zh: "仓敷美观地区"}
     description:
@@ -125,7 +125,7 @@ spots:
       - title: "倉敷美観地区｜スポット｜岡山観光WEB【公式】- 岡山県の観光・旅行情報ならココ！"
         url: "https://www.okayama-kanko.jp/spot/10226"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed
   - id: bitchu-matsuyama-castle
     name: {ja: "{備中松山城|びっちゅうまつやまじょう}", en: "Bitchu Matsuyama Castle", zh: "备中松山城"}
     description:
@@ -142,4 +142,4 @@ spots:
       - title: "天守が残る唯一の山城｜岡山観光WEB【公式】- 岡山県の観光・旅行情報ならココ！"
         url: "https://www.okayama-kanko.jp/feature/matsuyamacastle/1"
         accessed: "2026-11-17"
-    status: verified
+    status: reviewed

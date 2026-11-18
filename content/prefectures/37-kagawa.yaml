@@ -35,7 +35,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/29221"
       accessed: "2026-11-18"
-  status: verified
+  status: reviewed
 specialties:
   - id: sanuki-udon
     emoji: "🍜"
@@ -55,7 +55,7 @@ specialties:
       - title: "四国地方 香川県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/area_stories/kagawa.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: shoyu-mame
     emoji: "🥢"
     name: {ja: "しょうゆ{豆|まめ}", en: "Shoyu-mame Soy Sauce Beans", zh: "酱油蚕豆"}
@@ -74,7 +74,7 @@ specialties:
       - title: "しょうゆ豆 香川県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/shouyu_mame_kagawa.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: marugame-uchiwa
     emoji: "🎐"
     name: {ja: "{丸亀|まるがめ}うちわ", en: "Marugame Uchiwa Fans", zh: "丸龟团扇"}
@@ -93,7 +93,7 @@ specialties:
       - title: "丸亀うちわ｜検索詳細｜地域観光資源の多言語解説文データベース"
         url: "https://www.mlit.go.jp/tagengo-db/H30-01114.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
 spots:
   - id: kotohiragu
     name: {ja: "{金刀比羅宮|ことひらぐう}", en: "Kotohira-gu Shrine", zh: "金刀比罗宫"}
@@ -111,7 +111,7 @@ spots:
       - title: "金刀比羅宮 | 参拝ガイド 御本宮編"
         url: "https://www.konpira.or.jp/articles/20200616_guide/article.htm"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: ritsurin-koen
     name: {ja: "{栗林公園|りつりんこうえん}", en: "Ritsurin Garden", zh: "栗林公园"}
     description:
@@ -128,7 +128,7 @@ spots:
       - title: "特別名勝　栗林公園（りつりんこうえん）｜特別名勝 栗林公園（りつりんこうえん）｜栗林公園｜香川県観光協会公式サイト - うどん県旅ネット"
         url: "https://www.my-kagawa.jp/ritsuringarden/feature/ritsuringarden/garden"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: kankakei
     name: {ja: "{寒霞渓|かんかけい}", en: "Kankakei Gorge", zh: "寒霞溪"}
     description:
@@ -145,4 +145,4 @@ spots:
       - title: "寒霞渓の魅力 | 小豆島で観光・絶景・アートを楽しむなら寒霞渓ロープウェイへ"
         url: "https://www.kankakei.co.jp/miryoku/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed

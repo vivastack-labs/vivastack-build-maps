@@ -30,7 +30,7 @@ access:
     - title: "徳島着便時刻表"
       url: "https://www.tokushima-airport.co.jp/flight/in/"
       accessed: "2026-11-18"
-  status: verified
+  status: reviewed
 specialties:
   - id: tokushima-ramen
     emoji: "🍜"
@@ -49,7 +49,7 @@ specialties:
       - title: "たべたび徳島"
         url: "https://www.awanavi.jp/archives/19819"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: sudachi
     emoji: "🍋"
     name: {ja: "すだち", en: "Sudachi Citrus", zh: "酸橘（Sudachi）"}
@@ -70,7 +70,7 @@ specialties:
       - title: "昨年ご好評いただいたすだち、ワーホリ。今年も開催します！"
         url: "https://iju.pref.tokushima.lg.jp/news/6559/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: awa-wasanbon
     emoji: "🍬"
     name: {ja: "{阿波和三盆糖|あわわさんぼんとう}", en: "Awa Wasanbon Sugar", zh: "阿波和三盆糖"}
@@ -91,7 +91,7 @@ specialties:
       - title: "阿波の伝統菓子"
         url: "https://www.awanavi.jp/wp-content/uploads/2023/02/awa-3.pdf"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
 spots:
   - id: uzu-no-michi
     name: {ja: "{渦|うず}の{道|みち}", en: "Uzu no Michi", zh: "涡之道步道"}
@@ -109,7 +109,7 @@ spots:
       - title: "世界三大潮流を鳥の視点から眺めよう"
         url: "https://www.uzunomichi.jp/guide-uzu-1/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: iya-kazurabashi
     name: {ja: "{祖谷|いや}のかずら{橋|ばし}", en: "Iya-no-Kazurabashi", zh: "祖谷藤桥"}
     description:
@@ -126,7 +126,7 @@ spots:
       - title: "秘境・祖谷の絶景 かずら橋と祖谷渓めぐり"
         url: "https://www.awanavi.jp/archives/topics/20875"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: awa-odori-kaikan
     name: {ja: "{阿波|あわ}おどり{会館|かいかん}", en: "Awa Odori Kaikan Hall", zh: "阿波舞会馆"}
     description:
@@ -143,4 +143,4 @@ spots:
       - title: "阿波おどり会館"
         url: "https://www.awaodori-kaikan.jp/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed

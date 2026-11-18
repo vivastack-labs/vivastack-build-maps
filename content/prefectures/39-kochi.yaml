@@ -35,7 +35,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/150771"
       accessed: "2026-11-18"
-  status: verified
+  status: reviewed
 specialties:
   - id: katsuo-no-tataki
     emoji: "🐟"
@@ -54,7 +54,7 @@ specialties:
       - title: "かつおのたたき 高知県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/katuonotataki_kochi.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: sawachi-ryori
     emoji: "🍱"
     name: {ja: "{皿鉢料理|さわちりょうり}", en: "Sawachi Platter Feast", zh: "皿钵料理"}
@@ -72,7 +72,7 @@ specialties:
       - title: "皿鉢料理 高知県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/sawachiryori_kochi.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: monobe-yuzu
     emoji: "🍋"
     name: {ja: "{物部|ものべ}ゆず", en: "Monobe Yuzu Citrus", zh: "物部柚子"}
@@ -90,7 +90,7 @@ specialties:
       - title: "第96号：物部ゆず：農林水産省"
         url: "https://www.maff.go.jp/j/shokusan/gi_act/register/0096/index.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
 spots:
   - id: kochi-jo
     emoji: "🏯"
@@ -109,7 +109,7 @@ spots:
       - title: "高知城 公式ホームページ | Kochi Castle Official Website | Kochi Castle Official Website"
         url: "https://kochipark.jp/kochijyo/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: shimanto-gawa
     emoji: "🏞️"
     name: {ja: "{四万十川|しまんとがわ}", en: "Shimanto River", zh: "四万十川"}
@@ -127,7 +127,7 @@ spots:
       - title: "【お願い】四万十川（沈下橋）へお越しのお客様へ | 一般社団法人 四万十市観光協会"
         url: "https://www.shimanto-kankou.com/kanko/shimanto-river/shimantoriver.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: muroto-misaki
     emoji: "🌊"
     name: {ja: "{室戸岬|むろとみさき}", en: "Cape Muroto", zh: "室户岬"}
@@ -148,4 +148,4 @@ spots:
       - title: "室戸世界ジオパークとは？ | 室戸ユネスコ世界ジオパーク"
         url: "https://www.muroto-geo.jp/about/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
