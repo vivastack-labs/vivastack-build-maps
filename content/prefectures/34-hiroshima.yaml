@@ -17,5 +17,127 @@ capital:
     zh: "广岛市"
   lat: 34.396652
   lon: 132.459117
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {広島駅|ひろしまえき}"
+    en: "Tokyo Station → Hiroshima Station"
+    zh: "东京站 → 广岛站"
+  # 東京始発の「のぞみ25号」（毎日運転）：東京 10:30 発 → 広島 14:27 着（237分。乗り換えなし）。JR時刻表2026年11月号に基づく時刻
+  durationMin: 237
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/25371"
+      accessed: "2026-11-17"
+  status: verified
+specialties:
+  - id: kaki-dotenabe
+    emoji: "🦪"
+    name: {ja: "かきの{土手鍋|どてなべ}", en: "Oyster Dotenabe Hot Pot", zh: "牡蛎土手锅"}
+    description:
+      ja:
+        kids: "{冬|ふゆ}に、かきを{入|い}れたなべで、ふちの{味噌|みそ}をとかしながら{食|た}べるよ。"
+        adult: "{味噌|みそ}を{鍋|なべ}の{縁|ふち}に{土手状|どてじょう}に{付|つ}け、かきや{野菜|やさい}を{煮|に}ながら{溶|と}かして{食|た}べます。\
+          {冬|ふゆ}に、{店|みせ}でも{家庭|かてい}でも{作|つく}られます。"
+      en:
+        kids: "In winter, people eat oysters in a pot and melt the miso on its rim into the broth."
+        adult: "Miso banked along the pot's rim is melted in as oysters and vegetables simmer. In winter, the dish is made at restaurants and in homes."
+      zh:
+        kids: "冬天吃的锅，里面放牡蛎，一边吃一边把锅边的味噌化开。"
+        adult: "味噌沿锅边抹成堤状，煮牡蛎和蔬菜时慢慢化开来吃。冬天在餐馆和家里都会做。"
+    sources:
+      - title: "かきの土手鍋 広島県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/42_4_hiroshima.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: okonomiyaki
+    emoji: "🥞"
+    name: {ja: "{広島|ひろしま}のお{好|この}み{焼|や}き", en: "Hiroshima Okonomiyaki", zh: "广岛御好烧"}
+    description:
+      ja:
+        kids: "キャベツやめんを{重|かさ}ねて{焼|や}くよ。{場所|ばしょ}ごとの{種類|しゅるい}もあるんだ。"
+        adult: "{蒸|む}し{焼|や}きが{特徴|とくちょう}で、キャベツや{焼|や}きそばを{重|かさ}ねます。\
+          {呉焼|くれや}きや{尾道焼|おのみちや}きなど、{各地|かくち}の{種類|しゅるい}もあります。"
+      en:
+        kids: "Cabbage and noodles are layered and cooked. Some areas have their own kinds, too."
+        adult: "Its key feature is steam-grilling, with cabbage and fried noodles layered. Local versions include Kure-yaki and Onomichi-yaki."
+      zh:
+        kids: "把卷心菜和面条叠起来烤。有些地方还有不同的种类。"
+        adult: "特点是焖烤，卷心菜和炒面叠在一起。还有吴烧、尾道烧等各地的种类。"
+    sources:
+      - title: "お好み焼き 広島県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/42_7_hiroshima.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: kumano-fude
+    emoji: "🖌️"
+    name: {ja: "{熊野筆|くまのふで}", en: "Kumano Brushes", zh: "熊野笔"}
+    description:
+      ja:
+        kids: "{広島県|ひろしまけん}の{熊野町|くまのちょう}で{作|つく}られる{筆|ふで}だよ。{字|じ}や{絵|え}、お{化粧|けしょう}に{使|つか}うんだ。"
+        adult: "{熊野町|くまのちょう}の{筆|ふで}。{書道用|しょどうよう}や{絵画用|かいがよう}、{化粧用|けしょうよう}があり、{広島県|ひろしまけん}で{最初|さいしょ}に\
+          {国|くに}の{伝統的工芸品|でんとうてきこうげいひん}となりました。"
+      en:
+        kids: "These brushes come from Kumano Town in Hiroshima Prefecture. They are used for writing, painting, and makeup."
+        adult: "These writing, painting, and makeup brushes from Kumano Town were Hiroshima's first nationally designated traditional craft."
+      zh:
+        kids: "广岛县熊野町做的笔。可以用来写字、画画和化妆。"
+        adult: "熊野町的笔，有书法用、绘画用和化妆用的，是广岛县首个国家传统工艺品。"
+    sources:
+      - title: "広島初の伝統的工芸品。世界からも注目される熊野筆ってどんな筆？ | 徹底解剖！ひろしまラボ - 広島県"
+        url: "https://www.pref.hiroshima.lg.jp/lab/topics/20211020/01/"
+        accessed: "2026-11-17"
+    status: verified
+spots:
+  - id: itsukushima-shrine
+    name: {ja: "{厳島神社|いつくしまじんじゃ}", en: "Itsukushima Shrine", zh: "严岛神社"}
+    description:
+      ja:
+        kids: "とても{昔|むかし}に{建|た}てられたと{伝|つた}わる、{世界遺産|せかいいさん}の{神社|じんじゃ}だよ。"
+        adult: "593{年|ねん}{創建|そうけん}と{伝|つた}わり、{平清盛|たいらのきよもり}が{社殿|しゃでん}を{修造|しゅうぞう}。1996{年|ねん}に{世界文化遺産|せかいぶんかいさん}となりました。"
+      en:
+        kids: "A World Heritage shrine said to have been built a very long time ago."
+        adult: "Reputedly founded in 593 and restored by Taira no Kiyomori, it became a World Heritage Site in 1996."
+      zh:
+        kids: "据说建于很久以前的神社，也是世界遗产。"
+        adult: "据传建于593年，平清盛重修社殿，1996年列为世界遗产。"
+    sources:
+      - title: "御由緒 拝観 嚴島神社【公式サイト】国宝・世界文化遺産"
+        url: "https://www.itsukushimajinja.jp/jp/history.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: genbaku-dome
+    name: {ja: "{原爆|げんばく}ドーム", en: "Atomic Bomb Dome", zh: "原爆圆顶"}
+    description:
+      ja:
+        kids: "{原爆|げんばく}で{被害|ひがい}を{受|う}けた{建物|たてもの}を、{大切|たいせつ}に{残|のこ}しているよ。"
+        adult: "1915{年|ねん}{完成|かんせい}の{広島県物産陳列館|ひろしまけんぶっさんちんれつかん}。{爆心地|ばくしんち}から{約|やく}160mで{被爆|ひばく}、{保存|ほぞん}されています。"
+      en:
+        kids: "People carefully preserve this building, which was damaged by the atomic bomb."
+        adult: "This 1915 exhibition hall, hit by the atomic bomb about 160 meters from the hypocenter, is preserved."
+      zh:
+        kids: "被原子弹破坏的建筑，被人们好好保存着。"
+        adult: "1915年建成的陈列馆，距爆心约160米遭原爆，保存至今。"
+    sources:
+      - title: "原爆（げんばく）ドーム｜広島市公式ウェブサイト"
+        url: "https://www.city.hiroshima.lg.jp/atomicbomb-peace/1036664/1021115/1015065.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: senkoji-park
+    name: {ja: "{千光寺公園|せんこうじこうえん}", en: "Senkoji Park", zh: "千光寺公园"}
+    description:
+      ja:
+        kids: "{山|やま}の{上|うえ}の{公園|こうえん}から、{尾道|おのみち}のまちと{海|うみ}の{島|しま}が{見|み}えるよ。"
+        adult: "{標高|ひょうこう}144.2mの{千光寺山|せんこうじやま}にあり、{展望台|てんぼうだい}から{尾道|おのみち}と{瀬戸内海|せとないかい}の{島々|しまじま}が{見渡|みわた}せます。"
+      en:
+        kids: "From this hilltop park, you can see Onomichi and the islands in the sea."
+        adult: "On 144.2-meter Mount Senkoji, the park's observation deck overlooks Onomichi and the islands of the Seto Inland Sea."
+      zh:
+        kids: "从山上的公园，可以看到尾道和海上的岛屿。"
+        adult: "千光寺山海拔144.2米，从观景台可眺望尾道和濑户内海岛屿。"
+    sources:
+      - title: "千光寺公園 - 観光情報 - 尾道市ホームページ"
+        url: "https://www.city.onomichi.hiroshima.jp/site/onomichikanko/1316.html"
+        accessed: "2026-11-17"
+    status: verified

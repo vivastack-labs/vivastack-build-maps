@@ -17,5 +17,130 @@ capital:
     zh: "长崎市"
   lat: 32.750205
   lon: 129.867416
-specialties: []
-spots: []
+access:
+  emoji: "✈️"
+  mode: {ja: "{飛行機|ひこうき}", en: "Plane", zh: "飞机"}
+  route:
+    ja: "{羽田空港|はねだくうこう} → {長崎空港|ながさきくうこう}"
+    en: "Haneda Airport → Nagasaki Airport"
+    zh: "羽田机场 → 长崎机场"
+  # ソラシドエア31便（羽田7:15発、長崎9:15着、2026-10-25〜2027-03-27）。
+  durationMin: 120
+  sources:
+    - title: "東京（羽田）-長崎 時刻表"
+      url: "https://www.solaseedair.jp/timetable/naga-hane/index.html"
+      accessed: 2026-11-18
+  status: verified
+specialties:
+  - id: nagasaki-champon
+    emoji: "🍜"
+    name: {ja: "{長崎|ながさき}ちゃんぽん", en: "Nagasaki Champon", zh: "长崎什锦面"}
+    description:
+      ja:
+        kids: "めんといっしょに、{豚肉|ぶたにく}や{野菜|やさい}、{魚|さかな}などをスープで{煮|に}こむんだ。"
+        adult: "{豚肉|ぶたにく}や{魚介|ぎょかい}、{野菜|やさい}を{麺|めん}と{一緒|いっしょ}にスープで{煮込|にこ}みます。{明治時代|めいじじだい}の{終|お}わりごろに{長崎|ながさき}で{生|う}まれました。"
+      en:
+        kids: "Pork, vegetables, fish and other seafood cook together with the noodles in broth."
+        adult: "Nagasaki champon originated in Nagasaki near the end of the Meiji era. Pork, seafood, vegetables, and noodles are simmered together in broth."
+      zh:
+        kids: "把猪肉、蔬菜、鱼等海鲜和面条一起放进汤里煮。"
+        adult: "这道面食诞生于明治时代末期的长崎，猪肉、海鲜、蔬菜和面条在汤中一同炖煮。"
+    sources:
+      - title: "中華料理（ちゃんぽん・皿うどん）"
+        url: "https://www.nagasaki-tabinet.com/eat/133"
+        accessed: 2026-11-18
+    status: verified
+  - id: castella
+    emoji: "🍰"
+    name: {ja: "カステラ", en: "Castella", zh: "长崎蛋糕"}
+    description:
+      ja:
+        kids: "{卵|たまご}や{砂糖|さとう}、{小麦粉|こむぎこ}で{作|つく}る、ふんわりしたお{菓子|かし}だよ。"
+        adult: "{卵|たまご}や{砂糖|さとう}、{小麦粉|こむぎこ}で{作|つく}る、ふんわりとした{焼|や}き{菓子|がし}です。{作|つく}り{方|かた}はポルトガル{人|じん}から{伝|つた}わりました。"
+      en:
+        kids: "This fluffy cake is made with eggs, sugar, and wheat flour."
+        adult: "Castella is a fluffy cake made with eggs, sugar, and wheat flour. The Portuguese taught people how to make it."
+      zh:
+        kids: "这是用鸡蛋、糖和面粉做成的松软糕点。"
+        adult: "这是一种用鸡蛋、糖和面粉制成的松软糕点，做法由葡萄牙人传入。"
+    sources:
+      - title: "カステラ"
+        url: "https://www.nagasaki-tabinet.com/eat/142"
+        accessed: 2026-11-18
+      - title: "長崎旅行の定番お土産大特集"
+        url: "https://www.nagasaki-tabinet.com/feature/souvenirs"
+        accessed: 2026-11-18
+    status: verified
+  - id: hasami-ware
+    emoji: "🍚"
+    name: {ja: "{波佐見焼|はさみやき}", en: "Hasami Ware", zh: "波佐见烧"}
+    description:
+      ja:
+        kids: "{分厚|ぶあつ}くてじょうぶな{器|うつわ}を、ふだんの{食事|しょくじ}に{使|つか}っていたんだ。"
+        adult: "{波佐見町|はさみちょう}で{作|つく}られる{磁器|じき}です。{厚手|あつで}で{丈夫|じょうぶ}な「くらわんか{碗|わん}」は、{普段使|ふだんづか}いの{器|うつわ}として{広|ひろ}まりました。"
+      en:
+        kids: "People used these thick, sturdy bowls for their everyday meals."
+        adult: "This porcelain is made in Hasami. Its thick, sturdy kurawanka bowls became common tableware."
+      zh:
+        kids: "人们用厚实耐用的碗来盛平时吃的饭菜。"
+        adult: "这种瓷器产自波佐见町，厚实耐用的“Kurawanka”碗曾作为日用餐具流行。"
+    sources:
+      - title: "波佐見焼"
+        url: "https://www.nagasaki-tabinet.com/eat/62925"
+        accessed: 2026-11-18
+    status: verified
+spots:
+  - id: oura-cathedral
+    name: {ja: "{大浦天主堂|おおうらてんしゅどう}", en: "Oura Cathedral", zh: "大浦天主堂"}
+    description:
+      ja:
+        kids: "{教会|きょうかい}の{中|なか}にステンドグラスの{窓|まど}があるよ。"
+        adult: "1864{年|ねん}に{完成|かんせい}した{教会|きょうかい}です。{堂内|どうない}にはステンドグラスの{窓|まど}があります。"
+      en:
+        kids: "Look for the stained glass windows inside this church."
+        adult: "Completed in 1864, the church has stained glass windows inside."
+      zh:
+        kids: "教堂里可以看到彩色玻璃窗。"
+        adult: "这座教堂于1864年建成，内部有彩色玻璃窗。"
+    sources:
+      - title: "大浦天主堂"
+        url: "https://www.at-nagasaki.jp/spot/102"
+        accessed: 2026-11-18
+    status: verified
+  - id: peace-park
+    name: {ja: "{平和公園|へいわこうえん}", en: "Peace Park", zh: "和平公园"}
+    description:
+      ja:
+        kids: "{平和|へいわ}を{願|ねが}う{公園|こうえん}に、{平和祈念像|へいわきねんぞう}が{立|た}っているよ。"
+        adult: "{原爆|げんばく}で{亡|な}くなった{人|ひと}をしのび、{平和|へいわ}を{願|ねが}う{公園|こうえん}です。{平和祈念像|へいわきねんぞう}が{立|た}っています。"
+      en:
+        kids: "The Peace Statue stands in this park dedicated to peace."
+        adult: "This park remembers atomic bombing victims and expresses hope for peace. The Peace Statue stands here."
+      zh:
+        kids: "公园寄托着和平的愿望，里面立着和平祈念像。"
+        adult: "公园纪念原子弹爆炸遇难者，祈愿和平，园内立有和平祈念像。"
+    sources:
+      - title: "平和公園（平和祈念像・平和の泉）"
+        url: "https://www.at-nagasaki.jp/spot/130"
+        accessed: 2026-11-18
+    status: verified
+  - id: kujukushima
+    name: {ja: "{九十九島|くじゅうくしま}", en: "Kujukushima Islands", zh: "九十九岛"}
+    description:
+      ja:
+        kids: "{海|うみ}には208もの{島|しま}がずらりと{並|なら}んでいるよ。"
+        adult: "{佐世保港|させぼこう}の{沖|おき}から{平戸瀬戸|ひらどせと}にかけて、208の{島|しま}が{連|つら}なっています。"
+      en:
+        kids: "A string of 208 islands stretches across the sea."
+        adult: "A chain of 208 islands stretches from off Sasebo Port to the Hirado Strait."
+      zh:
+        kids: "海上有208座岛屿连成一串。"
+        adult: "从佐世保港外海到平户海峡，208座岛屿绵延分布。"
+    sources:
+      - title: "九十九島は99の島があるから九十九島なのですか。"
+        url: "https://faq.city.sasebo.lg.jp/faqfa2/public/web/knowledge2226.html?pageListSettingIdFromUrl=103"
+        accessed: 2026-11-18
+      - title: "数字で見る九十九島"
+        url: "https://kujukushima-visitorcenter.jp/about99islands/page_1441/"
+        accessed: 2026-11-18
+    status: verified

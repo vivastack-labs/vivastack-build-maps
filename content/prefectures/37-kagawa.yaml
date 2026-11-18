@@ -17,5 +17,132 @@ capital:
     zh: "高松市"
   lat: 34.340108
   lon: 134.043143
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}と{快速|かいそく}", en: "Shinkansen and rapid train", zh: "新干线和快速列车"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {岡山駅|おかやまえき} → {高松駅|たかまつえき}"
+    en: "Tokyo Station → Okayama Station → Takamatsu Station"
+    zh: "东京站 → 冈山站 → 高松站"
+  # 東京始発の「のぞみ25号」（毎日運転）：東京 10:30 発 → 岡山 13:47 着。岡山で快速「マリンライナー37号」（3137M。毎日運転）に乗り換え：
+  # 岡山 14:13 発 → 高松 15:05 着。東京 10:30 発から高松 15:05 着まで275分（乗り換えの待ち時間26分を含む）。
+  # JR時刻表2026年11月号に基づく時刻
+  durationMin: 275
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/25371"
+      accessed: "2026-11-18"
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/29221"
+      accessed: "2026-11-18"
+  status: verified
+specialties:
+  - id: sanuki-udon
+    emoji: "🍜"
+    name: {ja: "{讃岐|さぬき}うどん", en: "Sanuki Udon Noodles", zh: "赞岐乌冬面"}
+    description:
+      ja:
+        kids: "うどんの{材料|ざいりょう}が{近|ちか}くでそろう{香川|かがわ}で、みんながよく{食|た}べているよ。"
+        adult: "{小麦|こむぎ}・{塩|しお}・いりこ・ねぎ・{醤油|しょうゆ}と、うどんの{材料|ざいりょう}が{身近|みぢか}でそろう{土地|とち}で\
+          {生|う}まれた、{県民|けんみん}の{日常|にちじょう}の{食|た}べ{物|もの}です。"
+      en:
+        kids: "In Kagawa, where everything for udon is close at hand, people eat it often."
+        adult: "Born in a land where wheat, salt, dried sardines, green onions, and soy sauce are all close at hand, udon is everyday food here."
+      zh:
+        kids: "在乌冬面材料就在身边的香川，大家常常吃乌冬面。"
+        adult: "小麦、盐、小鱼干、葱和酱油都能就近备齐，乌冬面就在这里诞生，是县民的家常饭。"
+    sources:
+      - title: "四国地方 香川県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/area_stories/kagawa.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: shoyu-mame
+    emoji: "🥢"
+    name: {ja: "しょうゆ{豆|まめ}", en: "Shoyu-mame Soy Sauce Beans", zh: "酱油蚕豆"}
+    description:
+      ja:
+        kids: "そら{豆|まめ}をしょうゆの{汁|しる}につけた{食|た}べものだよ。かむとほろっとくずれるんだ。"
+        adult: "{煎|い}ったそら{豆|まめ}を{醤油|しょうゆ}や{砂糖|さとう}などの{汁|しる}に{漬|つ}けたもの。\
+          ほろりと{崩|くず}れる{歯|は}ざわりで、おせちに{使|つか}う{家庭|かてい}もあります。"
+      en:
+        kids: "These are broad beans soaked in soy sauce. They crumble when you bite them."
+        adult: "Roasted broad beans soaked in soy sauce, sugar, and other seasonings. They crumble softly when bitten; some families serve them at New Year."
+      zh:
+        kids: "把蚕豆泡在酱油汁里做成的食物，一咬就碎开。"
+        adult: "把炒过的蚕豆泡进酱油和糖等调成的汁里。口感松软，一咬就碎，有的家庭还用在年菜里。"
+    sources:
+      - title: "しょうゆ豆 香川県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/shouyu_mame_kagawa.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: marugame-uchiwa
+    emoji: "🎐"
+    name: {ja: "{丸亀|まるがめ}うちわ", en: "Marugame Uchiwa Fans", zh: "丸龟团扇"}
+    description:
+      ja:
+        kids: "{金刀比羅宮|ことひらぐう}へお{参|まい}りした{人|ひと}のお{土産|みやげ}から{始|はじ}まったといわれるうちわだよ。"
+        adult: "{金刀比羅宮|ことひらぐう}{参|まい}りの{土産|みやげ}として{江戸初期|えどしょき}に{始|はじ}まったとされ、\
+          {国内|こくない}の{約|やく}9{割|わり}を{作|つく}る{国|くに}の{伝統的工芸品|でんとうてきこうげいひん}です。"
+      en:
+        kids: "These fans are said to have begun as souvenirs for people who visited Kotohira-gu Shrine."
+        adult: "Said to have begun in the early Edo period as Kotohira-gu Shrine souvenirs, these nationally designated craft fans make up about 90% of Japan's output."
+      zh:
+        kids: "据说这种团扇起源于参拜金刀比罗宫的人带回的纪念品。"
+        adult: "据说江户初期作为参拜金刀比罗宫的纪念品诞生，产量约占全国九成，是国家传统工艺品。"
+    sources:
+      - title: "丸亀うちわ｜検索詳細｜地域観光資源の多言語解説文データベース"
+        url: "https://www.mlit.go.jp/tagengo-db/H30-01114.html"
+        accessed: "2026-11-18"
+    status: verified
+spots:
+  - id: kotohiragu
+    name: {ja: "{金刀比羅宮|ことひらぐう}", en: "Kotohira-gu Shrine", zh: "金刀比罗宫"}
+    description:
+      ja:
+        kids: "{長|なが}い{石段|いしだん}を{上|のぼ}った{先|さき}に、お{宮|みや}があるよ。"
+        adult: "785{段|だん}の{石段|いしだん}の{先|さき}に{御本宮|ごほんぐう}があり、{讃岐平野|さぬきへいや}や{瀬戸大橋|せとおおはし}を{見渡|みわた}せます。"
+      en:
+        kids: "Climb a long stone stairway, and you will reach the shrine."
+        adult: "The main shrine sits atop 785 stone steps, overlooking the Sanuki Plain and Seto-Ohashi Bridge."
+      zh:
+        kids: "登上长长的石阶，就能来到神社。"
+        adult: "登上785级石阶便是本宫，可以远眺赞岐平原和濑户大桥。"
+    sources:
+      - title: "金刀比羅宮 | 参拝ガイド 御本宮編"
+        url: "https://www.konpira.or.jp/articles/20200616_guide/article.htm"
+        accessed: "2026-11-18"
+    status: verified
+  - id: ritsurin-koen
+    name: {ja: "{栗林公園|りつりんこうえん}", en: "Ritsurin Garden", zh: "栗林公园"}
+    description:
+      ja:
+        kids: "{昔|むかし}のとのさまの{家|いえ}にあった、{池|いけ}がたくさんある{庭|にわ}だよ。"
+        adult: "{高松藩主|たかまつはんしゅ}{松平家|まつだいらけ}の{別邸|べってい}だった{庭園|ていえん}。{池|いけ}が6つ、{築山|つきやま}が13あり、{国|くに}の{特別名勝|とくべつめいしょう}です。"
+      en:
+        kids: "This garden with many ponds was once part of a lord's home."
+        adult: "Once the Takamatsu lords' villa, this garden has 6 ponds, 13 hills, and national Special Scenic Beauty status."
+      zh:
+        kids: "这是从前藩主家里的庭园，有很多池塘。"
+        adult: "原高松藩松平家别邸，有6个池塘、13座假山，为国家特别名胜。"
+    sources:
+      - title: "特別名勝　栗林公園（りつりんこうえん）｜特別名勝 栗林公園（りつりんこうえん）｜栗林公園｜香川県観光協会公式サイト - うどん県旅ネット"
+        url: "https://www.my-kagawa.jp/ritsuringarden/feature/ritsuringarden/garden"
+        accessed: "2026-11-18"
+    status: verified
+  - id: kankakei
+    name: {ja: "{寒霞渓|かんかけい}", en: "Kankakei Gorge", zh: "寒霞溪"}
+    description:
+      ja:
+        kids: "{島|しま}の{山|やま}に、ふしぎな{形|かたち}の{岩|いわ}がたくさんあるよ。"
+        adult: "{小豆島|しょうどしま}の{渓谷|けいこく}で、{約|やく}1300{万年前|まんねんまえ}の{火山|かざん}の{岩|いわ}が{風化|ふうか}や{侵食|しんしょく}で{削|けず}られ、{奇岩|きがん}が{並|なら}びます。"
+      en:
+        kids: "On this island's mountains, there are many rocks with strange shapes."
+        adult: "In this Shodoshima gorge, weathering and erosion shaped about 13-million-year-old volcanic rock into strange forms."
+      zh:
+        kids: "岛上的山里，有很多形状奇特的岩石。"
+        adult: "小豆岛的峡谷，约1300万年前的火山岩经风化侵蚀，奇岩林立。"
+    sources:
+      - title: "寒霞渓の魅力 | 小豆島で観光・絶景・アートを楽しむなら寒霞渓ロープウェイへ"
+        url: "https://www.kankakei.co.jp/miryoku/"
+        accessed: "2026-11-18"
+    status: verified

@@ -11,6 +11,14 @@ Types: feat, fix, refactor, docs, test, chore, perf, ci
 
 Note: Attribution disabled globally via ~/.claude/settings.json.
 
+## Branches
+
+- `main`：本番（merge すると `deploy.yml` が本番に出す）。ルールセット（CI 必須・承認 1 件）で保護されている。`main` 向けの PR だけ、`ci.yml`（検査・ビルド・プレビュー）が動く。
+- `develop`：データ整備の間（T5-05）の統合ブランチ。保護はなく、CI・プレビュー・レビューの必須もない。
+- feature ブランチは `develop` から切り、PR は `develop` 向けに出す（`gh pr create --base develop`）。1 機能＝1 ブランチ＝1 PR。
+- データ整備が終わったら、`develop` → `main` の PR をまとめて出す。CI・E2E・レビューはそこで行う。
+- `main` と `develop` に直接 push しない。`main` に出した修正（障害の切り戻しなど）は、`develop` に取り込む。
+
 ## Pull Request Workflow
 
 When creating PRs:

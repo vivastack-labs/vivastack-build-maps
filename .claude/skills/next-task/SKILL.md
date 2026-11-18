@@ -2,7 +2,7 @@
 name: next-task
 description: >
   開発計画（docs/development-plan.md）の次のタスクに着手し、PRを作るまでを進める。
-  main に切り替えて最新化 → 不要なローカルブランチの整理 → 依存関係が終わったタスクの選択 →
+  develop に切り替えて最新化 → 不要なローカルブランチの整理 → 依存関係が終わったタスクの選択 →
   ブランチ作成と計画の状態の更新 → 実装計画（承認を取る）→ TDD → 検証・レビュー → 計画ファイルを実際の内容に合わせる → PR。
   「次のタスク」「次やって」「T0-02 をやって」「タスクに着手」「next task」「start T1-03」など、
   タスクIDを指定して、または指定せずに開発を進めるよう頼まれたら、必ずこのスキルを使う。
@@ -18,21 +18,23 @@ description: >
 ユーザーへの確認は、`AGENTS.md` のとおり**推奨案と理由を付けて**聞く（Claude Code では AskUserQuestion を使う）。
 スクリプトはこのファイルと同じディレクトリの `scripts/` にある（以下 `<skill>/scripts/`）。
 
-## 1. main に切り替えて最新にする
+## 1. develop に切り替えて最新にする
+
+データ整備の間（T5-05）は、`develop` が統合ブランチ（`AGENTS.md`・`git-workflow.md`）。feature ブランチは `develop` から切り、PR は `develop` 向けに出す。`main` 向けの PR（公開の前の `develop` → `main`）だけ、CI・プレビューが動く。
 
 ```bash
 git status --porcelain
 git config --get-all remote.origin.fetch | grep -qxF '^refs/heads/screenshots' \
   || git config --add remote.origin.fetch '^refs/heads/screenshots'
 git update-ref -d refs/remotes/origin/screenshots
-git switch main && git pull --ff-only
+git switch develop && git pull --ff-only
 ```
 
 - 2〜3行目：`screenshots` ブランチ（PRの画像）を、この後の `git pull` と手順2の `git fetch --prune` で取らないようにする。取ると、PRが増えるたびに画像のダウンロードが増える。設定してあれば何もしない。4行目は、前に取った追跡ブランチを消す（`--prune` では消えない）。なければ何もしない。
 
 - 作業ツリーに変更があれば、**切り替える前に止めて**ユーザーに確認する。変更を失わないため。
   推奨は「今のブランチにコミットする」（理由：stash は忘れられやすい）。
-- `--ff-only` が失敗したら（main にローカルだけのコミットがある）、止めて状況を伝える。main には直接 push しない決まりなので、何かがおかしい。
+- `--ff-only` が失敗したら（develop にローカルだけのコミットがある）、止めて状況を伝える。develop・main には直接 push しない決まりなので、何かがおかしい。
 
 ## 2. ローカルブランチを片付ける
 
@@ -40,7 +42,7 @@ git switch main && git pull --ff-only
 bash <skill>/scripts/branches.sh
 ```
 
-main 以外のブランチを、紐づくPRの状態で分類して出す（`git fetch --prune` も行う）。
+main・develop 以外のブランチを、紐づくPRの状態で分類して出す（`git fetch --prune` も行う）。
 
 | action | 状況 | すること |
 |---|---|---|
@@ -75,6 +77,27 @@ PRは、ブランチ名に `/<ID>-` を含むか、タイトルに `<ID>` を含
 - 「依存関係の補足」があれば読み、部分的な制約（例：「ブランチ保護だけは T0-04 の後」）を計画に反映する。
 - T5-05（残りの46県）は県ごとにPRをくり返すので、マージ済みのPRがあっても「完了」とは限らない。表の状態を正とする。
 
+### ほかのセッションが進めているタスクを除く
+
+計画の「作業中」はタスクのブランチの最初のコミットで書くので、PRを出すまで main には出ない。
+背景のエージェントや Codex がすでに着手したタスクを選ばないように、選ぶ前に worktree とブランチを見る
+（`docs/claude-codex-collab-design.md` 6.5）。
+
+```bash
+git worktree list
+git branch -a --list '*/<タスクID>-*'      # T5-05 は県ごとに '*/T5-05-*-<県の id>'
+gh pr list --state all --head <ブランチ名> --json number,state   # 見つかったブランチごと
+```
+
+- 次のどれかに当たるタスク（T5-05 は県）は**ほかのセッションが持っている**とみなす：
+  - そのブランチの worktree がある
+  - ローカルかリモートにブランチがあり、PRがない、またはPRがオープン中
+- PRがマージ済み・クローズ済みのブランチは、持っているとみなさない（手順2で片付ける対象）。
+  worktree が残っていれば、`git worktree remove` で消せることを報告にだけ書く（消すのはユーザーが頼んだときだけ。worktree に書きかけが残っているかもしれないため）。
+- 持っているタスクは、IDを指定されていなければ候補から外し、外したことを伝える。
+  IDを指定されていれば止めて確認する。推奨は別のタスクを選ぶこと（理由：同じブランチに2つのセッションが書くと、変更がぶつかる）。
+- その worktree の `.handoff/HANDOFF.md` の持ち主が `codex` なら、続けるよう頼まれても書き込まない（引き継ぎは一方通行。6.3）。
+
 ## 4. ブランチを作り、計画の状態を更新する
 
 ブランチ名は `<種別>/<タスクID>-<英語の短い説明>`（例：`chore/T0-02-component-e2e-tools`）。
@@ -85,7 +108,7 @@ git switch -c <種別>/<タスクID>-<slug>
 
 `docs/development-plan.md` 第3章の表を直す：
 
-- スクリプトの「計画を「完了」に直す」にあるタスク → `完了`。main に直接 push できないので、状態だけを直すPRを別に作らず、ここでまとめて直す。
+- スクリプトの「計画を「完了」に直す」にあるタスク → `完了`。develop に直接 push しないので、状態だけを直すPRを別に作らず、ここでまとめて直す。
 - これから着手するタスク → `作業中`。
 
 この変更を最初のコミットにする：`docs: <完了にしたID> を完了、<着手するID> を作業中にする`。
@@ -165,7 +188,7 @@ pnpm test:e2e   # 導入済み（T0-02 以降）なら
 
 - **レビューは Opus で行う。** Agent ツールで `code-reviewer` を呼ぶときに `model: "opus"` を指定する（定義の既定は Sonnet で、ほかの使い方のために変えない）。
   レビューは出力が少なく、判断の質が結果を左右するので、ここに Opus を使っても費用は小さい。
-  依頼文には、計画ファイルのパス、比べる範囲（`git diff main...HEAD`）、タスクの完了条件を書く。
+  依頼文には、計画ファイルのパス、比べる範囲（`git diff develop...HEAD`）、タスクの完了条件を書く。
 - **指摘の修正は、手順6の `task-implementer` に SendMessage で返す。** 指摘を CRITICAL・HIGH・MEDIUM に分けて渡す。
   報告が戻ったら、直した内容を確かめる。CRITICAL・HIGH を直したときは、もう一度レビューする。
 - **最終確認はメインで行う。** 上のコマンドをメインで実行する（出力が長いので、`2>&1 | tail -n 40` のように末尾だけを見る）。
@@ -199,7 +222,7 @@ PRを出す前に、計画ファイルを実際に作ったものに合わせて
 
 ```bash
 git push -u origin <branch>
-gh pr create --title "<type>: <英語の説明> (<タスクID>)" --body-file <本文のファイル>
+gh pr create --base develop --title "<type>: <英語の説明> (<タスクID>)" --body-file <本文のファイル>
 ```
 
 - タイトルは英語、末尾に `(<タスクID>)` を付ける（手順3で、タスクとPRを結び付けるのに使う）。

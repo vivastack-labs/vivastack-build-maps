@@ -16,5 +16,135 @@ capital:
     zh: "鸟取市"
   lat: 35.503426
   lon: 134.238403
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}と{特急|とっきゅう}", en: "Shinkansen and limited express", zh: "新干线和特快列车"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {岡山駅|おかやまえき} → {鳥取駅|とっとりえき}"
+    en: "Tokyo Station → Okayama Station → Tottori Station"
+    zh: "东京站 → 冈山站 → 鸟取站"
+  # 東京始発の「のぞみ25号」（毎日運転）：東京 10:30 発 → 岡山 13:47 着。岡山で特急「スーパーいなば7号」（2078D。毎日運転）に乗り換え：
+  # 岡山 14:01 発 → 鳥取 15:52 着。東京 10:30 発から鳥取 15:52 着まで322分（乗り換えの待ち時間14分を含む）。
+  # JR時刻表2026年11月号に基づく時刻
+  durationMin: 322
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/25371"
+      accessed: "2026-11-18"
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/59481"
+      accessed: "2026-11-18"
+  status: verified
+specialties:
+  - id: matsuba-gani
+    emoji: "🦀"
+    name: {ja: "{松葉|まつば}がに", en: "Matsuba Crab", zh: "松叶蟹"}
+    description:
+      ja:
+        kids: "{大|おお}きなオスのズワイガニだよ。11{月|がつ}から3{月|がつ}にとれるんだ。"
+        adult: "{成長|せいちょう}したオスのズワイガニです。{漁|りょう}は11{月|がつ}{上旬|じょうじゅん}から3{月|がつ}で、\
+          ゆでるほか、かにすきや{焼|や}きがにで{食|た}べます。"
+      en:
+        kids: "These are big male snow crabs. They are caught from November to March."
+        adult: "This is the name for grown male snow crabs, caught from early November to March. Besides boiling, people enjoy them in hot pots or grilled."
+      zh:
+        kids: "大大的雄性雪蟹，11月到3月可以捕到。"
+        adult: "长大的雄性雪蟹。捕捞期为11月上旬到3月，除了煮，还可以做火锅或烤着吃。"
+    sources:
+      - title: "松葉がに/とりネット/鳥取県公式サイト"
+        url: "https://www.pref.tottori.lg.jp/178131.htm"
+        accessed: "2026-11-18"
+    status: verified
+  - id: nijisseiki-nashi
+    emoji: "🍐"
+    name: {ja: "{二十世紀梨|にじっせいきなし}", en: "Nijisseiki Pears", zh: "二十世纪梨"}
+    description:
+      ja:
+        kids: "みずみずしくて、シャキシャキした{梨|なし}だよ。{夏|なつ}から{秋|あき}に{食|た}べられるんだ。"
+        adult: "{夏|なつ}から{秋|あき}に{味|あじ}わえる{梨|なし}で、1904{年|ねん}に{千葉県|ちばけん}から{苗木|なえぎ}が{入|はい}りました。\
+          {果汁|かじゅう}が{多|おお}く、シャキシャキしています。"
+      en:
+        kids: "These pears are juicy and crisp. You can eat them from summer to autumn."
+        adult: "These pears are enjoyed from summer to autumn. Saplings were brought from Chiba in 1904. They are juicy and crisp."
+      zh:
+        kids: "水分多、口感脆的梨。从夏天到秋天都能吃到。"
+        adult: "夏秋时节可以品尝的梨，1904年从千叶县引进了树苗。汁多爽脆。"
+    sources:
+      - title: "梨/とりネット/鳥取県公式サイト"
+        url: "https://www.pref.tottori.lg.jp/178199.htm"
+        accessed: "2026-11-18"
+    status: verified
+  - id: inshu-washi
+    emoji: "📜"
+    name: {ja: "{因州和紙|いんしゅうわし}", en: "Inshu Washi Paper", zh: "因州和纸"}
+    description:
+      ja:
+        kids: "{昔|むかし}から{作|つく}られている{紙|かみ}だよ。{書道|しょどう}で{字|じ}を{書|か}く{紙|かみ}にもなるんだ。"
+        adult: "{平安時代|へいあんじだい}の{延喜式|えんぎしき}に、{因幡|いなば}から{朝廷|ちょうてい}へ{紙|かみ}を{納|おさ}めた{記録|きろく}が{残|のこ}る{和紙|わし}。\
+          {書道|しょどう}の{紙|かみ}などを{作|つく}る{国|くに}の{伝統的工芸品|でんとうてきこうげいひん}です。"
+      en:
+        kids: "This paper has been made since long ago. It is also used for calligraphy."
+        adult: "Heian-period court records called the Engishiki note paper sent from Inaba to the court. Used for calligraphy, this washi is a national traditional craft."
+      zh:
+        kids: "从很久以前就开始做的纸，也可以用来写书法。"
+        adult: "平安时代的《延喜式》记载因幡向朝廷献纸。该工艺制作书法用纸等，是国家传统工艺品。"
+    sources:
+      - title: "因州和紙/とっとりの工芸品/とりネット/鳥取県公式サイト"
+        url: "https://www.pref.tottori.lg.jp/95609.htm"
+        accessed: "2026-11-18"
+      - title: "伝統工芸品と伝統工芸士/とっとりの工芸品/とりネット/鳥取県公式サイト"
+        url: "https://www.pref.tottori.lg.jp/95607.htm"
+        accessed: "2026-11-18"
+    status: verified
+spots:
+  - id: tottori-sakyu
+    name: {ja: "{鳥取砂丘|とっとりさきゅう}", en: "Tottori Sand Dunes", zh: "鸟取沙丘"}
+    description:
+      ja:
+        kids: "{海|うみ}のそばに、{大|おお}きな{砂|すな}の{丘|おか}が{広|ひろ}がっているよ。"
+        adult: "{東西|とうざい}16km・{南北|なんぼく}2.4kmの{海岸|かいがん}の{砂丘|さきゅう}で、{一部|いちぶ}が{国|くに}の{天然記念物|てんねんきねんぶつ}です。"
+      en:
+        kids: "Huge hills of sand spread out beside the sea."
+        adult: "This coastal dune spans 16 km east-west and 2.4 km north-south; part is a national natural monument."
+      zh:
+        kids: "在海边，大大的沙丘一直延伸开去。"
+        adult: "海岸沙丘东西16公里、南北2.4公里，部分为国家天然纪念物。"
+    sources:
+      - title: "鳥取砂丘ってどこにあるの？/砂丘事務所/とりネット/鳥取県公式サイト"
+        url: "https://www.pref.tottori.lg.jp/153169.htm"
+        accessed: "2026-11-18"
+    status: verified
+  - id: nageiredo
+    name: {ja: "{三徳山|みとくさん}{投入堂|なげいれどう}", en: "Mount Mitoku Nageiredo Hall", zh: "三德山投入堂"}
+    description:
+      ja:
+        kids: "{山|やま}のがけのくぼみに{建|た}っている、{古|ふる}いお{堂|どう}だよ。"
+        adult: "{三徳山|みとくさん}の{北|きた}の{斜面|しゃめん}、{崖|がけ}のくぼみに{建|た}つ{国宝|こくほう}のお{堂|どう}。{平安時代|へいあんじだい}{後期|こうき}の{建物|たてもの}です。"
+      en:
+        kids: "An old hall built in a hollow in a mountain cliff."
+        adult: "This late Heian-period National Treasure hall sits in a cliff hollow on Mount Mitoku's north face."
+      zh:
+        kids: "建在山崖凹陷处的古老佛堂。"
+        adult: "建在三德山北坡山崖凹处的国宝佛堂，建于平安时代后期。"
+    sources:
+      - title: "三徳山三佛寺|三徳山 公式ホームページ"
+        url: "https://www.mitokusan.jp/"
+        accessed: "2026-11-18"
+    status: verified
+  - id: daisen
+    name: {ja: "{大山|だいせん}", en: "Mount Daisen", zh: "大山"}
+    description:
+      ja:
+        kids: "{中国地方|ちゅうごくちほう}でいちばん{高|たか}い{山|やま}。{頂上|ちょうじょう}から{海|うみ}が{見|み}えるよ。"
+        adult: "{中国地方|ちゅうごくちほう}の{最高峰|さいこうほう}で、ブナの{森|もり}が{広|ひろ}がります。{標高|ひょうこう}1709mの{弥山|みせん}から{海|うみ}が{見|み}えます。"
+      en:
+        kids: "The tallest mountain in the Chugoku region. You can see the sea from the top."
+        adult: "The Chugoku region's highest peak has beech forests, and from 1,709-meter Misen Peak you can see the sea."
+      zh:
+        kids: "日本中国地区最高的山，从山顶能看到大海。"
+        adult: "日本中国地区最高峰，有山毛榉林，登1709米的弥山可望大海。"
+    sources:
+      - title: "環境省_大山"
+        url: "https://chushikoku.env.go.jp/park/daisen/viewpoint/mt_daisen/index.html"
+        accessed: "2026-11-18"
+    status: verified

@@ -17,5 +17,129 @@ capital:
     zh: "冈山市"
   lat: 34.661462
   lon: 133.934355
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {岡山駅|おかやまえき}"
+    en: "Tokyo Station → Okayama Station"
+    zh: "东京站 → 冈山站"
+  # 東京始発の「のぞみ25号」（毎日運転）：東京 10:30 発 → 岡山 13:47 着（197分。乗り換えなし）。JR時刻表2026年11月号に基づく時刻
+  durationMin: 197
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/25371"
+      accessed: "2026-11-17"
+  status: verified
+specialties:
+  - id: barazushi
+    emoji: "🍣"
+    name: {ja: "ばらずし", en: "Barazushi", zh: "散寿司"}
+    description:
+      ja:
+        kids: "{魚|さかな}や{野菜|やさい}を{混|ま}ぜたすしで、{春|はる}と{秋|あき}の{祭|まつ}りの{日|ひ}に{食|た}べるよ。"
+        adult: "{江戸|えど}{時代|じだい}の{節約令|せつやくれい}のもとで{庶民|しょみん}が{魚|さかな}や{野菜|やさい}を{混|ま}ぜて{食|た}べたすしで、\
+          {春|はる}と{秋|あき}の{祭|まつ}りにも{作|つく}られます。"
+      en:
+        kids: "This sushi is mixed with fish and vegetables and eaten on festival days in spring and autumn."
+        adult: "Under an Edo-period frugality order, common people ate sushi mixed with fish and vegetables; it is also made for spring and autumn festivals."
+      zh:
+        kids: "混合了鱼和蔬菜的寿司，春天和秋天的祭典日会吃。"
+        adult: "江户时代节约令之下，百姓将鱼和蔬菜混在一起吃的寿司，春秋祭典时也会制作。"
+    sources:
+      - title: "まつりずし／ばらずし 岡山県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/41_1_okayama.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: mamakari
+    emoji: "🐟"
+    name: {ja: "ママカリの{酢漬|すづ}け", en: "Mamakari Pickled in Vinegar", zh: "醋渍借饭鱼"}
+    description:
+      ja:
+        kids: "ご{飯|はん}を{借|か}りに{行|い}くほどおいしいといわれる{魚|さかな}を、{酢|す}に{漬|つ}けて{食|た}べるよ。"
+        adult: "{瀬戸内海|せとないかい}で{取|と}れる{魚|さかな}。ご{飯|はん}を{借|か}りに{行|い}くほどおいしいのが{名|な}の{由来|ゆらい}とされ、\
+          {酢|す}に{漬|つ}けて{骨|ほね}ごと{食|た}べます。"
+      en:
+        kids: "Said to be so tasty that people would go and borrow rice for it, this fish is pickled in vinegar."
+        adult: "Mamakari, a Seto Inland Sea fish said to be named for being tasty enough to borrow rice for, is vinegar-pickled and eaten bones and all."
+      zh:
+        kids: "据说好吃到让人想去借饭的鱼，用醋腌渍后食用。"
+        adult: "这种濑户内海的鱼，据说因好吃到要去借饭而得名，用醋腌渍后连骨头一起吃。"
+    sources:
+      - title: "ママカリの酢漬け 岡山県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/41_3_okayama.html"
+        accessed: "2026-11-17"
+    status: verified
+  - id: bizenyaki
+    emoji: "🏺"
+    name: {ja: "{備前焼|びぜんやき}", en: "Bizen Ware", zh: "备前烧"}
+    description:
+      ja:
+        kids: "うわぐすりをぬらずに{高|たか}い{温度|おんど}で{焼|や}いて、{灰|はい}や{炭|すみ}で{模様|もよう}ができるよ。"
+        adult: "{釉薬|ゆうやく}をかけずに1200〜1300{度|ど}で{焼|や}き、{灰|はい}や{炭|すみ}が{模様|もよう}を{生|う}み、\
+          {備前市|びぜんし}の{伊部|いんべ}が{代表的|だいひょうてき}な{産地|さんち}です。"
+      en:
+        kids: "This pottery has no glaze, is fired at a very high temperature, and gets patterns from ash and charcoal."
+        adult: "Fired at 1,200 to 1,300°C without glaze, it gets patterns from ash and charcoal. Inbe in Bizen City is its best-known production area."
+      zh:
+        kids: "这种陶器不上釉，在很高的温度下烧制，灰和炭会让它出现花纹。"
+        adult: "以备前市伊部为代表产地，不上釉，在1200至1300度下烧制，灰和炭形成花纹。"
+    sources:
+      - title: "備前焼とは｜岡山観光WEB【公式】- 岡山県の観光・旅行情報ならココ！"
+        url: "https://www.okayama-kanko.jp/feature/bizenyaki/1"
+        accessed: "2026-11-17"
+    status: verified
+spots:
+  - id: korakuen
+    name: {ja: "{岡山後楽園|おかやまこうらくえん}", en: "Okayama Korakuen Garden", zh: "冈山后乐园"}
+    description:
+      ja:
+        kids: "{殿様|とのさま}がのんびりするために{作|つく}った{庭|にわ}だよ。"
+        adult: "{日本三名園|にほんさんめいえん}の{一|ひと}つで、{岡山藩|おかやまはん}の{池田綱政|いけだつなまさ}がくつろぐために\
+          {築|きず}いた{大名庭園|だいみょうていえん}です。"
+      en:
+        kids: "A garden that a lord had built so he could relax."
+        adult: "Built for relaxing by Okayama's lord Ikeda Tsunamasa, this daimyo garden is one of Japan's Three Great Gardens."
+      zh:
+        kids: "领主为了悠闲休息而建的庭园。"
+        adult: "冈山藩主池田纲政为休憩而建的大名庭园，是日本三名园之一。"
+    sources:
+      - title: "岡山後楽園｜スポット｜岡山観光WEB【公式】- 岡山県の観光・旅行情報ならココ！"
+        url: "https://www.okayama-kanko.jp/spot/10001"
+        accessed: "2026-11-17"
+    status: verified
+  - id: kurashiki-bikan
+    name: {ja: "{倉敷美観地区|くらしきびかんちく}", en: "Kurashiki Bikan Historical Quarter", zh: "仓敷美观地区"}
+    description:
+      ja:
+        kids: "{川|かわ}ぞいに{白|しろ}いかべの{蔵|くら}や{柳|やなぎ}が{並|なら}ぶ、きれいな{町|まち}だよ。"
+        adult: "{倉敷川|くらしきがわ}{沿|ぞ}いに{白壁|しらかべ}の{蔵|くら}や{柳並木|やなぎなみき}が{続|つづ}き、\
+          1930{年|ねん}{設立|せつりつ}の{大原美術館|おおはらびじゅつかん}などが{建|た}ちます。"
+      en:
+        kids: "A pretty town where white-walled storehouses and willows line the river."
+        adult: "White-walled storehouses and willows line the Kurashiki River, where the Ohara Museum of Art, founded in 1930, stands."
+      zh:
+        kids: "河边有白墙仓库和柳树，是漂亮的街区。"
+        adult: "仓敷川畔有白墙仓库和柳树，还有1930年创立的大原美术馆等。"
+    sources:
+      - title: "倉敷美観地区｜スポット｜岡山観光WEB【公式】- 岡山県の観光・旅行情報ならココ！"
+        url: "https://www.okayama-kanko.jp/spot/10226"
+        accessed: "2026-11-17"
+    status: verified
+  - id: bitchu-matsuyama-castle
+    name: {ja: "{備中松山城|びっちゅうまつやまじょう}", en: "Bitchu Matsuyama Castle", zh: "备中松山城"}
+    description:
+      ja:
+        kids: "{高|たか}い{山|やま}の{上|うえ}に{天守|てんしゅ}が{残|のこ}る、めずらしいお{城|しろ}だよ。"
+        adult: "{天守|てんしゅ}が{残|のこ}る12の{城|しろ}で{山城|やまじろ}はここだけ。{臥牛山|がぎゅうざん}の{山頂|さんちょう}{近|ちか}く、{標高|ひょうこう}430mに{建|た}ちます。"
+      en:
+        kids: "A rare castle on a high mountain that still has its castle tower."
+        adult: "The only mountain castle of the 12 with original keeps, at 430 m near Mount Gagyu's summit."
+      zh:
+        kids: "高山上保留着天守的稀有城堡。"
+        adult: "12座现存天守中唯一的山城，位于卧牛山顶附近，海拔430米。"
+    sources:
+      - title: "天守が残る唯一の山城｜岡山観光WEB【公式】- 岡山県の観光・旅行情報ならココ！"
+        url: "https://www.okayama-kanko.jp/feature/matsuyamacastle/1"
+        accessed: "2026-11-17"
+    status: verified
