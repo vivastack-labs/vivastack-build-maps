@@ -14,7 +14,7 @@ description: 現在の作業ブランチの全差分・テンプレート・PRP�
 - 同一headの既存PRを検索し、あればURLを報告して新規作成しない。
 - テンプレートを `.github/PULL_REQUEST_TEMPLATE/`（`default.md`優先）、`.github/PULL_REQUEST_TEMPLATE.md`、`.github/pull_request_template.md`、`docs/pull_request_template.md` の順に探す。複数候補で既定がなければ推奨と理由を付けて選択を求める。
 - baseからの全コミットと `git diff origin/<base>...HEAD`、ファイル一覧・統計、作業ツリーを確認する。直近コミットだけで判断しない。実装・テスト・文書・設定等に整理する。20ファイル超なら論理的に分割すべきか検討し、必要な判断だけ戻す。
-- `.codex/reports/`、`.codex/plans/`（完了分を含む）、`.codex/prds/` の関連成果物を読む。Claude側成果物は必要なら参照するだけで更新・移動しない。
+- `.codex/reports/`、`.codex/plans/`（完了分を含む）、`.codex/prds/` の関連成果物を読む。Claude側成果物は必要なら参照するだけで更新・移動しない。ただし Claude Code から引き継いだタスク（`.handoff/HANDOFF.md` の持ち主が `codex`）では、`.claude/PRPs/plans/` の計画を関連成果物として読み、PR本文の計画のリンクはその場所を指す。本文には Claude Code から引き継いだことと、台帳の「引き継いだ時点のコミット」を書く（`docs/claude-codex-collab-design.md` 6.2）。
 
 ## レビュー可能な本文の準備
 

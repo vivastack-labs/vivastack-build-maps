@@ -12,7 +12,7 @@
 | 項目 | 方針 |
 |---|---|
 | 目的 | (1) Codex が単独でタスクを着手から PR まで進められる。(2) Claude Code が 5時間の上限などで止まったら、同じ worktree・同じブランチで Codex が続きを引き継ぎ、PR まで仕上げる |
-| 向き | **Claude → Codex だけ**。Codex が止まっても Claude には引き継がない（Codex のセッションの再開〔`codex resume`〕で続ける）。Claude が戻ったら、Codex が持っているタスクには触らず、別のタスクに進む |
+| 向き | **Claude → Codex だけ**。Codex が止まっても Claude には引き継がない（Codex のセッションの再開〔`codex resume`〕か、Codex の `save-session`・`resume-session` スキルで続ける）。Claude が戻ったら、Codex が持っているタスクには触らず、別のタスクに進む |
 | 引き継ぎの開始 | **人が Codex を起動して頼んだときだけ**（自動で Codex を動かさない） |
 | 中断の前提 | 上限は**ターンの途中で突然**来る。止まった Claude は何も書けないので、「止まる前に書く」だけに頼らない（3段で残す。4章） |
 | 状態の正 | 既存の成果物（ブランチ・コミット・**作業ツリー**・実装計画・`docs/development-plan.md` の状態・YAML の `status`）。引き継ぎのファイルには、そこに無いことだけを書く |
@@ -29,10 +29,10 @@
 | 並行作業 | 県ごとに worktree（`vivastack-build-maps.wt/hiroshima` など）。メインのセッションが背景のエージェントに任せる | Claude が止まると全部の worktree が同時に止まる。worktree ごとに引き継ぐ |
 | スキル | `next-task`・`gotouchi-content` は `.claude/skills/` と `.agents/skills/` の両方にある（D22） | Codex は引き継いだ後も `.agents/skills/` の手順に従う（Claude のスキルは参照だけ） |
 | エージェント | Claude：`.claude/agents/`。Codex：`.codex/agents/` に `gotouchi-source-checker`・`gotouchi-derivative-checker`・`code-reviewer`・`security-reviewer`・`task-implementer`・`general-purpose` | 引き継いだ側が②④・レビューを自分のエージェントで行う。「Claude に戻ってからやること」は作らない |
-| 実装計画 | Claude：`.claude/PRPs/plans/`。Codex：`.codex/plans/`（Codex の `next-task` は Claude 側に書き込まない。引き継いだタスクだけは例外） | 引き継いだタスクの計画は、元の場所のまま Codex が更新する（6.2 の4） |
-| Codex の hooks | `.codex/hooks.json` → `run.js`（`.claude/hooks/scripts/` を再利用）。`--no-verify`・force push の拒否、gitleaks、設定ファイルの保護 | **security-trigger がまだ無い**。Codex が単独でコミットする前提なので、足すことを導入の条件にする（9章） |
-| セッションの記録 | Claude：`~/.claude/vivastack-cc-workflows/sessions/`、会話は `~/.claude/projects/<パス>/*.jsonl`（各行に `cwd`・`gitBranch`）。Codex：`.codex/hooks/state/sessions/` | Codex は Claude の記録を読まない。これが今の引き継ぎの穴（逆向きは要らない） |
-| 既存のコマンド | `save-session`・`resume-session`（保存先が `~/.claude/`。Claude 同士の再開用） | 新しいコマンドは `/handoff` にする |
+| 実装計画 | Claude：`.claude/PRPs/plans/`。Codex：`.codex/plans/`（Codex の `next-task`・`prp-plan`・`prp-implement` は Claude 側に書き込まない。引き継いだタスクだけは例外で、`next-task`・`prp-implement`・`prp-pr` に書いてある） | 引き継いだタスクの計画は、元の場所のまま Codex が更新する（6.2 の4） |
+| Codex の hooks | `.codex/hooks.json` → `run.js`（`.claude/hooks/scripts/` を再利用）。`--no-verify`・force push の拒否、gitleaks、**security-trigger**（`project:pre:bash:security-trigger`）、設定ファイルの保護 | security-trigger は `chore/codex-hook-parity`（421781d）で入った。解除は `node .codex/hooks/mark-security-reviewed.js`。記録は `git rev-parse --git-path security-reviewed`（worktree では本体の `.git/worktrees/<名前>/`）に置き、Claude と共通 |
+| セッションの記録 | Claude：`~/.claude/vivastack-cc-workflows/sessions/`、会話は `~/.claude/projects/<パス>/*.jsonl`（各行に `cwd`・`gitBranch`）。Codex：hooks の記録は `.codex/hooks/state/sessions/`、`save-session` の記録は worktree ごとの `.codex/sessions/`（Git の対象外） | Codex は Claude の記録を読まない。これが今の引き継ぎの穴（逆向きは要らない） |
+| 既存のコマンド・スキル | Claude：`save-session`・`resume-session`（保存先が `~/.claude/`。Claude 同士の再開用）。Codex：同じ名前のスキル（`.agents/skills/`。保存先は `.codex/sessions/`。Claude の記録は明示したパスなら読めるが、自動では探さない）と `prp-commit`・`prp-pr` など（`docs/reports/codex-command-migration.md`） | 新しいコマンドは `/handoff` にする。Codex 同士の再開は `save-session`・`resume-session` を使い、引き継ぎ用の仕組みは作らない |
 
 ## 3. 全体構成
 
@@ -124,7 +124,7 @@ flowchart LR
 5. 「スキルと手順」に当たる **Codex のスキル**（`.agents/skills/next-task`・`gotouchi-content`）を読み、その手順の続きから従う。エージェントを呼ぶ手順は `.codex/agents/` の同じ役割のもので行う（②④、コードレビュー、セキュリティのレビュー）。飛ばさない。
 6. 区切りごとに `HANDOFF.md` を更新する（更新者 `codex`）。
 7. ②④を通った項目は、Codex の `gotouchi-content` の決まりどおり `verified` にしてよい。`reviewed` にはしない。
-8. コミットは security-trigger を通す（9章の前提）。push と `gh pr create --base develop` まで行い、PR の本文に「Claude Code から引き継いだ」ことと引き継いだ時点のコミットを書く。
+8. コミットは security-trigger を通す（止められたら `.codex/agents/security-reviewer` でレビューし、`node .codex/hooks/mark-security-reviewed.js` の後に `git commit`。`git add` と `git commit` は分ける）。push と `gh pr create --base develop` まで行い（Codex の `prp-commit`・`prp-pr` を使ってよい）、PR の本文に「Claude Code から引き継いだ」ことと引き継いだ時点のコミットを書く。
 9. Codex がしないこと：merge、`main`・`develop` への直接の push、`reviewed` への変更、`git reset --hard`・`git clean`。
 
 ### 6.3 Claude が戻ったとき
@@ -159,19 +159,20 @@ flowchart LR
 |---|---|---|---|---|
 | 1 | 上限で `StopFailure` が動き、何が入るか | hook で入力を `.handoff/stopfailure.json` に書き、上限に当たるまで使う | エラーの種類（上限か）・`session_id`・`transcript_path` が取れる | 段2をやめ、段3（Codex 側の再構成）だけにする |
 | 2 | 会話記録の形 | `*.jsonl` の `cwd`・`gitBranch`・作業リストの行を見る | 2.1.326 では `cwd`・`gitBranch` があることを確認済み。作業リストの形は要確認 | 最後のユーザーの依頼と Claude の文だけにする |
-| 3 | worktree での Codex のコミット | worktree で Codex に `git commit` させる | 通る | worktree の `.git` は本体の `.git/worktrees/` を指し、workspace の外になる。`[sandbox_workspace_write] writable_roots` に本体の `.git` を足す |
+| 3 | worktree での Codex のコミット | worktree で Codex に `git commit` と `node .codex/hooks/mark-security-reviewed.js` をさせる | 通る | worktree の `.git` は本体の `.git/worktrees/` を指し、workspace の外になる（security-trigger の記録も同じ場所）。`[sandbox_workspace_write] writable_roots` に本体の `.git` を足す |
 | 4 | worktree でのプロジェクト・hooks の信頼 | worktree で `codex` を起動し、`/hooks` を見る | 信頼済み | worktree のパスごとに信頼する（`~/.codex/config.toml` の `projects`） |
 | 5 | Codex の push・`gh pr create` | ネットワークを使う操作をさせる | 承認を求められ、許せば通る | 単独で PR まで進められないので、導入を止めて設定を見直す（一方通行のため Claude には回せない） |
 | 6 | Codex で出典のページを開けるか | `gotouchi-content` の①②で、出典の URL を読ませる | 本文を読める | ①②を Codex で行えないので、Codex の `gotouchi-content` の決まり（①②を止めて報告）に従い、人が判断する |
 | 7 | Codex の検証役・レビュー役を呼べるか | `.codex/agents/` の `gotouchi-source-checker`・`code-reviewer`・`security-reviewer` に頼む | 決まった形の報告が返る | メインが同じ手順を自分で行い、その旨を PR に書く |
-| 8 | Codex の security-trigger | security-trigger の対象の語を含む変更を `git commit` させる | 止まり、レビューの後の解除でだけ通る | 導入を止める（9章の前提を満たさない） |
+| 8 | Codex の security-trigger | security-trigger の対象の語を含む変更を `git commit` させる（`run.test.js` の結合テストは通っている。実機の Codex で確かめる） | 止まり、`node .codex/hooks/mark-security-reviewed.js` の後でだけ通る | 導入を止める（9章の前提を満たさない） |
 
 ## 9. 段階導入
 
 前提（引き継ぎより先に入れる。Codex が単独でコミットするための条件）：
 
-- Codex の hooks（`.codex/hooks.json`・`run.js`）に security-trigger を足す。`commit` の前に止め、`.codex/agents/security-reviewer` でレビューした後に解除する流れを Claude と同じにする（`chore/codex-hook-parity`）。
+- ~~Codex の hooks（`.codex/hooks.json`・`run.js`）に security-trigger を足す~~：済み（`chore/codex-hook-parity` の 421781d。merge の前。実機の確認は8章の8）。
 - 両方の `next-task` に、既にあるブランチ・worktree のタスクを飛ばす手順を足す（6.5）。
+- ~~Codex の `prp-implement`・`prp-pr` に、`next-task` と同じ例外を足す~~：済み（引き継いだタスクの計画は `.claude/PRPs/plans/` のまま更新し、`.codex/plans/` に写さない。6.2 の4）。
 
 引き継ぎ：
 
@@ -186,7 +187,7 @@ flowchart LR
 | 元の案 | 外した理由 |
 |---|---|
 | `/delegate-green`（Codex に Green を任せる） | 目的（中断からの引き継ぎ）と別。今はデータ整備でコードのタスクが少ない。必要になったら別に設計する |
-| Codex → Claude の引き継ぎ（`/handoff resume`） | Codex が自分のスキル・エージェントで PR まで仕上げられるので、戻す必要がない。向きを1つにすると、持ち主の切り替えと台帳の書き手が単純になる。Codex が止まったら `codex resume` で続ける |
+| Codex → Claude の引き継ぎ（`/handoff resume`） | Codex が自分のスキル・エージェントで PR まで仕上げられるので、戻す必要がない。向きを1つにすると、持ち主の切り替えと台帳の書き手が単純になる。Codex が止まったら `codex resume` か `resume-session` で続ける |
 | 「Claude に戻ったらやること」 | Codex 側に検証・レビューのエージェントと security-trigger を揃えるので、Codex で済ませる |
 | WIP コミット | 作業ツリーは同じディスクにあり、コミットしなくても渡る。PR の履歴に残り、hook にも止められる |
 | リポジトリの直下の `HANDOFF.md`（Git で管理） | worktree が並行するため1つでは足りない。`develop` 向けの PR に混ざる |
@@ -200,7 +201,8 @@ flowchart LR
 |---|---|
 | 止まった時点の文脈が残らない | 3段で残す（4章）。それでも足りない分は、作業ツリーと計画ファイルから Codex が読み取る。②④の結果が残っていなければ、Codex の検証役でやり直す |
 | Codex の検証・レビューが Claude と食い違う | どちらの検証も `verified` までで、`reviewed` は人のレビュー（⑦）とオーナーの判断（⑧）を通す。揃えるため、片方のエージェント・スキル・ルールを変えたら、もう片方も見直す |
-| Codex のコミットがセキュリティのレビューを通らない | security-trigger を Codex に入れることを導入の条件にする（9章の前提） |
+| Codex のコミットがセキュリティのレビューを通らない | Codex の hooks に security-trigger を入れた（421781d）。実機で止まることを確かめてから導入する（8章の8） |
+| 引き継いだタスクの計画が2つになる | Codex の `next-task`・`prp-implement`・`prp-pr` に、引き継いだタスクの計画は元の場所で更新する例外を書いた |
 | Claude と Codex が同じ worktree・同じタスクを触る | 台帳の持ち主で示し、`codex` の worktree に Claude は書き込まない。同時に動かさない。タスクの選択で既にあるブランチを飛ばす（6.5） |
 | 会話記録の秘密が写しに入る | `.handoff/` は Git の対象外。書く前に伏せる |
 | `AGENTS.md` が 32KiB を超える | 足すのは約 0.8KB。詳しいことはこのファイルに置く |
