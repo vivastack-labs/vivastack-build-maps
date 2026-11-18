@@ -17,5 +17,129 @@ capital:
     zh: "盛冈市"
   lat: 39.703388
   lon: 141.152748
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {盛岡駅|もりおかえき}"
+    en: "Tokyo Station → Morioka Station"
+    zh: "东京站 → 盛冈站"
+  # はやぶさ15号：東京10:18発、盛岡12:32着。JR東日本2026年11月時刻表。
+  durationMin: 134
+  sources:
+    - title: "時刻表　停車駅一覧（新幹線はやぶさ 15号（東京－新青森）／新幹線こまち 15号（東京－盛岡－秋田））：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/train/110/111151.html"
+      accessed: "2026-11-18"
+  status: draft
+specialties:
+  - id: nanbu-tekki
+    emoji: "🍵"
+    name: {ja: "{南部鉄器|なんぶてっき}", en: "Nanbu Ironware", zh: "南部铁器"}
+    description:
+      ja:
+        kids: "{鉄瓶|てつびん}などがある、{盛岡市|もりおかし}と{奥州市|おうしゅうし}の{鉄|てつ}の{道具|どうぐ}だよ。"
+        adult: "{盛岡市|もりおかし}と{奥州市|おうしゅうし}を{産地|さんち}とする{鉄器|てっき}です。{鉄瓶|てつびん}などのほか、{現代|げんだい}の{生活|せいかつ}に{合|あ}う{製品|せいひん}もあります。"
+      en:
+        kids: "Ironware made in Morioka and Oshu includes kettles for boiling water."
+        adult: "Ironware from Morioka and Oshu includes kettles and products suited to modern life."
+      zh:
+        kids: "盛冈市和奥州市制作的铁器，有烧水用的铁壶等。"
+        adult: "产自盛冈市和奥州市的铁器，除了铁壶，也有适合现代生活的制品。"
+    sources:
+      - title: "南部鉄器（いわてお国自慢）｜岩手県"
+        url: "https://www.pref.iwate.jp/kensei/profile/1000655/1021500.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: wanko-soba
+    emoji: "🍜"
+    name: {ja: "わんこそば", en: "Wanko Soba", zh: "碗仔荞麦面"}
+    description:
+      ja:
+        kids: "つゆをつけたあたたかいそばを、おわんに{次々|つぎつぎ}と{入|い}れてくれるよ。"
+        adult: "つゆをつけた{温|あたた}かいそばを、{給仕|きゅうじ}が{客|きゃく}のお{椀|わん}に{次々|つぎつぎ}と{入|い}れてくれる{岩手|いわて}の{食|た}べ{方|かた}です。"
+      en:
+        kids: "Warm soba noodles in broth are served into your bowl again and again."
+        adult: "A way of eating in Iwate where servers repeatedly add warm soba dipped in broth to your bowl."
+      zh:
+        kids: "蘸过汤汁的温荞麦面会不断添进你的碗里。"
+        adult: "岩手的吃法，由服务人员将蘸过汤汁的热荞麦面不断添入客人的碗中。"
+    sources:
+      - title: "穀類 | にっぽん伝統食図鑑：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/traditional-foods/bunrui/kokurui.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: hittsumi
+    emoji: "🍲"
+    name: {ja: "ひっつみ", en: "Hittsumi", zh: "手撕面片汤"}
+    description:
+      ja:
+        kids: "{小麦粉|こむぎこ}の{生地|きじ}を{手|て}でちぎり、{汁|しる}で{煮|に}て{食|た}べるよ。"
+        adult: "{小麦粉|こむぎこ}の{生地|きじ}を{手|て}でちぎって{汁|しる}で{煮|に}る{郷土|きょうど}{料理|りょうり}で、{具|ぐ}やだしは{家庭|かてい}や{地域|ちいき}で{異|こと}なります。"
+      en:
+        kids: "Pieces of wheat dough are torn by hand and simmered in soup."
+        adult: "A regional dish of hand-torn wheat dough simmered in soup, with ingredients and stock varying by household and region."
+      zh:
+        kids: "把面团用手撕成片，放进汤里煮着吃。"
+        adult: "手撕小麦面团放入汤中煮的乡土料理，配料和汤底因家庭和地区而异。"
+    sources:
+      - title: "ひっつみ／ひっつみ汁 岩手県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/28_1_iwate.html"
+        accessed: "2026-11-18"
+    status: verified
+spots:
+  - id: chusonji
+    name: {ja: "{中尊寺|ちゅうそんじ}", en: "Chuson-ji Temple", zh: "中尊寺"}
+    description:
+      ja:
+        kids: "{金箔|きんぱく}でかざられた{金色堂|こんじきどう}というお{堂|どう}があるよ。"
+        adult: "1124{年|ねん}に{藤原清衡|ふじわらのきよひら}が{建|た}てた{金色堂|こんじきどう}は、{内外|ないがい}に{金箔|きんぱく}が{施|ほどこ}されています。"
+      en:
+        kids: "Konjikido is a hall decorated with gold leaf."
+        adult: "Konjikido was built by Fujiwara no Kiyohira in 1124 and decorated inside and out with gold leaf."
+      zh:
+        kids: "金色堂是一座用金箔装饰的殿堂。"
+        adult: "中尊寺的金色堂由藤原清衡于1124年建造，内外饰有金箔。"
+    sources:
+      - title: "金色堂について │ 中尊寺を知る │ 関山 中尊寺［岩手県平泉 天台宗東北大本山］"
+        url: "https://www.chusonji.or.jp/know/konjikido.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: ryusendo
+    emoji: "💧"
+    name: {ja: "{龍泉洞|りゅうせんどう}", en: "Ryusendo Cave", zh: "龙泉洞"}
+    description:
+      ja:
+        kids: "{洞窟|どうくつ}の{中|なか}に、{湧|わ}き{水|みず}でできた{深|ふか}い{湖|みずうみ}があるよ。"
+        adult: "{岩泉町|いわいずみちょう}の{鍾乳洞|しょうにゅうどう}で、{国|くに}の{天然|てんねん}{記念物|きねんぶつ}です。{洞窟|どうくつ}には{湧|わ}き{水|みず}による{深|ふか}い{地底湖|ちていこ}があります。"
+      en:
+        kids: "Deep underground lakes in this cave are filled by spring water."
+        adult: "A limestone cave in Iwaizumi, designated a national natural monument, with deep underground lakes formed by spring water."
+      zh:
+        kids: "洞穴里有泉水形成的深深的地下湖。"
+        adult: "岩泉町的钟乳洞，是国家天然纪念物，洞内有泉水形成的深地下湖。"
+    sources:
+      - title: "環境省選定　名水百選／詳細ページ"
+        url: "https://water-pub.env.go.jp/water-pub/mizu-site/meisui/data/index.asp?info=6"
+        accessed: "2026-11-18"
+      - title: "位置、地形、面積、人口 | 岩泉町"
+        url: "https://www.town.iwaizumi.lg.jp/docs/2016021300010/"
+        accessed: "2026-11-18"
+    status: verified
+  - id: jodogahama
+    emoji: "🌊"
+    name: {ja: "{浄土|じょうど}ヶ{浜|はま}", en: "Jodogahama Beach", zh: "净土滨"}
+    description:
+      ja:
+        kids: "{海岸|かいがん}に、{白|しろ}くとがった{岩|いわ}が{並|なら}んでいるよ。"
+        adult: "{宮古市|みやこし}の{海岸|かいがん}に{白|しろ}くとがった{岩|いわ}が{並|なら}びます。{岩|いわ}は{火山岩|かざんがん}の{一種|いっしゅ}、{流紋岩|りゅうもんがん}です。"
+      en:
+        kids: "Sharp white rocks line the shore at this coastal spot."
+        adult: "On the coast of Miyako, sharp white rocks stand in a row; they are rhyolite, a volcanic rock."
+      zh:
+        kids: "海岸边排列着白色尖尖的岩石。"
+        adult: "宫古市的海岸上排列着白色尖岩，这些岩石是火山岩的一种流纹岩。"
+    sources:
+      - title: "浄土ヶ浜／岩手県宮古市 ホームページ Miyako City"
+        url: "https://www.city.miyako.iwate.jp/gyosei/kanko_bunka_sports/kankojoho/8/1/7383.html"
+        accessed: "2026-11-18"
+    status: verified
