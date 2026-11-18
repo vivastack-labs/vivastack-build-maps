@@ -5,7 +5,7 @@ description: >
   出典の URL を実際に開き、書かれた事実が出典にあるかを確かめて、決まった形の報告を返す。YAML は書き換えない。
   gotouchi-content スキルの手順②から呼ぶ。
 tools: ["Read", "Grep", "Glob", "WebFetch"]
-model: opus
+model: sonnet
 ---
 
 # gotouchi-source-checker：おとな向けの日本語と出典を照合する
