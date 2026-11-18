@@ -17,5 +17,130 @@ capital:
     zh: "德岛市"
   lat: 34.065625
   lon: 134.559386
-specialties: []
-spots: []
+access:
+  emoji: "✈️"
+  mode: {ja: "{飛行機|ひこうき}", en: "Plane", zh: "飞机"}
+  route:
+    ja: "{羽田空港|はねだくうこう} → {徳島|とくしま}{阿波|あわ}おどり{空港|くうこう}"
+    en: "Haneda Airport → Tokushima Awaodori Airport"
+    zh: "羽田机场 → 德岛阿波舞机场"
+  # 2026年11月の徳島着便時刻表より、JAL453（06:55発、08:10着）。
+  durationMin: 75
+  sources:
+    - title: "徳島着便時刻表"
+      url: "https://www.tokushima-airport.co.jp/flight/in/"
+      accessed: "2026-11-18"
+  status: verified
+specialties:
+  - id: tokushima-ramen
+    emoji: "🍜"
+    name: {ja: "{徳島|とくしま}ラーメン", en: "Tokushima Ramen", zh: "德岛拉面"}
+    description:
+      ja:
+        kids: "{豚|ぶた}バラ{肉|にく}や{生卵|なまたまご}がのったラーメンを、ごはんと{食|た}べるんだ。"
+        adult: "{茶色|ちゃいろ}のスープに{豚|ぶた}バラ{肉|にく}や{生卵|なまたまご}をのせるタイプがあり、ごはんを{添|そ}えて{食|た}べるのが{定番|ていばん}です。"
+      en:
+        kids: "Have some rice with ramen that has toppings like pork belly and raw egg."
+        adult: "One style has brown broth and toppings such as pork belly and raw egg. It is often served with rice."
+      zh:
+        kids: "拉面上放五花肉、生鸡蛋等配料，可以配米饭吃哦。"
+        adult: "这一类拉面的汤底呈棕色，会加五花肉、生鸡蛋等，常和米饭一起吃。"
+    sources:
+      - title: "たべたび徳島"
+        url: "https://www.awanavi.jp/archives/19819"
+        accessed: "2026-11-18"
+    status: verified
+  - id: sudachi
+    emoji: "🍋"
+    name: {ja: "すだち", en: "Sudachi Citrus", zh: "酸橘（Sudachi）"}
+    description:
+      ja:
+        kids: "{焼|や}き{魚|ざかな}にしぼると、さっぱりしたすっぱさが{楽|たの}しめるよ。"
+        adult: "{徳島|とくしま}{生|う}まれのかんきつ{類|るい}で、さっぱりした{酸味|さんみ}があります。{果汁|かじゅう}をしぼって{焼|や}き{魚|ざかな}にかけます。"
+      en:
+        kids: "Squeeze some over grilled fish for a fresh, tangy taste."
+        adult: "This citrus fruit originated in Tokushima and has a fresh, tart taste. Its juice is squeezed over grilled fish."
+      zh:
+        kids: "挤一点汁到烤鱼上，就能尝到清爽的酸味哦。"
+        adult: "这种柑橘原产于德岛，酸味清爽。人们常把果汁挤在烤鱼上。"
+    sources:
+      - title: "旧果樹研究所"
+        url: "https://www.pref.tokushima.lg.jp/tafftsc/material/kyukajyuken/"
+        accessed: "2026-11-18"
+      - title: "昨年ご好評いただいたすだち、ワーホリ。今年も開催します！"
+        url: "https://iju.pref.tokushima.lg.jp/news/6559/"
+        accessed: "2026-11-18"
+    status: verified
+  - id: awa-wasanbon
+    emoji: "🍬"
+    name: {ja: "{阿波和三盆糖|あわわさんぼんとう}", en: "Awa Wasanbon Sugar", zh: "阿波和三盆糖"}
+    description:
+      ja:
+        kids: "やさしい{甘|あま}さのお{砂糖|さとう}で、{和菓子|わがし}を{作|つく}るのに{使|つか}うよ。"
+        adult: "{竹糖|ちくとう}と{呼|よ}ばれるサトウキビから{作|つく}る{砂糖|さとう}です。やさしい{甘|あま}みがあり、{和菓子|わがし}に{使|つか}われます。"
+      en:
+        kids: "This sugar has a gentle sweetness and is used to make Japanese sweets."
+        adult: "Made from a sugarcane variety called chikuto, this gently sweet sugar is used in Japanese confections."
+      zh:
+        kids: "这种糖甜味柔和，是用来做日式点心的哦。"
+        adult: "这种糖用名为竹糖的甘蔗品种制成，甜味柔和，用于制作日式点心。"
+    sources:
+      - title: "阿波和三盆糖"
+        url: "https://www.awanavi.jp/archives/spot/2861"
+        accessed: "2026-11-18"
+      - title: "阿波の伝統菓子"
+        url: "https://www.awanavi.jp/wp-content/uploads/2023/02/awa-3.pdf"
+        accessed: "2026-11-18"
+    status: verified
+spots:
+  - id: uzu-no-michi
+    name: {ja: "{渦|うず}の{道|みち}", en: "Uzu no Michi", zh: "涡之道步道"}
+    description:
+      ja:
+        kids: "ガラスの{床|ゆか}の{下|した}に{渦潮|うずしお}が{見|み}えることがあるよ。"
+        adult: "{潮|しお}の{具合|ぐあい}で、ガラスの{床|ゆか}から{約|やく}45メートル{下|した}に{渦潮|うずしお}が{見|み}えることがあります。"
+      en:
+        kids: "Sometimes you can see whirlpools below the glass floor."
+        adult: "Depending on the tide, you may see whirlpools about 45 meters below the glass floor."
+      zh:
+        kids: "有时能看到玻璃地板下方的漩涡哦。"
+        adult: "随潮汐变化，有时能看见玻璃地板下方约45米处的漩涡。"
+    sources:
+      - title: "世界三大潮流を鳥の視点から眺めよう"
+        url: "https://www.uzunomichi.jp/guide-uzu-1/"
+        accessed: "2026-11-18"
+    status: verified
+  - id: iya-kazurabashi
+    name: {ja: "{祖谷|いや}のかずら{橋|ばし}", en: "Iya-no-Kazurabashi", zh: "祖谷藤桥"}
+    description:
+      ja:
+        kids: "{足元|あしもと}のすき{間|ま}から、{下|した}の{川|かわ}が{見|み}えるよ。"
+        adult: "つるを{編|あ}んだ{長|なが}さ{約|やく}45メートルのつり{橋|ばし}です。{足元|あしもと}のすき{間|ま}から{川|かわ}が{見|み}えます。"
+      en:
+        kids: "Look through the gaps under your feet to see the river below."
+        adult: "This woven vine suspension bridge is about 45 meters long, with gaps that reveal the river below."
+      zh:
+        kids: "透过脚下的缝隙，能看到下面的河哦。"
+        adult: "这座用藤蔓编成的吊桥长约45米，透过脚下的缝隙能看到河水。"
+    sources:
+      - title: "秘境・祖谷の絶景 かずら橋と祖谷渓めぐり"
+        url: "https://www.awanavi.jp/archives/topics/20875"
+        accessed: "2026-11-18"
+    status: verified
+  - id: awa-odori-kaikan
+    name: {ja: "{阿波|あわ}おどり{会館|かいかん}", en: "Awa Odori Kaikan Hall", zh: "阿波舞会馆"}
+    description:
+      ja:
+        kids: "おどりを{見|み}て、{自分|じぶん}でもおどれるよ。"
+        adult: "{阿波|あわ}おどりの{昼|ひる}と{夜|よる}の{公演|こうえん}があり、{見|み}て{楽|たの}しむほか、{自分|じぶん}でもおどれます。"
+      en:
+        kids: "You can watch the dance and try it yourself, too."
+        adult: "Watch Awa Odori dance performances during the day or in the evening and try the dance yourself."
+      zh:
+        kids: "可以看看舞蹈，也能自己跳一跳哦。"
+        adult: "白天和晚上都有阿波舞演出，可以观看，也可以亲自跳一跳。"
+    sources:
+      - title: "阿波おどり会館"
+        url: "https://www.awaodori-kaikan.jp/"
+        accessed: "2026-11-18"
+    status: verified
