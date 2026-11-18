@@ -16,5 +16,127 @@ capital:
     zh: "仙台市"
   lat: 38.268494
   lon: 140.87178
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {仙台駅|せんだいえき}"
+    en: "Tokyo Station → Sendai Station"
+    zh: "东京站 → 仙台站"
+  # はやぶさ15号：東京10:18発、仙台11:52着。JR東日本2026年11月時刻表。
+  durationMin: 94
+  sources:
+    - title: "時刻表　停車駅一覧（新幹線はやぶさ 15号（東京－新青森）／新幹線こまち 15号（東京－盛岡－秋田））：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/train/110/111151.html"
+      accessed: "2026-11-18"
+  status: draft
+specialties:
+  - id: zunda-mochi
+    emoji: "🍡"
+    name: {ja: "ずんだ{餅|もち}", en: "Zunda Mochi", zh: "毛豆泥年糕"}
+    description:
+      ja:
+        kids: "{枝豆|えだまめ}をつぶして{作|つく}った、あまいあんをおもちにからめるよ。"
+        adult: "{餅|もち}に{甘|あま}いあんをからめた{宮城|みやぎ}の{郷土|きょうど}{料理|りょうり}です。あんには{枝豆|えだまめ}をすりつぶして{使|つか}います。"
+      en:
+        kids: "Rice cakes are coated with sweet paste made from mashed edamame beans."
+        adult: "A Miyagi dish of rice cakes coated in sweet paste made from mashed edamame beans."
+      zh:
+        kids: "年糕裹着用毛豆压碎做成的甜馅。"
+        adult: "宫城的乡土料理，年糕裹着以捣碎的毛豆制成的甜馅。"
+    sources:
+      - title: "ずんだ｜にっぽん伝統食図鑑：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/traditional-foods/menu/zunda.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: harako-meshi
+    emoji: "🍚"
+    name: {ja: "はらこ{飯|めし}", en: "Harako Meshi", zh: "鲑鱼籽饭"}
+    description:
+      ja:
+        kids: "さけといくらをのせたごはんだよ。{秋|あき}に{親|した}しまれているんだ。"
+        adult: "{鮭|さけ}の{煮汁|にじる}で{炊|た}いたご{飯|はん}に{鮭|さけ}といくらを{盛|も}る、{秋|あき}に{親|した}しまれる{亘理|わたり}{地方|ちほう}の{郷土|きょうど}{料理|りょうり}です。"
+      en:
+        kids: "Rice topped with salmon and salmon roe, enjoyed in autumn."
+        adult: "An autumn dish from Watari: rice cooked in salmon broth and topped with salmon and salmon roe."
+      zh:
+        kids: "饭上放着鲑鱼和鲑鱼籽，是秋天的美食。"
+        adult: "亘理地区秋天的乡土料理，用煮鲑鱼的汤煮饭，再放上鲑鱼和鲑鱼籽。"
+    sources:
+      - title: "はらこ飯 宮城県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/harako_meshi_miyagi.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: sasa-kamaboko
+    emoji: "🐟"
+    name: {ja: "{笹|ささ}かまぼこ", en: "Sasa Kamaboko", zh: "竹叶鱼糕"}
+    description:
+      ja:
+        kids: "{魚|さかな}のすり{身|み}を{笹|ささ}の{形|かたち}にして{焼|や}いたかまぼこだよ。"
+        adult: "{白身魚|しろみざかな}のすり{身|み}を{笹|ささ}の{形|かたち}に{整|ととの}えて{焼|や}くかまぼこで、{宮城県|みやぎけん}の{特産品|とくさんひん}です。"
+      en:
+        kids: "A fish cake shaped like a bamboo leaf and baked."
+        adult: "A Miyagi specialty made by shaping minced white fish like bamboo leaves and grilling it."
+      zh:
+        kids: "把鱼肉泥做成竹叶形状后烤成的鱼糕。"
+        adult: "宫城特产，将白肉鱼糜做成竹叶形状后烤制的鱼糕。"
+    sources:
+      - title: "笹かまぼこ（ささかまぼこ）｜にっぽん伝統食図鑑：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/traditional-foods/menu/sasakamaboko.html"
+        accessed: "2026-11-18"
+    status: verified
+spots:
+  - id: matsushima
+    emoji: "🏝️"
+    name: {ja: "{松島|まつしま}", en: "Matsushima", zh: "松岛"}
+    description:
+      ja:
+        kids: "{海|うみ}にはたくさんの{島|しま}があり、{近|ちか}くに{古|ふる}い{建物|たてもの}もあるよ。"
+        adult: "{瑞巌寺|ずいがんじ}などの{史跡|しせき}が{海岸|かいがん}{近|ちか}くにあります。{松島湾|まつしまわん}には260{余|あま}りの{島|しま}が{点在|てんざい}しています。"
+      en:
+        kids: "Many islands dot the bay, with historic buildings nearby."
+        adult: "Over 260 islands dot Matsushima Bay, while historic sites such as Zuiganji Temple stand near the shore."
+      zh:
+        kids: "海湾中有许多岛屿，附近还有古老的建筑。"
+        adult: "松岛湾中散布着260多个岛屿，岸边附近还有瑞岩寺等历史遗迹。"
+    sources:
+      - title: "概要 | 仙台宮城の観光・旅行情報サイト"
+        url: "https://www.miyagi-kankou.or.jp/osusume/"
+        accessed: "2026-11-18"
+    status: verified
+  - id: sendai-castle
+    emoji: "🏯"
+    name: {ja: "{仙台城跡|せんだいじょうあと}", en: "Sendai Castle Ruins", zh: "仙台城遗址"}
+    description:
+      ja:
+        kids: "{伊達政宗|だてまさむね}が{築|きず}いたお{城|しろ}の{跡|あと}で、{青葉城|あおばじょう}とも{呼|よ}ばれたよ。"
+        adult: "{青葉城|あおばじょう}とも{呼|よ}ばれた{城|しろ}の{跡|あと}で、{仙台藩|せんだいはん}{初代|しょだい}{藩主|はんしゅ}の{伊達政宗|だてまさむね}が{築|きず}きました。"
+      en:
+        kids: "The ruins of a castle built by Date Masamune, also called Aoba Castle."
+        adult: "Ruins of a castle built by Date Masamune, first lord of Sendai domain, also called Aoba Castle."
+      zh:
+        kids: "伊达政宗建造的城堡遗址，也叫青叶城。"
+        adult: "仙台藩首任藩主伊达政宗建造的城堡遗址，也被称为青叶城。"
+    sources:
+      - title: "仙台城跡 - 仙台市の遺跡"
+        url: "https://bunkazai.city.sendai.jp/isekidb/c00085.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: okama
+    emoji: "🏞️"
+    name: {ja: "{御釜|おかま}", en: "Okama Crater Lake", zh: "御釜火山湖"}
+    description:
+      ja:
+        kids: "{天気|てんき}などによって{水|みず}の{色|いろ}が{変|か}わる{湖|みずうみ}だよ。"
+        adult: "{湖面|こめん}の{色|いろ}が{天候|てんこう}などで{変|か}わる{蔵王|ざおう}の{湖|みずうみ}です。{五色岳|ごしきだけ}にある{火口湖|かこうこ}として{知|し}られています。"
+      en:
+        kids: "This lake changes color with the weather and other conditions."
+        adult: "A crater lake on Goshikidake in Zao, whose color changes with the weather and other conditions."
+      zh:
+        kids: "这座湖的颜色会随着天气等条件变化。"
+        adult: "藏王五色岳的火口湖，湖水颜色随天气等条件变化。"
+    sources:
+      - title: "蔵王町移住定住ガイドブック"
+        url: "https://www.town.zao.miyagi.jp/kurashi_guide/shisaku_machi/shisaku_machi/ijuteiju_guide.files/ijuteiju_guidebook2022.pdf"
+        accessed: "2026-11-18"
+    status: verified
