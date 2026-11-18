@@ -20,9 +20,10 @@ Claude の Agent / SendMessage / AskUserQuestion は、Codex で利用可能な�
 `general-purpose` は Claude Code 組み込みの役割を参考にした Codex の汎用役であり、
 このリポジトリに同名の Claude 定義ファイルはない。
 
-コンテンツ検証の2役は、明示的に依頼された検証に使う。既存の `gotouchi-content` による
-制作①〜④を Codex に自動移行するものではない（共通指示・D22）。検証結果だけで
-`status` を昇格させず、`reviewed` への変更はレビュアーの承認後のオーナーの判断とする。
+コンテンツ制作①〜④は `.agents/skills/gotouchi-content/SKILL.md` を使う（D22）。
+検証の2役は、このスキルからの依頼または個別の検証依頼に使い、報告だけを返す。
+メインが②④の通過と機械検査を確認した項目だけ `verified` にする。
+`reviewed` への変更はレビュアーの承認後のオーナーの判断とする。
 
 Codex 固有の変換方針はここで管理する。Claude 側を参照して更新するときは差分を読み、
 実際に使えるツール・権限・本プロジェクトの仕様に合わせて反映する。
