@@ -67,7 +67,7 @@ specialties:
       - title: "冷や汁 宮崎県"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/hiyajiru_miyazaki.html"
         accessed: 2026-11-18
-    status: draft
+    status: verified
   - id: nuta-imo
     emoji: "🥔"
     name: {ja: "ぬた{芋|いも}", en: "Nuta-imo", zh: "芋头拌酱"}
