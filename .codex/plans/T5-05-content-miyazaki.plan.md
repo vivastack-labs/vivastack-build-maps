@@ -13,3 +13,9 @@
 - `pnpm content:validate`、`pnpm content:furigana --check content/prefectures/45-miyazaki.yaml`、`pnpm lint:yaml` を実行する。警告と独立検証の結果を記録する。
 - next-task の共通検証（lint、typecheck、test、build）を行い、develop 向け PR を作る。reviewed の判断はオーナーに委ねる。
 - コンテンツは定型的な入出力の自動テストになじまないため、新規の単体テストは追加せず、既存の検証と独立照合で確かめる（T5-02・T5-05）。
+
+## 承認後に変えたこと
+
+| 項目 | 承認時 | 実際 | 理由 |
+|---|---|---|---|
+| 冷や汁 | 両検証後に verified | レビュー後に本文を改善し draft に戻した | 派生版の検証回数の上限に達したため、変更後の独立検証が未完了 |

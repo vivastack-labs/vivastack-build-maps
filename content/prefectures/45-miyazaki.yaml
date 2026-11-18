@@ -17,5 +17,124 @@ capital:
     zh: "宫崎市"
   lat: 31.910957
   lon: 131.423571
-specialties: []
-spots: []
+access:
+  emoji: "✈️"
+  mode: {ja: "{飛行機|ひこうき}", en: "Plane", zh: "飞机"}
+  route:
+    ja: "{羽田空港|はねだくうこう} → {宮崎空港|みやざきくうこう}"
+    en: "Haneda Airport → Miyazaki Airport"
+    zh: "羽田机场 → 宫崎机场"
+  # ソラシドエア51便（羽田6:45発、宮崎8:35着、2026-10-25〜2027-03-27）。
+  durationMin: 110
+  sources:
+    - title: "東京（羽田）-宮崎 時刻表"
+      url: "https://www.solaseedair.jp/timetable/miya-hane/index.html"
+      accessed: 2026-11-18
+  status: verified
+specialties:
+  - id: chicken-nanban
+    emoji: "🍗"
+    name: {ja: "チキン{南蛮|なんばん}", en: "Chicken Nanban", zh: "鸡肉南蛮"}
+    description:
+      ja:
+        kids: "あげた{鶏肉|とりにく}に{甘酢|あまず}をからめ、タルタルソースをかけることもあるよ。"
+        adult: "{延岡市|のべおかし}で{生|う}まれたとされる{料理|りょうり}です。{揚|あ}げた{鶏肉|とりにく}を{甘酢|あまず}に{漬|つ}け、タルタルソースをかけるものもあります。"
+      en:
+        kids: "Fried chicken is coated in sweet and sour sauce, sometimes with tartar sauce too."
+        adult: "Chicken nanban is said to have originated in Nobeoka. Fried chicken is marinated in sweet vinegar and sometimes topped with tartar sauce."
+      zh:
+        kids: "炸鸡肉裹上酸甜酱汁，有时还会淋上塔塔酱。"
+        adult: "这道菜据说起源于延冈市，炸鸡肉浸入甜醋后，有时再淋上塔塔酱。"
+    sources:
+      - title: "チキン南蛮 宮崎県"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/chikin_nanban_miyazaki.html"
+        accessed: 2026-11-18
+    status: verified
+  - id: hiyajiru
+    emoji: "🍚"
+    name: {ja: "{冷|ひ}や{汁|じる}", en: "Hiyajiru Cold Soup", zh: "冷汤饭"}
+    description:
+      ja:
+        kids: "{冷|つめ}たい{味噌|みそ}の{汁|しる}をごはんにかけて{食|た}べるよ。"
+        adult: "{冷|つめ}たい{味噌|みそ}の{汁|しる}を{麦飯|むぎめし}にかけて{食|た}べる{郷土料理|きょうどりょうり}です。{宮崎県|みやざきけん}の{平野部|へいやぶ}を{中心|ちゅうしん}に{伝|つた}わります。"
+      en:
+        kids: "Pour cold miso soup over rice to enjoy this local dish."
+        adult: "This local dish is found mainly on the plains of Miyazaki. Cold miso soup is poured over barley rice."
+      zh:
+        kids: "把凉凉的味噌汤浇在饭上一起吃。"
+        adult: "这道乡土料理主要流传于宫崎县的平原地区，将凉味噌汤浇在麦饭上食用。"
+    sources:
+      - title: "冷や汁 宮崎県"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/hiyajiru_miyazaki.html"
+        accessed: 2026-11-18
+    status: draft
+  - id: nuta-imo
+    emoji: "🥔"
+    name: {ja: "ぬた{芋|いも}", en: "Nuta-imo", zh: "芋头拌酱"}
+    description:
+      ja:
+        kids: "ゆでた{里芋|さといも}を、ごまや{味噌|みそ}などで{和|あ}えるよ。"
+        adult: "ゆでた{里芋|さといも}を、ごまや{味噌|みそ}などの{調味料|ちょうみりょう}で{和|あ}える{郷土料理|きょうどりょうり}です。{秋|あき}の{収穫祭|しゅうかくさい}でも{作|つく}られます。"
+      en:
+        kids: "Boiled taro is mixed with seasonings such as sesame and miso."
+        adult: "This local dish combines boiled taro with seasonings including sesame and miso. It is also made for autumn harvest festivals."
+      zh:
+        kids: "把煮熟的芋头和芝麻、味噌等调料拌在一起。"
+        adult: "这道乡土料理将煮熟的芋头与芝麻、味噌等调料拌匀，秋季丰收节也会制作。"
+    sources:
+      - title: "ぬた芋 宮崎県"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/nutaimo_miyazaki.html"
+        accessed: 2026-11-18
+    status: verified
+spots:
+  - id: takachiho-gorge
+    name: {ja: "{高千穂峡|たかちほきょう}", en: "Takachiho Gorge", zh: "高千穗峡"}
+    description:
+      ja:
+        kids: "{谷|たに}の{中|なか}に{真名井|まない}の{滝|たき}が{流|なが}れているよ。"
+        adult: "{真名井|まない}の{滝|たき}がある{峡谷|きょうこく}です。{阿蘇山|あそさん}の{火砕流|かさいりゅう}が{冷|ひ}えて{固|かた}まり、{侵食|しんしょく}されてできました。"
+      en:
+        kids: "You can see Manai Falls in the gorge."
+        adult: "Manai Falls lies in this gorge, formed by erosion of cooled and hardened pyroclastic flows from Mount Aso."
+      zh:
+        kids: "峡谷里面可以看到真名井瀑布。"
+        adult: "真名井瀑布在谷中，峡谷由阿苏火山碎屑流冷却凝固后受侵蚀形成。"
+    sources:
+      - title: "高千穂峡"
+        url: "https://takachiho-kanko.info/sightseeing/18/"
+        accessed: 2026-11-18
+    status: verified
+  - id: aoshima
+    name: {ja: "{青島|あおしま}", en: "Aoshima Island", zh: "青岛"}
+    description:
+      ja:
+        kids: "{島|しま}のまわりに、{波|なみ}のような{形|かたち}の{岩|いわ}があるよ。"
+        adult: "{亜熱帯性|あねったいせい}{植物|しょくぶつ}が{茂|しげ}る{島|しま}です。{周囲|しゅうい}には「{鬼|おに}の{洗濯板|せんたくいた}」と{呼|よ}ばれる{波状|はじょう}の{岩|いわ}が{広|ひろ}がります。"
+      en:
+        kids: "You can see wave-shaped rocks all around the island."
+        adult: "Subtropical plants grow on this island, which is surrounded by wave-shaped rocks called the Devil’s Washboard."
+      zh:
+        kids: "岛的周围环绕着波浪形的岩石。"
+        adult: "岛上生长着亚热带植物，周围有名为“鬼之洗衣板”的波状岩石。"
+    sources:
+      - title: "青島"
+        url: "https://www.miyazaki-city.tourism.or.jp/spot/10001"
+        accessed: 2026-11-18
+    status: verified
+  - id: udo-jingu
+    name: {ja: "{鵜戸神宮|うどじんぐう}", en: "Udo Jingu Shrine", zh: "鹈户神宫"}
+    description:
+      ja:
+        kids: "{海|うみ}に{出|で}た{岬|みさき}の{洞窟|どうくつ}に、{赤|あか}い{建物|たてもの}があるよ。"
+        adult: "{朱色|しゅいろ}の{本殿|ほんでん}が{洞窟|どうくつ}に{建|た}つ{神宮|じんぐう}です。{太平洋|たいへいよう}に{面|めん}する{鵜戸崎|うどざき}の{先|さき}にあります。"
+      en:
+        kids: "A red shrine building stands in a cave on a cape by the sea."
+        adult: "Its vermilion main hall stands in a cave at Cape Udo, facing the Pacific Ocean."
+      zh:
+        kids: "伸向大海的海岬洞穴里有红色的神殿。"
+        adult: "这座神宫的朱红色正殿建在洞穴中，位于面向太平洋的鹈户崎尽头。"
+    sources:
+      - title: "鵜戸神宮【国指定名勝】"
+        url: "https://www.kankou-nichinan.jp/tourisms/209/"
+        accessed: 2026-11-18
+    status: verified
