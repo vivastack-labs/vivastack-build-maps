@@ -23,13 +23,13 @@ access:
     ja: "{東京駅|とうきょうえき} → {仙台駅|せんだいえき}"
     en: "Tokyo Station → Sendai Station"
     zh: "东京站 → 仙台站"
-  # はやぶさ15号：東京10:18発、仙台11:52着。JR東日本2026年11月時刻表。
+  # はやぶさ15号：東京10:18発、仙台11:52着。JR東日本2026年11月時刻表。月別URLと時刻は年1回見直す。
   durationMin: 94
   sources:
     - title: "時刻表　停車駅一覧（新幹線はやぶさ 15号（東京－新青森）／新幹線こまち 15号（東京－盛岡－秋田））：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/110/111151.html"
       accessed: "2026-11-18"
-  status: draft
+  status: verified
 specialties:
   - id: zunda-mochi
     emoji: "🍡"
