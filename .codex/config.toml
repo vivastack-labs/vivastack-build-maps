@@ -3,6 +3,9 @@
 # ライフサイクル hooks は隣の hooks.json。利用前に /hooks で確認・信頼する。
 model_post_turn_compact_threshold_percent = 50
 
+# 通常作業は推論量を抑え、難しい作業ではセッション側で高くする。
+model_reasoning_effort = "medium"
+
 developer_instructions = """
 このリポジトリでは AGENTS.md の共通規約に加え、作業の前に .codex/rules/index.md を読み、
 作業に該当する Codex 用ルールを読む。Claude 側の資源は参照だけにし、変更しない。
