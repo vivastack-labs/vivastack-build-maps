@@ -17,5 +17,132 @@ capital:
     zh: "熊本市"
   lat: 32.789782
   lon: 130.741097
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {博多駅|はかたえき} → {熊本駅|くまもとえき}"
+    en: "Tokyo Station → Hakata Station → Kumamoto Station"
+    zh: "东京站 → 博多站 → 熊本站"
+  # 東京始発の「のぞみ25号」（毎日運転）：東京 10:30 発 → 博多 15:30 着。博多で九州新幹線「さくら407号」（407A。毎日運転）に乗り換え：
+  # 博多 15:36 発 → 熊本 16:14 着。東京 10:30 発から熊本 16:14 着まで344分（乗り換えの待ち時間6分を含む）。
+  # JR時刻表2026年11月号に基づく時刻
+  durationMin: 344
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/25371"
+      accessed: "2026-11-18"
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/316381"
+      accessed: "2026-11-18"
+  status: verified
+specialties:
+  - id: karashi-renkon
+    emoji: "🥢"
+    name: {ja: "からし{蓮根|れんこん}", en: "Karashi Renkon Mustard Lotus Root", zh: "芥末莲藕"}
+    description:
+      ja:
+        kids: "れんこんの{穴|あな}にからしみそをつめて、あげた{料理|りょうり}だよ。"
+        adult: "ゆでたれんこんの{穴|あな}にからし{味噌|みそ}を{詰|つ}め、{衣|ころも}をつけて{揚|あ}げた{料理|りょうり}で、{細川藩|ほそかわはん}とゆかりがあるとされます。"
+      en:
+        kids: "Lotus root with mustard miso packed in its holes, then fried."
+        adult: "Boiled lotus root with mustard miso packed into its holes, coated in batter and fried. It is said to be linked to the Hosokawa domain."
+      zh:
+        kids: "把芥末味噌塞进莲藕的孔里，再油炸做成的菜。"
+        adult: "在煮过的莲藕孔里塞满芥末味噌，裹上面糊油炸而成，据说与细川藩有渊源。"
+    sources:
+      - title: "からし蓮根 熊本県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/karashi_renkon_kumamoto.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: ikinari-dango
+    emoji: "🍠"
+    name: {ja: "いきなり{団子|だんご}", en: "Ikinari Dango Sweet Potato Buns", zh: "番薯团子"}
+    description:
+      ja:
+        kids: "さつまいもを{生地|きじ}で{包|つつ}んで{蒸|む}したおやつだよ。"
+        adult: "{輪切|わぎ}りのさつまいもを、こねた{小麦粉|こむぎこ}でくるんで{蒸|む}すおやつです。{今|いま}は{小豆|あずき}あん{入|い}りが{主流|しゅりゅう}です。"
+      en:
+        kids: "A snack of sweet potato wrapped in dough and steamed."
+        adult: "A steamed snack of sweet potato sliced into rounds and wrapped in wheat-flour dough. Today, versions with sweet red bean paste are most common."
+      zh:
+        kids: "用面皮把番薯包起来再蒸熟的点心。"
+        adult: "用面粉做的面皮包住切成圆片的番薯蒸成的点心，现在以加红豆馅的为主。"
+    sources:
+      - title: "いきなり団子 熊本県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/ikinari_dango_kumamoto.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: taipien
+    emoji: "🍜"
+    name: {ja: "{太平燕|たいぴーえん}", en: "Taipien Glass Noodle Soup", zh: "太平燕"}
+    description:
+      ja:
+        kids: "はるさめが{入|はい}った{中華風|ちゅうかふう}のスープだよ。{熊本市|くまもとし}などの{給食|きゅうしょく}にも{出|で}るよ。"
+        adult: "{春雨|はるさめ}が{主役|しゅやく}の{中華風|ちゅうかふう}スープで、{野菜|やさい}や{豚肉|ぶたにく}も{入|はい}り、{揚|あ}げたゆで{卵|たまご}がのります。{熊本市|くまもとし}などの{給食|きゅうしょく}にも{出|で}ます。"
+      en:
+        kids: "A Chinese-style soup with glass noodles. It is served in school lunches in Kumamoto City and other places, too."
+        adult: "A Chinese-style soup starring glass noodles, with vegetables and pork, topped with a fried boiled egg. It appears in school lunches around Kumamoto City."
+      zh:
+        kids: "加了粉丝的中式汤，熊本市等地的学校午餐也会吃到。"
+        adult: "以粉丝为主的中式汤，加入蔬菜和猪肉，放上炸过的水煮蛋，熊本市等地的学校午餐也有。"
+    sources:
+      - title: "太平燕 熊本県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/taipiien_kumamoto.html"
+        accessed: "2026-11-18"
+    status: verified
+spots:
+  - id: kumamoto-jo
+    emoji: "🏯"
+    name: {ja: "{熊本城|くまもとじょう}", en: "Kumamoto Castle", zh: "熊本城"}
+    description:
+      ja:
+        kids: "{昔|むかし}の{武将|ぶしょう}が{建|た}てたお{城|しろ}で、{戦|たたか}いにも{使|つか}われたよ。"
+        adult: "{加藤清正|かとうきよまさ}が1607{年|ねん}に{完成|かんせい}させた{城|しろ}で、{西南戦争|せいなんせんそう}では{城|しろ}に{立|た}てこもって{戦|たたか}いました。"
+      en:
+        kids: "A castle built by a warlord long ago. It was also used in a war."
+        adult: "A castle completed by Kato Kiyomasa in 1607. In the Satsuma Rebellion, troops held out inside it."
+      zh:
+        kids: "很久以前的武将建造的城堡，也曾用于战斗。"
+        adult: "加藤清正于1607年建成，西南战争时军队曾据守此城作战。"
+    sources:
+      - title: "歴史 | 【公式】熊本城"
+        url: "https://castle.kumamoto-guide.jp/history/"
+        accessed: "2026-11-18"
+    status: verified
+  - id: aso-san
+    emoji: "🌋"
+    name: {ja: "{阿蘇山|あそさん}", en: "Mount Aso", zh: "阿苏山"}
+    description:
+      ja:
+        kids: "{大|おお}きなくぼ{地|ち}の{中|なか}に、{煙|けむり}を{上|あ}げる{山|やま}があるよ。"
+        adult: "{南北|なんぼく}{約|やく}25kmのカルデラの{中|なか}に{阿蘇五岳|あそごがく}がそびえ、{中岳|なかだけ}は{噴煙|ふんえん}を{上|あ}げています。"
+      en:
+        kids: "Inside a huge hollow, there is a mountain giving off smoke."
+        adult: "Aso's five peaks rise in a caldera spanning about 25 km north to south; Mount Nakadake emits smoke."
+      zh:
+        kids: "在巨大的洼地里，有一座冒着烟的山。"
+        adult: "南北约25公里的破火山口中耸立着阿苏五岳，中岳正冒着火山烟。"
+    sources:
+      - title: "公園の特徴_阿蘇くじゅう国立公園_環境省"
+        url: "https://www.env.go.jp/park/aso/point/index.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: tsujunkyo
+    emoji: "🌉"
+    name: {ja: "{通潤橋|つうじゅんきょう}", en: "Tsujun Bridge", zh: "通润桥"}
+    description:
+      ja:
+        kids: "{水|みず}を{運|はこ}ぶために{作|つく}られた{石|いし}の{橋|はし}だよ。"
+        adult: "{白糸台地|しらいとだいち}に{水|みず}を{送|おく}るため1854{年|ねん}に{造|つく}られた{石|いし}のアーチの{水路橋|すいろきょう}で、{国宝|こくほう}です。"
+      en:
+        kids: "A stone bridge that was built to carry water."
+        adult: "A stone arch aqueduct built in 1854 to carry water to the Shiraito Plateau, now a National Treasure."
+      zh:
+        kids: "这是为了运水而建造的石桥。"
+        adult: "1854年为向白丝台地送水而建的石造拱形渡槽，是国宝。"
+    sources:
+      - title: "通潤橋（つうじゅんきょう）の概要 / 山都町"
+        url: "https://www.town.kumamoto-yamato.lg.jp/kiji0036125/index.html"
+        accessed: "2026-11-18"
+    status: verified
