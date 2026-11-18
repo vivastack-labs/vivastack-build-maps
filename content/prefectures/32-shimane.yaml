@@ -17,5 +17,125 @@ capital:
     zh: "松江市"
   lat: 35.472322
   lon: 133.050269
-specialties: []
-spots: []
+access:
+  emoji: "✈️"
+  mode: {ja: "{飛行機|ひこうき}", en: "Airplane", zh: "飞机"}
+  route:
+    ja: "{羽田空港|はねだくうこう} → {出雲空港|いずもくうこう}"
+    en: "Haneda Airport → Izumo Airport"
+    zh: "羽田机场 → 出云机场"
+  # JAL279便：羽田 09:50 発 → 出雲 11:15 着（85分。2026年10月25日〜11月30日の時刻表）。空港までの移動・搭乗手続きは含めない
+  durationMin: 85
+  sources:
+    - title: "就航路線・時刻表"
+      url: "https://www.izumo-airport.co.jp/flight/flight-time"
+      accessed: "2026-11-18"
+  status: verified
+specialties:
+  - id: izumo-soba
+    emoji: "🍜"
+    name: {ja: "{出雲|いずも}そば", en: "Izumo Soba", zh: "出云荞麦面"}
+    description:
+      ja:
+        kids: "つゆをそばにかけて{食|た}べるよ。{色|いろ}が{濃|こ}くて、{香|かお}りも{強|つよ}いんだ。"
+        adult: "{殻|から}ごと{挽|ひ}いたそば{粉|こ}で{作|つく}るため、{色|いろ}が{濃|こ}く{香|かお}りも{強|つよ}めです。つゆを{直接|ちょくせつ}かけて{食|た}べます。"
+      en:
+        kids: "Pour the sauce over these dark noodles and enjoy their strong buckwheat aroma."
+        adult: "Buckwheat ground with its husks gives the noodles a dark color and strong aroma. Sauce is poured directly over them."
+      zh:
+        kids: "把汤汁浇在荞麦面上吃，面条颜色深，香味也浓哦。"
+        adult: "荞麦连壳磨粉做成的面条颜色较深、香味较浓，吃时将汤汁直接浇在面上。"
+    sources:
+      - title: "そば"
+        url: "https://www.kankou-shimane.com/gourmet/soba"
+        accessed: "2026-11-18"
+    status: verified
+  - id: shijimi-soup
+    emoji: "🐚"
+    name: {ja: "しじみ{汁|じる}", en: "Shijimi Clam Soup", zh: "蚬贝汤"}
+    description:
+      ja:
+        kids: "しじみを{水|みず}から{煮|に}ると、{貝|かい}のうまみが{汁|しる}に{出|で}るんだよ。"
+        adult: "{宍道湖|しんじこ}などの{海水|かいすい}と{淡水|たんすい}が{混|ま}じる{湖|みずうみ}で{育|そだ}つヤマトシジミを{使|つか}い、\
+          {水|みず}から{煮|に}てだしを{引|ひ}き{出|だ}します。"
+      en:
+        kids: "Start simmering shijimi clams in cold water, and their flavor comes out into the soup."
+        adult: "Yamato shijimi clams from Lake Shinji and similar lakes, where fresh and seawater mix, are simmered from cold water to extract their flavor."
+      zh:
+        kids: "把蚬贝放进冷水后开始煮，贝的鲜味就会融进汤里哦。"
+        adult: "使用生长在宍道湖等咸淡水交汇湖泊的大和蚬，从冷水开始煮出鲜味。"
+    sources:
+      - title: "しじみ"
+        url: "https://www.kankou-shimane.com/gourmet/shijimi"
+        accessed: "2026-11-18"
+    status: verified
+  - id: akaten
+    emoji: "🐟"
+    name: {ja: "{赤天|あかてん}", en: "Akaten Fish Cakes", zh: "赤天鱼饼"}
+    description:
+      ja:
+        kids: "{魚|さかな}のすり{身|み}を{揚|あ}げてあるよ。{唐辛子|とうがらし}でピリッと{辛|から}いんだ。"
+        adult: "{浜田|はまだ}の{名物|めいぶつ}で、{魚|さかな}のすり{身|み}に{唐辛子|とうがらし}を{加|くわ}えて{揚|あ}げたものです。ピリッとした{辛|から}さがあります。"
+      en:
+        kids: "Fish paste is fried into cakes, and chili gives them a spicy kick."
+        adult: "A Hamada specialty, these fried fish-paste cakes contain chili peppers, which give them a spicy kick."
+      zh:
+        kids: "把鱼肉泥炸成鱼饼，辣椒带来一点辣辣的味道哦。"
+        adult: "这是滨田的名产，把辣椒加入鱼肉泥后油炸而成，吃起来带有辣味。"
+    sources:
+      - title: "日本海をのぞむ港町・浜田のソウルフードが今や島根を代表する名物に"
+        url: "https://www.kankou-shimane.com/bihadaken-uruoi/report/souvenir/41/"
+        accessed: "2026-11-18"
+    status: verified
+spots:
+  - id: izumo-oyashiro
+    name: {ja: "{出雲大社|いずもおおやしろ}", en: "Izumo Oyashiro Shrine", zh: "出云大社"}
+    description:
+      ja:
+        kids: "{大|おお}きなしめ{縄|なわ}を{神楽殿|かぐらでん}で{見|み}られるよ。"
+        adult: "{人|ひと}との{縁|えん}を{結|むす}ぶ{神様|かみさま}をまつります。{神楽殿|かぐらでん}には{大|おお}きなしめ{縄|なわ}があります。"
+      en:
+        kids: "You can see the huge sacred rope at Kagura-den Hall."
+        adult: "The shrine honors a deity of human connections; its Kagura-den Hall has a huge sacred rope."
+      zh:
+        kids: "可以在神乐殿看到巨大的注连绳哦。"
+        adult: "供奉连结人与人缘分的神明，神乐殿有巨大的注连绳。"
+    sources:
+      - title: "出雲大社"
+        url: "https://www.kankou-shimane.com/destination/20240"
+        accessed: "2026-11-18"
+    status: verified
+  - id: matsue-castle
+    name: {ja: "{松江城|まつえじょう}", en: "Matsue Castle", zh: "松江城"}
+    description:
+      ja:
+        kids: "1611{年|ねん}にできた、お{城|しろ}の{建物|たてもの}が{残|のこ}っているよ。"
+        adult: "1611{年|ねん}に{完成|かんせい}した{天守|てんしゅ}が{残|のこ}っています。2015{年|ねん}に{国宝|こくほう}に{指定|してい}されました。"
+      en:
+        kids: "The castle building from 1611 is still here today."
+        adult: "The castle's tower, completed in 1611, survives today and was designated a National Treasure in 2015."
+      zh:
+        kids: "1611年建成的城堡建筑还保留着哦。"
+        adult: "1611年建成的天守保存至今，2015年被指定为国宝。"
+    sources:
+      - title: "松江城天守の国宝指定"
+        url: "https://www.pref.shimane.lg.jp/life/bunka/bunkazai/event/kokuhou/"
+        accessed: "2026-11-18"
+    status: verified
+  - id: iwami-ginzan
+    name: {ja: "{石見銀山|いわみぎんざん}", en: "Iwami Ginzan Silver Mine", zh: "石见银山"}
+    description:
+      ja:
+        kids: "{銀|ぎん}を{掘|ほ}ったトンネルで、{壁|かべ}のノミの{跡|あと}を{見|み}られるよ。"
+        adult: "{銀|ぎん}を{採|と}っていた{鉱山|こうざん}で、{龍源寺間歩|りゅうげんじまぶ}の{壁|かべ}にはノミで{掘|ほ}った{跡|あと}が{残|のこ}ります。"
+      en:
+        kids: "See chisel marks on the tunnel walls where people dug for silver."
+        adult: "At this former silver mine, chisel marks remain on the walls of the Ryugenji Mabu tunnel."
+      zh:
+        kids: "开采白银的隧道里，能看见壁上的凿痕哦。"
+        adult: "这里曾开采白银，龙源寺间步的岩壁上仍留有凿子开凿的痕迹。"
+    sources:
+      - title: "龍源寺間歩（石見銀山）"
+        url: "https://www.kankou-shimane.com/destination/20238"
+        accessed: "2026-11-18"
+    status: verified
