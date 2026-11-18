@@ -17,5 +17,130 @@ capital:
     zh: "松山市"
   lat: 33.84174
   lon: 132.766515
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}と{特急|とっきゅう}", en: "Shinkansen and limited express", zh: "新干线和特快列车"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {岡山駅|おかやまえき} → {松山駅|まつやまえき}"
+    en: "Tokyo Station → Okayama Station → Matsuyama Station"
+    zh: "东京站 → 冈山站 → 松山站"
+  # 東京始発の「のぞみ25号」（毎日運転）：東京 10:30 発 → 岡山 13:47 着。岡山で特急「しおかぜ15号」（15M。毎日運転）に乗り換え：
+  # 岡山 14:35 発 → 松山 17:24 着。東京 10:30 発から松山 17:24 着まで414分（乗り換えの待ち時間48分を含む）。
+  # JR時刻表2026年11月号に基づく時刻
+  durationMin: 414
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/25371"
+      accessed: "2026-11-18"
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/691"
+      accessed: "2026-11-18"
+  status: verified
+specialties:
+  - id: taimeshi
+    emoji: "🐟"
+    name: {ja: "{鯛|たい}めし", en: "Taimeshi Sea Bream Rice", zh: "鲷鱼饭"}
+    description:
+      ja:
+        kids: "タイを{使|つか}ったごはんだよ。{地域|ちいき}によって{作|つく}り{方|かた}がちがうんだ。"
+        adult: "{東予|とうよ}ではタイを{丸|まる}ごと{炊|た}いてごはんに{混|ま}ぜ、{南予|なんよ}では{生|なま}のタイをたれに{漬|つ}けてごはんにのせます。"
+      en:
+        kids: "This is rice made with sea bream. The way it is made changes from area to area."
+        adult: "In the Toyo area, whole sea bream is cooked into rice; in the Nanyo area, raw sea bream is marinated and served on rice."
+      zh:
+        kids: "用鲷鱼做的饭。不同地区做法不一样。"
+        adult: "东予把整条鲷鱼煮好拌进饭里，南予则把生鲷鱼浸在酱汁里再放到饭上。"
+    sources:
+      - title: "鯛めし 愛媛県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/taimeshi_ehime.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: imotaki
+    emoji: "🍲"
+    name: {ja: "いもたき", en: "Imotaki Taro Hot Pot", zh: "芋炊锅"}
+    description:
+      ja:
+        kids: "さといもを{煮|に}たなべだよ。{秋|あき}に{川原|かわら}でみんなで{食|た}べるんだ。"
+        adult: "{里芋|さといも}や{鶏肉|とりにく}などを{煮|に}る{鍋|なべ}で、{大洲市|おおずし}が{発祥|はっしょう}とされます。\
+          {秋|あき}には{川原|かわら}で{月見|つきみ}をしながら{大勢|おおぜい}で{味|あじ}わいます。"
+      en:
+        kids: "This is a pot of simmered taro. In autumn, people eat it together by the river."
+        adult: "A hot pot of taro, chicken, and more, said to come from Ozu. In autumn, crowds enjoy it by the river while viewing the moon."
+      zh:
+        kids: "煮芋头的火锅。秋天大家会在河边一起吃。"
+        adult: "炖煮芋头和鸡肉等的火锅，据说起源于大洲市。秋天人们在河滩一边赏月一边品尝。"
+    sources:
+      - title: "いもたき 愛媛県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/imotaki_ehime.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: kankitsu
+    emoji: "🍊"
+    name: {ja: "{愛媛|えひめ}のかんきつ", en: "Ehime Citrus", zh: "爱媛柑橘"}
+    description:
+      ja:
+        kids: "みかんのなかまの{果物|くだもの}だよ。{海|うみ}ぞいの{畑|はたけ}で、たくさんの{種類|しゅるい}が{育|そだ}つんだ。"
+        adult: "{南予|なんよ}の{沿岸部|えんがんぶ}では、{海|うみ}に{迫|せま}る{山|やま}の{段畑|だんばた}で、{多|おお}くの{品種|ひんしゅ}が{一年|いちねん}を{通|とお}して{育|そだ}てられています。"
+      en:
+        kids: "These are fruits in the mandarin orange family. Many kinds grow in fields by the sea."
+        adult: "On the Nanyo coast, terraced fields where mountains meet the sea grow many citrus varieties all year."
+      zh:
+        kids: "和橘子同类的水果，海边的田里种着很多品种。"
+        adult: "在南予沿海，山地逼近海边的梯田里全年种植着众多柑橘品种。"
+    sources:
+      - title: "四国地方 愛媛県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/area_stories/ehime.html"
+        accessed: "2026-11-18"
+    status: verified
+spots:
+  - id: dogo-onsen-honkan
+    name: {ja: "{道後温泉本館|どうごおんせんほんかん}", en: "Dogo Onsen Honkan", zh: "道后温泉本馆"}
+    description:
+      ja:
+        kids: "{古|ふる}い{建物|たてもの}のままの、{温泉|おんせん}のおふろやさんだよ。"
+        adult: "{道後温泉|どうごおんせん}の{象徴|しょうちょう}で、{国|くに}の{重要文化財|じゅうようぶんかざい}になった{最初|さいしょ}の{公衆浴場|こうしゅうよくじょう}です。"
+      en:
+        kids: "This is a hot spring bathhouse in an old building."
+        adult: "The symbol of Dogo Onsen, it was the first public bathhouse designated a national Important Cultural Property."
+      zh:
+        kids: "这是一座保留着古老建筑的温泉澡堂。"
+        adult: "道后温泉的象征，是首个被指定为国家重要文化财产的公共浴场。"
+    sources:
+      - title: "道後温泉本館 | 外湯紹介 | 【公式サイト】道後温泉"
+        url: "https://dogo.jp/onsen/honkan"
+        accessed: "2026-11-18"
+    status: verified
+  - id: shimanami-kaido
+    name: {ja: "しまなみ{海道|かいどう}", en: "Shimanami Kaido", zh: "岛波海道"}
+    description:
+      ja:
+        kids: "{島|しま}と{島|しま}をつなぐ{橋|はし}を、{自転車|じてんしゃ}で{渡|わた}れるよ。"
+        adult: "{島々|しまじま}を{橋|はし}で{結|むす}び、{尾道|おのみち}から{今治|いまばり}まで{自転車|じてんしゃ}で{海|うみ}を{越|こ}えられる、70kmのルートです。"
+      en:
+        kids: "You can ride a bicycle across the bridges that link the islands."
+        adult: "Linking islands by bridges, this 70 km route lets cyclists cross the sea from Onomichi to Imabari."
+      zh:
+        kids: "可以骑自行车穿过连接岛屿的大桥。"
+        adult: "这条70公里的路线用桥连接岛屿，可骑车从尾道越海到今治。"
+    sources:
+      - title: "しまなみ海道サイクリングロード | ナショナルサイクルルート | GOOD CYCLE JAPAN | 国土交通省"
+        url: "https://www.mlit.go.jp/road/bicycleuse/good-cycle-japan/national_cycle_route/shimanami.html"
+        accessed: "2026-11-18"
+    status: verified
+  - id: uchiko-machinami
+    name: {ja: "{内子|うちこ}の{町並|まちな}み", en: "Uchiko Old Townscape", zh: "内子老街"}
+    description:
+      ja:
+        kids: "{昔|むかし}ながらの{家|いえ}が{並|なら}ぶ、{古|ふる}い{町|まち}の{通|とお}りだよ。"
+        adult: "{木蝋|もくろう}で{栄|さか}えた{内子|うちこ}には、{豪商|ごうしょう}の{屋敷|やしき}や{町家|まちや}が{続|つづ}く{約|やく}600mの{古|ふる}い{通|とお}りが{残|のこ}ります。"
+      en:
+        kids: "Old-style houses line the streets of this old town."
+        adult: "Uchiko prospered from Japan wax; about 600 meters of old street remain, lined with merchant mansions and townhouses."
+      zh:
+        kids: "老式房屋排列在古老小镇的街道上。"
+        adult: "因木蜡而繁荣的内子，留有约600米富商宅邸和町家相连的老街。"
+    sources:
+      - title: "八日市・護国の町並み | 内子のおすすめ観光スポット | 内子町観光グルメ情報"
+        url: "https://www.we-love-uchiko.jp/spot/preservation_district/"
+        accessed: "2026-11-18"
+    status: verified
