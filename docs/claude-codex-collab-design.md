@@ -140,7 +140,7 @@ flowchart LR
 ### 6.5 Codex が単独でタスクに着手するとき
 
 - 引き継ぎがなくても、Codex は `.agents/skills/next-task`・`gotouchi-content` でタスクを着手から PR まで進める。
-- Claude と同じタスクを選ばないように、両方の `next-task` で、タスクを選ぶ前に `git worktree list` とローカル・リモートのブランチを見て、そのタスクID（T5-05 は県）のブランチが既にあれば飛ばす。
+- Claude と同じタスクを選ばないように、両方の `next-task` で、タスクを選ぶ前に `git worktree list` とローカル・リモートのブランチを見る。そのタスクID（T5-05 は県）の worktree があるか、ブランチがあって PR が無い・オープン中なら飛ばす（PR が merge 済み・クローズ済みのブランチは飛ばさない。リモートに残っているため）。
 
 ## 7. `AGENTS.md` に足す節（両方が読む。約 0.8KB）
 
@@ -171,7 +171,7 @@ flowchart LR
 前提（引き継ぎより先に入れる。Codex が単独でコミットするための条件）：
 
 - ~~Codex の hooks（`.codex/hooks.json`・`run.js`）に security-trigger を足す~~：済み（`chore/codex-hook-parity` の 421781d。merge の前。実機の確認は8章の8）。
-- 両方の `next-task` に、既にあるブランチ・worktree のタスクを飛ばす手順を足す（6.5）。
+- ~~両方の `next-task` に、既にあるブランチ・worktree のタスクを飛ばす手順を足す~~：済み（手順3「ほかのセッションが進めているタスクを除く」。6.5）。
 - ~~Codex の `prp-implement`・`prp-pr` に、`next-task` と同じ例外を足す~~：済み（引き継いだタスクの計画は `.claude/PRPs/plans/` のまま更新し、`.codex/plans/` に写さない。6.2 の4）。
 
 引き継ぎ：

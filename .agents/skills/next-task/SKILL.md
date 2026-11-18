@@ -64,6 +64,29 @@ python3 -I .claude/skills/next-task/scripts/task_status.py
 - T5-05は県ごとのPRが続くため、マージ済みPRがあっても表の状態を正とする。
   スクリプトの `state`・`ready`・`needs_plan_update` と、それを使う依存判定をこの例外で見直す。
 
+### ほかのセッションが進めているタスクを除く
+
+計画の `作業中` はタスクのブランチの最初のコミットで書くため、PRを出すまで main に出ない。
+Claude Code や別の Codex がすでに着手したタスクを選ばないよう、選ぶ前に worktree とブランチを見る
+（`docs/claude-codex-collab-design.md` 6.5）。
+
+```bash
+git worktree list
+git branch -a --list '*/<タスクID>-*'      # T5-05 は県ごとに '*/T5-05-*-<県の id>'
+gh pr list --state all --head <ブランチ名> --json number,state   # 見つかったブランチごと
+```
+
+- 次のどれかに当たるタスク（T5-05 は県）は、ほかのセッションが持っているとみなす。
+  - そのブランチの worktree がある。
+  - ローカルかリモートにブランチがあり、PRがない、またはPRがオープン中。
+- PRがマージ済み・クローズ済みのブランチは、持っているとみなさない（手順2の整理の対象）。
+  worktree が残っていれば、`git worktree remove` で消せることを報告にだけ書く
+  （消すのは依頼されたときだけ。書きかけが残っているかもしれないため）。
+- ID未指定なら候補から外し、外したことを伝える。ID指定なら止めて判断を求める。
+  推奨は別のタスクを選ぶこと（理由：同じブランチに2つのセッションが書くと、変更がぶつかる）。
+- Claude Code が止まったタスクを続ける依頼なら、このスキルではなく `handoff` スキル
+  （導入後。`docs/claude-codex-collab-design.md` 6.2）で、持ち主を `codex` にしてから進める。
+
 ## 4. ブランチと進捗を用意する
 
 `<種別>/<タスクID>-<英語slug>` でブランチを作る。
