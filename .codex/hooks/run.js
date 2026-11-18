@@ -65,7 +65,11 @@ async function run(input, repo) {
   async function shared(id, script, payload = localInput, profiles = STANDARD) {
     if (blocked || !isHookEnabled(id, profiles)) return;
     const result = await require(path.join(SHARED, 'scripts', `${script}.js`)).run(payload);
-    if (result?.decision === 'block') blocked = result.reason;
+    if (result?.decision === 'block') {
+      blocked = script === 'security-trigger'
+        ? result.reason.replaceAll('node .claude/hooks/scripts/mark-security-reviewed.js', 'node .codex/hooks/mark-security-reviewed.js')
+        : result.reason;
+    }
   }
 
   function filesForSession(kind = 'files') {
@@ -120,6 +124,7 @@ async function run(input, repo) {
       await shared('vcw:pre:bash:block-no-verify', 'block-no-verify', localInput, ALL);
       await shared('project:pre:bash:block-force-push', 'block-force-push');
       await shared('project:pre:bash:gitleaks', 'gitleaks');
+      await shared('project:pre:bash:security-trigger', 'security-trigger');
       await shared('vcw:pre:bash:commit-quality', 'commit-quality', localInput, ['strict']);
     } else if (/^(apply_patch|Edit|Write|MultiEdit)$/.test(input.tool_name || '')) {
       for (const file of editPaths(input)) {

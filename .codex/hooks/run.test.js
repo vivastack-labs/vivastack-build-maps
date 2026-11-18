@@ -379,3 +379,63 @@ test('manifest contains only implemented events and portable quoted commands', (
       }
   }
 });
+
+// 開発概要書10.1: セキュリティレビューの規約をCodexにも適用する。
+test('security-trigger は機密変更を拒否し、Codex のレビュー手順を案内する', t => {
+  const { root, call } = fixture(t);
+  fs.writeFileSync(path.join(root, 'client.js'), 'fetch("https://example.test");');
+  execFileSync('git', ['add', 'client.js'], { cwd: root });
+  const payload = { tool_name: 'Bash', tool_input: { command: 'git commit -m "fix: 修正"' } };
+  const result = call('PreToolUse', payload, { SECURITY_REVIEWED: '' });
+  assert.equal(result.json.hookSpecificOutput.permissionDecision, 'deny');
+  assert.match(result.json.hookSpecificOutput.permissionDecisionReason, /SECURITY TRIGGER/);
+  assert.match(result.json.hookSpecificOutput.permissionDecisionReason, /node \.codex\/hooks\/mark-security-reviewed.js/);
+  assert.doesNotMatch(result.json.hookSpecificOutput.permissionDecisionReason, /node \.claude\//);
+  assert.deepEqual(call('PreToolUse', payload, { VCW_HOOK_PROFILE: 'minimal', SECURITY_REVIEWED: '' }).json, {});
+  assert.deepEqual(call('PreToolUse', payload, { VCW_DISABLED_HOOKS: 'project:pre:bash:security-trigger', SECURITY_REVIEWED: '' }).json, {});
+  assert.deepEqual(call('PreToolUse', { ...payload, tool_input: { command: 'git push' } }, { SECURITY_REVIEWED: '' }).json, {});
+});
+
+test('Codex のレビュー記録は同じステージだけを通し、変更後は再び拒否する', t => {
+  const { root, call } = fixture(t);
+  fs.writeFileSync(path.join(root, 'client.js'), 'fetch("https://example.test");');
+  execFileSync('git', ['add', 'client.js'], { cwd: root });
+  const marker = spawnSync(process.execPath, [path.join(__dirname, 'mark-security-reviewed.js')], { cwd: root, encoding: 'utf8' });
+  assert.equal(marker.status, 0, marker.stderr);
+  assert.ok(fs.existsSync(path.join(root, '.git/security-reviewed')));
+  const payload = { tool_name: 'Bash', tool_input: { command: 'git commit -m "fix: 修正"' } };
+  assert.deepEqual(call('PreToolUse', payload, { SECURITY_REVIEWED: '' }).json, {});
+  fs.appendFileSync(path.join(root, 'client.js'), '\nfetch("https://example.test/changed");');
+  execFileSync('git', ['add', 'client.js'], { cwd: root });
+  assert.equal(call('PreToolUse', payload, { SECURITY_REVIEWED: '' }).json.hookSpecificOutput.permissionDecision, 'deny');
+});
+
+test('Codex のレビュー記録はステージが空なら失敗する', t => {
+  const { root } = fixture(t);
+  const result = spawnSync(process.execPath, [path.join(__dirname, 'mark-security-reviewed.js')], { cwd: root, encoding: 'utf8' });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /ステージした変更がありません/);
+});
+
+// 開発概要書10.1: Codex入力の省略値でもコミット前ガードを維持する。
+test('cwd・session_id が省略されても機密変更を検出する', t => {
+  const { root, call } = fixture(t);
+  fs.writeFileSync(path.join(root, 'auth.js'), 'export const enabled = true;');
+  execFileSync('git', ['add', 'auth.js'], { cwd: root });
+  const raw = JSON.stringify({ hook_event_name: 'PreToolUse', tool_name: 'Bash', tool_input: { command: 'git commit -m "fix: 修正"' } });
+  const result = call('PreToolUse', {}, { SECURITY_REVIEWED: '' }, raw);
+  assert.equal(result.json.hookSpecificOutput.permissionDecision, 'deny');
+});
+
+test('レビュー記録があっても作業ツリーを含むコミットは拒否する', t => {
+  const { root, call } = fixture(t);
+  fs.writeFileSync(path.join(root, 'auth.js'), 'export const enabled = true;');
+  execFileSync('git', ['add', 'auth.js'], { cwd: root });
+  const marker = spawnSync(process.execPath, [path.join(__dirname, 'mark-security-reviewed.js')], { cwd: root, encoding: 'utf8' });
+  assert.equal(marker.status, 0, marker.stderr);
+  for (const command of ['git commit -a -m "fix: 修正"', 'git add auth.js && git commit -m "fix: 修正"']) {
+    const result = call('PreToolUse', { tool_name: 'Bash', tool_input: { command } }, { SECURITY_REVIEWED: '' });
+    assert.equal(result.json.hookSpecificOutput.permissionDecision, 'deny');
+    assert.match(result.json.hookSpecificOutput.permissionDecisionReason, /インデックスを変える/);
+  }
+});

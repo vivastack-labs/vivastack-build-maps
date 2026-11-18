@@ -21,7 +21,7 @@ Node.js はリポジトリ指定の 26 を使う。Codex CLI 0.169.0 の hooks �
 | Codex イベント | 処理 | Claude との差分 |
 | --- | --- | --- |
 | SessionStart | ブランチ・最新コミット・変更状態・前回の編集ファイルを渡す、音声 | Codex の記録だけを復元。会話の要約は生成しない |
-| PreToolUse / Bash | `--no-verify`・通常の force push を拒否、gitleaks、strict の commit-quality | Codex の `permissionDecision: deny` に変換 |
+| PreToolUse / Bash | `--no-verify`・通常の force push を拒否、gitleaks、security-trigger、strict の commit-quality | Codex の `permissionDecision: deny` に変換 |
 | PreToolUse / apply_patch | linter / formatter の設定変更を拒否 | パッチの追加・更新・削除・移動元と移動先をすべて検査 |
 | PostToolUse | ツール利用数、マスク済みコマンドログ、PR URL、ビルド結果、編集ファイルを記録 | Bash の文字列出力を変換。ビルド結果は終了コードを取得できた場合だけ通知 |
 | PostToolUse / apply_patch | JSON 構文、Markdown / Python / Go の品質確認、console.log の注意 | stderr の注意も Codex の追加コンテキストへ変換 |
@@ -36,6 +36,26 @@ Node.js はリポジトリ指定の 26 を使う。Codex CLI 0.169.0 の hooks �
 Stop 時にも再確認し、編集後にリンク先が変わっていても外部ファイルを整形しない。
 複数ファイルを含むパッチに保護対象があれば、パッチ全体を実行前に拒否する。
 保護対象へのシンボリックリンクも検査する。MCP 等の `path` 引数は編集として扱わない。
+
+## コミット前のセキュリティレビュー
+
+`standard` / `strict` では共有の `security-trigger.js` を実行する
+（ID：`project:pre:bash:security-trigger`）。セキュリティに関わるファイル名や追加行を
+検出したコミットを拒否し、Codex の `security-reviewer` でのレビューを促す。
+
+レビュー後に CRITICAL・HIGH を直し、対象をステージしてから、次を実行する。
+
+```bash
+node .codex/hooks/mark-security-reviewed.js
+```
+
+共有の記録処理を利用し、対象リポジトリの `.git/security-reviewed` に
+HEADとステージ内容の指紋を保存する。Claude側の資源・状態ディレクトリには書き込まない。
+このGitメタデータの記録は両環境で共通。同じHEAD・ステージだけが通り、変わると再度拒否する。
+`git add` と `git commit` は分ける。`git commit -a` やパス指定は、レビュー時の
+ステージ内容と一致を保証できないため、記録があっても拒否する。
+pushのみは検査しない。検出の範囲とコマンド解釈は共有実装と同じであり、
+このチェックは実際にレビューが行われたことを認証する仕組みではない。
 
 ## 編集後と終了時の検査
 
@@ -74,7 +94,7 @@ Codex 専用の `state.js` を利用し、Claude の既定の
 ## 移植しない処理・制約
 
 - Claude 固有の Agent ゲート、会話 JSONL の解析、CLAUDE.md の自動提案、Claude の単価による課金集計は移植しない。
-- `gateguard` は Claude 側で無効化されているため登録しない。tmux への誘導、Claude 固有のセキュリティ担当エージェントの強制も登録しない。
+- `gateguard` は Claude 側で無効化されているため登録しない。tmux への誘導、Claude 固有のセキュリティ担当エージェントの呼び出し制御は登録しない。コミット前の `security-trigger` は上記のとおり登録する。
 - デザイン候補を製品規約に昇格させるチェックは追加しない。UI の判断は `AGENTS.md` と `docs/design-system.md` に従う。
 - `npx` で整形・lint ツールを取得する処理は実行しない。Prettier・ESLint・TypeScript・markdownlint は `pnpm install` で入る。`gitleaks`、`yamllint`、`shellcheck`、Python / Go の共有チェックが呼ぶ `ruff`・`gofmt` は別途必要。未導入時には省略または注意を返す。
 - 音声は既存の `.claude/hooks/audios/` と `play-audio.js` を利用する。再生コマンドや音声デバイスがない環境では何もしない。
