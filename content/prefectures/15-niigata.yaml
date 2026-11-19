@@ -17,5 +17,136 @@ capital:
     zh: "新潟市"
   lat: 37.902264
   lon: 139.023224
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {新潟駅|にいがたえき}"
+    en: "Tokyo Station → Niigata Station"
+    zh: "东京站 → 新潟站"
+  # 毎日運転の上越新幹線とき315号：東京10:15発、新潟12:17着（122分。途中の待ち時間なし）。JR東日本2026年11月時刻表。
+  durationMin: 122
+  sources:
+    - title: "時刻表　停車駅一覧（新幹線とき 315号（東京－新潟））：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/train/085/087491.html"
+      accessed: "2026-11-19"
+  status: verified
+specialties:
+  - id: noppe
+    emoji: "🍲"
+    name: {ja: "のっぺ", en: "Noppe", zh: "のっぺ（芋头料理）"}
+    description:
+      ja:
+        kids: "サトイモを{使|つか}ったねばねばの{料理|りょうり}だよ。お{正月|しょうがつ}などに{食|た}べるんだ。"
+        adult: "サトイモを{使|つか}う{郷土料理|きょうどりょうり}で、ぬめりが{特徴|とくちょう}です。{県内|けんない}のどこでも{親|した}しまれ、お{正月|しょうがつ}などに{食|た}べられます。"
+      en:
+        kids: "This dish is made with taro, which makes it sticky. People eat it at New Year and other times."
+        adult: "A local dish made with taro, known for its natural stickiness, enjoyed throughout Niigata and eaten at New Year and other times."
+      zh:
+        kids: "用芋头做的黏黏的料理，新年等时候会吃。"
+        adult: "以芋头特有的黏滑为特色的乡土料理，在新潟县全境广受喜爱，新年等时候会吃。"
+    sources:
+      - title: "新潟の郷土料理｜雪国で受け継がれてきたふるさとの味｜新潟 旅の特集｜【公式】新潟県のおすすめ観光・旅行情報！にいがた観光ナビ"
+        url: "https://niigata-kankou.or.jp/feature/kyodoryori"
+        accessed: "2026-11-19"
+      - title: "地元ライター厳選！新潟の郷土料理「のっぺ」を楽しめるお店3選｜新潟 旅の特集｜【公式】新潟県のおすすめ観光・旅行情報！にいがた観光ナビ"
+        url: "https://niigata-kankou.or.jp/feature/noope/top"
+        accessed: "2026-11-19"
+    status: verified
+  - id: sasadango
+    emoji: "🍡"
+    name: {ja: "{笹団子|ささだんご}", en: "Sasa Dango", zh: "笹团子"}
+    description:
+      ja:
+        kids: "ヨモギのおだんごの{中|なか}にあんこが{入|はい}っていて、{笹|ささ}の{葉|は}で{包|つつ}んで{蒸|む}すんだよ。"
+        adult: "ヨモギを{混|ま}ぜた{団子|だんご}にあんが{入|はい}り、{笹|ささ}の{葉|は}で{包|つつ}んで{蒸|む}します。{約|やく}500{年前|ねんまえ}から{食|た}べられてきたとされます。"
+      en:
+        kids: "These mugwort dumplings are filled with sweet bean paste, wrapped in bamboo grass leaves, and steamed."
+        adult: "Mugwort dumplings filled with sweet bean paste, wrapped in bamboo grass leaves and steamed. They are said to have been eaten for about 500 years."
+      zh:
+        kids: "艾草团子里有豆沙馅，用竹叶包起来蒸熟。"
+        adult: "艾草团子内包豆沙馅，用竹叶包好蒸制而成。据说约500年前起就有人食用。"
+    sources:
+      - title: "作って楽しい！食べておいしい！ 新潟の銘菓「笹だんご」｜新潟 旅の特集｜【公式】新潟県のおすすめ観光・旅行情報！にいがた観光ナビ"
+        url: "https://niigata-kankou.or.jp/feature/sasadango/top"
+        accessed: "2026-11-19"
+      - title: "新潟の郷土料理｜雪国で受け継がれてきたふるさとの味｜新潟 旅の特集｜【公式】新潟県のおすすめ観光・旅行情報！にいがた観光ナビ"
+        url: "https://niigata-kankou.or.jp/feature/kyodoryori"
+        accessed: "2026-11-19"
+    status: verified
+  - id: hegisoba
+    emoji: "🍜"
+    name: {ja: "へぎそば", en: "Hegi Soba", zh: "布海苔荞麦面"}
+    description:
+      ja:
+        kids: "{海|かい}そうを{入|い}れて{作|つく}るおそばだよ。{木|き}の{器|うつわ}に、{一口|ひとくち}ずつ{盛|も}るんだ。"
+        adult: "{魚沼地方|うおぬまちほう}が{発祥|はっしょう}の、{海藻|かいそう}のふのりをつなぎに{使|つか}うそばです。へぎと{呼|よ}ばれる{木|き}の{器|うつわ}に{一口|ひとくち}ずつ{盛|も}ります。"
+      en:
+        kids: "Soba noodles made with seaweed. They are served in a wooden dish, arranged in one-bite portions."
+        adult: "Soba that originated in the Uonuma region, made with funori seaweed as a binder and served in a wooden dish called hegi, in one-bite portions."
+      zh:
+        kids: "加了海藻做成的荞麦面，装在木器里，一口一份地摆好。"
+        adult: "发祥于鱼沼地区的荞麦面，以布海苔为粘合材料，盛在名为“へぎ”的木器中，一口一份。"
+    sources:
+      - title: "のど越しと風味がたまらない！そばどころ小千谷・十日町の「へぎそば」が食べられる名店8選｜新潟 旅の特集｜【公式】新潟県のおすすめ観光・旅行情報！にいがた観光ナビ"
+        url: "https://niigata-kankou.or.jp/feature/hegisoba/top"
+        accessed: "2026-11-19"
+      - title: "新潟の郷土料理｜雪国で受け継がれてきたふるさとの味｜新潟 旅の特集｜【公式】新潟県のおすすめ観光・旅行情報！にいがた観光ナビ"
+        url: "https://niigata-kankou.or.jp/feature/kyodoryori"
+        accessed: "2026-11-19"
+    status: verified
+spots:
+  - id: sado-gold-mines
+    emoji: "⛏️"
+    name: {ja: "{佐渡島|さど}の{金山|きんざん}", en: "Sado Island Gold Mines", zh: "佐渡岛金山"}
+    description:
+      ja:
+        kids: "むかし{金|きん}をほった{場所|ばしょ}だよ。{世界遺産|せかいいさん}になったんだ。"
+        adult: "{江戸時代|えどじだい}に{本格的|ほんかくてき}な{開発|かいはつ}が{進|すす}み、2024{年|ねん}に{世界文化遺産|せかいぶんかいさん}に{登録|とうろく}されました。"
+      en:
+        kids: "People dug for gold here long ago. It became a World Heritage Site."
+        adult: "Gold mining took off in the Edo period, and the site became a World Heritage Site in 2024."
+      zh:
+        kids: "以前在这里挖金子，现在是世界遗产。"
+        adult: "江户时代起金矿开采全面展开，2024年登录为世界文化遗产。"
+    sources:
+      - title: "佐渡島(さど)の金山 - 新潟県ホームページ"
+        url: "https://www.pref.niigata.lg.jp/site/sado-goldmine/"
+        accessed: "2026-11-19"
+    status: verified
+  - id: yahiko-shrine
+    emoji: "⛩️"
+    name: {ja: "{彌彦神社|やひこじんじゃ}", en: "Yahiko Shrine", zh: "弥彦神社"}
+    description:
+      ja:
+        kids: "{山|やま}のふもとの{神社|じんじゃ}で、{手|て}を4{回|かい}{打|う}ってお{参|まい}りするんだ。"
+        adult: "{越後一宮|えちごいちのみや}で、{弥彦山|やひこやま}のふもとにあります。{参拝|さんぱい}は{二礼四拍手一礼|にれいよんはくしゅいちれい}です。"
+      en:
+        kids: "At this mountain-foot shrine, people clap four times when they pray."
+        adult: "Echigo's chief shrine at Mount Yahiko's foot, where visitors bow twice, clap four times and bow once."
+      zh:
+        kids: "山脚下的神社，参拜时要拍四下手。"
+        adult: "位于弥彦山脚下的越后一宫，参拜时行二拜四拍手一拜之礼。"
+    sources:
+      - title: "越後一宮　彌彦神社｜新潟のスポット・体験｜【公式】新潟県のおすすめ観光・旅行情報！にいがた観光ナビ"
+        url: "https://niigata-kankou.or.jp/spot/detail_7476.html"
+        accessed: "2026-11-19"
+    status: verified
+  - id: kiyotsukyo
+    emoji: "🏞️"
+    name: {ja: "{清津峡|きよつきょう}", en: "Kiyotsukyo Gorge", zh: "清津峡"}
+    description:
+      ja:
+        kids: "{岩|いわ}の{谷|たに}に、アート{作品|さくひん}になったトンネルがあるよ。"
+        adult: "{日本三大峡谷|にほんさんだいきょうこく}の1つ。2018{年|ねん}にアート{作品|さくひん}として{改修|かいしゅう}されたトンネルがあります。"
+      en:
+        kids: "In this rocky valley, there is a tunnel turned into a work of art."
+        adult: "One of Japan's three great gorges, with a tunnel remade as an artwork in 2018."
+      zh:
+        kids: "岩石山谷里有一条变成艺术作品的隧道。"
+        adult: "日本三大峡谷之一，隧道于2018年改建为艺术作品。"
+    sources:
+      - title: "清津峡／Tunnel of Light｜新潟のスポット・体験｜【公式】新潟県のおすすめ観光・旅行情報！にいがた観光ナビ"
+        url: "https://niigata-kankou.or.jp/spot/detail_6950.html"
+        accessed: "2026-11-19"
+    status: verified
