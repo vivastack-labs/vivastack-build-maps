@@ -8,10 +8,16 @@ model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 
 # トークン最適化
-model_reasoning_effort = "medium"
 plan_mode_reasoning_effort = "high"
 model_verbosity = "low"
 model_reasoning_summary = "concise"
+
+developer_instructions = """
+このリポジトリでは AGENTS.md の共通規約に加え、作業の前に .codex/rules/index.md を読み、
+作業に該当する Codex 用ルールを読む。Claude 側の資源は参照だけにし、変更しない。
+next-task は .agents/skills/next-task/SKILL.md、役割の定義は .codex/agents/*.toml を使う。
+Claude 用のツール名・モデル名・保存先を、そのまま Codex で実行しない。
+"""
 
 # 安全性
 # approval_policy = "on-request"
@@ -25,18 +31,8 @@ network_access = true
 [agents]
 enabled = true
 max_concurrent_threads_per_session = 2
-default_subagent_reasoning_effort = "medium"
-
-# サブエージェント
 default_subagent_model = "gpt-6-luna"
 default_subagent_reasoning_effort = "medium"
-
-developer_instructions = """
-このリポジトリでは AGENTS.md の共通規約に加え、作業の前に .codex/rules/index.md を読み、
-作業に該当する Codex 用ルールを読む。Claude 側の資源は参照だけにし、変更しない。
-next-task は .agents/skills/next-task/SKILL.md、役割の定義は .codex/agents/*.toml を使う。
-Claude 用のツール名・モデル名・保存先を、そのまま Codex で実行しない。
-"""
 
 [mcp_servers.context7]
 command = "npx"
