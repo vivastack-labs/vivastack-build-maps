@@ -4,7 +4,7 @@
 model_post_turn_compact_threshold_percent = 50
 
 # メインエージェント
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 
 # トークン最適化
@@ -15,7 +15,7 @@ model_reasoning_summary = "concise"
 
 # 安全性
 # approval_policy = "on-request"
-sandbox_mode = "workspace-write"
+# sandbox_mode = "workspace-write"
 
 # ネットワーク
 [sandbox_workspace_write]
