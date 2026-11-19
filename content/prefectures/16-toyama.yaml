@@ -17,5 +17,127 @@ capital:
     zh: "富山市"
   lat: 36.695219
   lon: 137.210932
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {富山駅|とやまえき}"
+    en: "Tokyo Station → Toyama Station"
+    zh: "东京站 → 富山站"
+  # かがやき509号（北陸新幹線。毎日運転）：東京10:22発、富山12:29着。JR東日本2026年11月時刻表。
+  durationMin: 127
+  sources:
+    - title: "時刻表　停車駅一覧（新幹線かがやき 509号（東京－敦賀））：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/train/095/098521.html"
+      accessed: "2026-11-19"
+  status: verified
+specialties:
+  - id: masuzushi
+    emoji: "🍣"
+    name: {ja: "ます{寿司|ずし}", en: "Masuzushi", zh: "鳟鱼寿司"}
+    description:
+      ja:
+        kids: "ごはんにマスをのせて{押|お}し{固|かた}めたおすしだよ。{江戸時代|えどじだい}に{始|はじ}まったんだ。"
+        adult: "{江戸時代|えどじだい}に{始|はじ}まり、{神通川|じんづうがわ}のサクラマスを{使|つか}った{形|かたち}が{原型|げんけい}とされる、{酢飯|すめし}にマスをのせた{押|お}し{寿司|ずし}です。"
+      en:
+        kids: "This sushi is made by pressing masu salmon onto rice. It began in the Edo period."
+        adult: "Pressed sushi with masu salmon on vinegared rice. Begun in the Edo period, it is said to have used cherry salmon from the Jinzu River."
+      zh:
+        kids: "把鳟鱼放在米饭上压制而成的寿司，起源于江户时代。"
+        adult: "在醋饭上放鳟鱼压制而成的寿司，始于江户时代，原型据说使用神通川的樱鳟。"
+    sources:
+      - title: "ます寿司 富山県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/37_20_toyama.html"
+        accessed: "2026-11-19"
+    status: verified
+  - id: hotaruika
+    emoji: "🦑"
+    name: {ja: "ホタルイカ", en: "Firefly Squid", zh: "萤火鱿"}
+    description:
+      ja:
+        kids: "{春|はる}にたまごを{産|う}みに{来|く}るイカだよ。{大群|たいぐん}が{来|く}る{海|うみ}は{国|くに}の{特別天然記念物|とくべつてんねんきねんぶつ}だよ。"
+        adult: "{春|はる}に{卵|たまご}を{産|う}みに{富山湾|とやまわん}へ{集|あつ}まるイカで、{旬|しゅん}は3{月|がつ}から5{月|がつ}です。{大群|たいぐん}が{来|く}る{海面|かいめん}は、{国|くに}の{特別天然記念物|とくべつてんねんきねんぶつ}です。"
+      en:
+        kids: "Firefly squid come to lay eggs in spring. The sea where they gather is a Special Natural Monument."
+        adult: "Firefly squid come to Toyama Bay to spawn in spring, peaking from March to May. Their gathering waters are a national Special Natural Monument."
+      zh:
+        kids: "春天，萤火鱿会来产卵。它们聚集的海域是国家特别天然纪念物。"
+        adult: "萤火鱿春天来到富山湾产卵，3月至5月是当季。大群聚集的海域是国家特别天然纪念物。"
+    sources:
+      - title: "富山で味わう絶品ホタルイカ | 観光スポットから地元グルメ・お土産まで徹底ガイド | 特集 | 【公式】富山県の観光/旅行サイト「とやま観光ナビ」"
+        url: "https://www.info-toyama.com/stories/hotaruika-toyama"
+        accessed: "2026-11-19"
+    status: verified
+  - id: shiroebi
+    emoji: "🦐"
+    name: {ja: "シロエビ", en: "White Shrimp", zh: "白虾"}
+    description:
+      ja:
+        kids: "{富山湾|とやまわん}にすむエビで、{火|ひ}を{通|とお}すと{白|しろ}くなるよ。{旬|しゅん}は5{月|がつ}から9{月|がつ}だよ。"
+        adult: "{富山湾|とやまわん}にすむエビで、{旬|しゅん}は5{月|がつ}から9{月|がつ}です。{生|い}きているときはピンク{色|いろ}で、{火|ひ}を{通|とお}すと{白|しろ}くなります。"
+      en:
+        kids: "This shrimp lives in Toyama Bay and turns white when cooked. It is in season from May to September."
+        adult: "This shrimp lives in Toyama Bay and is in season from May to September. It is pink when alive and turns white when cooked."
+      zh:
+        kids: "栖息在富山湾的虾，煮熟后会变白。5月至9月是当季。"
+        adult: "栖息在富山湾的虾，5月至9月是当季。活着时呈粉红色，煮熟后变白。"
+    sources:
+      - title: "シロエビのかき揚げ（しろえびのかきあげ）｜にっぽん伝統食図鑑：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/traditional-foods/menu/siroebi_no_kakiage.html"
+        accessed: "2026-11-19"
+    status: verified
+spots:
+  - id: kurobe-gorge
+    emoji: "🚃"
+    name: {ja: "{黒部峡谷|くろべきょうこく}トロッコ{電車|でんしゃ}", en: "Kurobe Gorge Railway", zh: "黑部峡谷小火车"}
+    description:
+      ja:
+        kids: "{片道|かたみち}{約|やく}80{分|ぷん}で{走|はし}るよ。12{月|がつ}から4{月|がつ}の{半|なか}ばは{休|やす}み。"
+        adult: "{黒部峡谷|くろべきょうこく}の{約|やく}20kmを{片道|かたみち}{約|やく}80{分|ぷん}で{走|はし}り、{例年|れいねん}12{月|がつ}から4{月|がつ}{中旬|ちゅうじゅん}は{休業|きゅうぎょう}します。"
+      en:
+        kids: "This gorge train takes about 80 minutes one way. It is closed December to mid-April."
+        adult: "The roughly 20 km line takes about 80 minutes one way and is usually closed December to mid-April."
+      zh:
+        kids: "单程约80分钟。12月至4月中旬休业。"
+        adult: "行驶约20公里，单程约80分钟。通常12月至4月中旬休业。"
+    sources:
+      - title: "黒部峡谷トロッコ電車 / 黒部峡谷 | スポット・体験 | 【公式】富山県の観光/旅行サイト「とやま観光ナビ」"
+        url: "https://www.info-toyama.com/attractions/51007"
+        accessed: "2026-11-19"
+    status: verified
+  - id: gokayama
+    emoji: "🏡"
+    name: {ja: "{五箇山|ごかやま}の{合掌造|がっしょうづく}り{集落|しゅうらく}", en: "Gokayama Gassho-zukuri Villages", zh: "五箇山合掌造聚落"}
+    description:
+      ja:
+        kids: "{雪|ゆき}が{落|お}ちやすい{急|きゅう}な{屋根|やね}の{家|いえ}が{残|のこ}る{世界遺産|せかいいさん}だよ。"
+        adult: "1995{年|ねん}に{世界遺産|せかいいさん}に{登録|とうろく}され、{雪|ゆき}が{落|お}ちやすい{急|きゅう}な{屋根|やね}の{合掌造|がっしょうづく}りの{家|いえ}が{残|のこ}ります。"
+      en:
+        kids: "This World Heritage site has houses with steep roofs that let snow slide off."
+        adult: "Listed as a World Heritage site in 1995, the villages keep gassho-zukuri houses with steep, snow-shedding roofs."
+      zh:
+        kids: "这是世界遗产，有屋顶陡峭、雪易滑落的房屋。"
+        adult: "1995年成为世界遗产，保留屋顶陡峭、雪易滑落的合掌造房屋。"
+    sources:
+      - title: "世界文化遺産　～なつかしき日本の原風景～五箇山合掌造り集落 | 特集 | 【公式】富山県の観光/旅行サイト「とやま観光ナビ」"
+        url: "https://www.info-toyama.com/stories/gokayama"
+        accessed: "2026-11-19"
+    status: verified
+  - id: amaharashi
+    emoji: "🌊"
+    name: {ja: "{雨晴海岸|あまはらしかいがん}", en: "Amaharashi Coast", zh: "雨晴海岸"}
+    description:
+      ja:
+        kids: "{晴|は}れた{日|ひ}は、{海|うみ}の{向|む}こうに{立山連峰|たてやまれんぽう}が{見|み}えるよ。"
+        adult: "{晴|は}れた{日|ひ}は、{富山湾|とやまわん}の{向|む}こうに、3,000m{級|きゅう}の{峰|みね}が{連|つら}なる{立山連峰|たてやまれんぽう}が{見|み}えます。"
+      en:
+        kids: "On clear days, you can see the Tateyama Mountains across the sea."
+        adult: "On clear days, you can see the Tateyama Mountains, with peaks of about 3,000 m, across Toyama Bay."
+      zh:
+        kids: "天晴的日子，可以隔海看到立山连峰。"
+        adult: "天晴时，可以隔着富山湾远望有3000米级山峰的立山连峰。"
+    sources:
+      - title: "国定公園 雨晴海岸 | スポット・体験 | 【公式】富山県の観光/旅行サイト「とやま観光ナビ」"
+        url: "https://www.info-toyama.com/attractions/21011"
+        accessed: "2026-11-19"
+    status: verified
