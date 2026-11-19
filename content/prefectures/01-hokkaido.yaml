@@ -125,22 +125,22 @@ spots:
       - title: "白金青い池｜観光スポット｜【公式】北海道の観光・旅行情報サイト HOKKAIDO LOVE!"
         url: "https://www.visit-hokkaido.jp/spot/detail_10511.html"
         accessed: "2026-11-18"
-    status: draft
+    status: verified
   - id: shiretoko-five-lakes
     emoji: "🏞️"
     name: {ja: "{知床五湖|しれとこごこ}", en: "Shiretoko Five Lakes", zh: "知床五湖"}
     description:
       ja:
-        kids: "{森|もり}の{中|なか}に{五|いつ}つの{湖|みずうみ}があるよ。{冬|ふゆ}はお{休|やす}みだよ。"
-        adult: "{原生林|げんせいりん}の{中|なか}に{五|いつ}つの{湖|みずうみ}があり、{湖面|こめん}に{山々|やまやま}が{映|うつ}ります。{冬|ふゆ}は{閉園|へいえん}します。"
+        kids: "{森|もり}に{五|いつ}つの{湖|みずうみ}があるよ。{冬|ふゆ}は{園地|えんち}がお{休|やす}みだよ。"
+        adult: "{原生林|げんせいりん}に{五|いつ}つの{湖|みずうみ}があり、{園地|えんち}は{例年|れいねん}11{月|がつ}{上旬|じょうじゅん}から4{月|がつ}{中旬|ちゅうじゅん}まで{閉園|へいえん}します。"
       en:
-        kids: "Five lakes lie in a forest. The park is closed in winter."
-        adult: "Five lakes in an old-growth forest reflect mountains. The park closes in winter."
+        kids: "Five lakes lie in a forest. The park closes in winter."
+        adult: "Five lakes lie in an old-growth forest. The park usually closes from early November to mid-April."
       zh:
         kids: "森林里有五个湖，冬天闭园。"
-        adult: "原始森林中有五个湖，湖面映出群山，冬天闭园。"
+        adult: "原始森林中有五个湖，园区通常从11月上旬关闭至4月中旬。"
     sources:
       - title: "知床五湖｜観光スポット｜【公式】北海道の観光・旅行情報サイト HOKKAIDO LOVE!"
         url: "https://www.visit-hokkaido.jp/spot/detail_10404.html"
         accessed: "2026-11-18"
-    status: draft
+    status: verified

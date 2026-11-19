@@ -67,7 +67,7 @@ specialties:
       - title: "あんこうの共酢 茨城県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/ankounotomozu_ibaraki.html"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
   - id: tsuke-kenchin
     emoji: "🍜"
     name: {ja: "つけけんちん", en: "Tsuke Kenchin", zh: "蔬菜汤蘸荞麦面"}

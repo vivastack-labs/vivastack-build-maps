@@ -110,19 +110,19 @@ spots:
     name: {ja: "{大内宿|おおうちじゅく}", en: "Ouchi-juku", zh: "大内宿"}
     description:
       ja:
-        kids: "{江戸時代|えどじだい}にさかえた{宿場|しゅくば}だよ。かやぶき{屋根|やね}が{並|なら}ぶよ。"
-        adult: "かやぶき{屋根|やね}の{建物|たてもの}が{連|つら}なる、{江戸時代|えどじだい}に{栄|さか}えた{宿場|しゅくば}です。"
+        kids: "かやぶきの{家|いえ}には、{人|ひと}が{住|す}んでいて、お{店|みせ}もあるよ。"
+        adult: "{江戸時代|えどじだい}の{宿場町|しゅくばまち}です。かやぶきの{家|いえ}は{今|いま}も{住|す}まいと{店|みせ}を{兼|か}ねています。"
       en:
-        kids: "This post town flourished in the Edo period and has rows of thatched roofs."
-        adult: "Thatched buildings line this post town, which flourished during the Edo period."
+        kids: "People live and run shops in these thatched houses."
+        adult: "In this Edo-period post town, thatched houses still serve as both homes and shops."
       zh:
-        kids: "这里是江户时代繁荣的驿站，茅草屋顶排列着。"
-        adult: "茅草屋顶的建筑排列着，这里是江户时代繁荣的驿站。"
+        kids: "茅草屋里有人居住，也有商店。"
+        adult: "这里是江户时代的驿站，茅草屋至今兼作住宅和商店。"
     sources:
-      - title: "江戸時代に栄えた宿場町「大内宿」をやさしく照らす雪灯籠"
-        url: "https://tif.ne.jp/hontabi/info.html?info=149"
+      - title: "南会津・奥会津の観光・施設・イベント - 大内宿観光協会｜南会津の観光スポット　大内宿"
+        url: "https://ouchi-juku.com/"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
   - id: goshikinuma
     emoji: "🏞️"
     name: {ja: "{五色沼|ごしきぬま}", en: "Goshikinuma Ponds", zh: "五色沼"}
