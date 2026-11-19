@@ -30,7 +30,7 @@ access:
     - title: "時刻表　上野東京ライン 南行：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/timetable-v/295d2p.html"
       accessed: "2026-11-19"
-  status: draft
+  status: verified
 specialties:
   - id: sanmamen
     emoji: "🍜"
@@ -49,7 +49,7 @@ specialties:
       - title: "サンマーメン 神奈川県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/35_16_kanagawa.html"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
   - id: kenchin-jiru
     emoji: "🍲"
     name: {ja: "けんちん{汁|じる}", en: "Kenchin Soup", zh: "什锦蔬菜汤"}
@@ -67,7 +67,7 @@ specialties:
       - title: "けんちん汁 神奈川県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/35_1_kanagawa.html"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
   - id: tonzuke
     emoji: "🍖"
     name: {ja: "とん{漬|づ}け", en: "Tonzuke", zh: "味噌腌猪肉"}
@@ -85,7 +85,7 @@ specialties:
       - title: "とん漬け 神奈川県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/35_6_kanagawa.html"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
 spots:
   - id: hakone-cruise
     emoji: "🚢"
@@ -104,7 +104,7 @@ spots:
       - title: "箱根海賊船（箱根観光船）｜体験・観光スポット　｜【公式】神奈川県のお出かけ・観光・旅行サイト「観光かながわNOW」"
         url: "https://www.kanagawa-kankou.or.jp/spot/724"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
   - id: yokohama-red-brick
     emoji: "🏠"
     name: {ja: "{横浜|よこはま}{赤|あか}レンガ{倉庫|そうこ}", en: "Yokohama Red Brick Warehouse", zh: "横滨红砖仓库"}
@@ -122,7 +122,7 @@ spots:
       - title: "横浜赤レンガ倉庫｜体験・観光スポット　｜【公式】神奈川県のお出かけ・観光・旅行サイト「観光かながわNOW」"
         url: "https://www.kanagawa-kankou.or.jp/kanagawayokohamadc/spot/109"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
   - id: kamakura-daibutsu
     emoji: "🗿"
     name: {ja: "{鎌倉大仏|かまくらだいぶつ}", en: "Great Buddha of Kamakura", zh: "镰仓大佛"}
@@ -140,4 +140,4 @@ spots:
       - title: "鎌倉大仏殿高徳院"
         url: "https://kotoku-in.jp/about.html"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
