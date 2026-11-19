@@ -16,5 +16,127 @@ capital:
     zh: "金泽市"
   lat: 36.594818
   lon: 136.625351
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {金沢駅|かなざわえき}"
+    en: "Tokyo Station → Kanazawa Station"
+    zh: "东京站 → 金泽站"
+  # かがやき509号：東京10:22発、金沢12:49着。JR東日本2026年11月時刻表では毎日運転。
+  durationMin: 147
+  sources:
+    - title: "時刻表　停車駅一覧（新幹線かがやき 509号（東京－敦賀））：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/train/095/098521.html"
+      accessed: "2026-11-20"
+  status: verified
+specialties:
+  - id: jibuni
+    emoji: "🍲"
+    name: {ja: "じぶ{煮|に}", en: "Jibuni", zh: "治部煮"}
+    description:
+      ja:
+        kids: "{鴨肉|かもにく}やすだれ{麩|ふ}、{野菜|やさい}を{煮|に}た、とろみのある{料理|りょうり}だよ。"
+        adult: "{鴨肉|かもにく}に{小麦粉|こむぎこ}をまぶし、すだれ{麩|ふ}や{季節|きせつ}の{野菜|やさい}と{煮|に}る、とろみのある{郷土料理|きょうどりょうり}です。"
+      en:
+        kids: "This thick stew is made with duck, sudare-fu wheat gluten, and vegetables."
+        adult: "This local stew is thickened with flour on duck meat and cooked with sudare-fu wheat gluten and seasonal vegetables."
+      zh:
+        kids: "鸭肉、帘麸和蔬菜一起炖成浓稠的料理。"
+        adult: "这道乡土炖菜将鸭肉裹上面粉，和帘麸及应季蔬菜一起煮，汤汁浓稠。"
+    sources:
+      - title: "じぶ煮 石川県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/jibuni_ishikawa.html"
+        accessed: "2026-11-20"
+    status: verified
+  - id: kutaniyaki
+    emoji: "🍵"
+    name: {ja: "{九谷焼|くたにやき}", en: "Kutani Ware", zh: "九谷烧"}
+    description:
+      ja:
+        kids: "{鮮|あざ}やかな{色|いろ}の{絵|え}がついた{焼|や}き{物|もの}だよ。{古九谷|こくたに}から{受|う}け{継|つ}がれているよ。"
+        adult: "{石川県|いしかわけん}の{色絵磁器|いろえじき}で、1655{年|ねん}ごろに{始|はじ}まった{古九谷|こくたに}の{鮮|あざ}やかな{上絵|うわえ}を{受|う}け{継|つ}ぎます。"
+      en:
+        kids: "This pottery has brightly colored designs and carries on the tradition of Ko-Kutani ware."
+        adult: "This painted porcelain from Ishikawa carries on the vivid overglaze tradition of Ko-Kutani, which began around 1655."
+      zh:
+        kids: "这是一种绘有鲜艳图案的瓷器，传承了古九谷的技艺。"
+        adult: "石川县的彩绘瓷器，传承了约1655年开始的古九谷鲜艳的釉上彩技艺。"
+    sources:
+      - title: "石川県九谷陶磁器商工業協同組合連合会"
+        url: "https://kutani.or.jp/"
+        accessed: "2026-11-20"
+    status: verified
+  - id: kagayuzen
+    emoji: "👘"
+    name: {ja: "{加賀友禅|かがゆうぜん}", en: "Kaga Yuzen", zh: "加贺友禅"}
+    description:
+      ja:
+        kids: "{草花|くさばな}を{本物|ほんもの}のように{描|えが}いた、{絵|え}のような{模様|もよう}の{染|そ}め{物|もの}だよ。"
+        adult: "{加賀五彩|かがごさい}を{基調|きちょう}とし、{草花|くさばな}を{写実的|しゃじつてき}に{描|えが}く{絵画|かいが}のような{模様|もよう}が{特徴|とくちょう}の{染|そ}め{物|もの}です。"
+      en:
+        kids: "This dyed fabric has picture-like patterns of flowers and plants drawn as they appear."
+        adult: "This dyeing tradition features painterly, realistic floral designs based on the five colors known as Kaga gosai."
+      zh:
+        kids: "这是一种染织品，图案像画一样，花草描绘得十分逼真。"
+        adult: "以加贺五彩为基调，以写实的花草为主题，绘画般的图案是其染织特色。"
+    sources:
+      - title: "加賀友禅 KAGA-YUZEN"
+        url: "https://www.kagayuzen.or.jp/"
+        accessed: "2026-11-20"
+    status: verified
+spots:
+  - id: kenrokuen
+    emoji: "🌳"
+    name: {ja: "{兼六園|けんろくえん}", en: "Kenrokuen Garden", zh: "兼六园"}
+    description:
+      ja:
+        kids: "{池|いけ}や{築山|つきやま}を{巡|めぐ}って{楽|たの}しめる{庭園|ていえん}だよ。"
+        adult: "{歴代|れきだい}の{加賀藩主|かがはんしゅ}が{長|なが}い{年月|ねんげつ}をかけて{造|つく}った{庭園|ていえん}で、{池|いけ}や{築山|つきやま}を{巡|めぐ}って{楽|たの}しめます。"
+      en:
+        kids: "Explore this garden by walking around its ponds and landscaped hills."
+        adult: "Successive Kaga lords shaped this garden over many years. Visitors can explore its ponds and landscaped hills."
+      zh:
+        kids: "可以在这座庭园中漫步，欣赏池塘和假山。"
+        adult: "历代加贺藩主历经多年建成的庭园，可以漫步欣赏池塘和假山。"
+    sources:
+      - title: "兼六園とは｜兼六園"
+        url: "https://shiro-niwa.pref.ishikawa.lg.jp/kenrokuen-garden/about.html"
+        accessed: "2026-11-20"
+    status: verified
+  - id: kanazawa-castle
+    emoji: "🏯"
+    name: {ja: "{金沢城公園|かなざわじょうこうえん}", en: "Kanazawa Castle Park", zh: "金泽城公园"}
+    description:
+      ja:
+        kids: "お{城|しろ}の{跡|あと}の{公園|こうえん}に、{石川門|いしかわもん}や{復元|ふくげん}された{門|もん}があるよ。"
+        adult: "{金沢城|かなざわじょう}の{跡|あと}に{整備|せいび}された{公園|こうえん}で、{石川門|いしかわもん}などの{重要文化財|じゅうようぶんかざい}や{復元|ふくげん}された{門|もん}があります。"
+      en:
+        kids: "This park on a castle site has Ishikawa-mon Gate and reconstructed gates."
+        adult: "This former castle site has reconstructed gates and important cultural properties including Ishikawa-mon Gate."
+      zh:
+        kids: "城堡遗址上的公园，有石川门和复原的城门。"
+        adult: "建在金泽城遗址上的公园，有石川门等重要文化财产和复原的城门。"
+    sources:
+      - title: "園内のご案内 | 金沢城公園"
+        url: "https://shiro-niwa.pref.ishikawa.lg.jp/kanazawa-castle/about/"
+        accessed: "2026-11-20"
+    status: verified
+  - id: hakusan
+    emoji: "⛰️"
+    name: {ja: "{白山|はくさん}", en: "Mount Hakusan", zh: "白山"}
+    description:
+      ja:
+        kids: "7{月|がつ}から8{月|がつ}に、{山|やま}の{高|たか}いところで{花畑|はなばたけ}が{見|み}られるよ。"
+        adult: "{夏|なつ}の7{月|がつ}から8{月|がつ}にかけて、{山|やま}の{高|たか}いところで{高山植物|こうざんしょくぶつ}の{花畑|はなばたけ}を{見|み}ることができます。"
+      en:
+        kids: "From July to August, you can see flower fields high on the mountain."
+        adult: "From July to August in summer, fields of alpine flowers can be seen high on the mountain."
+      zh:
+        kids: "7月至8月，可以在山的高处看到一片片花田。"
+        adult: "夏季7月至8月，可以在山的高处看到高山植物的花田。"
+    sources:
+      - title: "白山国立公園の特徴 | 白山国立公園 | 国立公園一覧 | 国立公園に、行ってみよう！ | 環境省"
+        url: "https://www.env.go.jp/nature/nationalparks/list/hakusan/feature/"
+        accessed: "2026-11-20"
+    status: verified
