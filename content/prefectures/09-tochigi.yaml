@@ -27,10 +27,10 @@ access:
   # やまびこ133号：東京10:00発、宇都宮10:48着。JR東日本2026年11月時刻表。
   durationMin: 48
   sources:
-    - title: "時刻表 停車駅一覧（新幹線やまびこ133号〔東京－仙台〕／新幹線つばさ133号〔東京－福島－新庄〕）：JR東日本"
+    - title: "時刻表　停車駅一覧（新幹線やまびこ 133号（東京－仙台）／新幹線つばさ 133号（東京－福島－新庄））：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/025/029861.html"
       accessed: "2026-11-19"
-  status: draft
+  status: verified
 specialties:
   - id: utsunomiya-gyoza
     emoji: "🥟"
@@ -38,18 +38,18 @@ specialties:
     description:
       ja:
         kids: "{宇都宮|うつのみや}のぎょうざは、{焼|や}いたり、{揚|あ}げたり、ゆでたりして{食|た}べるよ。"
-        adult: "{宇都宮|うつのみや}で{親|した}しまれている{餃子|ぎょうざ}は、{店|みせ}ごとに{皮|かわ}の{厚|あつ}みや{具|ぐ}を{工夫|くふう}。{焼|や}き・{揚|あ}げ・{水餃子|すいぎょうざ}などがあります。"
+        adult: "{宇都宮|うつのみや}では{餃子|ぎょうざ}を{焼|や}いたり、{揚|あ}げたり、ゆでたりします。{皮|かわ}の{厚|あつ}みや{具|ぐ}は{店|みせ}によって{違|ちが}います。"
       en:
         kids: "In Utsunomiya, people eat gyoza dumplings pan-fried, deep-fried, or boiled."
         adult: "Utsunomiya has pan-fried, deep-fried, and boiled gyoza dumplings, with fillings and wrapper thickness varying by shop."
       zh:
         kids: "宇都宫的饺子有煎、炸和煮等吃法。"
-        adult: "宇都宫的饺子有煎、炸、水饺等种类，各店的馅料和饺子皮厚度各不相同。"
+        adult: "宇都宫的饺子有煎、炸、煮等做法，各店的馅料和饺子皮厚度不同。"
     sources:
       - title: "餃子のまち｜宇都宮市公式Webサイト"
         url: "https://www.city.utsunomiya.lg.jp/citypromotion/1007188.html"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
   - id: kanpyo-tamago-toji
     emoji: "🥚"
     name: {ja: "かんぴょうの{卵|たまご}とじ", en: "Kanpyo with Egg", zh: "瓠瓜干蛋汤"}

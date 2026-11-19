@@ -49,7 +49,7 @@ specialties:
       - title: "おきりこみ／おっきりこみ 群馬県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/32_1_gunma.html"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
   - id: yaki-manju
     emoji: "🍡"
     name: {ja: "{焼|や}きまんじゅう", en: "Yaki Manju", zh: "烤馒头"}
@@ -85,7 +85,7 @@ specialties:
       - title: "こんにゃく味噌おでん 群馬県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/32_23_gunma.html"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
 spots:
   - id: tomioka-silk-mill
     emoji: "🏭"
@@ -128,16 +128,16 @@ spots:
     name: {ja: "{吹割|ふきわれ}の{滝|たき}", en: "Fukiware Falls", zh: "吹割瀑布"}
     description:
       ja:
-        kids: "{岩|いわ}が{割|わ}れたような{滝|たき}。{冬|ふゆ}はしばらく{見|み}られないよ。"
-        adult: "{岩|いわ}が{割|わ}れたような{姿|すがた}から{名|な}づけられた{滝|たき}です。{冬|ふゆ}の{一定|いってい}{期間|きかん}は{見学|けんがく}できません。"
+        kids: "{岩|いわ}のすき{間|ま}に{水|みず}が{流|なが}れ{落|お}ちる{滝|たき}だよ。"
+        adult: "{片品川|かたしながわ}の{岩|いわ}の{割|わ}れ{目|め}に{水|みず}が{流|なが}れ{落|お}ちる{滝|たき}です。{冬|ふゆ}は{遊歩道|ゆうほどう}が{閉鎖|へいさ}されます。"
       en:
-        kids: "This rock-splitting waterfall closes for part of winter."
-        adult: "This waterfall is named for its rock-splitting appearance. It closes to visitors for part of winter."
+        kids: "At these falls, water drops into a crack in the rock."
+        adult: "The Katashina River drops into a crack in the rock here. Walking trails close in winter."
       zh:
-        kids: "瀑布仿佛劈开岩石，冬季部分时间关闭。"
-        adult: "瀑布因如同劈开岩石的样子而得名，冬季部分时间关闭。"
+        kids: "瀑布的水流落入岩石的缝隙中。"
+        adult: "片品川的水流落入岩石裂缝，形成瀑布。步道冬季关闭。"
     sources:
       - title: "吹割の滝 | 自然 | 沼田市観光協会"
         url: "https://numata-kankou.jp/fukiwarenotaki/index.html"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
