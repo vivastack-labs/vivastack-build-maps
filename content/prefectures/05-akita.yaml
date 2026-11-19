@@ -16,5 +16,134 @@ capital:
     zh: "秋田市"
   lat: 39.718128
   lon: 140.1026
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {秋田駅|あきたえき}"
+    en: "Tokyo Station → Akita Station"
+    zh: "东京站 → 秋田站"
+  # こまち15号（はやぶさ15号と併結。東京－盛岡－秋田）：東京10:18発、秋田14:08着。JR東日本2026年11月時刻表。
+  # 月別の時刻表 URL と所要時間は、年に1回確認する。
+  durationMin: 230
+  sources:
+    - title: "時刻表　停車駅一覧（新幹線はやぶさ 15号（東京－新青森）／新幹線こまち 15号（東京－盛岡－秋田））：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/train/110/111151.html"
+      accessed: "2026-11-19"
+  status: verified
+specialties:
+  - id: kiritanpo-nabe
+    emoji: "🍲"
+    name: {ja: "きりたんぽ{鍋|なべ}", en: "Kiritanpo Hot Pot", zh: "切蒲英火锅"}
+    description:
+      ja:
+        kids: "つぶしたご{飯|はん}を{焼|や}いた「きりたんぽ」の{鍋|なべ}だよ。{新米|しんまい}の{時期|じき}によく{食|た}べるよ。"
+        adult: "ご{飯|はん}をつぶして{焼|や}いたきりたんぽを{鶏|とり}だしの{鍋|なべ}に{入|い}れます。{大館|おおだて}・{鹿角|かづの}{発祥|はっしょう}で、{新米|しんまい}の{時期|じき}によく{作|つく}られます。"
+      en:
+        kids: "Mashed rice is grilled to make kiritanpo for this hot pot. It is often eaten in the new rice season."
+        adult: "Grilled mashed-rice kiritanpo go into a chicken broth hot pot. It began in Odate and Kazuno and is often made in the new rice season."
+      zh:
+        kids: "把捣碎的米饭烤熟做成切蒲英，放进锅里。新米上市时常吃。"
+        adult: "把捣碎的米饭烤成切蒲英，放入鸡汤锅。发源于大馆和鹿角，常在新米上市时制作。"
+    sources:
+      - title: "きりたんぽ鍋 秋田県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/29_6_akita.html"
+        accessed: "2026-11-19"
+    status: verified
+  - id: iburigakko
+    emoji: "🥕"
+    name: {ja: "いぶりがっこ", en: "Iburigakko", zh: "烟熏腌萝卜"}
+    description:
+      ja:
+        kids: "{大根|だいこん}を{煙|けむり}でいぶして{作|つく}る{漬|つ}け{物|もの}だよ。{秋田|あきた}では{漬|つ}け{物|もの}を「がっこ」と{言|い}うよ。"
+        adult: "{大根|だいこん}を{煙|けむり}でいぶし、{米|こめ}ぬかと{塩|しお}などで{漬|つ}けます。「がっこ」は{秋田|あきた}の{言葉|ことば}で{漬|つ}け{物|もの}のことです。"
+      en:
+        kids: "Daikon radish is smoked and then pickled. In Akita, pickles are called gakko."
+        adult: "Daikon radish is smoked, then pickled in rice bran, salt, and other ingredients. In Akita dialect, gakko means pickles."
+      zh:
+        kids: "把萝卜用烟熏过再腌成咸菜。在秋田，咸菜叫做gakko。"
+        adult: "把萝卜用烟熏后，再用米糠和盐等腌制。gakko在秋田方言中就是咸菜的意思。"
+    sources:
+      - title: "いぶりがっこ 秋田県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/29_1_akita.html"
+        accessed: "2026-11-19"
+    status: verified
+  - id: inaniwa-udon
+    emoji: "🍜"
+    name: {ja: "{稲庭|いなにわ}うどん", en: "Inaniwa Udon", zh: "稻庭乌冬面"}
+    description:
+      ja:
+        kids: "{細|ほそ}くて{平|たい}らな{麺|めん}で、コシがあるよ。{手|て}でのばして{干|ほ}して{作|つく}るんだ。"
+        adult: "{湯沢市|ゆざわし}の{稲庭町|いなにわちょう}で{生|う}まれた、{手延|ての}べの{干|ほ}しうどんです。{麺|めん}は{細|ほそ}くて{平|たい}らで、{強|つよ}いコシが{特徴|とくちょう}です。"
+      en:
+        kids: "These flat, thin noodles are chewy. They are made by stretching the dough by hand and drying it."
+        adult: "Dried, hand-stretched udon born in Inaniwa, Yuzawa. The noodles are thin and flat, with a strong, chewy texture."
+      zh:
+        kids: "又细又平的面条很有嚼劲，是用手拉长再晾干做成的。"
+        adult: "诞生于汤泽市稻庭町的手工拉制干乌冬面。面条又细又扁，特点是很有嚼劲。"
+    sources:
+      - title: "日本全国の麺文化をご紹介！ ニッポン麺探訪 第3回：農林水産省"
+        url: "https://www.maff.go.jp/j/pr/aff/1607/n_search.html"
+        accessed: "2026-11-19"
+    status: verified
+spots:
+  - id: kakunodate-bukeyashiki
+    emoji: "🏘️"
+    name: {ja: "{角館|かくのだて}の{武家屋敷通|ぶけやしきどお}り", en: "Kakunodate Samurai District", zh: "角馆武家屋敷通"}
+    description:
+      ja:
+        kids: "むかしの{武家|ぶけ}の{屋敷|やしき}が{並|なら}ぶ{町|まち}で、しだれ{桜|ざくら}があるよ。"
+        adult: "{武家屋敷通|ぶけやしきどお}りは{重要伝統的建造物群保存地区|じゅうようでんとうてきけんぞうぶつぐんほぞんちく}で、{角館|かくのだて}のしだれ{桜|ざくら}は{国|くに}の{天然記念物|てんねんきねんぶつ}です。"
+      en:
+        kids: "Old samurai houses line this town, and it has weeping cherry trees."
+        adult: "The samurai district is a nationally designated historic district, and its weeping cherries are a national natural monument."
+      zh:
+        kids: "这里有古老的武士宅邸，还有垂樱。"
+        adult: "武家屋敷通是重要传统建筑群保存地区，垂樱为国家天然纪念物。"
+    sources:
+      - title: "角館の町並み　観光情報 | 仙北市"
+        url: "https://www.city.semboku.akita.jp/sightseeing/spot/07_matinami.html"
+        accessed: "2026-11-19"
+      - title: "角館　武家屋敷通りの枝垂桜　観光　仙北市"
+        url: "https://www.city.semboku.akita.jp/sightseeing/spot/07_shidaresakura.html"
+        accessed: "2026-11-19"
+    status: verified
+  - id: lake-tazawa
+    emoji: "🏞️"
+    name: {ja: "{田沢湖|たざわこ}", en: "Lake Tazawa", zh: "田泽湖"}
+    description:
+      ja:
+        kids: "{日本|にほん}でいちばん{深|ふか}い{湖|みずうみ}だよ。まるい{形|かたち}をしているんだ。"
+        adult: "{湖|みずうみ}の{水深|すいしん}は423.4メートルで{日本一|にほんいち}。ほぼ{円形|えんけい}で、{周囲|しゅうい}は{約|やく}20キロメートルです。"
+      en:
+        kids: "This is the deepest lake in Japan. It has a round shape."
+        adult: "The lake is 423.4 meters deep, the deepest in Japan, and nearly circular, about 20 kilometers around."
+      zh:
+        kids: "这是日本最深的湖，形状圆圆的。"
+        adult: "水深423.4米，为日本最深。近乎圆形，周长约20公里。"
+    sources:
+      - title: "田沢湖　観光情報　仙北市"
+        url: "https://www.city.semboku.akita.jp/sightseeing/spot/04_tazawako.html"
+        accessed: "2026-11-19"
+    status: verified
+  - id: namahage-kan
+    emoji: "👹"
+    name: {ja: "なまはげ{館|かん}", en: "Namahage Museum", zh: "生剥鬼馆"}
+    description:
+      ja:
+        kids: "150{枚|まい}をこえるなまはげの{面|めん}が{見|み}られるよ。"
+        adult: "{男鹿|おが}のナマハゲ{行事|ぎょうじ}は{大晦日|おおみそか}に{行|おこな}われ、{館内|かんない}に150{枚|まい}を{超|こ}える{面|めん}を{展示|てんじ}します。"
+      en:
+        kids: "You can see more than 150 Namahage demon masks at this museum."
+        adult: "Oga's Namahage demon event takes place on New Year's Eve, and the museum displays more than 150 masks."
+      zh:
+        kids: "能看到超过150个生剥鬼的面具。"
+        adult: "男鹿的生剥鬼活动在除夕举行，馆内展出超过150个面具。"
+    sources:
+      - title: "男鹿のナマハゲ｜なまはげ館"
+        url: "https://namahage.co.jp/namahagekan/namahage/"
+        accessed: "2026-11-19"
+      - title: "なまはげ館館内紹介｜なまはげ館"
+        url: "https://namahage.co.jp/namahagekan/exhibits/"
+        accessed: "2026-11-19"
+    status: verified
