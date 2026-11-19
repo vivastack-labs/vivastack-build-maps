@@ -30,7 +30,7 @@ access:
     - title: "時刻表　停車駅一覧（東京－千葉）：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/115/115781.html"
       accessed: "2026-11-19"
-  status: draft
+  status: verified
 specialties:
   - id: namerou
     emoji: "🐟"
@@ -49,7 +49,7 @@ specialties:
       - title: "なめろう 千葉県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/namerou_chiba.html"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
   - id: futomaki-zushi
     emoji: "🍣"
     name: {ja: "{太巻|ふとま}きずし", en: "Futomaki Sushi", zh: "粗卷寿司"}
@@ -67,7 +67,7 @@ specialties:
       - title: "太巻ずし 千葉県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/futomaki_zushi_chiba.html"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
   - id: boiled-peanuts
     emoji: "🥜"
     name: {ja: "ゆで{落花生|らっかせい}", en: "Boiled Peanuts", zh: "水煮花生"}
@@ -85,7 +85,7 @@ specialties:
       - title: "ゆで落花生 千葉県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/yude_rakkasei_chiba.html"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
 spots:
   - id: inubosaki-lighthouse
     emoji: "🌊"
@@ -104,7 +104,7 @@ spots:
       - title: "犬吠埼灯台｜スポット・体験｜千葉県公式観光サイト ちば観光ナビ"
         url: "https://maruchiba.jp/spot/detail_10185.html"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
   - id: nokogiriyama
     emoji: "⛰️"
     name: {ja: "{鋸山|のこぎりやま}", en: "Mount Nokogiri", zh: "锯山"}
@@ -122,7 +122,7 @@ spots:
       - title: "絶景と歴史が詰まった鋸山！ロープウェーと登山の魅力を徹底解説します｜特集｜千葉県公式観光サイト ちば観光ナビ"
         url: "https://maruchiba.jp/feature/detail_108.html"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
   - id: naritasan-shinshoji
     emoji: "🏯"
     name: {ja: "{成田山新勝寺|なりたさんしんしょうじ}", en: "Naritasan Shinshoji Temple", zh: "成田山新胜寺"}
@@ -140,4 +140,4 @@ spots:
       - title: "成田山新勝寺ってどんなところ？成田山公園や表参道のグルメ情報も満載！｜特集｜千葉県公式観光サイト ちば観光ナビ"
         url: "https://maruchiba.jp/feature/detail_172.html"
         accessed: "2026-11-19"
-    status: draft
+    status: verified
