@@ -41,7 +41,7 @@ specialties:
         adult: "{横浜|よこはま}{発祥|はっしょう}の{麺料理|めんりょうり}です。もやしや{豚肉|ぶたにく}などを{炒|いた}め、とろみをつけたあんをラーメンにのせます。"
       en:
         kids: "This Yokohama dish tops ramen noodles with vegetables in a thick sauce."
-        adult: "A Yokohama noodle dish topped with a thick sauce of stir-fried ingredients such as bean sprouts and pork."
+        adult: "A Yokohama ramen dish topped with a thick sauce of stir-fried ingredients such as bean sprouts and pork."
       zh:
         kids: "这道横滨发源的面，将勾芡蔬菜浇在拉面上。"
         adult: "发源于横滨的面食，将豆芽和猪肉等炒后勾芡，浇在拉面上。"
@@ -107,7 +107,7 @@ spots:
     status: draft
   - id: yokohama-red-brick
     emoji: "🏠"
-    name: {ja: "{横浜赤|よこはまあか}レンガ{倉庫|そうこ}", en: "Yokohama Red Brick Warehouse", zh: "横滨红砖仓库"}
+    name: {ja: "{横浜|よこはま}{赤|あか}レンガ{倉庫|そうこ}", en: "Yokohama Red Brick Warehouse", zh: "横滨红砖仓库"}
     description:
       ja:
         kids: "{海|うみ}のそばの{赤|あか}レンガの{建物|たてもの}に、お{店|みせ}やカフェがあるよ。"
@@ -137,7 +137,7 @@ spots:
         kids: "镰仓高德院里有一座大佛像。"
         adult: "镰仓高德院的阿弥陀如来像被指定为国宝。"
     sources:
-      - title: "クルップ 神奈川観光ガイド"
-        url: "https://www.kanagawa-kankou.or.jp/storage/pamphlet_pdf/20240203192208_20240203133842_KURUPPU2019_1_merged.pdf"
+      - title: "鎌倉大仏殿高徳院"
+        url: "https://kotoku-in.jp/about.html"
         accessed: "2026-11-19"
     status: draft
