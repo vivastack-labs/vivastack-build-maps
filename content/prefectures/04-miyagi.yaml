@@ -29,7 +29,7 @@ access:
     - title: "時刻表　停車駅一覧（新幹線はやぶさ 15号（東京－新青森）／新幹線こまち 15号（東京－盛岡－秋田））：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/110/111151.html"
       accessed: "2026-11-18"
-  status: verified
+  status: reviewed
 specialties:
   - id: zunda-mochi
     emoji: "🍡"
@@ -48,7 +48,7 @@ specialties:
       - title: "ずんだ｜にっぽん伝統食図鑑：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/traditional-foods/menu/zunda.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: harako-meshi
     emoji: "🍚"
     name: {ja: "はらこ{飯|めし}", en: "Harako Meshi", zh: "鲑鱼籽饭"}
@@ -66,7 +66,7 @@ specialties:
       - title: "はらこ飯 宮城県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/harako_meshi_miyagi.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: sasa-kamaboko
     emoji: "🐟"
     name: {ja: "{笹|ささ}かまぼこ", en: "Sasa Kamaboko", zh: "竹叶鱼糕"}
@@ -84,7 +84,7 @@ specialties:
       - title: "笹かまぼこ（ささかまぼこ）｜にっぽん伝統食図鑑：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/traditional-foods/menu/sasakamaboko.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
 spots:
   - id: matsushima
     emoji: "🏝️"
@@ -103,7 +103,7 @@ spots:
       - title: "概要 | 仙台宮城の観光・旅行情報サイト"
         url: "https://www.miyagi-kankou.or.jp/osusume/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: sendai-castle
     emoji: "🏯"
     name: {ja: "{仙台城跡|せんだいじょうあと}", en: "Sendai Castle Ruins", zh: "仙台城遗址"}
@@ -121,7 +121,7 @@ spots:
       - title: "仙台城跡 - 仙台市の遺跡"
         url: "https://bunkazai.city.sendai.jp/isekidb/c00085.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: okama
     emoji: "🏞️"
     name: {ja: "{御釜|おかま}", en: "Okama Crater Lake", zh: "御釜火山湖"}
@@ -139,4 +139,4 @@ spots:
       - title: "蔵王町移住定住ガイドブック"
         url: "https://www.town.zao.miyagi.jp/kurashi_guide/shisaku_machi/shisaku_machi/ijuteiju_guide.files/ijuteiju_guidebook2022.pdf"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed

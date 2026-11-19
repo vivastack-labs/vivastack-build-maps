@@ -30,7 +30,7 @@ access:
     - title: "時刻表　停車駅一覧（新幹線やまびこ 133号（東京－仙台）／新幹線つばさ 133号（東京－福島－新庄））：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/025/029861.html"
       accessed: "2026-11-19"
-  status: verified
+  status: reviewed
 specialties:
   - id: jelly-fry
     emoji: "🍘"
@@ -49,7 +49,7 @@ specialties:
       - title: "ゼリーフライ 埼玉県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/33_8_saitama.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: miso-potato
     emoji: "🥔"
     name: {ja: "みそポテト", en: "Miso Potatoes", zh: "味噌土豆"}
@@ -67,7 +67,7 @@ specialties:
       - title: "関東地方 埼玉県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/area_stories/saitama.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: hiyajiru
     emoji: "🍜"
     name: {ja: "{冷|ひ}や{汁|じる}／すったて", en: "Hiyajiru / Suttate", zh: "冷味噌汤蘸乌冬面"}
@@ -85,7 +85,7 @@ specialties:
       - title: "冷や汁／すったて 埼玉県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/33_3_saitama.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
 spots:
   - id: toki-no-kane
     emoji: "🔔"
@@ -104,7 +104,7 @@ spots:
       - title: "時の鐘｜川越市"
         url: "https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011557/1011562.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: nagatoro-iwadatami
     emoji: "🏞️"
     name: {ja: "{長瀞|ながとろ}の{岩畳|いわだたみ}", en: "Nagatoro Iwadatami", zh: "长瀞岩叠"}
@@ -122,7 +122,7 @@ spots:
       - title: "名所 | 長瀞町観光協会公式サイト"
         url: "https://www.nagatoro.gr.jp/spot/spotmeisho-2/"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: mitsumine-shrine
     emoji: "⛩️"
     name: {ja: "{三峯神社|みつみねじんじゃ}", en: "Mitsumine Shrine", zh: "三峰神社"}
@@ -143,4 +143,4 @@ spots:
       - title: "三峯神社｜秩父QRトラベルガイド"
         url: "https://navi.city.chichibu.lg.jp/travel/ja/culture/2018/01/722/"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed

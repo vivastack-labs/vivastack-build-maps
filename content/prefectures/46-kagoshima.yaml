@@ -29,7 +29,7 @@ access:
     - title: "東京羽田発｜月間時刻表（到着）｜鹿児島空港"
       url: "https://www.koj-ab.co.jp/flight/monthly/hnd_a.html"
       accessed: "2026-11-18"
-  status: verified
+  status: reviewed
 specialties:
   - id: satsuma-jiru
     emoji: "🍲"
@@ -48,7 +48,7 @@ specialties:
       - title: "さつま汁 鹿児島県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/satsumajiru_kagoshima.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: keihan
     emoji: "🍚"
     name: {ja: "{鶏飯|けいはん}", en: "Keihan Chicken Rice with Soup", zh: "鸡饭"}
@@ -66,7 +66,7 @@ specialties:
       - title: "鶏飯 鹿児島県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/keihan_kagoshima.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: karukan
     emoji: "🍡"
     name: {ja: "かるかん", en: "Karukan Steamed Yam Cake", zh: "轻羹"}
@@ -84,7 +84,7 @@ specialties:
       - title: "かるかん 鹿児島県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/karukan_kagoshima.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
 spots:
   - id: sakurajima
     emoji: "🌋"
@@ -103,7 +103,7 @@ spots:
       - title: "桜島を知る | 桜島観光ポータル みんなの桜島"
         url: "https://www.sakurajima.gr.jp/sakurajima.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: yakushima
     emoji: "🌲"
     name: {ja: "{屋久島|やくしま}", en: "Yakushima", zh: "屋久岛"}
@@ -121,7 +121,7 @@ spots:
       - title: "屋久島町の概要／屋久島町"
         url: "https://www.town.yakushima.kagoshima.jp/gyosei/machinogaiyo/3130.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: chiran-bukeyashiki
     emoji: "🏡"
     name: {ja: "{知覧武家屋敷庭園群|ちらんぶけやしきていえんぐん}", en: "Chiran Samurai Residence Gardens", zh: "知览武家宅邸庭园群"}
@@ -139,4 +139,4 @@ spots:
       - title: "知覧武家屋敷庭園群／南九州市"
         url: "https://www.city.minamikyushu.lg.jp/kankosite/kankospot/1/5543.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed

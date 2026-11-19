@@ -30,7 +30,7 @@ access:
     - title: "東京（羽田）-宮崎 時刻表"
       url: "https://www.solaseedair.jp/timetable/miya-hane/index.html"
       accessed: 2026-11-18
-  status: verified
+  status: reviewed
 specialties:
   - id: chicken-nanban
     emoji: "🍗"
@@ -49,7 +49,7 @@ specialties:
       - title: "チキン南蛮 宮崎県"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/chikin_nanban_miyazaki.html"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
   - id: hiyajiru
     emoji: "🍚"
     name: {ja: "{冷|ひ}や{汁|じる}", en: "Hiyajiru Cold Soup", zh: "冷汤饭"}
@@ -67,7 +67,7 @@ specialties:
       - title: "冷や汁 宮崎県"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/hiyajiru_miyazaki.html"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
   - id: nuta-imo
     emoji: "🥔"
     name: {ja: "ぬた{芋|いも}", en: "Nuta-imo", zh: "芋头拌酱"}
@@ -85,7 +85,7 @@ specialties:
       - title: "ぬた芋 宮崎県"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/nutaimo_miyazaki.html"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
 spots:
   - id: takachiho-gorge
     name: {ja: "{高千穂峡|たかちほきょう}", en: "Takachiho Gorge", zh: "高千穗峡"}
@@ -103,7 +103,7 @@ spots:
       - title: "高千穂峡"
         url: "https://takachiho-kanko.info/sightseeing/18/"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
   - id: aoshima
     name: {ja: "{青島|あおしま}", en: "Aoshima Island", zh: "青岛"}
     description:
@@ -120,7 +120,7 @@ spots:
       - title: "青島"
         url: "https://www.miyazaki-city.tourism.or.jp/spot/10001"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
   - id: udo-jingu
     name: {ja: "{鵜戸神宮|うどじんぐう}", en: "Udo Jingu Shrine", zh: "鹈户神宫"}
     description:
@@ -137,4 +137,4 @@ spots:
       - title: "鵜戸神宮【国指定名勝】"
         url: "https://www.kankou-nichinan.jp/tourisms/209/"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed

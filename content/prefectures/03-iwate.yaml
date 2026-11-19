@@ -31,7 +31,7 @@ access:
     - title: "時刻表　停車駅一覧（新幹線はやぶさ 15号（東京－新青森）／新幹線こまち 15号（東京－盛岡－秋田））：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/110/111151.html"
       accessed: "2026-11-18"
-  status: verified
+  status: reviewed
 specialties:
   - id: nanbu-tekki
     emoji: "🍵"
@@ -50,7 +50,7 @@ specialties:
       - title: "南部鉄器（いわてお国自慢）｜岩手県"
         url: "https://www.pref.iwate.jp/kensei/profile/1000655/1021500.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: wanko-soba
     emoji: "🍜"
     name: {ja: "わんこそば", en: "Wanko Soba", zh: "碗仔荞麦面"}
@@ -68,7 +68,7 @@ specialties:
       - title: "穀類 | にっぽん伝統食図鑑：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/traditional-foods/bunrui/kokurui.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: hittsumi
     emoji: "🍲"
     name: {ja: "ひっつみ", en: "Hittsumi", zh: "手撕面片汤"}
@@ -86,7 +86,7 @@ specialties:
       - title: "ひっつみ／ひっつみ汁 岩手県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/28_1_iwate.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
 spots:
   - id: chusonji
     name: {ja: "{中尊寺|ちゅうそんじ}", en: "Chuson-ji Temple", zh: "中尊寺"}
@@ -104,7 +104,7 @@ spots:
       - title: "金色堂について │ 中尊寺を知る │ 関山 中尊寺［岩手県平泉 天台宗東北大本山］"
         url: "https://www.chusonji.or.jp/know/konjikido.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: ryusendo
     emoji: "💧"
     name: {ja: "{龍泉洞|りゅうせんどう}", en: "Ryusendo Cave", zh: "龙泉洞"}
@@ -125,7 +125,7 @@ spots:
       - title: "位置、地形、面積、人口 | 岩泉町"
         url: "https://www.town.iwaizumi.lg.jp/docs/2016021300010/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: jodogahama
     emoji: "🌊"
     name: {ja: "{浄土|じょうど}ヶ{浜|はま}", en: "Jodogahama Beach", zh: "净土滨"}
@@ -143,4 +143,4 @@ spots:
       - title: "浄土ヶ浜／岩手県宮古市 ホームページ Miyako City"
         url: "https://www.city.miyako.iwate.jp/gyosei/kanko_bunka_sports/kankojoho/8/1/7383.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed

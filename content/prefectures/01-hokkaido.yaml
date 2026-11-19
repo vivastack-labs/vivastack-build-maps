@@ -33,7 +33,7 @@ access:
     - title: "札幌↔新千歳空港間 快速「エアポート」最速37分／特別快速「エアポート」最速33分｜JR北海道- Hokkaido Railway Company"
       url: "https://www.jrhokkaido.co.jp/airport/"
       accessed: "2026-11-18"
-  status: verified
+  status: reviewed
 specialties:
   - id: jingisukan
     emoji: "🥩"
@@ -52,7 +52,7 @@ specialties:
       - title: "ジンギスカン／成吉思汗 北海道 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/jingisukan_hokkaido.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: ishikari-nabe
     emoji: "🍲"
     name: {ja: "{石狩鍋|いしかりなべ}", en: "Ishikari Nabe", zh: "石狩锅"}
@@ -70,7 +70,7 @@ specialties:
       - title: "石狩鍋 北海道 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/ishikarinabe_hokkaido.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: chanchan-yaki
     emoji: "🐟"
     name: {ja: "{鮭|さけ}のちゃんちゃん{焼|や}き", en: "Salmon Chanchan-yaki", zh: "鲑鱼酱烧"}
@@ -88,7 +88,7 @@ specialties:
       - title: "鮭のチャンチャン焼き 北海道 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/sakenochanchanyaki_hokkaido.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
 spots:
   - id: mount-hakodate
     emoji: "🌃"
@@ -107,7 +107,7 @@ spots:
       - title: "函館山山頂展望台｜観光スポット｜【公式】北海道の観光・旅行情報サイト HOKKAIDO LOVE!"
         url: "https://www.visit-hokkaido.jp/spot/detail_10033.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: blue-pond
     emoji: "💧"
     name: {ja: "{白金|しろがね}{青|あお}い{池|いけ}", en: "Shirogane Blue Pond", zh: "白金青池"}
@@ -125,7 +125,7 @@ spots:
       - title: "白金青い池｜観光スポット｜【公式】北海道の観光・旅行情報サイト HOKKAIDO LOVE!"
         url: "https://www.visit-hokkaido.jp/spot/detail_10511.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: shiretoko-five-lakes
     emoji: "🏞️"
     name: {ja: "{知床五湖|しれとこごこ}", en: "Shiretoko Five Lakes", zh: "知床五湖"}
@@ -143,4 +143,4 @@ spots:
       - title: "知床五湖｜観光スポット｜【公式】北海道の観光・旅行情報サイト HOKKAIDO LOVE!"
         url: "https://www.visit-hokkaido.jp/spot/detail_10404.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed

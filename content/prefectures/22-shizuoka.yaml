@@ -30,7 +30,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/314171"
       accessed: "2026-11-18"
-  status: verified
+  status: reviewed
 specialties:
   - id: shizuoka-oden
     emoji: "🍢"
@@ -49,7 +49,7 @@ specialties:
       - title: "静岡おでん 静岡県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/36_16_shizuoka.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: sakuraebi-kakiage
     emoji: "🍤"
     name: {ja: "サクラエビのかき{揚|あ}げ", en: "Sakura Shrimp Kakiage", zh: "樱花虾什锦天妇罗"}
@@ -67,7 +67,7 @@ specialties:
       - title: "サクラエビのかき揚げ 静岡県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/36_28_shizuoka.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: abekawa-mochi
     emoji: "🍡"
     name: {ja: "{安倍川|あべかわ}もち", en: "Abekawa Mochi", zh: "安倍川年糕"}
@@ -85,7 +85,7 @@ specialties:
       - title: "安倍川もち 静岡県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/36_18_shizuoka.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
 spots:
   - id: fuji-san
     emoji: "🗻"
@@ -104,7 +104,7 @@ spots:
       - title: "富士山の顕著な普遍的価値｜世界遺産 富士山"
         url: "https://www.fujisan-3776.jp/value/index.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: kunozan-toshogu
     emoji: "⛩️"
     name: {ja: "{久能山東照宮|くのうざんとうしょうぐう}", en: "Kunozan Toshogu Shrine", zh: "久能山东照宫"}
@@ -122,7 +122,7 @@ spots:
       - title: "久能山東照宮｜静岡"
         url: "https://www.toshogu.or.jp/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: hamana-ko
     emoji: "🌊"
     name: {ja: "{浜名湖|はまなこ}", en: "Lake Hamana", zh: "滨名湖"}
@@ -140,4 +140,4 @@ spots:
       - title: "船で旅する浜名湖 舟運 |"
         url: "https://hamamatsu-daisuki.net/cruise/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed

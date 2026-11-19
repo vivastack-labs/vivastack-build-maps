@@ -30,7 +30,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/25371"
       accessed: "2026-11-18"
-  status: verified
+  status: reviewed
 specialties:
   - id: miso-nikomi-udon
     emoji: "🍲"
@@ -49,7 +49,7 @@ specialties:
       - title: "味噌煮込みうどん 愛知県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/misonikomiudon_aichi.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: kishimen
     emoji: "🍜"
     name: {ja: "きしめん", en: "Kishimen Flat Noodles", zh: "棋子面"}
@@ -67,7 +67,7 @@ specialties:
       - title: "きしめん 愛知県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/kishimen_aichi.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: gohei-mochi
     emoji: "🍡"
     name: {ja: "{五平餅|ごへいもち}", en: "Gohei-mochi Skewered Rice Cake", zh: "五平饼"}
@@ -85,7 +85,7 @@ specialties:
       - title: "五平餅 愛知県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/goheimochi_aichi.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
 spots:
   - id: nagoya-jo
     emoji: "🏯"
@@ -104,7 +104,7 @@ spots:
       - title: "名古屋城 | 観覧ガイド | 名古屋城公式ウェブサイト"
         url: "https://www.nagoyajo.city.nagoya.jp/guide/nagoyajo/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: korankei
     emoji: "🍁"
     name: {ja: "{香嵐渓|こうらんけい}", en: "Korankei Gorge", zh: "香岚溪"}
@@ -122,7 +122,7 @@ spots:
       - title: "香嵐渓 | 【公式】愛知県豊田市の観光サイト「ツーリズムとよた」"
         url: "https://www.tourismtoyota.jp/spots/detail/22/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: toyokawa-inari
     emoji: "🦊"
     name: {ja: "{豊川稲荷|とよかわいなり}", en: "Toyokawa Inari", zh: "丰川稻荷"}
@@ -140,4 +140,4 @@ spots:
       - title: "豊川稲荷の由緒・歴史 | 豊川稲荷 | 愛知県豊川市にある曹洞宗の寺院 豊川稲荷略縁起"
         url: "https://toyokawainari.jp/about/history"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
