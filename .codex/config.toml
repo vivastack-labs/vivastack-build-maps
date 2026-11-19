@@ -3,8 +3,33 @@
 # ライフサイクル hooks は隣の hooks.json。利用前に /hooks で確認・信頼する。
 model_post_turn_compact_threshold_percent = 50
 
-# 通常作業は推論量を抑え、難しい作業ではセッション側で高くする。
+# メインエージェント
+model = "gpt-6.1-sol"
 model_reasoning_effort = "medium"
+
+# トークン最適化
+model_reasoning_effort = "medium"
+plan_mode_reasoning_effort = "high"
+model_verbosity = "low"
+model_reasoning_summary = "concise"
+
+# 安全性
+# approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+# ネットワーク
+[sandbox_workspace_write]
+network_access = true
+
+# マルチエージェント
+[agents]
+enabled = true
+max_concurrent_threads_per_session = 2
+default_subagent_reasoning_effort = "medium"
+
+# サブエージェント
+default_subagent_model = "gpt-6-luna"
+default_subagent_reasoning_effort = "medium"
 
 developer_instructions = """
 このリポジトリでは AGENTS.md の共通規約に加え、作業の前に .codex/rules/index.md を読み、
