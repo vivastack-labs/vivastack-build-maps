@@ -17,5 +17,130 @@ capital:
     zh: "埼玉市"
   lat: 35.857452
   lon: 139.649065
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {大宮駅|おおみやえき}"
+    en: "Tokyo Station → Omiya Station"
+    zh: "东京站 → 大宫站"
+  # やまびこ133号：東京10:00発、大宮10:24着。JR東日本2026年11月時刻表。
+  durationMin: 24
+  sources:
+    - title: "時刻表　停車駅一覧（新幹線やまびこ 133号（東京－仙台）／新幹線つばさ 133号（東京－福島－新庄））：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/train/025/029861.html"
+      accessed: "2026-11-19"
+  status: verified
+specialties:
+  - id: jelly-fry
+    emoji: "🍘"
+    name: {ja: "ゼリーフライ", en: "Jelly Fry", zh: "豆渣炸饼"}
+    description:
+      ja:
+        kids: "おからやじゃがいもを{揚|あ}げてソースで{食|た}べる、{行田|ぎょうだ}のおやつだよ。"
+        adult: "{行田|ぎょうだ}で{親|した}しまれるおやつです。おからやじゃがいもを{使|つか}い、{衣|ころも}をつけずに{揚|あ}げてソースで{味|あじ}わいます。"
+      en:
+        kids: "A Gyoda snack made from fried okara (soy pulp) and potatoes, eaten with sauce."
+        adult: "A Gyoda snack made with okara (soy pulp) and potatoes, fried without a coating and eaten with sauce."
+      zh:
+        kids: "行田的小吃，炸豆渣和土豆后蘸酱吃。"
+        adult: "行田的小吃，以豆渣和土豆为原料，不裹面衣油炸后蘸酱食用。"
+    sources:
+      - title: "ゼリーフライ 埼玉県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/33_8_saitama.html"
+        accessed: "2026-11-19"
+    status: verified
+  - id: miso-potato
+    emoji: "🥔"
+    name: {ja: "みそポテト", en: "Miso Potatoes", zh: "味噌土豆"}
+    description:
+      ja:
+        kids: "{揚|あ}げたじゃがいもに{甘辛|あまから}いみそだれをからめる、{秩父|ちちぶ}のおやつだよ。"
+        adult: "{甘辛|あまから}い{味噌|みそ}だれで{味|あじ}わう、{秩父|ちちぶ}{地方|ちほう}のおやつ。{揚|あ}げたじゃがいもにたれをからめます。"
+      en:
+        kids: "A Chichibu snack of fried potatoes with sweet and savory miso (soybean paste) sauce."
+        adult: "A snack from the Chichibu region: fried potatoes served with a sweet and savory miso (soybean paste) sauce."
+      zh:
+        kids: "秩父的小吃，在炸土豆上浇甜咸味噌酱。"
+        adult: "秩父地区的小吃，在炸土豆上浇甜咸味噌酱食用。"
+    sources:
+      - title: "関東地方 埼玉県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/area_stories/saitama.html"
+        accessed: "2026-11-19"
+    status: verified
+  - id: hiyajiru
+    emoji: "🍜"
+    name: {ja: "{冷|ひ}や{汁|じる}／すったて", en: "Hiyajiru / Suttate", zh: "冷味噌汤蘸乌冬面"}
+    description:
+      ja:
+        kids: "{夏|なつ}に{食|た}べるよ。きゅうりなどが{入|はい}った{冷|つめ}たいみその{汁|しる}にうどんをつけるよ。"
+        adult: "{夏|なつ}に{親|した}しまれてきた{埼玉|さいたま}の{郷土|きょうど}{料理|りょうり}です。きゅうりなどを{入|い}れた{冷|つめ}たい{味噌|みそ}の{汁|しる}にうどんをつけて{食|た}べます。"
+      en:
+        kids: "Dip udon (wheat noodles) in cold miso (soybean paste) soup with cucumber in summer."
+        adult: "A Saitama summer dish of udon (wheat noodles) dipped in cold miso (soybean paste) soup with cucumber and other ingredients."
+      zh:
+        kids: "夏天把乌冬面蘸着有黄瓜等食材的冷味噌汤吃。"
+        adult: "埼玉夏季的乡土料理，将乌冬面蘸着加有黄瓜等食材的冷味噌汤食用。"
+    sources:
+      - title: "冷や汁／すったて 埼玉県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/33_3_saitama.html"
+        accessed: "2026-11-19"
+    status: verified
+spots:
+  - id: toki-no-kane
+    emoji: "🔔"
+    name: {ja: "{時|とき}の{鐘|かね}", en: "Toki no Kane Bell Tower", zh: "时之钟"}
+    description:
+      ja:
+        kids: "{川越|かわごえ}で{昔|むかし}から{時|とき}を{知|し}らせてきた{鐘|かね}の{塔|とう}だよ。"
+        adult: "1893{年|ねん}の{大火|たいか}を{経|へ}て{建|た}て{直|なお}された{川越|かわごえ}の{鐘楼|しょうろう}。{江戸|えど}{時代|じだい}から{時|とき}を{知|し}らせています。"
+      en:
+        kids: "This bell tower has told the time in Kawagoe for many years."
+        adult: "A Kawagoe bell tower telling time since the Edo period, rebuilt after an 1893 fire."
+      zh:
+        kids: "川越的钟楼，从很久以前就用钟声报时。"
+        adult: "川越的钟楼自江户时代报时，现存建筑在1893年大火后重建。"
+    sources:
+      - title: "時の鐘｜川越市"
+        url: "https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011557/1011562.html"
+        accessed: "2026-11-19"
+    status: verified
+  - id: nagatoro-iwadatami
+    emoji: "🏞️"
+    name: {ja: "{長瀞|ながとろ}の{岩畳|いわだたみ}", en: "Nagatoro Iwadatami", zh: "长瀞岩叠"}
+    description:
+      ja:
+        kids: "{長瀞|ながとろ}の{川|かわ}のそばに、{畳|たたみ}を{敷|し}いたような{岩|いわ}が{広|ひろ}がるよ。"
+        adult: "{畳|たたみ}を{並|なら}べたような{景色|けしき}が{長瀞|ながとろ}の{荒川|あらかわ}{沿|ぞ}いに{広|ひろ}がります。{岩|いわ}は{隆起|りゅうき}した{結晶片岩|けっしょうへんがん}です。"
+      en:
+        kids: "Beside a river in Nagatoro, rocks spread out like tatami floor mats."
+        adult: "Along the Arakawa River in Nagatoro, uplifted crystalline schist spreads out like laid tatami floor mats."
+      zh:
+        kids: "长瀞河边的岩石铺展开来，像一张张榻榻米。"
+        adult: "长瀞荒川沿岸隆起的结晶片岩，像铺开的榻榻米般延伸。"
+    sources:
+      - title: "名所 | 長瀞町観光協会公式サイト"
+        url: "https://www.nagatoro.gr.jp/spot/spotmeisho-2/"
+        accessed: "2026-11-19"
+    status: verified
+  - id: mitsumine-shrine
+    emoji: "⛩️"
+    name: {ja: "{三峯神社|みつみねじんじゃ}", en: "Mitsumine Shrine", zh: "三峰神社"}
+    description:
+      ja:
+        kids: "{山|やま}にある{神社|じんじゃ}だよ。{色|いろ}{鮮|あざ}やかな{建物|たてもの}があるよ。"
+        adult: "{古|ふる}くから{山岳|さんがく}{信仰|しんこう}の{地|ち}である{三峰山|みつみねさん}の{神社|じんじゃ}。{社殿|しゃでん}には{鮮|あざ}やかな{色|いろ}が{施|ほどこ}されています。"
+      en:
+        kids: "This mountain shrine has brightly colored shrine buildings."
+        adult: "A shrine on Mount Mitsumine, with colorful buildings and a long history of mountain worship."
+      zh:
+        kids: "山上的神社，有色彩鲜艳的建筑。"
+        adult: "三峰山上的神社，社殿色彩鲜艳，自古是山岳信仰之地。"
+    sources:
+      - title: "三峯神社 | 秩父観光なび"
+        url: "https://navi.city.chichibu.lg.jp/p_shrine/955/"
+        accessed: "2026-11-19"
+      - title: "三峯神社｜秩父QRトラベルガイド"
+        url: "https://navi.city.chichibu.lg.jp/travel/ja/culture/2018/01/722/"
+        accessed: "2026-11-19"
+    status: verified
