@@ -30,7 +30,7 @@ access:
     - title: "時刻表　停車駅一覧（新幹線とき 315号（東京－新潟））：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/085/087491.html"
       accessed: "2026-11-19"
-  status: verified
+  status: reviewed
 specialties:
   - id: okkirikomi
     emoji: "🍜"
@@ -49,7 +49,7 @@ specialties:
       - title: "おきりこみ／おっきりこみ 群馬県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/32_1_gunma.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: yaki-manju
     emoji: "🍡"
     name: {ja: "{焼|や}きまんじゅう", en: "Yaki Manju", zh: "烤馒头"}
@@ -67,7 +67,7 @@ specialties:
       - title: "焼きまんじゅう 群馬県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/32_26_gunma.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: konnyaku-miso-oden
     emoji: "🍢"
     name: {ja: "こんにゃく{味噌|みそ}おでん", en: "Konnyaku Miso Oden", zh: "味噌魔芋关东煮"}
@@ -85,7 +85,7 @@ specialties:
       - title: "こんにゃく味噌おでん 群馬県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/32_23_gunma.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
 spots:
   - id: tomioka-silk-mill
     emoji: "🏭"
@@ -104,7 +104,7 @@ spots:
       - title: "富岡製糸場を知る | しるくるとみおか 富岡市観光公式ホームページ"
         url: "https://www.tomioka-silk.jp/_tomioka-silk-mill/about/"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: kusatsu-yubatake
     emoji: "♨️"
     name: {ja: "{草津温泉|くさつおんせん}の{湯畑|ゆばたけ}", en: "Kusatsu Yubatake", zh: "草津温泉汤畑"}
@@ -122,7 +122,7 @@ spots:
       - title: "Route 3 草津温泉周遊（20～21ページ）：群馬県"
         url: "https://www.pref.gunma.jp/uploaded/attachment/40545.pdf"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: fukiware-falls
     emoji: "💧"
     name: {ja: "{吹割|ふきわれ}の{滝|たき}", en: "Fukiware Falls", zh: "吹割瀑布"}
@@ -140,4 +140,4 @@ spots:
       - title: "吹割の滝 | 自然 | 沼田市観光協会"
         url: "https://numata-kankou.jp/fukiwarenotaki/index.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed

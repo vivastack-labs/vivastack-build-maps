@@ -31,7 +31,7 @@ access:
     - title: "時刻表　停車駅一覧（新幹線はやぶさ 15号（東京－新青森）／新幹線こまち 15号（東京－盛岡－秋田））：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/110/111151.html"
       accessed: "2026-11-18"
-  status: verified
+  status: reviewed
 specialties:
   - id: apple
     emoji: "🍎"
@@ -50,7 +50,7 @@ specialties:
       - title: "18年10月号 文字情報：農林水産省"
         url: "https://www.maff.go.jp/j/pr/aff/1810/characterinformation.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: senbei-jiru
     emoji: "🍲"
     name: {ja: "せんべい{汁|じる}", en: "Senbei-jiru", zh: "仙贝汤"}
@@ -68,7 +68,7 @@ specialties:
       - title: "せんべい汁 青森県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/senbei_jiru_aomori.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: ichigo-ni
     emoji: "🥣"
     name: {ja: "いちご{煮|に}", en: "Ichigo-ni", zh: "海胆鲍鱼汤"}
@@ -86,7 +86,7 @@ specialties:
       - title: "いちご煮 青森県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/ichigoni_aomori.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
 spots:
   - id: sannai-maruyama
     emoji: "🏠"
@@ -105,7 +105,7 @@ spots:
       - title: "三内丸山遺跡とは | 特別史跡「三内丸山遺跡」"
         url: "https://sannaimaruyama.pref.aomori.jp/about/iseki/"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: hirosaki-castle
     emoji: "🏯"
     name: {ja: "{弘前城|ひろさきじょう}", en: "Hirosaki Castle", zh: "弘前城"}
@@ -123,7 +123,7 @@ spots:
       - title: "弘前公園／弘前城｜スポット・体験｜【公式】青森県観光情報サイト Amazing AOMORI"
         url: "https://aomori-tourism.com/spot/detail_205.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed
   - id: oirase-gorge
     emoji: "🌊"
     name: {ja: "{奥入瀬渓流|おいらせけいりゅう}", en: "Oirase Gorge", zh: "奥入濑溪流"}
@@ -141,4 +141,4 @@ spots:
       - title: "さあ、緑の世界へ飛び込もう！｜特集｜【公式】青森県観光情報サイト Amazing AOMORI"
         url: "https://aomori-tourism.com/feature/detail_28.html"
         accessed: "2026-11-18"
-    status: verified
+    status: reviewed

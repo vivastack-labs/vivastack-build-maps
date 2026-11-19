@@ -30,7 +30,7 @@ access:
     - title: "時刻表　停車駅一覧（新幹線とき 315号（東京－新潟））：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/085/087491.html"
       accessed: "2026-11-19"
-  status: verified
+  status: reviewed
 specialties:
   - id: noppe
     emoji: "🍲"
@@ -52,7 +52,7 @@ specialties:
       - title: "地元ライター厳選！新潟の郷土料理「のっぺ」を楽しめるお店3選｜新潟 旅の特集｜【公式】新潟県のおすすめ観光・旅行情報！にいがた観光ナビ"
         url: "https://niigata-kankou.or.jp/feature/noope/top"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: sasadango
     emoji: "🍡"
     name: {ja: "{笹団子|ささだんご}", en: "Sasa Dango", zh: "笹团子"}
@@ -73,7 +73,7 @@ specialties:
       - title: "新潟の郷土料理｜雪国で受け継がれてきたふるさとの味｜新潟 旅の特集｜【公式】新潟県のおすすめ観光・旅行情報！にいがた観光ナビ"
         url: "https://niigata-kankou.or.jp/feature/kyodoryori"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: hegisoba
     emoji: "🍜"
     name: {ja: "へぎそば", en: "Hegi Soba", zh: "布海苔荞麦面"}
@@ -94,7 +94,7 @@ specialties:
       - title: "新潟の郷土料理｜雪国で受け継がれてきたふるさとの味｜新潟 旅の特集｜【公式】新潟県のおすすめ観光・旅行情報！にいがた観光ナビ"
         url: "https://niigata-kankou.or.jp/feature/kyodoryori"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
 spots:
   - id: sado-gold-mines
     emoji: "⛏️"
@@ -113,7 +113,7 @@ spots:
       - title: "佐渡島(さど)の金山 - 新潟県ホームページ"
         url: "https://www.pref.niigata.lg.jp/site/sado-goldmine/"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: yahiko-shrine
     emoji: "⛩️"
     name: {ja: "{彌彦神社|やひこじんじゃ}", en: "Yahiko Shrine", zh: "弥彦神社"}
@@ -131,7 +131,7 @@ spots:
       - title: "越後一宮　彌彦神社｜新潟のスポット・体験｜【公式】新潟県のおすすめ観光・旅行情報！にいがた観光ナビ"
         url: "https://niigata-kankou.or.jp/spot/detail_7476.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: kiyotsukyo
     emoji: "🏞️"
     name: {ja: "{清津峡|きよつきょう}", en: "Kiyotsukyo Gorge", zh: "清津峡"}
@@ -149,4 +149,4 @@ spots:
       - title: "清津峡／Tunnel of Light｜新潟のスポット・体験｜【公式】新潟県のおすすめ観光・旅行情報！にいがた観光ナビ"
         url: "https://niigata-kankou.or.jp/spot/detail_6950.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed

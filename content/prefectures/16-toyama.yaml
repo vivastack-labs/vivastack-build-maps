@@ -30,7 +30,7 @@ access:
     - title: "時刻表　停車駅一覧（新幹線かがやき 509号（東京－敦賀））：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/095/098521.html"
       accessed: "2026-11-19"
-  status: verified
+  status: reviewed
 specialties:
   - id: masuzushi
     emoji: "🍣"
@@ -49,7 +49,7 @@ specialties:
       - title: "ます寿司 富山県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/37_20_toyama.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: hotaruika
     emoji: "🦑"
     name: {ja: "ホタルイカ", en: "Firefly Squid", zh: "萤火鱿"}
@@ -67,7 +67,7 @@ specialties:
       - title: "富山で味わう絶品ホタルイカ | 観光スポットから地元グルメ・お土産まで徹底ガイド | 特集 | 【公式】富山県の観光/旅行サイト「とやま観光ナビ」"
         url: "https://www.info-toyama.com/stories/hotaruika-toyama"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: shiroebi
     emoji: "🦐"
     name: {ja: "シロエビ", en: "White Shrimp", zh: "白虾"}
@@ -85,7 +85,7 @@ specialties:
       - title: "シロエビのかき揚げ（しろえびのかきあげ）｜にっぽん伝統食図鑑：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/traditional-foods/menu/siroebi_no_kakiage.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
 spots:
   - id: kurobe-gorge
     emoji: "🚃"
@@ -104,7 +104,7 @@ spots:
       - title: "黒部峡谷トロッコ電車 / 黒部峡谷 | スポット・体験 | 【公式】富山県の観光/旅行サイト「とやま観光ナビ」"
         url: "https://www.info-toyama.com/attractions/51007"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: gokayama
     emoji: "🏡"
     name: {ja: "{五箇山|ごかやま}の{合掌造|がっしょうづく}り{集落|しゅうらく}", en: "Gokayama Gassho-zukuri Villages", zh: "五箇山合掌造聚落"}
@@ -122,7 +122,7 @@ spots:
       - title: "世界文化遺産　～なつかしき日本の原風景～五箇山合掌造り集落 | 特集 | 【公式】富山県の観光/旅行サイト「とやま観光ナビ」"
         url: "https://www.info-toyama.com/stories/gokayama"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: amaharashi
     emoji: "🌊"
     name: {ja: "{雨晴海岸|あまはらしかいがん}", en: "Amaharashi Coast", zh: "雨晴海岸"}
@@ -140,4 +140,4 @@ spots:
       - title: "国定公園 雨晴海岸 | スポット・体験 | 【公式】富山県の観光/旅行サイト「とやま観光ナビ」"
         url: "https://www.info-toyama.com/attractions/21011"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed

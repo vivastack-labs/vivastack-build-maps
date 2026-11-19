@@ -30,7 +30,7 @@ access:
     - title: "時刻表　停車駅一覧（特急ひたち 9号（品川－いわき））：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/045/048341.html"
       accessed: "2026-11-19"
-  status: verified
+  status: reviewed
 specialties:
   - id: soboro-natto
     emoji: "🍚"
@@ -49,7 +49,7 @@ specialties:
       - title: "そぼろ納豆／しょぼろ納豆 茨城県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/soboronatto_ibaraki.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: anko-tomozu
     emoji: "🐟"
     name: {ja: "あんこうの{共酢|ともず}", en: "Monkfish with Tomozu", zh: "鮟鱇鱼配肝醋酱"}
@@ -67,7 +67,7 @@ specialties:
       - title: "あんこうの共酢 茨城県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/ankounotomozu_ibaraki.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: tsuke-kenchin
     emoji: "🍜"
     name: {ja: "つけけんちん", en: "Tsuke Kenchin", zh: "蔬菜汤蘸荞麦面"}
@@ -85,7 +85,7 @@ specialties:
       - title: "つけけんちん 茨城県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/tukekenchin_ibaraki.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
 spots:
   - id: kairakuen
     emoji: "🌸"
@@ -104,7 +104,7 @@ spots:
       - title: "偕楽園"
         url: "https://www.ibarakiguide.jp/spot.php?code=660&mode=detail"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: fukuroda-falls
     emoji: "🏞️"
     name: {ja: "{袋田|ふくろだ}の{滝|たき}", en: "Fukuroda Falls", zh: "袋田瀑布"}
@@ -122,7 +122,7 @@ spots:
       - title: "袋田の滝"
         url: "https://www.ibarakiguide.jp/spot.php?code=5&mode=detail"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: hitachi-seaside-park
     emoji: "🌼"
     name: {ja: "ひたち{海浜公園|かいひんこうえん}", en: "Hitachi Seaside Park", zh: "日立海滨公园"}
@@ -140,4 +140,4 @@ spots:
       - title: "四季のみどころ"
         url: "https://www.hitachikaihin.jp/event/seasons-recommended.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed

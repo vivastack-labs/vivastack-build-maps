@@ -30,7 +30,7 @@ access:
     - title: "時刻表　東北・山形・秋田・北海道新幹線 下り：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/timetable-v/003d1p.html"
       accessed: "2026-11-19"
-  status: verified
+  status: reviewed
 specialties:
   - id: kozuyu
     emoji: "🍲"
@@ -49,7 +49,7 @@ specialties:
       - title: "こづゆ 福島県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/30_2_fukushima.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: ika-ninjin
     emoji: "🥕"
     name: {ja: "いかにんじん", en: "Ika Ninjin", zh: "鱿鱼胡萝卜"}
@@ -67,7 +67,7 @@ specialties:
       - title: "いかにんじん 福島県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/30_1_fukushima.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: enban-gyoza
     emoji: "🥟"
     name: {ja: "{円盤餃子|えんばんぎょうざ}", en: "Enban Gyoza", zh: "圆盘饺子"}
@@ -85,7 +85,7 @@ specialties:
       - title: "グルメ／福島市公式ホームページ"
         url: "https://www.city.fukushima.fukushima.jp/kankounavi/contents/eat/11448.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
 spots:
   - id: tsurugajo
     emoji: "🏯"
@@ -104,7 +104,7 @@ spots:
       - title: "鶴ヶ城 - ふくしまの旅"
         url: "https://www.tif.ne.jp/jp/entry/article.html?spot=6022"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: ouchi-juku
     emoji: "🏘️"
     name: {ja: "{大内宿|おおうちじゅく}", en: "Ouchi-juku", zh: "大内宿"}
@@ -122,7 +122,7 @@ spots:
       - title: "南会津・奥会津の観光・施設・イベント - 大内宿観光協会｜南会津の観光スポット　大内宿"
         url: "https://ouchi-juku.com/"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: goshikinuma
     emoji: "🏞️"
     name: {ja: "{五色沼|ごしきぬま}", en: "Goshikinuma Ponds", zh: "五色沼"}
@@ -140,4 +140,4 @@ spots:
       - title: "裏磐梯 五色沼自然探勝路"
         url: "https://tif.ne.jp/yamafuku/mt30/29.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed

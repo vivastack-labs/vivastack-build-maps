@@ -30,7 +30,7 @@ access:
     - title: "国内線時刻表 東京エリア（2026年冬ダイヤ）"
       url: "https://www.ana.co.jp/guide/plan/airinfo/dom-timetable/pdf/timetable_tokyo_20261025_20270131.pdf"
       accessed: 2026-11-18
-  status: verified
+  status: reviewed
 specialties:
   - id: okinawa-soba
     emoji: "🍜"
@@ -49,7 +49,7 @@ specialties:
       - title: "沖縄そば 沖縄県"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/47_20_okinawa.html"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
   - id: goya-champuru
     emoji: "🥬"
     name: {ja: "ゴーヤーチャンプルー", en: "Goya Champuru", zh: "苦瓜炒豆腐"}
@@ -67,7 +67,7 @@ specialties:
       - title: "ゴーヤーチャンプルー 沖縄県"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/47_11_okinawa.html"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
   - id: bingata
     emoji: "👘"
     name: {ja: "{紅型|びんがた}", en: "Bingata", zh: "红型染"}
@@ -85,7 +85,7 @@ specialties:
       - title: "紅型"
         url: "https://kunishitei.bunka.go.jp/heritage/detail/303/252"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
 spots:
   - id: shurijo
     name: {ja: "{首里城公園|しゅりじょうこうえん}", en: "Shurijo Castle Park", zh: "首里城公园"}
@@ -103,7 +103,7 @@ spots:
       - title: "首里城復元に向けた取組状況"
         url: "https://oki-park.jp/userfiles/files/PDF_20260604_1_kisya%281%29.pdf"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
   - id: churaumi-aquarium
     name: {ja: "{沖縄|おきなわ}{美|ちゅ}ら{海|うみ}{水族館|すいぞくかん}", en: "Okinawa Churaumi Aquarium", zh: "冲绳美丽海水族馆"}
     description:
@@ -120,7 +120,7 @@ spots:
       - title: "黒潮の海"
         url: "https://churaumi.okinawa/sp/program/aquarium/kuroshio/"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed
   - id: peace-memorial-park
     name: {ja: "{平和祈念公園|へいわきねんこうえん}", en: "Peace Memorial Park", zh: "和平祈念公园"}
     description:
@@ -137,4 +137,4 @@ spots:
       - title: "沖縄県営平和祈念公園"
         url: "https://heiwa-irei-okinawa.jp/"
         accessed: 2026-11-18
-    status: verified
+    status: reviewed

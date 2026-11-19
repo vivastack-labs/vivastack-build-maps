@@ -29,7 +29,7 @@ access:
     - title: "時刻表　停車駅一覧（東京－高尾）：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/120/124991.html"
       accessed: "2026-11-19"
-  status: verified
+  status: reviewed
 specialties:
   - id: monjayaki
     emoji: "🍳"
@@ -49,7 +49,7 @@ specialties:
       - title: "もんじゃ焼き 東京都 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/34_3_tokyo.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: nigirizushi
     emoji: "🍣"
     name: {ja: "にぎりずし", en: "Nigiri Sushi", zh: "握寿司"}
@@ -68,7 +68,7 @@ specialties:
       - title: "にぎりずし 東京都 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/34_2_tokyo.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: edo-kiriko
     emoji: "🥃"
     name: {ja: "{江戸切子|えどきりこ}", en: "Edo Kiriko", zh: "江户切子"}
@@ -87,7 +87,7 @@ specialties:
       - title: "江戸切子 | 東京の伝統工芸品 | 東京都産業労働局"
         url: "https://www.dento-tokyo.metro.tokyo.lg.jp/items/22.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
 spots:
   - id: sensoji
     name: {ja: "{浅草寺|せんそうじ}", en: "Senso-ji", zh: "浅草寺"}
@@ -108,7 +108,7 @@ spots:
       - title: "雷門 - 浅草寺"
         url: "https://www.senso-ji.jp/guide/guide01.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: tokyo-skytree
     name: {ja: "{東京|とうきょう}スカイツリー", en: "Tokyo Skytree", zh: "东京晴空塔"}
     description:
@@ -125,7 +125,7 @@ spots:
       - title: "アウトライン【公式】東京スカイツリー TOKYO SKYTREE"
         url: "https://www.tokyo-skytree.jp/about/outline/"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: meiji-jingu
     name: {ja: "{明治神宮|めいじじんぐう}", en: "Meiji Jingu", zh: "明治神宫"}
     description:
@@ -142,4 +142,4 @@ spots:
       - title: "明治神宮とは｜明治神宮"
         url: "https://www.meijijingu.or.jp/about/"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed

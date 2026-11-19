@@ -30,7 +30,7 @@ access:
     - title: "時刻表　停車駅一覧（新幹線はやぶさ 15号（東京－新青森）／新幹線こまち 15号（東京－盛岡－秋田））：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/110/111151.html"
       accessed: "2026-11-19"
-  status: verified
+  status: reviewed
 specialties:
   - id: kiritanpo-nabe
     emoji: "🍲"
@@ -49,7 +49,7 @@ specialties:
       - title: "きりたんぽ鍋 秋田県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/29_6_akita.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: iburigakko
     emoji: "🥕"
     name: {ja: "いぶりがっこ", en: "Iburigakko", zh: "烟熏腌萝卜"}
@@ -67,7 +67,7 @@ specialties:
       - title: "いぶりがっこ 秋田県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/29_1_akita.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: inaniwa-udon
     emoji: "🍜"
     name: {ja: "{稲庭|いなにわ}うどん", en: "Inaniwa Udon", zh: "稻庭乌冬面"}
@@ -85,7 +85,7 @@ specialties:
       - title: "日本全国の麺文化をご紹介！ ニッポン麺探訪 第3回：農林水産省"
         url: "https://www.maff.go.jp/j/pr/aff/1607/n_search.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
 spots:
   - id: kakunodate-bukeyashiki
     emoji: "🏘️"
@@ -107,7 +107,7 @@ spots:
       - title: "角館　武家屋敷通りの枝垂桜　観光　仙北市"
         url: "https://www.city.semboku.akita.jp/sightseeing/spot/07_shidaresakura.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: lake-tazawa
     emoji: "🏞️"
     name: {ja: "{田沢湖|たざわこ}", en: "Lake Tazawa", zh: "田泽湖"}
@@ -125,7 +125,7 @@ spots:
       - title: "田沢湖　観光情報　仙北市"
         url: "https://www.city.semboku.akita.jp/sightseeing/spot/04_tazawako.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: namahage-kan
     emoji: "👹"
     name: {ja: "なまはげ{館|かん}", en: "Namahage Museum", zh: "生剥鬼馆"}
@@ -146,4 +146,4 @@ spots:
       - title: "なまはげ館館内紹介｜なまはげ館"
         url: "https://namahage.co.jp/namahagekan/exhibits/"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed

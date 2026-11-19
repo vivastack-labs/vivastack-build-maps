@@ -30,7 +30,7 @@ access:
     - title: "時刻表　東北・山形・秋田・北海道新幹線 下り：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/timetable-v/003d1p.html"
       accessed: "2026-11-19"
-  status: verified
+  status: reviewed
 specialties:
   - id: imoni
     emoji: "🍲"
@@ -49,7 +49,7 @@ specialties:
       - title: "芋煮 山形県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/imoni_yamagata.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: tama-konnyaku
     emoji: "🍢"
     name: {ja: "{玉|たま}こんにゃく", en: "Tama Konnyaku", zh: "球形蒟蒻"}
@@ -67,7 +67,7 @@ specialties:
       - title: "玉こんにゃく 山形県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/tamakonnyaku_yamagata.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: dashi
     emoji: "🥒"
     name: {ja: "だし", en: "Yamagata Dashi", zh: "山形拌菜"}
@@ -85,7 +85,7 @@ specialties:
       - title: "だし 山形県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/dashi_yamagata.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
 spots:
   - id: yamadera
     emoji: "🏞️"
@@ -104,7 +104,7 @@ spots:
       - title: "山寺・宝珠山立石寺"
         url: "https://yamagatakanko.com/attractions/detail_2352.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: ginzan-onsen
     emoji: "♨️"
     name: {ja: "{銀山温泉|ぎんざんおんせん}", en: "Ginzan Onsen", zh: "银山温泉"}
@@ -122,7 +122,7 @@ spots:
       - title: "銀山温泉"
         url: "https://yamagatakanko.com/attractions/detail_2832.html"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
   - id: mogamigawa
     emoji: "🚣"
     name: {ja: "{最上川|もがみがわ}{舟下|ふなくだ}り", en: "Mogami River Boat Ride", zh: "最上川乘船游览"}
@@ -140,4 +140,4 @@ spots:
       - title: "最上川舟下りのススメ｜春夏秋冬の絶景とみどころをご紹介"
         url: "https://yamagatakanko.com/mogamigawa"
         accessed: "2026-11-19"
-    status: verified
+    status: reviewed
