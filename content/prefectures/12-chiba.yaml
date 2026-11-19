@@ -17,5 +17,127 @@ capital:
     zh: "千叶市"
   lat: 35.604561
   lon: 140.122988
-specialties: []
-spots: []
+access:
+  emoji: "🚆"
+  mode: {ja: "{快速|かいそく}{列車|れっしゃ}", en: "Rapid train", zh: "快速列车"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {千葉駅|ちばえき}"
+    en: "Tokyo Station → Chiba Station"
+    zh: "东京站 → 千叶站"
+  # 平日運転の1163F：東京11:05発、千葉11:45着。JR東日本2026年11月時刻表。
+  durationMin: 40
+  sources:
+    - title: "時刻表　停車駅一覧（東京－千葉）：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/train/115/115781.html"
+      accessed: "2026-11-19"
+  status: draft
+specialties:
+  - id: namerou
+    emoji: "🐟"
+    name: {ja: "なめろう", en: "Namerou", zh: "味噌鱼肉泥"}
+    description:
+      ja:
+        kids: "アジなどの{魚|さかな}をみそやねぎと{混|ま}ぜて、{包丁|ほうちょう}でたたく{料理|りょうり}だよ。"
+        adult: "{房総半島|ぼうそうはんとう}{沿岸|えんがん}に{伝|つた}わる{料理|りょうり}です。アジなどをみそやねぎと{混|ま}ぜ、{粘|ねば}りが{出|で}るまでたたきます。"
+      en:
+        kids: "Fish such as horse mackerel is mixed with miso and green onion, then chopped with a knife."
+        adult: "A coastal Boso Peninsula dish of fish such as horse mackerel, chopped with miso and green onion until sticky."
+      zh:
+        kids: "将竹荚鱼等鱼肉与味噌和葱混合，再用菜刀剁碎。"
+        adult: "房总半岛沿岸的传统料理，将竹荚鱼等与味噌、葱混合，剁至发黏。"
+    sources:
+      - title: "なめろう 千葉県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/namerou_chiba.html"
+        accessed: "2026-11-19"
+    status: draft
+  - id: futomaki-zushi
+    emoji: "🍣"
+    name: {ja: "{太巻|ふとま}きずし", en: "Futomaki Sushi", zh: "粗卷寿司"}
+    description:
+      ja:
+        kids: "{切|き}るときれいな{絵柄|えがら}が{見|み}える{巻|ま}きずしだよ。お{祭|まつ}りなどで{食|た}べるんだ。"
+        adult: "{切|き}り{口|くち}の{華|はな}やかな{絵柄|えがら}を{楽|たの}しむ{巻|ま}きずしです。{祭|まつ}りや{入学式|にゅうがくしき}などの{行事|ぎょうじ}で{食|た}べられてきました。"
+      en:
+        kids: "Cut this sushi roll to see its colorful patterns. It is eaten at festivals and other events."
+        adult: "This sushi roll reveals decorative patterns when cut and has been eaten at festivals and school entrance ceremonies."
+      zh:
+        kids: "切开寿司卷就能看到漂亮图案，祭典等活动时会吃。"
+        adult: "切开后可以欣赏华丽图案的寿司卷，常在祭典和入学式等活动中食用。"
+    sources:
+      - title: "太巻ずし 千葉県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/futomaki_zushi_chiba.html"
+        accessed: "2026-11-19"
+    status: draft
+  - id: boiled-peanuts
+    emoji: "🥜"
+    name: {ja: "ゆで{落花生|らっかせい}", en: "Boiled Peanuts", zh: "水煮花生"}
+    description:
+      ja:
+        kids: "{落花生|らっかせい}をさやごとゆでて{食|た}べるよ。おこわに{入|い}れても{楽|たの}しめるんだ。"
+        adult: "{落花生|らっかせい}をさやごと{塩|しお}ゆでにします。そのまま{食|た}べるほか、おこわに{入|い}れることもあります。"
+      en:
+        kids: "Peanuts are boiled in their shells and eaten. They can also be added to sticky rice."
+        adult: "Peanuts are boiled in their shells with salt and eaten as they are or added to sticky rice."
+      zh:
+        kids: "花生连壳煮熟后吃，也可以加进糯米饭里。"
+        adult: "花生连壳用盐水煮熟，可以直接吃，也可以加进糯米饭。"
+    sources:
+      - title: "ゆで落花生 千葉県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/yude_rakkasei_chiba.html"
+        accessed: "2026-11-19"
+    status: draft
+spots:
+  - id: inubosaki-lighthouse
+    emoji: "🌊"
+    name: {ja: "{犬吠埼灯台|いぬぼうさきとうだい}", en: "Inubosaki Lighthouse", zh: "犬吠埼灯塔"}
+    description:
+      ja:
+        kids: "{灯台|とうだい}のらせん{階段|かいだん}を{上|のぼ}ると、{太平洋|たいへいよう}が{見|み}えるよ。"
+        adult: "1874{年|ねん}{完成|かんせい}の{灯台|とうだい}です。99{段|だん}のらせん{階段|かいだん}を{上|のぼ}ると{太平洋|たいへいよう}を{望|のぞ}めます。"
+      en:
+        kids: "Climb the lighthouse's spiral stairs to see the Pacific Ocean."
+        adult: "Completed in 1874, this lighthouse offers Pacific Ocean views after a climb of 99 spiral steps."
+      zh:
+        kids: "爬上灯塔的螺旋楼梯，就能看到太平洋。"
+        adult: "这座灯塔建于1874年，登上99级螺旋楼梯可眺望太平洋。"
+    sources:
+      - title: "犬吠埼灯台｜スポット・体験｜千葉県公式観光サイト ちば観光ナビ"
+        url: "https://maruchiba.jp/spot/detail_10185.html"
+        accessed: "2026-11-19"
+    status: draft
+  - id: nokogiriyama
+    emoji: "⛰️"
+    name: {ja: "{鋸山|のこぎりやま}", en: "Mount Nokogiri", zh: "锯山"}
+    description:
+      ja:
+        kids: "ロープウェーの{山頂駅|さんちょうえき}から{東京湾|とうきょうわん}を{見|み}わたせるよ。"
+        adult: "ロープウェーの{山頂駅|さんちょうえき}{展望台|てんぼうだい}から{東京湾|とうきょうわん}や{三浦半島|みうらはんとう}を{望|のぞ}めます。"
+      en:
+        kids: "See Tokyo Bay from the ropeway's upper station."
+        adult: "The ropeway's upper station observation deck overlooks Tokyo Bay and the Miura Peninsula."
+      zh:
+        kids: "从缆车山顶站可以眺望东京湾。"
+        adult: "从缆车山顶站的观景台可眺望东京湾和三浦半岛。"
+    sources:
+      - title: "絶景と歴史が詰まった鋸山！ロープウェーと登山の魅力を徹底解説します｜特集｜千葉県公式観光サイト ちば観光ナビ"
+        url: "https://maruchiba.jp/feature/detail_108.html"
+        accessed: "2026-11-19"
+    status: draft
+  - id: naritasan-shinshoji
+    emoji: "🏯"
+    name: {ja: "{成田山新勝寺|なりたさんしんしょうじ}", en: "Naritasan Shinshoji Temple", zh: "成田山新胜寺"}
+    description:
+      ja:
+        kids: "{成田|なりた}にあるお{寺|てら}だよ。{境内|けいだい}には{三重塔|さんじゅうのとう}があるよ。"
+        adult: "{成田市|なりたし}にある{真言宗|しんごんしゅう}{智山派|ちさんは}の{大本山|だいほんざん}です。{境内|けいだい}には{重要文化財|じゅうようぶんかざい}の{三重塔|さんじゅうのとう}があります。"
+      en:
+        kids: "This temple in Narita has a three-story pagoda in its grounds."
+        adult: "A major Shingon Chisan temple in Narita, with a three-story pagoda designated an Important Cultural Property."
+      zh:
+        kids: "成田的这座寺庙里有一座三重塔。"
+        adult: "成田市真言宗智山派大本山，境内三重塔为重要文化财产。"
+    sources:
+      - title: "成田山新勝寺ってどんなところ？成田山公園や表参道のグルメ情報も満載！｜特集｜千葉県公式観光サイト ちば観光ナビ"
+        url: "https://maruchiba.jp/feature/detail_172.html"
+        accessed: "2026-11-19"
+    status: draft
