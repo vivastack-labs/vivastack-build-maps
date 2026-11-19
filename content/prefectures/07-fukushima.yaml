@@ -17,5 +17,127 @@ capital:
     zh: "福岛市"
   lat: 37.750044
   lon: 140.467694
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {福島駅|ふくしまえき}"
+    en: "Tokyo Station → Fukushima Station"
+    zh: "东京站 → 福岛站"
+  # やまびこ133号：東京10:00発、福島11:32着。JR東日本2026年11月時刻表。
+  durationMin: 92
+  sources:
+    - title: "時刻表　東北・山形・秋田・北海道新幹線 下り：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/timetable-v/003d1p.html"
+      accessed: "2026-11-19"
+  status: verified
+specialties:
+  - id: kozuyu
+    emoji: "🍲"
+    name: {ja: "こづゆ", en: "Kozuyu", zh: "会津杂煮汤"}
+    description:
+      ja:
+        kids: "{貝柱|かいばしら}のだしで{里芋|さといも}などを{煮|に}る、{会津|あいづ}の{料理|りょうり}だよ。"
+        adult: "{会津地方|あいづちほう}に{伝|つた}わる{郷土|きょうど}{料理|りょうり}です。{貝柱|かいばしら}のだしで{里芋|さといも}やきくらげなどを{煮|に}ます。"
+      en:
+        kids: "This Aizu dish simmers taro and other ingredients in a shellfish broth."
+        adult: "An Aizu regional dish of taro, wood ear mushrooms and other ingredients simmered in shellfish broth."
+      zh:
+        kids: "会津的料理，用贝柱汤煮芋头等食材。"
+        adult: "会津地区的乡土料理，用贝柱汤煮芋头、木耳等食材。"
+    sources:
+      - title: "こづゆ 福島県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/30_2_fukushima.html"
+        accessed: "2026-11-19"
+    status: verified
+  - id: ika-ninjin
+    emoji: "🥕"
+    name: {ja: "いかにんじん", en: "Ika Ninjin", zh: "鱿鱼胡萝卜"}
+    description:
+      ja:
+        kids: "{細|ほそ}く{切|き}ったするめとにんじんを、あまからい{味|あじ}にした{料理|りょうり}だよ。"
+        adult: "かつて{冬|ふゆ}の{保存食|ほぞんしょく}だった{料理|りょうり}です。するめとにんじんを{細|ほそ}く{切|き}り、{甘辛|あまから}いたれに{漬|つ}けます。"
+      en:
+        kids: "Thin strips of dried squid and carrot are flavored with a sweet and savory sauce."
+        adult: "Thinly sliced dried squid and carrot are marinated in sweet and savory sauce; it was once a winter preserved food."
+      zh:
+        kids: "把鱿鱼干和胡萝卜切成细条，做成甜咸口味。"
+        adult: "将鱿鱼干和胡萝卜切丝，浸入甜咸酱汁，过去是冬季的储存食品。"
+    sources:
+      - title: "いかにんじん 福島県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/30_1_fukushima.html"
+        accessed: "2026-11-19"
+    status: verified
+  - id: enban-gyoza
+    emoji: "🥟"
+    name: {ja: "{円盤餃子|えんばんぎょうざ}", en: "Enban Gyoza", zh: "圆盘饺子"}
+    description:
+      ja:
+        kids: "{福島市|ふくしまし}の{餃子|ぎょうざ}だよ。フライパンでまるい{形|かたち}に{焼|や}くんだ。"
+        adult: "{福島市|ふくしまし}の{餃子|ぎょうざ}のひとつで、フライパンで{焼|や}いて{円盤|えんばん}のような{丸|まる}い{形|かたち}に{仕上|しあ}げます。"
+      en:
+        kids: "A Fukushima City dumpling dish cooked in a round shape in a frying pan."
+        adult: "A Fukushima City style of gyoza dumplings cooked in a frying pan to form a round disc."
+      zh:
+        kids: "福岛市的饺子，在平底锅里煎成圆形。"
+        adult: "福岛市的一种饺子，在平底锅里煎成圆盘形状。"
+    sources:
+      - title: "グルメ／福島市公式ホームページ"
+        url: "https://www.city.fukushima.fukushima.jp/kankounavi/contents/eat/11448.html"
+        accessed: "2026-11-19"
+    status: verified
+spots:
+  - id: tsurugajo
+    emoji: "🏯"
+    name: {ja: "{鶴ヶ城|つるがじょう}", en: "Tsuruga Castle", zh: "鹤城"}
+    description:
+      ja:
+        kids: "{赤|あか}い{屋根|やね}のお{城|しろ}だよ。{中|なか}で{歴史|れきし}の{資料|しりょう}を{見|み}られるよ。"
+        adult: "{会津|あいづ}の{歴史|れきし}{資料|しりょう}を{展示|てんじ}する{天守閣|てんしゅかく}は、2011{年|ねん}に{屋根|やね}を{赤瓦|あかがわら}に{葺|ふ}き{替|か}えました。"
+      en:
+        kids: "This castle has a red roof and historical exhibits inside."
+        adult: "The castle roof was retiled in red in 2011. Its keep displays historical materials from Aizu."
+      zh:
+        kids: "城堡的屋顶是红色的，里面能看到历史资料。"
+        adult: "天守阁的屋顶于2011年换成红瓦，内部展示会津的历史资料。"
+    sources:
+      - title: "鶴ヶ城 - ふくしまの旅"
+        url: "https://www.tif.ne.jp/jp/entry/article.html?spot=6022"
+        accessed: "2026-11-19"
+    status: verified
+  - id: ouchi-juku
+    emoji: "🏘️"
+    name: {ja: "{大内宿|おおうちじゅく}", en: "Ouchi-juku", zh: "大内宿"}
+    description:
+      ja:
+        kids: "{江戸時代|えどじだい}にさかえた{宿場|しゅくば}だよ。かやぶき{屋根|やね}が{並|なら}ぶよ。"
+        adult: "かやぶき{屋根|やね}の{建物|たてもの}が{連|つら}なる、{江戸時代|えどじだい}に{栄|さか}えた{宿場|しゅくば}です。"
+      en:
+        kids: "This post town flourished in the Edo period and has rows of thatched roofs."
+        adult: "Thatched buildings line this post town, which flourished during the Edo period."
+      zh:
+        kids: "这里是江户时代繁荣的驿站，茅草屋顶排列着。"
+        adult: "茅草屋顶的建筑排列着，这里是江户时代繁荣的驿站。"
+    sources:
+      - title: "江戸時代に栄えた宿場町「大内宿」をやさしく照らす雪灯籠"
+        url: "https://tif.ne.jp/hontabi/info.html?info=149"
+        accessed: "2026-11-19"
+    status: draft
+  - id: goshikinuma
+    emoji: "🏞️"
+    name: {ja: "{五色沼|ごしきぬま}", en: "Goshikinuma Ponds", zh: "五色沼"}
+    description:
+      ja:
+        kids: "{季節|きせつ}や{天気|てんき}で{色|いろ}が{違|ちが}って{見|み}える{沼|ぬま}があるよ。"
+        adult: "{季節|きせつ}や{天候|てんこう}、{時間帯|じかんたい}によって{色|いろ}の{見|み}え{方|かた}が{変|か}わる、{裏磐梯|うらばんだい}の{湖沼群|こしょうぐん}です。"
+      en:
+        kids: "These ponds appear in different colors depending on the season and weather."
+        adult: "These ponds in Urabandai appear in different colors depending on the season, weather and time of day."
+      zh:
+        kids: "湖泊呈现不同颜色，也会随着季节和天气变化。"
+        adult: "位于里磐梯的湖沼群，颜色随季节、天气和时间等条件而不同。"
+    sources:
+      - title: "裏磐梯 五色沼自然探勝路"
+        url: "https://tif.ne.jp/yamafuku/mt30/29.html"
+        accessed: "2026-11-19"
+    status: verified

@@ -17,5 +17,127 @@ capital:
     zh: "水户市"
   lat: 36.341898
   lon: 140.446754
-specialties: []
-spots: []
+access:
+  emoji: "🚆"
+  mode: {ja: "{特急|とっきゅう}{列車|れっしゃ}", en: "Limited express", zh: "特快列车"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {水戸駅|みとえき}"
+    en: "Tokyo Station → Mito Station"
+    zh: "东京站 → 水户站"
+  # ひたち9号：東京10:53発、水戸12:06着。JR東日本2026年11月時刻表。
+  durationMin: 73
+  sources:
+    - title: "時刻表　停車駅一覧（特急ひたち 9号（品川－いわき））：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/train/045/048341.html"
+      accessed: "2026-11-19"
+  status: verified
+specialties:
+  - id: soboro-natto
+    emoji: "🍚"
+    name: {ja: "そぼろ{納豆|なっとう}", en: "Soboro Natto", zh: "萝卜干拌纳豆"}
+    description:
+      ja:
+        kids: "{納豆|なっとう}と{干|ほ}した{大根|だいこん}を{合|あ}わせた{水戸|みと}の{料理|りょうり}だよ。ごはんと{食|た}べるんだ。"
+        adult: "{水戸|みと}に{伝|つた}わる、ご{飯|はん}のおともです。{塩|しお}やしょうゆなどで{漬|つ}ける{料理|りょうり}で、{具|ぐ}は{納豆|なっとう}と{割|わ}り{干|ぼ}し{大根|だいこん}です。"
+      en:
+        kids: "A Mito dish of natto, fermented soybeans, and dried radish, eaten with rice."
+        adult: "A traditional Mito dish eaten with rice, made by pickling natto, fermented soybeans, and dried radish with salt or soy sauce."
+      zh:
+        kids: "水户的料理，把纳豆和萝卜干拌在一起，配米饭吃。"
+        adult: "水户的传统料理，将纳豆和萝卜干用盐或酱油等腌制，也可配米饭食用。"
+    sources:
+      - title: "そぼろ納豆／しょぼろ納豆 茨城県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/soboronatto_ibaraki.html"
+        accessed: "2026-11-19"
+    status: verified
+  - id: anko-tomozu
+    emoji: "🐟"
+    name: {ja: "あんこうの{共酢|ともず}", en: "Monkfish with Tomozu", zh: "鮟鱇鱼配肝醋酱"}
+    description:
+      ja:
+        kids: "{冬|ふゆ}を{中心|ちゅうしん}に{食|た}べるよ。ゆでたあんこうを{肝|きも}{入|い}りのすみそにつけるんだ。"
+        adult: "あんこうの{肝|きも}を{酢味噌|すみそ}に{使|つか}い、ゆでた{身|み}などと{味|あじ}わいます。{茨城県|いばらきけん}で{冬|ふゆ}を{中心|ちゅうしん}に{食|た}べる{料理|りょうり}です。"
+      en:
+        kids: "Enjoyed mainly in winter, boiled monkfish is dipped in a vinegar and miso (soybean paste) sauce with liver."
+        adult: "An Ibaraki dish enjoyed mainly in winter: boiled monkfish with tomozu, a vinegar and miso (soybean paste) sauce containing liver."
+      zh:
+        kids: "主要在冬天吃，把煮熟的鮟鱇鱼蘸着鱼肝醋味噌酱吃。"
+        adult: "茨城县的乡土料理，主要在冬天吃，将煮熟的鮟鱇鱼蘸鱼肝醋味噌酱。"
+    sources:
+      - title: "あんこうの共酢 茨城県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/ankounotomozu_ibaraki.html"
+        accessed: "2026-11-19"
+    status: draft
+  - id: tsuke-kenchin
+    emoji: "🍜"
+    name: {ja: "つけけんちん", en: "Tsuke Kenchin", zh: "蔬菜汤蘸荞麦面"}
+    description:
+      ja:
+        kids: "そばを、{野菜|やさい}などが{入|はい}ったけんちん{汁|じる}につけて{食|た}べるよ。"
+        adult: "そばをけんちん{汁|じる}につけて{食|た}べる{郷土|きょうど}{料理|りょうり}です。{汁|しる}には{大根|だいこん}や{里芋|さといも}などが{使|つか}われます。"
+      en:
+        kids: "Dip buckwheat noodles in a soup with vegetables and other ingredients."
+        adult: "A local dish of buckwheat noodles dipped in vegetable soup containing ingredients such as radish and taro."
+      zh:
+        kids: "把荞麦面蘸着有蔬菜等食材的杂蔬汤吃。"
+        adult: "将荞麦面蘸杂蔬汤食用的乡土料理，汤里有萝卜和芋头等食材。"
+    sources:
+      - title: "つけけんちん 茨城県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/tukekenchin_ibaraki.html"
+        accessed: "2026-11-19"
+    status: verified
+spots:
+  - id: kairakuen
+    emoji: "🌸"
+    name: {ja: "{偕楽園|かいらくえん}", en: "Kairakuen Garden", zh: "偕乐园"}
+    description:
+      ja:
+        kids: "{水戸|みと}の{庭園|ていえん}だよ。{早春|そうしゅん}には{梅|うめ}の{花|はな}が{楽|たの}しめるよ。"
+        adult: "1842{年|ねん}に{水戸藩|みとはん}の{徳川斉昭|とくがわなりあき}が{開|ひら}いた{庭園|ていえん}です。{早春|そうしゅん}には{梅|うめ}が{咲|さ}きます。"
+      en:
+        kids: "This Mito garden has plum blossoms to enjoy in early spring."
+        adult: "A garden opened in 1842 by Tokugawa Nariaki of Mito domain, with plum blossoms in early spring."
+      zh:
+        kids: "水户的庭园，初春可以欣赏梅花。"
+        adult: "水户藩的德川齐昭于1842年开辟的庭园，初春梅花盛开。"
+    sources:
+      - title: "偕楽園"
+        url: "https://www.ibarakiguide.jp/spot.php?code=660&mode=detail"
+        accessed: "2026-11-19"
+    status: verified
+  - id: fukuroda-falls
+    emoji: "🏞️"
+    name: {ja: "{袋田|ふくろだ}の{滝|たき}", en: "Fukuroda Falls", zh: "袋田瀑布"}
+    description:
+      ja:
+        kids: "4つの{段|だん}に{分|わ}かれて{流|なが}れ{落|お}ちる{滝|たき}だよ。"
+        adult: "{高|たか}さ120メートルの{滝|たき}で、4{段|だん}に{落|お}ちる{姿|すがた}から{四度|よど}の{滝|たき}とも{呼|よ}ばれます。"
+      en:
+        kids: "This waterfall flows down in four separate stages."
+        adult: "This 120-meter waterfall descends in four stages, giving it the name Yodo no Taki."
+      zh:
+        kids: "这座瀑布的水分成四段落下。"
+        adult: "高120米的瀑布分四段落下，又称四度瀑布。"
+    sources:
+      - title: "袋田の滝"
+        url: "https://www.ibarakiguide.jp/spot.php?code=5&mode=detail"
+        accessed: "2026-11-19"
+    status: verified
+  - id: hitachi-seaside-park
+    emoji: "🌼"
+    name: {ja: "ひたち{海浜公園|かいひんこうえん}", en: "Hitachi Seaside Park", zh: "日立海滨公园"}
+    description:
+      ja:
+        kids: "{春|はる}には{青|あお}いネモフィラが{丘|おか}に{咲|さ}く{公園|こうえん}だよ。"
+        adult: "{春|はる}にネモフィラが{咲|さ}く{国営|こくえい}{公園|こうえん}です。みはらしの{丘|おか}は{青|あお}い{花|はな}で{彩|いろど}られます。"
+      en:
+        kids: "In spring, blue nemophila flowers bloom on a hill in this park."
+        adult: "In spring, blue nemophila flowers cover Miharashi Hill in this national park."
+      zh:
+        kids: "春天，公园的山丘上开满蓝色粉蝶花。"
+        adult: "春天，蓝色粉蝶花装点着这座国营公园的观景丘。"
+    sources:
+      - title: "四季のみどころ"
+        url: "https://www.hitachikaihin.jp/event/seasons-recommended.html"
+        accessed: "2026-11-19"
+    status: verified
