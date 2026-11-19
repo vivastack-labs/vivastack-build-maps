@@ -17,5 +17,127 @@ capital:
     zh: "宇都宫市"
   lat: 36.565626
   lon: 139.883494
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {宇都宮駅|うつのみやえき}"
+    en: "Tokyo Station → Utsunomiya Station"
+    zh: "东京站 → 宇都宫站"
+  # やまびこ133号：東京10:00発、宇都宮10:48着。JR東日本2026年11月時刻表。
+  durationMin: 48
+  sources:
+    - title: "時刻表　停車駅一覧（新幹線やまびこ 133号（東京－仙台）／新幹線つばさ 133号（東京－福島－新庄））：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/train/025/029861.html"
+      accessed: "2026-11-19"
+  status: reviewed
+specialties:
+  - id: utsunomiya-gyoza
+    emoji: "🥟"
+    name: {ja: "{宇都宮餃子|うつのみやぎょうざ}", en: "Utsunomiya Gyoza", zh: "宇都宫饺子"}
+    description:
+      ja:
+        kids: "{宇都宮|うつのみや}のぎょうざは、{焼|や}いたり、{揚|あ}げたり、ゆでたりして{食|た}べるよ。"
+        adult: "{宇都宮|うつのみや}では{餃子|ぎょうざ}を{焼|や}いたり、{揚|あ}げたり、ゆでたりします。{皮|かわ}の{厚|あつ}みや{具|ぐ}は{店|みせ}によって{違|ちが}います。"
+      en:
+        kids: "In Utsunomiya, people eat gyoza dumplings pan-fried, deep-fried, or boiled."
+        adult: "Utsunomiya has pan-fried, deep-fried, and boiled gyoza dumplings, with fillings and wrapper thickness varying by shop."
+      zh:
+        kids: "宇都宫的饺子有煎、炸和煮等吃法。"
+        adult: "宇都宫的饺子有煎、炸、煮等做法，各店的馅料和饺子皮厚度不同。"
+    sources:
+      - title: "餃子のまち｜宇都宮市公式Webサイト"
+        url: "https://www.city.utsunomiya.lg.jp/citypromotion/1007188.html"
+        accessed: "2026-11-19"
+    status: reviewed
+  - id: kanpyo-tamago-toji
+    emoji: "🥚"
+    name: {ja: "かんぴょうの{卵|たまご}とじ", en: "Kanpyo with Egg", zh: "瓠瓜干蛋汤"}
+    description:
+      ja:
+        kids: "かんぴょうと{卵|たまご}を{汁|しる}で{煮|に}るよ。{学校|がっこう}の{給食|きゅうしょく}にも{出|で}るんだ。"
+        adult: "だし{汁|じる}に{卵|たまご}とかんぴょうを{入|い}れて{作|つく}ります。{栃木|とちぎ}の{学校|がっこう}{給食|きゅうしょく}でも{食|た}べられる{郷土|きょうど}{料理|りょうり}です。"
+      en:
+        kids: "Dried gourd strips and egg are cooked in broth; this dish is also served at school."
+        adult: "A local dish of kanpyo, or dried gourd strips, cooked with egg in broth and served in school lunches."
+      zh:
+        kids: "把瓠瓜干和鸡蛋放在汤里煮，学校午餐也会供应。"
+        adult: "用瓠瓜干制作的乡土料理，与鸡蛋一起放入高汤中煮，也会出现在学校午餐中。"
+    sources:
+      - title: "干瓢の卵とじ 栃木県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/31_3_tochigi.html"
+        accessed: "2026-11-19"
+    status: reviewed
+  - id: shimotsukare
+    emoji: "🍲"
+    name: {ja: "しもつかれ", en: "Shimotsukare", zh: "什莫茨卡雷"}
+    description:
+      ja:
+        kids: "さけの{頭|あたま}や{豆|まめ}、{大根|だいこん}などを{煮込|にこ}むよ。{冬|ふゆ}にごはんと{食|た}べるんだ。"
+        adult: "ご{飯|はん}と{一緒|いっしょ}に{味|あじ}わう、{栃木|とちぎ}の{料理|りょうり}です。{鮭|さけ}の{頭|あたま}や{大豆|だいず}、{大根|だいこん}などを{煮込|にこ}み、{冬|ふゆ}に{家庭|かてい}で{作|つく}ります。"
+      en:
+        kids: "Salmon head, soybeans, radish, and other ingredients are simmered and eaten with rice in winter."
+        adult: "This Tochigi dish simmers salmon head, soybeans, radish, and more. Families make it in winter and eat it with rice."
+      zh:
+        kids: "把鲑鱼头、大豆和萝卜等炖煮，冬天配米饭吃。"
+        adult: "栃木的料理，用鲑鱼头、大豆、萝卜等炖煮，冬天在家中制作，配米饭食用。"
+    sources:
+      - title: "しもつかれ／シモツカレ 栃木県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/31_1_tochigi.html"
+        accessed: "2026-11-19"
+    status: reviewed
+spots:
+  - id: nikko-toshogu
+    emoji: "⛩️"
+    name: {ja: "{日光東照宮|にっこうとうしょうぐう}", en: "Nikko Toshogu Shrine", zh: "日光东照宫"}
+    description:
+      ja:
+        kids: "{日光|にっこう}の{神社|じんじゃ}だよ。{陽明門|ようめいもん}にははなやかな{飾|かざ}りがあるよ。"
+        adult: "{徳川家康|とくがわいえやす}の{神霊|しんれい}をまつる{神社|じんじゃ}です。{陽明門|ようめいもん}は{華|はな}やかな{装飾|そうしょく}が{施|ほどこ}された{二階建|にかいだ}ての{門|もん}です。"
+      en:
+        kids: "A shrine in Nikko with an elaborately decorated gate called Yomeimon."
+        adult: "This Nikko shrine enshrines Tokugawa Ieyasu's spirit. Yomeimon is a two-story gate with ornate decorations."
+      zh:
+        kids: "日光的一座神社，阳明门上有华丽的装饰。"
+        adult: "日光的神社，供奉德川家康的神灵。阳明门是装饰华丽的两层楼门。"
+    sources:
+      - title: "建造物一覧-東照宮1／日光市公式ホームページ"
+        url: "https://www.city.nikko.lg.jp/soshiki/10/1041/1_1/2/1/2427.html"
+        accessed: "2026-11-19"
+    status: reviewed
+  - id: kegon-falls
+    emoji: "💧"
+    name: {ja: "{華厳滝|けごんのたき}", en: "Kegon Falls", zh: "华严瀑布"}
+    description:
+      ja:
+        kids: "{中禅寺湖|ちゅうぜんじこ}の{水|みず}が{流|なが}れ{落|お}ちる、{日光|にっこう}の{滝|たき}だよ。"
+        adult: "{滝|たき}つぼを{観瀑台|かんばくだい}から{見|み}られます。{中禅寺湖|ちゅうぜんじこ}から{流|なが}れる{水|みず}の{落差|らくさ}は{約|やく}97メートルです。"
+      en:
+        kids: "This Nikko waterfall is fed by the water of Lake Chuzenji."
+        adult: "Water from Lake Chuzenji falls about 97 meters. An observation platform offers views of the basin."
+      zh:
+        kids: "日光的瀑布，水从中禅寺湖流下。"
+        adult: "中禅寺湖水从约97米高处落下，可从观瀑台观看瀑布潭。"
+    sources:
+      - title: "華厳滝｜日光市の観光サイト 日光旅ナビ"
+        url: "https://www.nikko-kankou.org/spot/5"
+        accessed: "2026-11-19"
+    status: reviewed
+  - id: ashikaga-flower-park
+    emoji: "🌸"
+    name: {ja: "あしかがフラワーパーク", en: "Ashikaga Flower Park", zh: "足利花卉公园"}
+    description:
+      ja:
+        kids: "{花|はな}の{公園|こうえん}だよ。4{月|がつ}から5{月|がつ}ごろには{藤|ふじ}が{咲|さ}くよ。"
+        adult: "{足利市|あしかがし}の{花|はな}の{公園|こうえん}です。{大藤|おおふじ}があり、{藤|ふじ}は{例年|れいねん}4{月|がつ}から5{月|がつ}ごろに{咲|さ}きます。"
+      en:
+        kids: "A flower park where wisteria blooms around April and May."
+        adult: "A flower park in Ashikaga with a great wisteria. Wisteria usually blooms around April and May."
+      zh:
+        kids: "花卉公园里的紫藤花约在四月至五月开放。"
+        adult: "足利市的花卉公园有大紫藤，紫藤花一般在四月至五月开放。"
+    sources:
+      - title: "あしかがフラワーパーク 2026年4月～2027年3月版"
+        url: "https://www.ashikaga.co.jp/cms/uploads/files/2026_%E3%83%91%E3%83%B3%E3%83%95%E3%83%AC%E3%83%83%E3%83%88.pdf"
+        accessed: "2026-11-19"
+    status: reviewed

@@ -16,5 +16,130 @@ capital:
     zh: "新宿区"
   lat: 35.689629
   lon: 139.691772
-specialties: []
-spots: []
+access:
+  emoji: "🚃"
+  mode: {ja: "{快速|かいそく}{電車|でんしゃ}", en: "Rapid train", zh: "快速电车"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {新宿駅|しんじゅくえき}"
+    en: "Tokyo Station → Shinjuku Station"
+    zh: "东京站 → 新宿站"
+  # 中央線快速 1041T（平日運転）：東京10:00発、新宿10:14着。JR東日本2026年11月時刻表。
+  durationMin: 14
+  sources:
+    - title: "時刻表　停車駅一覧（東京－高尾）：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/train/120/124991.html"
+      accessed: "2026-11-19"
+  status: reviewed
+specialties:
+  - id: monjayaki
+    emoji: "🍳"
+    name: {ja: "もんじゃ{焼|や}き", en: "Monjayaki", zh: "文字烧"}
+    description:
+      ja:
+        kids: "{鉄板|てっぱん}で{焼|や}いて、{自分|じぶん}のへらで{食|た}べるよ。もとは{子|こ}どものおやつなんだ。"
+        adult: "{鉄板|てっぱん}で{焼|や}きながら、それぞれのへらで{食|た}べる{料理|りょうり}です。\
+          もとは{子|こ}どものおやつで、{月島|つきしま}が{有名|ゆうめい}です。"
+      en:
+        kids: "Monjayaki is cooked on a griddle and eaten with your own spatula. It was first a snack for children."
+        adult: "This dish is cooked on a griddle and eaten with individual spatulas. Originally a children's snack, it is famous in Tsukishima."
+      zh:
+        kids: "在铁板上烤好，用自己的铲子吃。最初是孩子们的零食。"
+        adult: "边在铁板上烤，边用各自的铲子吃。原本是孩子的零食，月岛很有名。"
+    sources:
+      - title: "もんじゃ焼き 東京都 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/34_3_tokyo.html"
+        accessed: "2026-11-19"
+    status: reviewed
+  - id: nigirizushi
+    emoji: "🍣"
+    name: {ja: "にぎりずし", en: "Nigiri Sushi", zh: "握寿司"}
+    description:
+      ja:
+        kids: "{酢飯|すめし}にネタをのせた、おすしだよ。むかしは{屋台|やたい}で{気軽|きがる}に{食|た}べられたんだ。"
+        adult: "ひと{口大|くちだい}の{酢飯|すめし}にネタをのせたすしです。\
+          {江戸時代|えどじだい}に、{庶民|しょみん}が{屋台|やたい}で{手軽|てがる}に{食|た}べるようになりました。"
+      en:
+        kids: "A topping is placed on vinegared rice. Long ago, people could easily eat it at street stalls."
+        adult: "Toppings are placed on bite-sized vinegared rice. In the Edo period, townspeople began eating it casually at street stalls."
+      zh:
+        kids: "在醋饭上放上食材。很久以前，人们在小摊上就能轻松吃到。"
+        adult: "在一口大小的醋饭上放上食材。江户时代，平民可以在路边摊轻松地吃到它。"
+    sources:
+      - title: "にぎりずし 東京都 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/34_2_tokyo.html"
+        accessed: "2026-11-19"
+    status: reviewed
+  - id: edo-kiriko
+    emoji: "🥃"
+    name: {ja: "{江戸切子|えどきりこ}", en: "Edo Kiriko", zh: "江户切子"}
+    description:
+      ja:
+        kids: "{色|いろ}のついたガラスに、{細|こま}かな{模様|もよう}をほってあるよ。19{世紀|せいき}に{始|はじ}まったんだ。"
+        adult: "ヨーロッパのカットグラスに{学|まな}び、19{世紀|せいき}に{始|はじ}まりました。\
+          {色|いろ}ガラスをかぶせた{素材|そざい}を、{細|こま}かく{彫|ほ}ります。"
+      en:
+        kids: "Fine patterns are carved into colored glass. This craft began in the 19th century."
+        adult: "Learning from European cut glass, this craft began in the 19th century. Glass covered with colored glass is carved in fine detail."
+      zh:
+        kids: "在彩色玻璃上雕刻细致的花纹。它始于19世纪。"
+        adult: "借鉴欧洲刻花玻璃的技法，19世纪诞生。覆盖了彩色玻璃的素材会被精细地雕刻。"
+    sources:
+      - title: "江戸切子 | 東京の伝統工芸品 | 東京都産業労働局"
+        url: "https://www.dento-tokyo.metro.tokyo.lg.jp/items/22.html"
+        accessed: "2026-11-19"
+    status: reviewed
+spots:
+  - id: sensoji
+    name: {ja: "{浅草寺|せんそうじ}", en: "Senso-ji", zh: "浅草寺"}
+    description:
+      ja:
+        kids: "{大|おお}きなちょうちんの{雷門|かみなりもん}があるお{寺|てら}だよ。"
+        adult: "628{年|ねん}に{観音像|かんのんぞう}が{見|み}つかったと{伝|つた}わる{寺|てら}で、{雷門|かみなりもん}の{大|おお}きな{提灯|ちょうちん}で{知|し}られます。"
+      en:
+        kids: "A temple with a gate that has a giant lantern."
+        adult: "Tradition says a Buddhist Kannon statue was found in 628. The giant lantern at Kaminarimon gate is famous."
+      zh:
+        kids: "这座寺庙有一座挂着大灯笼的雷门。"
+        adult: "相传628年发现观音像的寺院，以雷门的大灯笼闻名。"
+    sources:
+      - title: "浅草寺を知る - 浅草寺"
+        url: "https://www.senso-ji.jp/about/"
+        accessed: "2026-11-19"
+      - title: "雷門 - 浅草寺"
+        url: "https://www.senso-ji.jp/guide/guide01.html"
+        accessed: "2026-11-19"
+    status: reviewed
+  - id: tokyo-skytree
+    name: {ja: "{東京|とうきょう}スカイツリー", en: "Tokyo Skytree", zh: "东京晴空塔"}
+    description:
+      ja:
+        kids: "634mの{高|たか}い{塔|とう}だよ。{展望台|てんぼうだい}から{遠|とお}くまで{見|み}えるよ。"
+        adult: "{高|たか}さ634mの{電波塔|でんぱとう}です。450mの{天望回廊|てんぼうかいろう}から、{関東|かんとう}の{広|ひろ}い{範囲|はんい}を{一望|いちぼう}できます。"
+      en:
+        kids: "This tower is 634 meters tall, and you can see far from its observation deck."
+        adult: "A 634-meter broadcasting tower. From its 450-meter observation gallery, you can see much of the Kanto region."
+      zh:
+        kids: "高634米的塔，从观景台可以看得很远。"
+        adult: "高634米的电波塔，从450米的天望回廊远眺关东大片地区。"
+    sources:
+      - title: "アウトライン【公式】東京スカイツリー TOKYO SKYTREE"
+        url: "https://www.tokyo-skytree.jp/about/outline/"
+        accessed: "2026-11-19"
+    status: reviewed
+  - id: meiji-jingu
+    name: {ja: "{明治神宮|めいじじんぐう}", en: "Meiji Jingu", zh: "明治神宫"}
+    description:
+      ja:
+        kids: "{約|やく}10{万本|まんぼん}の{木|き}を{植|う}えた{森|もり}がある{神社|じんじゃ}だよ。"
+        adult: "{明治天皇|めいじてんのう}と{昭憲皇太后|しょうけんこうたいごう}をまつる{神社|じんじゃ}で、{約|やく}10{万本|まんぼん}の{献木|けんぼく}で{人工|じんこう}の{杜|もり}がつくられました。"
+      en:
+        kids: "A shrine with a forest made by planting about 100,000 trees."
+        adult: "A shrine for Emperor Meiji and Empress Shoken, with an artificial forest created from about 100,000 donated trees."
+      zh:
+        kids: "这座神社位于人工种下约10万棵树的森林中。"
+        adult: "供奉明治天皇与昭宪皇太后，以约10万棵捐赠树木建成人工森林。"
+    sources:
+      - title: "明治神宮とは｜明治神宮"
+        url: "https://www.meijijingu.or.jp/about/"
+        accessed: "2026-11-19"
+    status: reviewed

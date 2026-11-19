@@ -16,5 +16,127 @@ capital:
     zh: "鹿儿岛市"
   lat: 31.560066
   lon: 130.558212
-specialties: []
-spots: []
+access:
+  emoji: "✈️"
+  mode: {ja: "{飛行機|ひこうき}", en: "Plane", zh: "飞机"}
+  route:
+    ja: "{羽田空港|はねだくうこう} → {鹿児島空港|かごしまくうこう}"
+    en: "Haneda Airport → Kagoshima Airport"
+    zh: "羽田机场 → 鹿儿岛机场"
+  # JAL645便：羽田 10:05 発 → 鹿児島 11:55 着（110分。2026年10月25日〜11月30日の月間時刻表）。空港までの移動・搭乗手続きは含めない
+  durationMin: 110
+  sources:
+    - title: "東京羽田発｜月間時刻表（到着）｜鹿児島空港"
+      url: "https://www.koj-ab.co.jp/flight/monthly/hnd_a.html"
+      accessed: "2026-11-18"
+  status: reviewed
+specialties:
+  - id: satsuma-jiru
+    emoji: "🍲"
+    name: {ja: "さつま{汁|じる}", en: "Satsuma-jiru Chicken Miso Soup", zh: "萨摩味噌汤"}
+    description:
+      ja:
+        kids: "とり{肉|にく}や{野菜|やさい}をいっしょに{煮|に}こんだ、みそ{汁|しる}だよ。"
+        adult: "{薩摩武士|さつまぶし}が{闘鶏|とうけい}で{負|ま}けた{鶏|にわとり}を{野菜|やさい}と{煮|に}たのが{始|はじ}まりといわれる、{鶏肉入|とりにくい}りの{味噌汁|みそしる}です。"
+      en:
+        kids: "It is a miso soup with chicken and vegetables simmered together."
+        adult: "A chicken miso soup said to have begun when samurai of the Satsuma domain simmered chickens that lost cockfights with vegetables."
+      zh:
+        kids: "把鸡肉和蔬菜放在一起煮成的味噌汤。"
+        adult: "据说起源于萨摩武士把斗鸡中输掉的鸡与蔬菜一起煮着吃，是放了鸡肉的味噌汤。"
+    sources:
+      - title: "さつま汁 鹿児島県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/satsumajiru_kagoshima.html"
+        accessed: "2026-11-18"
+    status: reviewed
+  - id: keihan
+    emoji: "🍚"
+    name: {ja: "{鶏飯|けいはん}", en: "Keihan Chicken Rice with Soup", zh: "鸡饭"}
+    description:
+      ja:
+        kids: "ごはんにとり{肉|にく}などをのせて、スープをかけて{食|た}べるよ。"
+        adult: "{奄美|あまみ}で{食|た}べられてきた{郷土料理|きょうどりょうり}で、{鶏肉|とりにく}や{卵|たまご}などを{盛|も}ったごはんに、{鶏|とり}ガラでとったスープをかけます。"
+      en:
+        kids: "Chicken and other toppings on rice, with soup poured over it."
+        adult: "A local dish that has been eaten in Amami: rice topped with chicken, egg, and more, with chicken-bone soup poured over."
+      zh:
+        kids: "在米饭上放上鸡肉等配料，再浇上汤来吃。"
+        adult: "奄美一带流传的乡土料理，在放了鸡肉和鸡蛋等的米饭上浇鸡骨汤。"
+    sources:
+      - title: "鶏飯 鹿児島県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/keihan_kagoshima.html"
+        accessed: "2026-11-18"
+    status: reviewed
+  - id: karukan
+    emoji: "🍡"
+    name: {ja: "かるかん", en: "Karukan Steamed Yam Cake", zh: "轻羹"}
+    description:
+      ja:
+        kids: "{山芋|やまいも}の{生地|きじ}を{蒸|む}してつくる、{有名|ゆうめい}なお{菓子|かし}だよ。"
+        adult: "かるかん{粉|こ}と{山芋|やまいも}の{生地|きじ}を{蒸|む}した{銘菓|めいか}で、{島津斉彬|しまづなりあきら}が{招|まね}いた{菓子職人|かししょくにん}が{考|かんが}えたという{説|せつ}が{有力|ゆうりょく}です。"
+      en:
+        kids: "A famous sweet made by steaming dough made with yam."
+        adult: "A well-known confection of steamed karukan flour and yam dough. The leading theory is that a confectioner invited by Shimazu Nariakira devised it."
+      zh:
+        kids: "用山药面团蒸成的、很有名的点心。"
+        adult: "用轻羹粉和山药面团蒸制而成的著名点心，据说是岛津齐彬请来的点心师傅所创。"
+    sources:
+      - title: "かるかん 鹿児島県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/karukan_kagoshima.html"
+        accessed: "2026-11-18"
+    status: reviewed
+spots:
+  - id: sakurajima
+    emoji: "🌋"
+    name: {ja: "{桜島|さくらじま}", en: "Sakurajima", zh: "樱岛"}
+    description:
+      ja:
+        kids: "もとは{島|しま}だった{火山|かざん}で、{今|いま}は{陸地|りくち}とつながっているよ。"
+        adult: "{錦江湾|きんこうわん}に{浮|う}かぶ{活火山|かっかざん}で、1914{年|ねん}の{大正噴火|たいしょうふんか}の{溶岩|ようがん}で{大隅半島|おおすみはんとう}とつながりました。"
+      en:
+        kids: "A volcano that used to be an island but is now joined to the land."
+        adult: "An active volcano in Kinko Bay, joined to the Osumi Peninsula by lava from the 1914 Taisho eruption."
+      zh:
+        kids: "原本是一座岛的火山，现在和陆地连在一起了。"
+        adult: "锦江湾的活火山，因1914年大正喷发的熔岩而与大隅半岛相连。"
+    sources:
+      - title: "桜島を知る | 桜島観光ポータル みんなの桜島"
+        url: "https://www.sakurajima.gr.jp/sakurajima.html"
+        accessed: "2026-11-18"
+    status: reviewed
+  - id: yakushima
+    emoji: "🌲"
+    name: {ja: "{屋久島|やくしま}", en: "Yakushima", zh: "屋久岛"}
+    description:
+      ja:
+        kids: "{何千年|なんぜんねん}も{生|い}きる{杉|すぎ}がある、{世界自然遺産|せかいしぜんいさん}の{島|しま}だよ。"
+        adult: "{樹齢|じゅれい}{数千年|すうせんねん}の{屋久杉|やくすぎ}が{育|そだ}つ{島|しま}で、1993{年|ねん}に{日本初|にほんはつ}の{世界自然遺産|せかいしぜんいさん}になりました。"
+      en:
+        kids: "A World Natural Heritage island with cedar trees thousands of years old."
+        adult: "Japan's first World Natural Heritage site, registered in 1993, with Yakusugi cedars thousands of years old."
+      zh:
+        kids: "岛上有活了几千年的杉树，是世界自然遗产。"
+        adult: "1993年成为日本首个世界自然遗产，有树龄数千年的屋久杉。"
+    sources:
+      - title: "屋久島町の概要／屋久島町"
+        url: "https://www.town.yakushima.kagoshima.jp/gyosei/machinogaiyo/3130.html"
+        accessed: "2026-11-18"
+    status: reviewed
+  - id: chiran-bukeyashiki
+    emoji: "🏡"
+    name: {ja: "{知覧武家屋敷庭園群|ちらんぶけやしきていえんぐん}", en: "Chiran Samurai Residence Gardens", zh: "知览武家宅邸庭园群"}
+    description:
+      ja:
+        kids: "{昔|むかし}のさむらいの{家|いえ}と{庭|にわ}が{残|のこ}る{町|まち}だよ。"
+        adult: "{石垣|いしがき}と{生|い}け{垣|がき}が{並|なら}ぶ{武家屋敷|ぶけやしき}の{町並|まちな}みで、7つの{庭園|ていえん}が{国|くに}の{名勝|めいしょう}に{指定|してい}されています。"
+      en:
+        kids: "A town where old samurai houses and gardens still remain."
+        adult: "Samurai residences with stone walls and hedges, where seven gardens are designated national Places of Scenic Beauty."
+      zh:
+        kids: "保留着以前武士的住宅和庭园的小镇。"
+        adult: "石墙和绿篱相连的武家宅邸街区，7处庭园被指定为国家名胜。"
+    sources:
+      - title: "知覧武家屋敷庭園群／南九州市"
+        url: "https://www.city.minamikyushu.lg.jp/kankosite/kankospot/1/5543.html"
+        accessed: "2026-11-18"
+    status: reviewed

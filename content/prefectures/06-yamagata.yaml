@@ -17,5 +17,127 @@ capital:
     zh: "山形市"
   lat: 38.2404
   lon: 140.363477
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {山形駅|やまがたえき}"
+    en: "Tokyo Station → Yamagata Station"
+    zh: "东京站 → 山形站"
+  # つばさ133号：東京10:00発、山形12:43着。JR東日本2026年11月時刻表。
+  durationMin: 163
+  sources:
+    - title: "時刻表　東北・山形・秋田・北海道新幹線 下り：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/timetable-v/003d1p.html"
+      accessed: "2026-11-19"
+  status: reviewed
+specialties:
+  - id: imoni
+    emoji: "🍲"
+    name: {ja: "{芋煮|いもに}", en: "Imoni", zh: "芋煮"}
+    description:
+      ja:
+        kids: "{里芋|さといも}やお{肉|にく}などを{煮|に}る{料理|りょうり}だよ。{地域|ちいき}で{味|あじ}が{違|ちが}うんだ。"
+        adult: "{里芋|さといも}や{肉|にく}などを{煮|に}る{郷土|きょうど}{料理|りょうり}です。{内陸|ないりく}では{牛肉|ぎゅうにく}としょうゆ、{庄内|しょうない}では{豚肉|ぶたにく}と{味噌|みそ}が{定番|ていばん}です。"
+      en:
+        kids: "A stew of taro and meat, with flavors that vary by region."
+        adult: "This local taro and meat stew typically uses beef and soy sauce inland, or pork and miso, a fermented soybean paste, in Shonai."
+      zh:
+        kids: "用芋头和肉等食材煮成的料理，各地的味道不同。"
+        adult: "用芋头和肉等食材煮成的乡土料理。内陆常用牛肉和酱油，庄内则常用猪肉和味噌。"
+    sources:
+      - title: "芋煮 山形県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/imoni_yamagata.html"
+        accessed: "2026-11-19"
+    status: reviewed
+  - id: tama-konnyaku
+    emoji: "🍢"
+    name: {ja: "{玉|たま}こんにゃく", en: "Tama Konnyaku", zh: "球形蒟蒻"}
+    description:
+      ja:
+        kids: "まるいこんにゃくをしょうゆで{煮|に}るよ。お{祭|まつ}りでも{食|た}べられるんだ。"
+        adult: "{丸|まる}いこんにゃくをしょうゆで{煮|に}る{料理|りょうり}です。{家庭|かてい}のほか、{祭|まつ}りや{観光地|かんこうち}でも{食|た}べられます。"
+      en:
+        kids: "Round konnyaku jelly is simmered in soy sauce and eaten at festivals too."
+        adult: "Round konnyaku, a jelly made from konjac, is simmered in soy sauce and eaten at home, festivals and tourist sites."
+      zh:
+        kids: "圆圆的蒟蒻用酱油煮，节日里也能吃到。"
+        adult: "将圆形蒟蒻用酱油煮制，家中、节日和旅游景点都能吃到。"
+    sources:
+      - title: "玉こんにゃく 山形県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/tamakonnyaku_yamagata.html"
+        accessed: "2026-11-19"
+    status: reviewed
+  - id: dashi
+    emoji: "🥒"
+    name: {ja: "だし", en: "Yamagata Dashi", zh: "山形拌菜"}
+    description:
+      ja:
+        kids: "{夏|なつ}の{野菜|やさい}を{細|こま}かく{切|き}った{料理|りょうり}だよ。ごはんにのせて{食|た}べるんだ。"
+        adult: "ご{飯|はん}や{冷奴|ひややっこ}にかけて{味|あじ}わう{山形|やまがた}の{郷土|きょうど}{料理|りょうり}で、{細|こま}かく{切|き}った{夏野菜|なつやさい}を{使|つか}います。"
+      en:
+        kids: "Summer vegetables are chopped finely and served on top of rice."
+        adult: "This Yamagata dish of finely chopped summer vegetables is served over rice or chilled tofu."
+      zh:
+        kids: "把夏季蔬菜切碎做成的料理，可以放在米饭上吃。"
+        adult: "山形的乡土料理，将夏季蔬菜切碎，放在米饭或凉豆腐上食用。"
+    sources:
+      - title: "だし 山形県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/dashi_yamagata.html"
+        accessed: "2026-11-19"
+    status: reviewed
+spots:
+  - id: yamadera
+    emoji: "🏞️"
+    name: {ja: "{山寺|やまでら}", en: "Yamadera", zh: "山寺"}
+    description:
+      ja:
+        kids: "{山|やま}にあるお{寺|てら}だよ。お{堂|どう}から{山|やま}や{田|た}んぼを{見渡|みわた}せるよ。"
+        adult: "{山寺|やまでら}と{呼|よ}ばれる{立石寺|りっしゃくじ}は860{年|ねん}に{創建|そうけん}されました。{五大堂|ごだいどう}から{山々|やまやま}や{田園|でんえん}を{望|のぞ}めます。"
+      en:
+        kids: "From a hall at this mountain temple, you can see mountains and fields."
+        adult: "Founded in 860, Risshakuji is called Yamadera. Its Godaido hall overlooks mountains and fields."
+      zh:
+        kids: "山上的寺院，从殿堂可以眺望群山和田野。"
+        adult: "立石寺又称山寺，建于860年。从五大堂可眺望群山和田园。"
+    sources:
+      - title: "山寺・宝珠山立石寺"
+        url: "https://yamagatakanko.com/attractions/detail_2352.html"
+        accessed: "2026-11-19"
+    status: reviewed
+  - id: ginzan-onsen
+    emoji: "♨️"
+    name: {ja: "{銀山温泉|ぎんざんおんせん}", en: "Ginzan Onsen", zh: "银山温泉"}
+    description:
+      ja:
+        kids: "{川|かわ}のそばに{木|き}の{旅館|りょかん}が{並|なら}び、{夕方|ゆうがた}に{灯|あか}りがともるよ。"
+        adult: "{夕暮|ゆうぐ}れにガス{灯|とう}がともる{温泉街|おんせんがい}です。{銀山川|ぎんざんがわ}を{挟|はさ}んで{木造|もくぞう}の{旅館|りょかん}が{建|た}ち{並|なら}びます。"
+      en:
+        kids: "Wooden inns line the river, and lights glow in the evening."
+        adult: "In this hot spring town, wooden inns line the Ginzan River and gas lamps glow at dusk."
+      zh:
+        kids: "河边排列着木造旅馆，傍晚会亮起灯光。"
+        adult: "银山川两岸排列着木造旅馆，黄昏时温泉街的煤气灯亮起。"
+    sources:
+      - title: "銀山温泉"
+        url: "https://yamagatakanko.com/attractions/detail_2832.html"
+        accessed: "2026-11-19"
+    status: reviewed
+  - id: mogamigawa
+    emoji: "🚣"
+    name: {ja: "{最上川|もがみがわ}{舟下|ふなくだ}り", en: "Mogami River Boat Ride", zh: "最上川乘船游览"}
+    description:
+      ja:
+        kids: "{船|ふね}に{乗|の}って、{川|かわ}の{両側|りょうがわ}にせまる{山|やま}を{楽|たの}しめるよ。"
+        adult: "{最上峡|もがみきょう}を{船|ふね}で{下|くだ}り、{両岸|りょうがん}に{迫|せま}る{山々|やまやま}の{四季|しき}{折々|おりおり}の{景色|けしき}を{楽|たの}しめます。"
+      en:
+        kids: "Ride a boat and enjoy the mountains rising on both sides of the river."
+        adult: "Travel down Mogami Gorge by boat and enjoy the seasonal scenery of mountains on both banks."
+      zh:
+        kids: "乘船欣赏河流两岸的群山。"
+        adult: "乘船顺流游览最上峡，欣赏两岸群山的四季景色。"
+    sources:
+      - title: "最上川舟下りのススメ｜春夏秋冬の絶景とみどころをご紹介"
+        url: "https://yamagatakanko.com/mogamigawa"
+        accessed: "2026-11-19"
+    status: reviewed

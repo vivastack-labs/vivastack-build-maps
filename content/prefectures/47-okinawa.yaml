@@ -17,5 +17,124 @@ capital:
     zh: "那霸市"
   lat: 26.212223
   lon: 127.68059
-specialties: []
-spots: []
+access:
+  emoji: "✈️"
+  mode: {ja: "{飛行機|ひこうき}", en: "Plane", zh: "飞机"}
+  route:
+    ja: "{羽田空港|はねだくうこう} → {那覇空港|なはくうこう}"
+    en: "Haneda Airport → Naha Airport"
+    zh: "羽田机场 → 那霸机场"
+  # ANA469便、2026年11月は羽田10:30発・那覇13:25着。
+  durationMin: 175
+  sources:
+    - title: "国内線時刻表 東京エリア（2026年冬ダイヤ）"
+      url: "https://www.ana.co.jp/guide/plan/airinfo/dom-timetable/pdf/timetable_tokyo_20261025_20270131.pdf"
+      accessed: 2026-11-18
+  status: reviewed
+specialties:
+  - id: okinawa-soba
+    emoji: "🍜"
+    name: {ja: "{沖縄|おきなわ}そば", en: "Okinawa Soba", zh: "冲绳面"}
+    description:
+      ja:
+        kids: "{小麦粉|こむぎこ}のめんを、{豚|ぶた}やかつおのだしで{食|た}べるよ。"
+        adult: "そば{粉|こ}を{使|つか}わず、{小麦粉|こむぎこ}で{作|つく}った{麺|めん}を、{豚骨|とんこつ}やかつお{節|ぶし}のだしで{食|た}べる{沖縄|おきなわ}の{麺料理|めんりょうり}です。"
+      en:
+        kids: "These wheat noodles are served in a broth made from pork bones or dried bonito."
+        adult: "Okinawa soba is a noodle dish made with wheat flour instead of buckwheat, served in pork bone or dried bonito broth."
+      zh:
+        kids: "用小麦面做的面条，配上猪骨或鲣鱼干熬的汤。"
+        adult: "这道冲绳面食不用荞麦粉，而用小麦粉制面，配猪骨或鲣鱼干汤。"
+    sources:
+      - title: "沖縄そば 沖縄県"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/47_20_okinawa.html"
+        accessed: 2026-11-18
+    status: reviewed
+  - id: goya-champuru
+    emoji: "🥬"
+    name: {ja: "ゴーヤーチャンプルー", en: "Goya Champuru", zh: "苦瓜炒豆腐"}
+    description:
+      ja:
+        kids: "にがいゴーヤーを、{島豆腐|しまどうふ}や{卵|たまご}といっしょに{炒|いた}めるよ。"
+        adult: "ゴーヤーの{苦味|にがみ}が{特徴|とくちょう}の{炒|いた}め{物|もの}です。{沖縄|おきなわ}では{島豆腐|しまどうふ}や{卵|たまご}を{合|あ}わせて{家庭|かてい}で{作|つく}ります。"
+      en:
+        kids: "Bitter melon, called goya, is stir-fried with island tofu and eggs."
+        adult: "This Okinawan home dish combines bitter melon, or goya, with island tofu and eggs in a stir-fry."
+      zh:
+        kids: "把苦苦的苦瓜和岛豆腐、鸡蛋一起炒。"
+        adult: "这道冲绳家常菜用带苦味的苦瓜、岛豆腐和鸡蛋一起炒制。"
+    sources:
+      - title: "ゴーヤーチャンプルー 沖縄県"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/47_11_okinawa.html"
+        accessed: 2026-11-18
+    status: reviewed
+  - id: bingata
+    emoji: "👘"
+    name: {ja: "{紅型|びんがた}", en: "Bingata", zh: "红型染"}
+    description:
+      ja:
+        kids: "{型紙|かたがみ}などを{使|つか}って、{布|ぬの}に{模様|もよう}を{染|そ}めるんだ。"
+        adult: "{沖縄|おきなわ}に{伝|つた}わる{染色技法|せんしょくぎほう}です。{型紙|かたがみ}などを{使|つか}い、{布|ぬの}に{模様|もよう}を{染|そ}めます。"
+      en:
+        kids: "Patterns are dyed onto cloth using paper stencils and other tools."
+        adult: "Bingata is a traditional Okinawan dyeing technique that uses paper stencils and other tools to make patterns on cloth."
+      zh:
+        kids: "用纸型等工具在布料上染出花纹。"
+        adult: "红型是冲绳流传的染色技法，用纸型等工具在布料上染出花纹。"
+    sources:
+      - title: "紅型"
+        url: "https://kunishitei.bunka.go.jp/heritage/detail/303/252"
+        accessed: 2026-11-18
+    status: reviewed
+spots:
+  - id: shurijo
+    name: {ja: "{首里城公園|しゅりじょうこうえん}", en: "Shurijo Castle Park", zh: "首里城公园"}
+    description:
+      ja:
+        kids: "むかし、{琉球王国|りゅうきゅうおうこく}の{王様|おうさま}たちが{使|つか}ったお{城|しろ}だよ。"
+        adult: "{首里城|しゅりじょう}は{琉球王国|りゅうきゅうおうこく}の{王宮|おうきゅう}・{王府|おうふ}として{使|つか}われた{城|しろ}です。"
+      en:
+        kids: "This castle was used by the rulers of the Ryukyu Kingdom."
+        adult: "Shurijo Castle served as the royal palace and government of the Ryukyu Kingdom."
+      zh:
+        kids: "这座城曾是琉球王国的王室使用的地方。"
+        adult: "首里城曾是琉球王国的王宫和政府所在地。"
+    sources:
+      - title: "首里城復元に向けた取組状況"
+        url: "https://oki-park.jp/userfiles/files/PDF_20260604_1_kisya%281%29.pdf"
+        accessed: 2026-11-18
+    status: reviewed
+  - id: churaumi-aquarium
+    name: {ja: "{沖縄|おきなわ}{美|ちゅ}ら{海|うみ}{水族館|すいぞくかん}", en: "Okinawa Churaumi Aquarium", zh: "冲绳美丽海水族馆"}
+    description:
+      ja:
+        kids: "{大|おお}きな{水槽|すいそう}でジンベエザメなどの{魚|さかな}を{見|み}られるよ。"
+        adult: "{沖縄|おきなわ}の{海|うみ}を{再現|さいげん}した{大水槽|だいすいそう}で、ジンベエザメなどの{魚|さかな}を{見|み}られます。"
+      en:
+        kids: "You can see whale sharks and other fish in a large tank."
+        adult: "A large tank recreates the sea around Okinawa, where visitors can see whale sharks and other fish."
+      zh:
+        kids: "在大水槽里可以看到鲸鲨等鱼。"
+        adult: "在重现冲绳海洋的大水槽里，可以看到鲸鲨等鱼类。"
+    sources:
+      - title: "黒潮の海"
+        url: "https://churaumi.okinawa/sp/program/aquarium/kuroshio/"
+        accessed: 2026-11-18
+    status: reviewed
+  - id: peace-memorial-park
+    name: {ja: "{平和祈念公園|へいわきねんこうえん}", en: "Peace Memorial Park", zh: "和平祈念公园"}
+    description:
+      ja:
+        kids: "{沖縄戦|おきなわせん}で{亡|な}くなった{人|ひと}の{名前|なまえ}が{石|いし}に{刻|きざ}まれているよ。"
+        adult: "{糸満市|いとまんし}の{公園|こうえん}には、{沖縄戦|おきなわせん}で{亡|な}くなった{人|ひと}の{名前|なまえ}を{刻|きざ}んだ{平和|へいわ}の{礎|いしじ}があります。"
+      en:
+        kids: "The names of people who died in the Battle of Okinawa are carved in stone."
+        adult: "Itoman’s Cornerstone of Peace bears the names of those who died in the Battle of Okinawa."
+      zh:
+        kids: "石碑上刻着冲绳战役遇难者的名字。"
+        adult: "糸满市的公园里有和平之础，刻着冲绳战役遇难者的名字。"
+    sources:
+      - title: "沖縄県営平和祈念公園"
+        url: "https://heiwa-irei-okinawa.jp/"
+        accessed: 2026-11-18
+    status: reviewed

@@ -17,5 +17,127 @@ capital:
     zh: "静冈市"
   lat: 34.976821
   lon: 138.38328
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {静岡駅|しずおかえき}"
+    en: "Tokyo Station → Shizuoka Station"
+    zh: "东京站 → 静冈站"
+  # 東京始発の「ひかり707号」（岡山行。毎日運転）：東京 10:03 発 → 静岡 11:02 着（59分。乗り換えなし）。「のぞみ」は静岡に止まらないので、東京を10時台に出て静岡に止まる列車のうち、いちばん速い種類の「ひかり」にした。JR時刻表2026年11月号に基づく時刻（ページ下部の注記）
+  durationMin: 59
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/314171"
+      accessed: "2026-11-18"
+  status: reviewed
+specialties:
+  - id: shizuoka-oden
+    emoji: "🍢"
+    name: {ja: "{静岡|しずおか}おでん", en: "Shizuoka Oden", zh: "静冈关东煮"}
+    description:
+      ja:
+        kids: "{串|くし}にさしたおでんを、{黒|くろ}いおつゆで{煮|に}るよ。だし{粉|こ}をかけて{食|た}べるんだ。"
+        adult: "{黒|くろ}はんぺんや{牛|ぎゅう}すじを{串|くし}に{刺|さ}し、{黒|くろ}っぽい{汁|しる}で{煮|に}た{静岡市|しずおかし}のおでんで、{魚|さかな}のだし{粉|こ}をふって{食|た}べます。"
+      en:
+        kids: "Oden on sticks, simmered in dark broth and sprinkled with fish dashi powder."
+        adult: "Shizuoka's oden: black hanpen fish cake and beef tendon on skewers, simmered in dark broth and eaten with fish dashi powder."
+      zh:
+        kids: "串起来的关东煮在黑色汤汁里煮，撒上鱼干粉来吃。"
+        adult: "把黑半片鱼糕和牛筋串起来，在深色汤汁里炖煮，撒上鱼干粉食用，是静冈市的关东煮。"
+    sources:
+      - title: "静岡おでん 静岡県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/36_16_shizuoka.html"
+        accessed: "2026-11-18"
+    status: reviewed
+  - id: sakuraebi-kakiage
+    emoji: "🍤"
+    name: {ja: "サクラエビのかき{揚|あ}げ", en: "Sakura Shrimp Kakiage", zh: "樱花虾什锦天妇罗"}
+    description:
+      ja:
+        kids: "{駿河湾|するがわん}でとれるサクラエビを、かき{揚|あ}げにして{食|た}べるよ。"
+        adult: "{国内|こくない}のサクラエビの{水揚|みずあ}げは{駿河湾|するがわん}だけで、かき{揚|あ}げにして、{丼|どんぶり}やそばにのせても{食|た}べます。"
+      en:
+        kids: "Sakura shrimp caught in Suruga Bay, made into kakiage fritters."
+        adult: "Sakura shrimp are landed in Japan only in Suruga Bay. They are fried as kakiage fritters, and also served on rice bowls or noodles."
+      zh:
+        kids: "把在骏河湾捕到的樱花虾做成什锦天妇罗吃。"
+        adult: "日本国内的樱花虾只在骏河湾捕捞，做成什锦天妇罗，也可以盖在饭或面上吃。"
+    sources:
+      - title: "サクラエビのかき揚げ 静岡県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/36_28_shizuoka.html"
+        accessed: "2026-11-18"
+    status: reviewed
+  - id: abekawa-mochi
+    emoji: "🍡"
+    name: {ja: "{安倍川|あべかわ}もち", en: "Abekawa Mochi", zh: "安倍川年糕"}
+    description:
+      ja:
+        kids: "きなこと{砂糖|さとう}をまぶした、むかしの{本|ほん}にも{出|で}てくるおもちだよ。"
+        adult: "{江戸時代|えどじだい}に{書|か}かれた「{東海道中膝栗毛|とうかいどうちゅうひざくりげ}」に{出|で}てくる、きな{粉|こ}と{砂糖|さとう}をまぶした{餅|もち}です。"
+      en:
+        kids: "Rice cake dusted with sweet soybean flour, mentioned in an old book."
+        adult: "Rice cake coated in sugared kinako soybean flour, which appears in the book Tokaido-chu Hizakurige, written in the Edo period."
+      zh:
+        kids: "裹着黄豆粉和砂糖的年糕，在古时候的书里也出现过。"
+        adult: "裹着加了砂糖的黄豆粉的年糕，出现在江户时代写成的《东海道中膝栗毛》中。"
+    sources:
+      - title: "安倍川もち 静岡県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/36_18_shizuoka.html"
+        accessed: "2026-11-18"
+    status: reviewed
+spots:
+  - id: fuji-san
+    emoji: "🗻"
+    name: {ja: "{富士山|ふじさん}", en: "Mount Fuji", zh: "富士山"}
+    description:
+      ja:
+        kids: "{日本|にほん}でいちばん{高|たか}い{山|やま}で、{世界文化遺産|せかいぶんかいさん}だよ。"
+        adult: "{標高|ひょうこう}3,776mの{日本一|にほんいち}{高|たか}い{山|やま}で、2013{年|ねん}に{世界文化遺産|せかいぶんかいさん}になった{活火山|かっかざん}です。"
+      en:
+        kids: "Japan's tallest mountain, listed as a World Cultural Heritage site."
+        adult: "An active volcano 3,776 m high, Japan's tallest mountain, registered as a World Cultural Heritage site in 2013."
+      zh:
+        kids: "日本最高的山，是世界文化遗产。"
+        adult: "日本最高的山，也是活火山，2013年成为世界文化遗产。"
+    sources:
+      - title: "富士山の顕著な普遍的価値｜世界遺産 富士山"
+        url: "https://www.fujisan-3776.jp/value/index.html"
+        accessed: "2026-11-18"
+    status: reviewed
+  - id: kunozan-toshogu
+    emoji: "⛩️"
+    name: {ja: "{久能山東照宮|くのうざんとうしょうぐう}", en: "Kunozan Toshogu Shrine", zh: "久能山东照宫"}
+    description:
+      ja:
+        kids: "{徳川家康|とくがわいえやす}をまつっている、{国宝|こくほう}の{建物|たてもの}がある{神社|じんじゃ}だよ。"
+        adult: "{徳川家康|とくがわいえやす}をまつる、{全国|ぜんこく}の{東照宮|とうしょうぐう}のはじまりの{神社|じんじゃ}で、{社殿|しゃでん}は{国宝|こくほう}です。"
+      en:
+        kids: "A shrine to Tokugawa Ieyasu with a National Treasure shrine building."
+        adult: "The original of Japan's Toshogu shrines, enshrining Tokugawa Ieyasu, with shrine buildings designated a National Treasure."
+      zh:
+        kids: "这是供奉德川家康、有国宝社殿的神社。"
+        adult: "供奉德川家康，是全国东照宫的发祥地，社殿是国宝。"
+    sources:
+      - title: "久能山東照宮｜静岡"
+        url: "https://www.toshogu.or.jp/"
+        accessed: "2026-11-18"
+    status: reviewed
+  - id: hamana-ko
+    emoji: "🌊"
+    name: {ja: "{浜名湖|はまなこ}", en: "Lake Hamana", zh: "滨名湖"}
+    description:
+      ja:
+        kids: "{海|うみ}の{水|みず}と{湖|みずうみ}の{水|みず}がまざっている{湖|みずうみ}だよ。"
+        adult: "{海|うみ}の{水|みず}と{湖|みずうみ}の{水|みず}が{混|ま}ざる{汽水湖|きすいこ}で、{湖岸|こがん}の{長|なが}さは{汽水湖|きすいこ}で{日本一|にほんいち}です。"
+      en:
+        kids: "A lake where sea water and lake water mix together."
+        adult: "A brackish lake mixing sea and lake water, with Japan's longest shoreline among such lakes."
+      zh:
+        kids: "海水和湖水混合在一起的湖泊。"
+        adult: "海水与湖水混合的半咸水湖，湖岸线长度在日本的半咸水湖中居首。"
+    sources:
+      - title: "船で旅する浜名湖 舟運 |"
+        url: "https://hamamatsu-daisuki.net/cruise/"
+        accessed: "2026-11-18"
+    status: reviewed

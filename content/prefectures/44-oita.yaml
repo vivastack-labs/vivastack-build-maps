@@ -17,5 +17,127 @@ capital:
     zh: "大分市"
   lat: 33.237781
   lon: 131.612536
-specialties: []
-spots: []
+access:
+  emoji: "✈️"
+  mode: {ja: "{飛行機|ひこうき}", en: "Plane", zh: "飞机"}
+  route:
+    ja: "{羽田空港|はねだくうこう} → {大分空港|おおいたくうこう}"
+    en: "Haneda Airport → Oita Airport"
+    zh: "羽田机场 → 大分机场"
+  # JAL663便：羽田 09:45 発 → 大分 11:30 着（105分。2026年10月25日〜11月30日の時刻表。12月1日からの時刻表では 09:40 発 → 11:25 着で、同じ105分）。空港までの移動・搭乗手続きは含めない
+  durationMin: 105
+  sources:
+    - title: "時刻表 | 大分空港 Welcome to Oita Airport"
+      url: "https://www.oita-airport.jp/timetable/"
+      accessed: "2026-11-18"
+  status: reviewed
+specialties:
+  - id: ryukyu
+    emoji: "🐟"
+    name: {ja: "りゅうきゅう", en: "Ryukyu Fish in Sesame Sauce", zh: "琉球渍鱼"}
+    description:
+      ja:
+        kids: "たれに{漬|つ}けた{魚|さかな}を、ごはんにのせたり、お{茶漬|ちゃづ}けにしたりして{食|た}べるよ。"
+        adult: "{地元|じもと}の{魚|さかな}を、ごまやしょうがを{使|つか}ったたれに{漬|つ}けた{料理|りょうり}です。ごはんにのせても、お{茶漬|ちゃづ}けにしても{食|た}べます。"
+      en:
+        kids: "Fish is soaked in sauce, then eaten on rice or with tea poured over the rice."
+        adult: "Local fish marinated in a sauce made with sesame and ginger. It is eaten over rice or with tea poured over the rice."
+      zh:
+        kids: "把鱼泡在酱汁里，可以盖在米饭上吃，也可以做成茶泡饭。"
+        adult: "用芝麻和姜调制的酱汁腌渍本地的鱼，可以盖在米饭上吃，也可以做成茶泡饭。"
+    sources:
+      - title: "りゅうきゅう 大分県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/ryukyu_oita.html"
+        accessed: "2026-11-18"
+    status: reviewed
+  - id: dango-jiru
+    emoji: "🍲"
+    name: {ja: "だんご{汁|じる}", en: "Dango-jiru Dumpling Soup", zh: "团子汤"}
+    description:
+      ja:
+        kids: "{小麦粉|こむぎこ}のだんごを{平|たい}らにのばして、{具|ぐ}と{一緒|いっしょ}にみそ{汁|しる}に{入|い}れるんだ。"
+        adult: "{小麦粉|こむぎこ}の{生地|きじ}を{平|たい}らにのばしただんごを、{具|ぐ}と{味噌|みそ}の{汁|しる}で{煮|に}ます。{秋|あき}の{初|はじ}めから{冬|ふゆ}に、よく{食卓|しょくたく}に{並|なら}びました。"
+      en:
+        kids: "Flour dough is flattened into dumplings and put in miso soup with other ingredients."
+        adult: "Flattened dumplings of wheat-flour dough are simmered with other ingredients in miso soup. The soup often appeared on tables from early autumn through winter."
+      zh:
+        kids: "把面粉面团压平做成团子，和配料一起放进味噌汤里。"
+        adult: "把面粉面团压平做成团子，和配料一起放进味噌汤里煮，秋初至冬季常上餐桌。"
+    sources:
+      - title: "だんご汁 大分県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/dangojiru_oita.html"
+        accessed: "2026-11-18"
+    status: reviewed
+  - id: toriten
+    emoji: "🍗"
+    name: {ja: "とり{天|てん}", en: "Toriten Fried Chicken", zh: "鸡肉天妇罗"}
+    description:
+      ja:
+        kids: "とり{肉|にく}をてんぷらみたいに{揚|あ}げて、からしとすじょうゆで{食|た}べるよ。"
+        adult: "{鶏肉|とりにく}を{天|てん}ぷらの{衣|ころも}で{揚|あ}げた{料理|りょうり}で、{別府市|べっぷし}のレストランが{始|はじ}まりといわれます。{酢醤油|すじょうゆ}とからしで{食|た}べます。"
+      en:
+        kids: "Chicken fried like tempura. People eat it with mustard and vinegar soy sauce."
+        adult: "Chicken fried in tempura batter, said to have started at a restaurant in Beppu City. It is eaten with vinegar soy sauce and karashi mustard."
+      zh:
+        kids: "把鸡肉像天妇罗一样炸好，蘸着黄芥末和醋酱油吃。"
+        adult: "把鸡肉裹上天妇罗面衣油炸，据说起源于别府市的一家餐厅，蘸醋酱油和黄芥末食用。"
+    sources:
+      - title: "とり天 大分県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/toriten_oita.html"
+        accessed: "2026-11-18"
+    status: reviewed
+spots:
+  - id: beppu-jigoku
+    emoji: "♨️"
+    name: {ja: "{別府地獄|べっぷじごく}めぐり", en: "Beppu Jigoku Tour", zh: "别府地狱巡游"}
+    description:
+      ja:
+        kids: "{熱|あつ}い{温泉|おんせん}がふき{出|だ}すところを{見|み}て{回|まわ}るよ。"
+        adult: "100{度|ど}{近|ちか}い{湯|ゆ}が{噴|ふ}き{出|だ}す{源泉|げんせん}など、7つの{地獄|じごく}を{回|まわ}れます。うち4つは{国|くに}の{名勝|めいしょう}です。"
+      en:
+        kids: "You can tour places where very hot spring water gushes out."
+        adult: "Tour seven hot spring 'hells,' including sources spouting water near 100°C. Four are national scenic sites."
+      zh:
+        kids: "可以参观喷出滚烫温泉的地方。"
+        adult: "参观7个地狱，其中有接近100度的温泉源头，4个是国家名胜。"
+    sources:
+      - title: "別府地獄めぐり公式サイト(別府地獄組合)"
+        url: "https://beppu-jigoku.com/"
+        accessed: "2026-11-18"
+    status: reviewed
+  - id: usa-jingu
+    emoji: "⛩️"
+    name: {ja: "{宇佐神宮|うさじんぐう}", en: "Usa Jingu Shrine", zh: "宇佐神宫"}
+    description:
+      ja:
+        kids: "{全国|ぜんこく}の{八幡社|はちまんしゃ}の{大元|おおもと}にあたる{神社|じんじゃ}だよ。"
+        adult: "725{年|ねん}に{建|た}てられた、{全国|ぜんこく}の{八幡社|はちまんしゃ}の{総本宮|そうほんぐう}です。{国宝|こくほう}の{本殿|ほんでん}があります。"
+      en:
+        kids: "This is the head shrine of all the Hachiman shrines across Japan."
+        adult: "Built in 725, it heads the Hachiman shrines across Japan and has a National Treasure main hall."
+      zh:
+        kids: "这座神社是全国各地八幡神社的源头。"
+        adult: "建于725年，是全国八幡神社的总本宫，本殿是国宝。"
+    sources:
+      - title: "宇佐神宮／宇佐市"
+        url: "https://www.city.usa.oita.jp/tourist/touristspot/touristspot2/touristspot3/10171.html"
+        accessed: "2026-11-18"
+    status: reviewed
+  - id: usuki-sekibutsu
+    emoji: "🙏"
+    name: {ja: "{臼杵石仏|うすきせきぶつ}", en: "Usuki Stone Buddhas", zh: "臼杵石佛"}
+    description:
+      ja:
+        kids: "{岩|いわ}に{彫|ほ}られた、{昔|むかし}の{仏|ほとけ}さまたちだよ。"
+        adult: "{平安末期|へいあんまっき}から{鎌倉時代|かまくらじだい}に{彫|ほ}られたといわれる{磨崖仏|まがいぶつ}で、61{体|たい}すべてが{国宝|こくほう}です。"
+      en:
+        kids: "These Buddha statues were carved into the rock long ago."
+        adult: "Rock-cut Buddhas said to date from the late Heian to Kamakura periods; all 61 are National Treasures."
+      zh:
+        kids: "刻在岩壁上的很久以前的佛像。"
+        adult: "据说雕刻于平安末期至镰仓时代的摩崖佛，61尊全是国宝。"
+    sources:
+      - title: "国宝臼杵石仏"
+        url: "https://sekibutsu.com/"
+        accessed: "2026-11-18"
+    status: reviewed

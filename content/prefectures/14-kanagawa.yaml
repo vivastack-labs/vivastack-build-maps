@@ -17,5 +17,127 @@ capital:
     zh: "横滨市"
   lat: 35.447741
   lon: 139.642309
-specialties: []
-spots: []
+access:
+  emoji: "🚆"
+  mode: {ja: "{電車|でんしゃ}", en: "Train", zh: "列车"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {横浜駅|よこはまえき}"
+    en: "Tokyo Station → Yokohama Station"
+    zh: "东京站 → 横滨站"
+  # 1855E：土休日、東京10:18発、横浜10:45着。JR東日本2026年11月時刻表。
+  durationMin: 27
+  sources:
+    - title: "時刻表　上野東京ライン 南行：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/timetable-v/295d2p.html"
+      accessed: "2026-11-19"
+  status: reviewed
+specialties:
+  - id: sanmamen
+    emoji: "🍜"
+    name: {ja: "サンマーメン", en: "Sanmamen", zh: "生马面"}
+    description:
+      ja:
+        kids: "とろみのある{野菜|やさい}あんをラーメンにのせた、{横浜|よこはま}で{生|う}まれた{料理|りょうり}だよ。"
+        adult: "{横浜|よこはま}で{生|う}まれた{料理|りょうり}です。もやしや{豚肉|ぶたにく}などを{炒|いた}め、とろみをつけたあんをラーメンにのせます。"
+      en:
+        kids: "This ramen dish originated in Yokohama and is topped with vegetables in a thick sauce."
+        adult: "This dish originated in Yokohama and tops ramen with a thick sauce of stir-fried bean sprouts, pork, and other ingredients."
+      zh:
+        kids: "这种拉面起源于横滨，上面浇着浓稠的蔬菜酱汁。"
+        adult: "发源于横滨的面食，将豆芽和猪肉等炒后勾芡，浇在拉面上。"
+    sources:
+      - title: "サンマーメン 神奈川県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/35_16_kanagawa.html"
+        accessed: "2026-11-19"
+    status: reviewed
+  - id: kenchin-jiru
+    emoji: "🍲"
+    name: {ja: "けんちん{汁|じる}", en: "Kenchin Soup", zh: "什锦蔬菜汤"}
+    description:
+      ja:
+        kids: "{大根|だいこん}やにんじんを{炒|いた}めて{煮|に}こむ{汁物|しるもの}だよ。{豆腐|とうふ}も{入|はい}るんだ。"
+        adult: "くずした{豆腐|とうふ}を{加|くわ}える{汁物|しるもの}です。{大根|だいこん}やにんじんなどを{油|あぶら}で{炒|いた}めてから{煮|に}こみます。"
+      en:
+        kids: "Radish and carrots are fried and simmered in this soup, which also contains tofu."
+        adult: "Crumbled tofu is added to this soup. Vegetables such as radish and carrots are fried in oil and simmered."
+      zh:
+        kids: "把萝卜和胡萝卜炒后煮成汤，还会加入豆腐。"
+        adult: "将萝卜和胡萝卜等蔬菜用油炒后煮成汤，加入碎豆腐。"
+    sources:
+      - title: "けんちん汁 神奈川県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/35_1_kanagawa.html"
+        accessed: "2026-11-19"
+    status: reviewed
+  - id: tonzuke
+    emoji: "🍖"
+    name: {ja: "とん{漬|づ}け", en: "Tonzuke", zh: "味噌腌猪肉"}
+    description:
+      ja:
+        kids: "{豚肉|ぶたにく}をみそに{漬|つ}けた、{厚木|あつぎ}の{名物|めいぶつ}だよ。{焼|や}いて{食|た}べるんだ。"
+        adult: "{厚木市|あつぎし}の{名物|めいぶつ}で、{豚肉|ぶたにく}をみそに{漬|つ}けた{料理|りょうり}です。フライパンや{網|あみ}で{焼|や}いて{食|た}べます。"
+      en:
+        kids: "This Atsugi specialty is pork marinated in miso, a soybean paste, and then cooked."
+        adult: "An Atsugi specialty of pork marinated in miso, a soybean paste, and cooked in a pan or on a grill."
+      zh:
+        kids: "厚木的名物，把猪肉用味噌腌制后做熟吃。"
+        adult: "厚木市的名物，将猪肉用味噌腌制后，用平底锅煎熟或用烤网烤熟。"
+    sources:
+      - title: "とん漬け 神奈川県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/35_6_kanagawa.html"
+        accessed: "2026-11-19"
+    status: reviewed
+spots:
+  - id: hakone-cruise
+    emoji: "🚢"
+    name: {ja: "{箱根海賊船|はこねかいぞくせん}", en: "Hakone Sightseeing Cruise", zh: "箱根海盗船"}
+    description:
+      ja:
+        kids: "{芦|あし}ノ{湖|こ}を{船|ふね}でめぐり、{箱根|はこね}の{景色|けしき}を{楽|たの}しめるよ。"
+        adult: "{芦|あし}ノ{湖|こ}を{遊覧|ゆうらん}する{船|ふね}です。{湖|みずうみ}の{周|まわ}りの{自然|しぜん}や{富士山|ふじさん}を{眺|なが}められます。"
+      en:
+        kids: "Cruise around Lake Ashi and enjoy the scenery of Hakone."
+        adult: "A sightseeing boat on Lake Ashi offers views of Mount Fuji and the surrounding nature."
+      zh:
+        kids: "乘船游览芦之湖，欣赏箱根的风景。"
+        adult: "游船在芦之湖航行，可以欣赏湖周围的自然风光和富士山。"
+    sources:
+      - title: "箱根海賊船（箱根観光船）｜体験・観光スポット　｜【公式】神奈川県のお出かけ・観光・旅行サイト「観光かながわNOW」"
+        url: "https://www.kanagawa-kankou.or.jp/spot/724"
+        accessed: "2026-11-19"
+    status: reviewed
+  - id: yokohama-red-brick
+    emoji: "🏠"
+    name: {ja: "{横浜|よこはま}{赤|あか}レンガ{倉庫|そうこ}", en: "Yokohama Red Brick Warehouse", zh: "横滨红砖仓库"}
+    description:
+      ja:
+        kids: "{海|うみ}のそばの{赤|あか}レンガの{建物|たてもの}に、お{店|みせ}やカフェがあるよ。"
+        adult: "{明治|めいじ}の{終|お}わりから{大正|たいしょう}の{初|はじ}めごろの{海辺|うみべ}の{赤|あか}レンガ{倉庫|そうこ}で、{店|みせ}やカフェがあります。"
+      en:
+        kids: "These red-brick buildings by the sea have shops and cafes inside."
+        adult: "These waterfront red-brick warehouses date from the late Meiji and early Taisho eras and house shops and cafes."
+      zh:
+        kids: "海边的红砖建筑里有商店和咖啡馆。"
+        adult: "临海的红砖仓库里有商店和咖啡馆，建筑建于明治末至大正初。"
+    sources:
+      - title: "横浜赤レンガ倉庫｜体験・観光スポット　｜【公式】神奈川県のお出かけ・観光・旅行サイト「観光かながわNOW」"
+        url: "https://www.kanagawa-kankou.or.jp/kanagawayokohamadc/spot/109"
+        accessed: "2026-11-19"
+    status: reviewed
+  - id: kamakura-daibutsu
+    emoji: "🗿"
+    name: {ja: "{鎌倉大仏|かまくらだいぶつ}", en: "Great Buddha of Kamakura", zh: "镰仓大佛"}
+    description:
+      ja:
+        kids: "{鎌倉|かまくら}の{高徳院|こうとくいん}にある{大|おお}きな{仏像|ぶつぞう}だよ。"
+        adult: "{鎌倉|かまくら}の{高徳院|こうとくいん}にある{大|おお}きな{阿弥陀如来|あみだにょらい}の{像|ぞう}で、{国宝|こくほう}に{指定|してい}されています。"
+      en:
+        kids: "A large Buddha statue stands at Kotoku-in temple in Kamakura."
+        adult: "This large statue of Amida Buddha at Kotoku-in temple in Kamakura is designated a National Treasure."
+      zh:
+        kids: "镰仓高德院里有一座大佛像。"
+        adult: "镰仓高德院的大型阿弥陀如来像被指定为国宝。"
+    sources:
+      - title: "鎌倉大仏殿高徳院"
+        url: "https://kotoku-in.jp/about.html"
+        accessed: "2026-11-19"
+    status: reviewed
