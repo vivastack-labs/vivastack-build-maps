@@ -88,6 +88,7 @@ pnpm screenshots > <ファイル>   # PRに載せる after（今の作業ツリ�
   - Environment（production は `v*` タグだけ。どちらもオーナーの承認）
   - Team `maps-reviewers`（Write。実行者はメンバーから外す）
   - Actions の権限（SHA 固定の必須・fork の PR の承認）
+  - merge した PR のブランチの自動削除
   - Secret scanning・push protection、脆弱性の非公開の報告・Dependabot alerts
 - 既定は確かめるだけ（GET と、今の値と違うものの「送る予定の書き込み」の表示だけ。同じなら「変更なし」）。`--apply` で反映する。何度実行しても同じ結果。
 - Team の操作に `gh auth refresh -h github.com -s admin:org` が要る。Secrets は扱わない。

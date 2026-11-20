@@ -1129,6 +1129,7 @@ flowchart TB
 | CODEOWNERS | `*`（リポジトリ全体）はオーナー。`/content/prefectures/`（都道府県の YAML）は `@vivastack-labs/maps-reviewers`。スキーマ（`content/schema/`）・lint の設定・執筆ルール（`content/guidelines/`）は検査とルールを変えるので、オーナーのまま |
 | Team | `maps-reviewers` を作成し、リポジトリにWrite権限を付ける |
 | Actionsの権限 | 既定は `contents: read`。必要なjobだけで権限を追加する。Actions に PR の承認をさせない。fork からの PR の workflow は、外部の人すべてで承認が要る（public にしたため）。Action はコミットの SHA で固定することを必須にする |
+| ブランチの自動削除 | merge した PR のブランチを自動で消す（`delete_branch_on_merge`。merge 済みのブランチが PR ごとに増えないように） |
 | セキュリティ | Secret scanning と push protection を有効にする（public では無料。gitleaks の CI と二重に守る）。Dependabot alerts と、脆弱性の非公開の報告（private vulnerability reporting）を有効にする |
 | Dependabot | npmとGitHub Actionsの更新を週1回提案させる。公開から7日たっていない版は提案しない（`cooldown`）。npm の minor・patch は1つのPRにまとめる |
 

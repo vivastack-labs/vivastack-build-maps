@@ -309,6 +309,14 @@ const planActions: Planner = async get => {
   return changes;
 };
 
+/** リポジトリの設定：merge した PR のブランチを自動で消す */
+const planRepository: Planner = async get =>
+  ensure(get, {
+    readPath: repoPath,
+    want: GITHUB_SETTINGS.repository,
+    write: change('PATCH', repoPath, 'merge した PR のブランチを自動で消す', GITHUB_SETTINGS.repository)
+  });
+
 /** セキュリティ：Secret scanning・push protection・脆弱性の非公開の報告・Dependabot alerts を有効にする（public では無料） */
 const planSecurity: Planner = async get => {
   const reportingPath = `${repoPath}/private-vulnerability-reporting`;
@@ -331,6 +339,7 @@ const STEPS: readonly (readonly [string, Planner])[] = [
   ['Environment', planEnvironments],
   ['Team', planTeam],
   ['Actions', planActions],
+  ['リポジトリ', planRepository],
   ['セキュリティ', planSecurity]
 ];
 
