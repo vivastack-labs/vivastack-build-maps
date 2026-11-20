@@ -142,6 +142,12 @@ export const zh: Messages = {
   },
   privacy: {
     title: '隐私政策',
+    contact: {
+      heading: '网站运营者与联系方式',
+      operatorLabel: '网站运营者',
+      reportsLabel: '报告内容错误或功能问题',
+      publicNotice: '在 GitHub Issues 上发布的内容是公开的。请勿填写姓名、电子邮箱等个人信息。'
+    },
     analytics: {
       heading: '访问分析',
       body: '为了了解哪些页面被浏览，本网站使用 Cloudflare Web Analytics。它不使用 Cookie，也不会识别访问者个人。我们查看的是汇总后的页面路径、来源网站（引荐来源）、国家或地区、浏览器、操作系统、设备类型和页面显示速度。',

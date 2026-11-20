@@ -18,9 +18,9 @@ describe('Footer', () => {
     expect(screen.getAllByRole('contentinfo')).toHaveLength(1);
   });
 
-  test.each(LANGS)('地図データの出典と AI の明記を出す（F-SRC-04。%s）', lang => {
+  test.each(LANGS)('説明ページに地図データの出典と AI の明記を出す（F-SRC-04。%s）', lang => {
     // Arrange・Act
-    const { container } = render(<Footer lang={lang} page="home" />);
+    const { container } = render(<Footer lang={lang} page="privacy" />);
 
     // Assert：文は「前 + URL + 後」。リンクは URL の文字で、同じタブで開く
     const messages = getMessages(lang).footer;
@@ -36,7 +36,7 @@ describe('Footer', () => {
 
   test('F-SRC-04：日本語はふりがなつきで、「国土数値情報」と「AIで作成し、人が確認しています」を含む', () => {
     // Arrange・Act
-    const { container } = render(<Footer lang="ja" page="home" />);
+    const { container } = render(<Footer lang="ja" page="privacy" />);
 
     // Assert
     expect(container.querySelector('[data-footer-map-source] ruby')).not.toBeNull();
@@ -46,8 +46,8 @@ describe('Footer', () => {
 
   test('F-SRC-04：英語・中国語の文言', () => {
     // Arrange・Act
-    const en = render(<Footer lang="en" page="home" />).container;
-    const zh = render(<Footer lang="zh" page="home" />).container;
+    const en = render(<Footer lang="en" page="privacy" />).container;
+    const zh = render(<Footer lang="zh" page="privacy" />).container;
 
     // Assert
     expect(en.querySelector('[data-footer-ai]')?.textContent).toBe('Created with AI and checked by people');
@@ -56,7 +56,7 @@ describe('Footer', () => {
     expect(zh.querySelector('[data-footer-map-source]')?.textContent).toContain('国土数值信息');
   });
 
-  test.each(LANGS)('F-SRC-04：「このサイトについて」・プライバシーポリシーへのリンクがある（%s。T4-05）', lang => {
+  test.each(LANGS)('F-SRC-04：トップのフッターには説明ページへのリンクを出す（%s）', lang => {
     // Arrange・Act
     const { container } = render(<Footer lang={lang} page="home" />);
 
@@ -68,7 +68,8 @@ describe('Footer', () => {
     expect(textWithoutRuby(about)).toBe(plainText(messages.about));
     expect(privacy.getAttribute('href')).toBe(`/${lang}/privacy/`);
     expect(textWithoutRuby(privacy)).toBe(plainText(messages.privacy));
-    expect(container.querySelector('[data-footer-ai]')?.compareDocumentPosition(about)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(container.querySelector('[data-footer-map-source]')).not.toBeInTheDocument();
+    expect(container.querySelector('[data-footer-ai]')).not.toBeInTheDocument();
   });
 
   test.each([
