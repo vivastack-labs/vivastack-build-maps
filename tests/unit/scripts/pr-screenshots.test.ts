@@ -229,7 +229,7 @@ describe('publishScreenshots（実際の git）', () => {
     git(repo, 'config', 'user.name', 'test');
     git(repo, 'config', 'user.email', 'test@example.com');
     git(repo, 'remote', 'add', 'origin', remote);
-    // AGENTS.md の準備：screenshots をふだんの fetch の対象から外す
+    // docs/development-commands.md の準備：screenshots をふだんの fetch の対象から外す
     git(repo, 'config', '--add', 'remote.origin.fetch', '^refs/heads/screenshots');
     return { remote, repo };
   };

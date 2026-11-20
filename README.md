@@ -10,7 +10,7 @@
 - Node.js：`.nvmrc` の版（26）。[nvm](https://github.com/nvm-sh/nvm) で入れる。
 - pnpm：`package.json` の `packageManager` の版。corepack で有効にする（npm・yarn は使わない）。
 - yamllint 1.33.0：`pnpm lint` が使う（Python 製なので、pnpm では入らない。例：`pipx install yamllint==1.33.0`）。
-- Playwright のブラウザ：E2E（`pnpm test:e2e`）を動かすときだけ。入れ方は [AGENTS.md](AGENTS.md) の「E2E の準備」。
+- Playwright のブラウザ：E2E（`pnpm test:e2e`）を動かすときだけ。入れ方は [docs/development-commands.md](docs/development-commands.md) の「E2E」。
 - Windows では WSL2（Ubuntu）の中で作業する。
 
 ## セットアップ
@@ -40,7 +40,7 @@ pnpm test:e2e          # Playwright（PC・スマホ・タブレット）
 pnpm content:validate  # コンテンツの YAML を検証する
 ```
 
-ほかのコマンド（地図データの変換、ふりがなの自動付与、サイズの計測、Lighthouse CI など）と、細かい注意は [AGENTS.md](AGENTS.md) の「コマンド」にある。
+ほかのコマンド（地図データの変換、ふりがなの自動付与、サイズの計測、Lighthouse CI など）と、細かい注意は [docs/development-commands.md](docs/development-commands.md) にある。
 
 ## 開発の流れ
 
@@ -69,7 +69,7 @@ Codex を使う場合は、[hooks の有効化手順と対応表](.codex/hooks/R
 | `tests/` | 単体テスト、データの検査、E2E |
 | `docs/` | 設計書、開発計画、タスクの定義、実装メモ |
 
-全部の表は [AGENTS.md](AGENTS.md) の「ディレクトリ」にある。
+詳しい表は [AGENTS.md](AGENTS.md) の「ディレクトリ」にある。
 
 ## 文書
 
@@ -79,7 +79,8 @@ Codex を使う場合は、[hooks の有効化手順と対応表](.codex/hooks/R
 - `docs/architecture/`：機能ごとの実装メモ（[地図](docs/architecture/map.md)・[カード](docs/architecture/card.md)・[多言語とモード](docs/architecture/i18n-mode.md)・[配信と品質](docs/architecture/platform.md)）
 - [docs/device-checklist.md](docs/device-checklist.md)：公開前に実機で確かめる項目
 - [content/guidelines/writing.md](content/guidelines/writing.md)・[review-checklist.md](content/guidelines/review-checklist.md)：コンテンツの執筆ルールとレビューの基準
-- [AGENTS.md](AGENTS.md)：Claude Code と Codex の共通の指示（コマンド・ディレクトリ・規約）
+- [AGENTS.md](AGENTS.md)：Claude Code と Codex の共通の指示（ディレクトリ・規約）
+- [docs/development-commands.md](docs/development-commands.md)：開発のコマンドと細かい注意
 - [CHANGELOG.md](CHANGELOG.md)：変更履歴
 
 ## ライセンス

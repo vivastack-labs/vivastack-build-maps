@@ -107,7 +107,7 @@ export type PublishResult = {
 /**
  * screenshots ブランチの先頭の commit を返す。ブランチがなければ空。
  * 問い合わせの失敗は止める（ブランチがないとみなすと、親のない commit を作ってしまう）。
- * 先頭の commit だけを取り、追跡ブランチは作らない（ふだんの fetch の対象から外しているため。AGENTS.md）
+ * 先頭の commit だけを取り、追跡ブランチは作らない（ふだんの fetch の対象から外しているため。docs/development-commands.md）
  */
 const remoteParent = (run: Run, cwd: string): string => {
   if (run('git', ['ls-remote', '--heads', 'origin', BRANCH_REF], { cwd }).trim() === '') return '';

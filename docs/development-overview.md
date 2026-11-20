@@ -1153,10 +1153,10 @@ flowchart TB
 | wrangler | v4（devDependencyとして入れる） |
 | mapshaper | npm（devDependency） |
 | yamllint | 1.33.0（`pnpm lint` が使う。Python 製で pnpm では入らないので、`pipx install yamllint==1.33.0` などで入れる。CI の版と同じ） |
-| Playwright | E2E を動かすときだけ、`pnpm exec playwright install chromium firefox webkit`。Linux（WSL を含む）では、システムのライブラリも要る（`AGENTS.md` の「E2E の準備」） |
+| Playwright | E2E を動かすときだけ、`pnpm exec playwright install chromium firefox webkit`。Linux（WSL を含む）では、システムのライブラリも要る（`docs/development-commands.md` の「E2E」） |
 | Claude Code | リポジトリ直下で起動する。`.claude/settings.json` の許可リストに `Bash(pnpm *)` を追加済み |
 
-手順は `README.md` の「セットアップ」、コマンドの一覧と細かい注意は `AGENTS.md` の「コマンド」に書く（同じ説明を2か所以上に書かない）。
+手順は `README.md` の「セットアップ」、コマンドの一覧と細かい注意は `docs/development-commands.md` に書く（同じ説明を2か所以上に書かない）。
 
 - デプロイは CI だけで行う（12.1〜12.3）。手元から `wrangler deploy` はしない（障害時の切り戻し〔第13章〕を除く）。
 

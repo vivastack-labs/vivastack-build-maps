@@ -25,7 +25,7 @@
 | 前提 | 中身 | 引き継ぎ・単独作業への影響 |
 |---|---|---|
 | 共通の指示 | `AGENTS.md` を両方が読む。`CLAUDE.md` は `@AGENTS.md` | 引き継ぎの決まりは `AGENTS.md` に短く書く（32KiB の上限に注意） |
-| ブランチ | データ整備の間（T5-05）は `develop` から切り、PR は `develop` 向け。`develop` 向けの PR では CI もレビューも動かない | Codex は `--base develop` で PR を出す。merge はオーナーだけ |
+| ブランチ | `main` から切り、PR は `main` 向け。PR ごとに CI が動き、承認1件が要る | Codex は `--base main` で PR を出す。merge はオーナーだけ |
 | 並行作業 | 県ごとに worktree（`vivastack-build-maps.wt/hiroshima` など）。メインのセッションが背景のエージェントに任せる | Claude が止まると全部の worktree が同時に止まる。worktree ごとに引き継ぐ |
 | スキル | `next-task`・`gotouchi-content` は `.claude/skills/` と `.agents/skills/` の両方にある（D22） | Codex は引き継いだ後も `.agents/skills/` の手順に従う（Claude のスキルは参照だけ） |
 | エージェント | Claude：`.claude/agents/`。Codex：`.codex/agents/` に `gotouchi-source-checker`・`gotouchi-derivative-checker`・`code-reviewer`・`security-reviewer`・`task-implementer`・`general-purpose` | 引き継いだ側が②④・レビューを自分のエージェントで行う。「Claude に戻ってからやること」は作らない |
@@ -45,7 +45,7 @@ flowchart LR
     S --> CX
     WT[作業ツリー・コミット<br/>計画ファイル] --> CX
     CX -- "持ち主を codex にする・進み具合" --> H
-    CX -- "自分のスキル・エージェントで<br/>②④・レビュー・security-trigger" --> PR[PR（develop 向け）]
+    CX -- "自分のスキル・エージェントで<br/>②④・レビュー・security-trigger" --> PR[PR（main 向け）]
     A[AGENTS.md<br/>引き継ぎの決まり] --> CC
     A --> CX
 ```
@@ -87,7 +87,7 @@ flowchart LR
 タスク：<T5-05 など> ／ 計画：<.claude/PRPs/plans/….plan.md> ／ スキルと手順：<gotouchi-content ③ など>
 
 ## ゴール
-<一文。develop 向けの PR を出すまで、など>
+<一文。main 向けの PR を出すまで、など>
 
 ## 次の一手（1つ目が再開点）
 - [ ] …
@@ -124,8 +124,8 @@ flowchart LR
 5. 「スキルと手順」に当たる **Codex のスキル**（`.agents/skills/next-task`・`gotouchi-content`）を読み、その手順の続きから従う。エージェントを呼ぶ手順は `.codex/agents/` の同じ役割のもので行う（②④、コードレビュー、セキュリティのレビュー）。飛ばさない。
 6. 区切りごとに `HANDOFF.md` を更新する（更新者 `codex`）。
 7. ②④を通った項目は、Codex の `gotouchi-content` の決まりどおり `verified` にしてよい。`reviewed` にはしない。
-8. コミットは security-trigger を通す（止められたら `.codex/agents/security-reviewer` でレビューし、`node .codex/hooks/mark-security-reviewed.js` の後に `git commit`。`git add` と `git commit` は分ける）。push と `gh pr create --base develop` まで行い（Codex の `prp-commit`・`prp-pr` を使ってよい）、PR の本文に「Claude Code から引き継いだ」ことと引き継いだ時点のコミットを書く。
-9. Codex がしないこと：merge、`main`・`develop` への直接の push、`reviewed` への変更、`git reset --hard`・`git clean`。
+8. コミットは security-trigger を通す（止められたら `.codex/agents/security-reviewer` でレビューし、`node .codex/hooks/mark-security-reviewed.js` の後に `git commit`。`git add` と `git commit` は分ける）。push と `gh pr create --base main` まで行い（Codex の `prp-commit`・`prp-pr` を使ってよい）、PR の本文に「Claude Code から引き継いだ」ことと引き継いだ時点のコミットを書く。
+9. Codex がしないこと：merge、`main` への直接の push、`reviewed` への変更、`git reset --hard`・`git clean`。
 
 ### 6.3 Claude が戻ったとき
 
@@ -190,7 +190,7 @@ flowchart LR
 | Codex → Claude の引き継ぎ（`/handoff resume`） | Codex が自分のスキル・エージェントで PR まで仕上げられるので、戻す必要がない。向きを1つにすると、持ち主の切り替えと台帳の書き手が単純になる。Codex が止まったら `codex resume` か `resume-session` で続ける |
 | 「Claude に戻ったらやること」 | Codex 側に検証・レビューのエージェントと security-trigger を揃えるので、Codex で済ませる |
 | WIP コミット | 作業ツリーは同じディスクにあり、コミットしなくても渡る。PR の履歴に残り、hook にも止められる |
-| リポジトリの直下の `HANDOFF.md`（Git で管理） | worktree が並行するため1つでは足りない。`develop` 向けの PR に混ざる |
+| リポジトリの直下の `HANDOFF.md`（Git で管理） | worktree が並行するため1つでは足りない。PR に混ざる |
 | `.codex-handoff/last-result.md` | Codex が PR まで出すので、結果は PR に残る |
 | `/checkpoint` の新設 | 既存の `.claude/commands/checkpoint.md`（git stash を使う別の動き）と名前がぶつかっていた。既存のものは使った記録がなく、`/handoff` と役割が重なるので削除した |
 | 公式プラグイン（codex-plugin-cc） | Claude から Codex を呼ぶためのもの。Claude が止まった後には使えない |
