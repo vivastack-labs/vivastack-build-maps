@@ -75,7 +75,8 @@ export function fitTransform(bounds: Bounds, size: Size, padding: number): ZoomT
  * 倍率の範囲。通常は 1〜8。最大化中は、県全体が収まる倍率（`fitScale`）より小さくならない（縮小しすぎない。4.11.2）。
  * 上限は、最大化で寄る範囲が収まる倍率（`focusScale`。省くと `fitScale`）の4倍（8 を下回らず、`MAX_ZOOM_SCALE` を超えない）。
  * 香川県・大阪府のように `fitScale` が大きい県でも、最大化したあとに拡大できる。
- * 東京都は寄る範囲（23区）が県全体より狭いので、`focusScale` が `fitScale` より大きい（D51）。小さいときは例外にする。
+ * 東京都は寄る範囲（23区）が県全体より狭いので、`focusScale` が `fitScale` より大きい（D51）。`focusScale` は `fitScale` 以上で、小さいときは例外にする。
+ * `fitScale` が `null`（最大化していない）のときは `focusScale` を見ない。
  */
 export function scaleExtent(fitScale: number | null, focusScale: number | null = fitScale): ScaleExtent {
   if (fitScale === null) return BASE_SCALE_EXTENT;

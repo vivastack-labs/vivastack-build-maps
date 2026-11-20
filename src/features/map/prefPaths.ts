@@ -40,8 +40,9 @@ export type PrefPath = {
 export const LABEL_FONT_SIZE: Readonly<Record<Lang, number>> = { ja: 16, en: 13, zh: 16 };
 
 /**
- * 最大化で寄る範囲から除く南の島。県コード → 北緯（度）。この緯度より南のポリゴンを除く。
- * 東京都（13）は小笠原村（父島・母島など）まで入れると本土が小さくなるので、本土と伊豆諸島に寄る（U16、D36）。
+ * 県全体の範囲（`fitBounds`。最大化中の縮小の下限）から除く南の島。県コード → 北緯（度）。この緯度より南のポリゴンを除く。
+ * 東京都（13）は小笠原村（父島・母島など）まで入れると本土が小さくなりすぎるので、本土と伊豆諸島までにする（U16、D36）。
+ * 最大化で寄る先は `FOCUS_AREAS`（23区。D51）。
  */
 export const FIT_EXCLUDE_SOUTH_OF: Readonly<Record<string, number>> = { '13': 28 };
 

@@ -50,7 +50,7 @@ export type MuniShapes = {
 const SHADE_COUNT = 5;
 /** ラベルの位置を求める精度（viewBox の単位） */
 const LABEL_PRECISION = 0.1;
-/** パスの座標の小数の桁数。0.01 は約 19m で、拡大の上限（`MAX_ZOOM_SCALE`、128倍）でも約 1px */
+/** パスの座標の小数の桁数。0.01 は約 19m で、拡大の上限（`MAX_ZOOM_SCALE`、128倍）でも 1px 前後 */
 const PATH_DIGITS = 2;
 
 type Point = readonly [number, number];

@@ -258,7 +258,7 @@ describe('buildPrefPaths', () => {
       expect(panBounds.x1).toBeGreaterThan(VIEWBOX.width);
     });
 
-    test('D51：東京都の focusBounds は FOCUS_AREAS（23区）の四隅を投影した外接矩形で、fitBounds の中にある', () => {
+    test('D51：東京都の focusBounds は FOCUS_AREAS（23区）の四隅を投影した外接矩形で、fitBounds の中にある狭い範囲である', () => {
       const mainland = island(139.0, 35.5, 0.9);
       const izu = island(139.7, 33.0, 0.2);
 
@@ -276,7 +276,11 @@ describe('buildPrefPaths', () => {
       expect(focusBounds.x1).toBeCloseTo(Math.max(...corners.map(([x]) => x)), 0);
       expect(focusBounds.y0).toBeCloseTo(Math.min(...corners.map(([, y]) => y)), 0);
       expect(focusBounds.y1).toBeCloseTo(Math.max(...corners.map(([, y]) => y)), 0);
-      // 寄る範囲は県全体よりずっと狭い（伊豆諸島を含まない）
+      // 寄る範囲は県全体の中にあり、ずっと狭い（伊豆諸島を含まない）
+      expect(focusBounds.x0).toBeGreaterThanOrEqual(fitBounds.x0);
+      expect(focusBounds.y0).toBeGreaterThanOrEqual(fitBounds.y0);
+      expect(focusBounds.x1).toBeLessThanOrEqual(fitBounds.x1);
+      expect(focusBounds.y1).toBeLessThanOrEqual(fitBounds.y1);
       expect(focusBounds.y1 - focusBounds.y0).toBeLessThan((fitBounds.y1 - fitBounds.y0) / 3);
       for (const value of Object.values(focusBounds)) expect(Math.round(value * 10) / 10).toBe(value);
     });

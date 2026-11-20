@@ -7,6 +7,7 @@ import type { GeometryCollection, Topology } from 'topojson-specification';
 import { describe, expect, test } from 'vitest';
 import { loadPrefPaths, type PrefPath } from '@/features/map/prefPaths';
 import { createProjection, VIEWBOX } from '@/features/map/projection';
+import { FIT_PADDING, fitTransform, scaleExtent } from '@/features/map/viewport';
 
 const paths = loadPrefPaths();
 const byCode = (code: string): PrefPath => {
@@ -70,6 +71,18 @@ describe('県の範囲（fitBounds・panBounds）', () => {
     expect(y0 - focusBounds.y0).toBeLessThan(1);
     expect(focusBounds.x1 - x1).toBeLessThan(1);
     expect(focusBounds.y1 - y1).toBeLessThan(1);
+  });
+
+  test('D51：どの県も focusBounds が panBounds の中にあり、収まる倍率が fitBounds 以上である（scaleExtent が例外にならない）', () => {
+    for (const { code, fitBounds, focusBounds, panBounds } of paths) {
+      expect(focusBounds.x0, `県 ${code} の x0`).toBeGreaterThanOrEqual(panBounds.x0);
+      expect(focusBounds.y0, `県 ${code} の y0`).toBeGreaterThanOrEqual(panBounds.y0);
+      expect(focusBounds.x1, `県 ${code} の x1`).toBeLessThanOrEqual(panBounds.x1);
+      expect(focusBounds.y1, `県 ${code} の y1`).toBeLessThanOrEqual(panBounds.y1);
+      const fitScale = fitTransform(fitBounds, VIEWBOX, FIT_PADDING).k;
+      const focusScale = fitTransform(focusBounds, VIEWBOX, FIT_PADDING).k;
+      expect(() => scaleExtent(fitScale, focusScale), `県 ${code}`).not.toThrow();
+    }
   });
 
   test('D51：東京都以外では focusBounds と fitBounds が同じである', () => {
