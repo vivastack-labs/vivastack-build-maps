@@ -7,6 +7,7 @@
  */
 import type { Lang } from '@/i18n/lang';
 import type { MuniProperties } from './muniLoader';
+import { MAX_ZOOM_SCALE } from './viewport';
 
 /** ラベルの文字の大きさ（viewBox の単位。倍率1のとき）。県名ラベル（16）より小さくする */
 export const MUNI_LABEL_FONT_SIZE = 11;
@@ -18,8 +19,8 @@ const LATIN_CHAR_WIDTH = 0.6;
 const BOX_MARGIN = 0.3;
 /** 倍率の段（1 から上限まで、この比で上げていく）。小さい段から順に選び、前の段で選んだラベルを残す */
 const SCALE_STEP_RATIO = 1.19;
-/** 倍率の上限。拡大の上限（最大化中は県が収まる倍率の4倍。佐賀県で約95）より大きくする */
-const MAX_LABEL_SCALE = 128;
+/** 倍率の上限。拡大の上限（`MAX_ZOOM_SCALE`）と同じにする */
+const MAX_LABEL_SCALE = MAX_ZOOM_SCALE;
 
 /** ラベルの候補。座標は viewBox の座標。`width`・`height` は、いちばん大きなポリゴンの外接矩形 */
 export type LabelCandidate = {

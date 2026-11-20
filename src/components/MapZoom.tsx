@@ -44,8 +44,10 @@ export function useMapZoom(): MapZoomControls | null {
   return useContext(MapZoomContext);
 }
 
-/** 県の「寄る範囲」と「移動できる範囲」（`PrefPath` の `fitBounds`・`panBounds`） */
-export type PrefBounds = { readonly fit: Bounds; readonly pan: Bounds };
+/**
+ * 県の「全体の範囲」（縮小の下限）・「最大化で寄る範囲」・「移動できる範囲」（`PrefPath` の `fitBounds`・`focusBounds`・`panBounds`。D36・D51）
+ */
+export type PrefBounds = { readonly fit: Bounds; readonly focus: Bounds; readonly pan: Bounds };
 
 type Props = {
   /** 県コード → 範囲。ビルド時に求めたものを `MapArea` が渡す */
@@ -128,7 +130,8 @@ function normalizeView({ svg, zoom }: Handle): void {
 }
 
 /**
- * 最大化した県（なければ全体）に合わせて、倍率・移動の範囲を替え、その表示に動かす（F-ZOOM-04、4.11.2、D36）。
+ * 最大化した県（なければ全体）に合わせて、倍率・移動の範囲を替え、その表示に動かす（F-ZOOM-04、4.11.2、D36・D51）。
+ * 寄る先は `focus`（東京都は23区）、縮小の下限は `fit`（県全体）が収まる倍率。
  * 県の範囲がわからないとき（ビルドの対象外のコード）は何もしない。
  */
 function showPref(handle: Handle, pref: PrefCode | null, bounds: Props['bounds']): void {
@@ -136,8 +139,9 @@ function showPref(handle: Handle, pref: PrefCode | null, bounds: Props['bounds']
   const entry = pref === null ? null : bounds[pref];
   const extent = panExtent(entry?.pan ?? null);
   const fit = entry ? fitTransform(entry.fit, VIEWBOX, FIT_PADDING) : null;
-  handle.zoom.scaleExtent([...scaleExtent(fit?.k ?? null)]).translateExtent(toExtent(extent));
-  moveTo(handle, fit ? constrainTransform(fit, VIEWBOX, extent) : IDENTITY);
+  const focus = entry ? fitTransform(entry.focus, VIEWBOX, FIT_PADDING) : null;
+  handle.zoom.scaleExtent([...scaleExtent(fit?.k ?? null, focus?.k ?? null)]).translateExtent(toExtent(extent));
+  moveTo(handle, focus ? constrainTransform(focus, VIEWBOX, extent) : IDENTITY);
 }
 
 /**

@@ -1,7 +1,13 @@
 // T2-06：実データの県の「寄る範囲」（fitBounds）と「移動できる範囲」（panBounds）を検査する（D36、U16）。
+import { readFileSync } from 'node:fs';
+import { geoPath } from 'd3-geo';
+import type { FeatureCollection } from 'geojson';
+import { feature } from 'topojson-client';
+import type { GeometryCollection, Topology } from 'topojson-specification';
 import { describe, expect, test } from 'vitest';
 import { loadPrefPaths, type PrefPath } from '@/features/map/prefPaths';
-import { VIEWBOX } from '@/features/map/projection';
+import { createProjection, VIEWBOX } from '@/features/map/projection';
+import { FIT_PADDING, fitTransform, scaleExtent } from '@/features/map/viewport';
 
 const paths = loadPrefPaths();
 const byCode = (code: string): PrefPath => {
@@ -45,6 +51,43 @@ describe('県の範囲（fitBounds・panBounds）', () => {
   test('D36：東京都以外では fitBounds と panBounds が同じである', () => {
     for (const { code, fitBounds, panBounds } of paths.filter(p => p.code !== '13')) {
       expect(panBounds, `県 ${code}`).toEqual(fitBounds);
+    }
+  });
+
+  test('D51：東京都の focusBounds は23区（13101〜13123）をすべて含み、余分な広さは 1 未満である', () => {
+    const topology = JSON.parse(readFileSync('public/geo/muni/13.topo.json', 'utf8')) as Topology<{ municipalities: GeometryCollection<{ code: string }> }>;
+    const all = feature(topology, topology.objects.municipalities) as FeatureCollection;
+    const wards = all.features.filter(({ properties }) => /^131(0[1-9]|1[0-9]|2[0-3])$/u.test(String(properties?.code)));
+    expect(wards).toHaveLength(23);
+    const [[x0, y0], [x1, y1]] = geoPath(createProjection('13')).bounds({ type: 'FeatureCollection', features: wards });
+
+    const { focusBounds } = byCode('13');
+
+    expect(focusBounds.x0).toBeLessThanOrEqual(x0);
+    expect(focusBounds.y0).toBeLessThanOrEqual(y0);
+    expect(focusBounds.x1).toBeGreaterThanOrEqual(x1);
+    expect(focusBounds.y1).toBeGreaterThanOrEqual(y1);
+    expect(x0 - focusBounds.x0).toBeLessThan(1);
+    expect(y0 - focusBounds.y0).toBeLessThan(1);
+    expect(focusBounds.x1 - x1).toBeLessThan(1);
+    expect(focusBounds.y1 - y1).toBeLessThan(1);
+  });
+
+  test('D51：どの県も focusBounds が panBounds の中にあり、収まる倍率が fitBounds 以上である（scaleExtent が例外にならない）', () => {
+    for (const { code, fitBounds, focusBounds, panBounds } of paths) {
+      expect(focusBounds.x0, `県 ${code} の x0`).toBeGreaterThanOrEqual(panBounds.x0);
+      expect(focusBounds.y0, `県 ${code} の y0`).toBeGreaterThanOrEqual(panBounds.y0);
+      expect(focusBounds.x1, `県 ${code} の x1`).toBeLessThanOrEqual(panBounds.x1);
+      expect(focusBounds.y1, `県 ${code} の y1`).toBeLessThanOrEqual(panBounds.y1);
+      const fitScale = fitTransform(fitBounds, VIEWBOX, FIT_PADDING).k;
+      const focusScale = fitTransform(focusBounds, VIEWBOX, FIT_PADDING).k;
+      expect(() => scaleExtent(fitScale, focusScale), `県 ${code}`).not.toThrow();
+    }
+  });
+
+  test('D51：東京都以外では focusBounds と fitBounds が同じである', () => {
+    for (const { code, fitBounds, focusBounds } of paths.filter(p => p.code !== '13')) {
+      expect(focusBounds, `県 ${code}`).toEqual(fitBounds);
     }
   });
 

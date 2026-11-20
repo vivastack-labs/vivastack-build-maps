@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { buildPrefPaths, LABEL_FONT_SIZE, LABEL_OFFSETS, loadPrefPaths, type PrefPath } from '@/features/map/prefPaths';
-import { OKINAWA_FRAME, projectPoint, VIEWBOX } from '@/features/map/projection';
+import { buildPrefPaths, FOCUS_AREAS, LABEL_FONT_SIZE, LABEL_OFFSETS, loadPrefPaths, type PrefPath } from '@/features/map/prefPaths';
+import { OKINAWA_FRAME, projectPoint, VIEWBOX, type LonLat } from '@/features/map/projection';
 import { LANGS } from '@/i18n/lang';
 import { absolutePoints } from './path-helpers';
 
@@ -256,6 +256,40 @@ describe('buildPrefPaths', () => {
       expect(panBounds.y1).toBeGreaterThan(southY);
       expect(panBounds.x1).toBeGreaterThan(farX - 1);
       expect(panBounds.x1).toBeGreaterThan(VIEWBOX.width);
+    });
+
+    test('D51：東京都の focusBounds は FOCUS_AREAS（23区）の四隅を投影した外接矩形で、fitBounds の中にある狭い範囲である', () => {
+      const mainland = island(139.0, 35.5, 0.9);
+      const izu = island(139.7, 33.0, 0.2);
+
+      const [path] = buildPrefPaths(prefWith('13', [mainland, izu]));
+
+      const [[west, south], [east, north]] = FOCUS_AREAS['13'] as readonly [LonLat, LonLat];
+      const corners = [
+        [west, south],
+        [west, north],
+        [east, south],
+        [east, north]
+      ].map(([lon, lat]) => projectPoint([lon as number, lat as number], '13'));
+      const { focusBounds, fitBounds } = path as PrefPath;
+      expect(focusBounds.x0).toBeCloseTo(Math.min(...corners.map(([x]) => x)), 0);
+      expect(focusBounds.x1).toBeCloseTo(Math.max(...corners.map(([x]) => x)), 0);
+      expect(focusBounds.y0).toBeCloseTo(Math.min(...corners.map(([, y]) => y)), 0);
+      expect(focusBounds.y1).toBeCloseTo(Math.max(...corners.map(([, y]) => y)), 0);
+      // 寄る範囲は県全体の中にあり、ずっと狭い（伊豆諸島を含まない）
+      expect(focusBounds.x0).toBeGreaterThanOrEqual(fitBounds.x0);
+      expect(focusBounds.y0).toBeGreaterThanOrEqual(fitBounds.y0);
+      expect(focusBounds.x1).toBeLessThanOrEqual(fitBounds.x1);
+      expect(focusBounds.y1).toBeLessThanOrEqual(fitBounds.y1);
+      expect(focusBounds.y1 - focusBounds.y0).toBeLessThan((fitBounds.y1 - fitBounds.y0) / 3);
+      for (const value of Object.values(focusBounds)) expect(Math.round(value * 10) / 10).toBe(value);
+    });
+
+    test('D51：FOCUS_AREAS にない県の focusBounds は fitBounds と同じである', () => {
+      const [path] = buildPrefPaths(prefWith('14', [island(139.4, 35.4, 0.3)]));
+
+      const { focusBounds, fitBounds } = path as PrefPath;
+      expect(focusBounds).toEqual(fitBounds);
     });
 
     test('東京都の寄る範囲を除いた後に形が残らないと例外にする（D36）', () => {

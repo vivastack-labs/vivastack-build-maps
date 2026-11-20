@@ -217,7 +217,7 @@ const SCENES: readonly Scene[] = [
   { name: 'ja-card-adult-ruby-off', path: '/ja/', prepare: pinHokkaidoAdultRubyOff },
   // T3-04：カードの「出典」欄を開いた状態（北海道。出典のある項目と「出典なし」の項目）。フッターの出典は、各言語の top の全体の画像に入る
   { name: 'ja-card-sources', path: '/ja/', prepare: openHokkaidoSources },
-  // T2-06：県を最大化して寄った状態。長野県（県全体が収まる）と東京都（父島を除いて、本土と伊豆諸島に寄る。U16・D36）
+  // T2-06：県を最大化して寄った状態。長野県（県全体が収まる）と東京都（23区に寄る。D51）
   { name: 'ja-maximized', path: '/ja/', prepare: maximizePref('20') },
   { name: 'ja-maximized-tokyo', path: '/ja/', prepare: maximizePref('13') },
   // T2-08：市区町村を描いた状態。北海道（政令指定都市の札幌市が区に分かれる。D16）、英語（ローマ字のラベルと一覧を開いた状態）、中国語（日本語の漢字表記。F-I18N-05）
