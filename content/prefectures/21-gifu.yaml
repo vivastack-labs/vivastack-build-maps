@@ -34,7 +34,7 @@ access:
     - title: "列車時刻表 | JRおでかけネット"
       url: "https://timetable.jr-odekake.net/train-timetable/75721"
       accessed: "2026-11-20"
-  status: verified
+  status: reviewed
 specialties:
   - id: hoba-miso
     emoji: "🍲"
@@ -53,7 +53,7 @@ specialties:
       - title: "朴葉味噌 岐阜県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/38_10_gifu.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: mino-washi
     emoji: "📜"
     name: {ja: "{美濃和紙|みのわし}", en: "Mino Washi", zh: "美浓和纸"}
@@ -74,7 +74,7 @@ specialties:
       - title: "美濃和紙ができるまで - 美濃和紙の里会館"
         url: "https://www.city.mino.gifu.jp/minogami/docs/2408.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: sarubobo
     emoji: "🧸"
     name: {ja: "さるぼぼ", en: "Sarubobo Doll", zh: "猿宝宝玩偶"}
@@ -92,7 +92,7 @@ specialties:
       - title: "飛騨のさるぼぼ｜高山市"
         url: "https://www.city.takayama.lg.jp/shisei/1000067/1002790/1002815/1002816/1002832.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
 spots:
   - id: shirakawago
     emoji: "🏠"
@@ -111,7 +111,7 @@ spots:
       - title: "3分でわかる白川郷 SHIRAKAWA-GO HIGHLIGHTS"
         url: "https://shirakawa-go.gr.jp/highlights/"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: takayama-old-town
     emoji: "🏘️"
     name: {ja: "{飛騨高山|ひだたかやま}の{古|ふる}い{町並|まちな}み", en: "Takayama Old Town", zh: "飞驒高山古街"}
@@ -129,7 +129,7 @@ spots:
       - title: "観光業｜高山市"
         url: "https://www.city.takayama.lg.jp/shisei/1000067/1014794/index.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: mount-kinka
     emoji: "🚠"
     name: {ja: "{金華山|きんかざん}", en: "Mount Kinka", zh: "金华山"}
@@ -150,4 +150,4 @@ spots:
       - title: "金華山山上部の整備工事を実施しています｜岐阜市公式ホームページ-Gifu city"
         url: "https://www.city.gifu.lg.jp/kankoubunka/kankou/1013051/1005097/1031926.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed

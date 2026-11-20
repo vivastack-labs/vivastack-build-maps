@@ -33,7 +33,7 @@ access:
     - title: "時刻表　停車駅一覧（特急かいじ 35号（東京－甲府））：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/060/063651.html"
       accessed: "2026-11-20"
-  status: verified
+  status: reviewed
 specialties:
   - id: hoto
     emoji: "🍲"
@@ -52,7 +52,7 @@ specialties:
       - title: "ほうとう…山梨県：農林水産省：農林水産省"
         url: "https://www.maff.go.jp/j/syokuiku/kodomo_navi/cuisine/cuisine3_5.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: koshu-inden
     emoji: "👛"
     name: {ja: "{甲州印伝|こうしゅういんでん}", en: "Koshu Inden", zh: "甲州印传"}
@@ -70,7 +70,7 @@ specialties:
       - title: "甲州印伝・漆でのせる文様と想い／やまなしの美技"
         url: "https://www.pref.yamanashi.jp/shouko/kogyo/densan/inden_01.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: grapes
     emoji: "🍇"
     name: {ja: "ぶどう", en: "Grapes", zh: "葡萄"}
@@ -88,7 +88,7 @@ specialties:
       - title: "やまなしの農畜水産物／山梨県の農畜水産物ブランド「おいしい未来へ やまなし」"
         url: "https://www.pref.yamanashi.jp/oishii-mirai/nochikusanbutsu_ichiran.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
 spots:
   - id: shosenkyo
     emoji: "🏞️"
@@ -107,7 +107,7 @@ spots:
       - title: "紅葉狩りなら山梨へ：関東屈指の紅葉スポット昇仙峡やもみじ回廊の河口湖などの見ごろと穴場情報も ／富士の国やまなし観光ネット 山梨県公式観光情報"
         url: "https://www.yamanashi-kankou.jp/special/koyo-spot.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: lake-kawaguchi
     emoji: "🗻"
     name: {ja: "{河口湖|かわぐちこ}", en: "Lake Kawaguchi", zh: "河口湖"}
@@ -125,7 +125,7 @@ spots:
       - title: "河口湖(富士河口湖町)／富士の国やまなし観光ネット 山梨県公式観光情報"
         url: "https://www.yamanashi-kankou.jp/heritage/fujisanwatcher/jp/live/02.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: takeda-shrine
     emoji: "⛩️"
     name: {ja: "{武田神社|たけだじんじゃ}", en: "Takeda Shrine", zh: "武田神社"}
@@ -143,4 +143,4 @@ spots:
       - title: "武田神社／富士の国やまなし観光ネット 山梨県公式観光情報"
         url: "https://www.yamanashi-kankou.jp/kankou/spot/p1_4317.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed

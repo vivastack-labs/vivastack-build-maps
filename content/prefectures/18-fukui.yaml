@@ -30,7 +30,7 @@ access:
     - title: "時刻表　停車駅一覧（新幹線かがやき 509号（東京－敦賀））：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/095/098521.html"
       accessed: "2026-11-20"
-  status: verified
+  status: reviewed
 specialties:
   - id: oroshi-soba
     emoji: "🍜"
@@ -49,7 +49,7 @@ specialties:
       - title: "おろしそば 福井県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/oroshi_soba_fukui.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: echizen-washi
     emoji: "📜"
     name: {ja: "{越前和紙|えちぜんわし}", en: "Echizen Washi", zh: "越前和纸"}
@@ -67,7 +67,7 @@ specialties:
       - title: "文化財詳細 | 福井県文化財ページ"
         url: "https://bunkazai.pref.fukui.lg.jp/search_category/content?detail_id=900-0"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: wakasa-nuri
     emoji: "🥢"
     name: {ja: "{若狭塗|わかさぬり}", en: "Wakasa Lacquerware", zh: "若狭漆器"}
@@ -85,7 +85,7 @@ specialties:
       - title: "若狭塗"
         url: "https://www.pref.fukui.lg.jp/doc/sansei/dentoukougeihin_d/fil/wakasalacquerware.pdf"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
 spots:
   - id: tojinbo
     emoji: "🌊"
@@ -104,7 +104,7 @@ spots:
       - title: "東尋坊｜おすすめの観光スポット｜【公式】福井県 観光/旅行サイト ｜ ふくいドットコム"
         url: "https://www.fuku-e.com/spot/detail_1476.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: eiheiji
     emoji: "🛕"
     name: {ja: "{永平寺|えいへいじ}", en: "Eiheiji Temple", zh: "永平寺"}
@@ -122,7 +122,7 @@ spots:
       - title: "大本山永平寺：大本山永平寺の概要｜検索詳細｜地域観光資源の多言語解説文データベース"
         url: "https://www.mlit.go.jp/tagengo-db/R2-01258.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: dinosaur-museum
     emoji: "🦖"
     name: {ja: "{福井県立恐竜博物館|ふくいけんりつきょうりゅうはくぶつかん}", en: "Fukui Prefectural Dinosaur Museum", zh: "福井县立恐龙博物馆"}
@@ -143,4 +143,4 @@ spots:
       - title: "新しい展示｜FPDM: 福井県立恐竜博物館"
         url: "https://www.dinosaur.pref.fukui.jp/museum/exhibit_new.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
