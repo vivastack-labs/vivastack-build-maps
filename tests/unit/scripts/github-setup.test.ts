@@ -93,7 +93,11 @@ function configured(): Record<string, Route> {
     [`GET ${REPO}/actions/permissions`]: { enabled: true, allowed_actions: 'all', sha_pinning_required: true, selected_actions_url: 'x' },
     [`GET ${REPO}/actions/permissions/workflow`]: { default_workflow_permissions: 'read', can_approve_pull_request_reviews: false },
     [`GET ${REPO}/actions/permissions/fork-pr-contributor-approval`]: { approval_policy: 'all_external_contributors' },
-    [`GET ${REPO}`]: { name: 'x', security_and_analysis: { secret_scanning: { status: 'enabled' }, secret_scanning_push_protection: { status: 'enabled' }, advanced_security: { status: 'enabled' } } },
+    [`GET ${REPO}`]: {
+      name: 'x',
+      delete_branch_on_merge: true,
+      security_and_analysis: { secret_scanning: { status: 'enabled' }, secret_scanning_push_protection: { status: 'enabled' }, advanced_security: { status: 'enabled' } }
+    },
     [`GET ${REPO}/private-vulnerability-reporting`]: { enabled: true },
     [`GET ${REPO}/vulnerability-alerts`]: undefined
   };
@@ -111,7 +115,7 @@ function unconfigured(): Record<string, Route> {
     [`GET ${REPO}/actions/permissions`]: { enabled: true, allowed_actions: 'all', sha_pinning_required: false },
     [`GET ${REPO}/actions/permissions/workflow`]: { default_workflow_permissions: 'write', can_approve_pull_request_reviews: true },
     [`GET ${REPO}/actions/permissions/fork-pr-contributor-approval`]: { approval_policy: 'first_time_contributors' },
-    [`GET ${REPO}`]: { security_and_analysis: { secret_scanning: { status: 'disabled' }, secret_scanning_push_protection: { status: 'disabled' } } },
+    [`GET ${REPO}`]: { delete_branch_on_merge: false, security_and_analysis: { secret_scanning: { status: 'disabled' }, secret_scanning_push_protection: { status: 'disabled' } } },
     [`GET ${REPO}/private-vulnerability-reporting`]: { enabled: false },
     [`GET ${REPO}/vulnerability-alerts`]: notFound()
   };
@@ -547,12 +551,23 @@ describe('runGithubSetup：Actions・セキュリティ', () => {
     expect(find(writes, 'PUT', `${REPO}/actions/permissions/fork-pr-contributor-approval`)?.body).toEqual({ approval_policy: 'all_external_contributors' });
   });
 
+  test('11.5 merge した PR のブランチを自動で消す設定（delete_branch_on_merge）を有効にする', async () => {
+    // Act
+    const off = await run(['--apply'], unconfigured());
+    const on = await run(['--apply'], configured());
+
+    // Assert：無効なら PATCH で有効にし、有効なら書き込まない
+    const patches = off.writes.filter(write => write.method === 'PATCH' && write.path === REPO);
+    expect(patches).toContainEqual({ method: 'PATCH', path: REPO, body: { delete_branch_on_merge: true } });
+    expect(on.writes).toEqual([]);
+  });
+
   test('11.5 Secret scanning・push protection・脆弱性の非公開の報告・Dependabot alerts を有効にする（本文なしの PUT）', async () => {
     // Act
     const { writes } = await run(['--apply'], unconfigured());
 
     // Assert
-    expect(find(writes, 'PATCH', REPO)?.body).toEqual({
+    expect(writes.filter(write => write.method === 'PATCH' && write.path === REPO).map(write => write.body)).toContainEqual({
       security_and_analysis: { secret_scanning: { status: 'enabled' }, secret_scanning_push_protection: { status: 'enabled' } }
     });
     expect(find(writes, 'PUT', `${REPO}/private-vulnerability-reporting`)).toEqual({ method: 'PUT', path: `${REPO}/private-vulnerability-reporting` });

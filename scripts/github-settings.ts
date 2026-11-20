@@ -146,6 +146,8 @@ export const GITHUB_SETTINGS = {
     /** public なので、知らない人の PR の workflow は、外部の人すべてで承認を必須にする（判断5） */
     forkPullRequestApproval: { approval_policy: 'all_external_contributors' }
   },
+  /** リポジトリの設定。merge した PR のブランチを自動で消す（merge 済みのブランチが PR ごとに増えないように） */
+  repository: { delete_branch_on_merge: true },
   /** public では無料（判断6） */
   securityAndAnalysis: { secret_scanning: { status: 'enabled' }, secret_scanning_push_protection: { status: 'enabled' } }
 } as const;
