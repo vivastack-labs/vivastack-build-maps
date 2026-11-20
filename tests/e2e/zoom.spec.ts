@@ -154,9 +154,15 @@ test.describe('PC のマウス操作', { tag: '@pc' }, () => {
 
     // 文字の大きさは「基準 ÷ 倍率」なので、画面の上の高さは倍率によらない
     await expect.poll(async () => (await heightOf()) / before).toBeCloseTo(1, 1);
-    // 線の太さも「基準 ÷ 倍率」。倍率をかけると、全体表示のときの太さ（0.8）に戻る
-    const strokeWidth = await page.locator('[data-map-layer] > g.stroke-map-border').evaluate(element => Number.parseFloat(getComputedStyle(element).strokeWidth));
-    expect(strokeWidth * (await scaleOf(page))).toBeCloseTo(0.8, 1);
+    // 線の太さも「基準 ÷ 倍率」。倍率をかけると、全体表示のときの太さ（0.8）に戻る。
+    // 寄る動き（300ms）の途中で倍率が変わるので、太さと倍率は同じ瞬間に読み、動きが終わるまで待つ
+    const scaledStrokeWidth = (): Promise<number> =>
+      page.locator(LAYER).evaluate(layer => {
+        const border = layer.querySelector(':scope > g.stroke-map-border');
+        if (border === null) return Number.NaN;
+        return Number.parseFloat(getComputedStyle(border).strokeWidth) * Number(layer.getAttribute('data-zoom-scale'));
+      });
+    await expect.poll(scaledStrokeWidth).toBeCloseTo(0.8, 1);
   });
 
   test('F-ZOOM-04：最大化を解除すると全体表示に戻る', async ({ page }) => {
