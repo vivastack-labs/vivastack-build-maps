@@ -23,6 +23,28 @@ const MUNI_OUTLINE_WIDTH = 1.4;
 /** 画面の上の大きさの許容の誤差（倍率 `data-zoom-scale` は丸めて書かれる） */
 const RELATIVE_TOLERANCE = 0.02;
 
+test('D21・5.5：有効な本番ビルドは外部の計測スクリプトを1つ読み込む', async ({ page }) => {
+  const testSiteId = process.env.CLOUDFLARE_WEB_ANALYTICS_SITE_ID;
+  test.skip(!testSiteId, '計測用のテストサイト識別子を指定したビルドで検査する');
+  const beaconUrl = 'https://static.cloudflareinsights.com/beacon.min.js';
+  await page.route(beaconUrl, route =>
+    route.fulfill({
+      contentType: 'text/javascript',
+      headers: { 'access-control-allow-origin': '*' },
+      body: 'document.documentElement.setAttribute("data-test-beacon-loaded", "true");'
+    })
+  );
+  const violations = await collectViolations(page);
+  await page.goto('/ja/');
+
+  const beacon = page.locator(`script[src="${beaconUrl}"]`);
+  await expect(beacon).toHaveCount(1);
+  await expect(beacon).toHaveAttribute('type', 'module');
+  await expect(page.locator('html')).toHaveAttribute('data-test-beacon-loaded', 'true');
+  expect(JSON.parse((await beacon.getAttribute('data-cf-beacon')) ?? '{}')).toEqual({ token: testSiteId });
+  expect(violations).toEqual([]);
+});
+
 type Violation = { readonly directive: string; readonly blocked: string };
 
 /** CSP 違反を集める。イベントはページの読み込みの前から（addInitScript）、コンソールのエラーとページのエラーも見る */

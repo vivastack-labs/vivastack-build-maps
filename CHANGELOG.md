@@ -6,7 +6,7 @@ PR ごとには書かず、マイルストーンが終わったとき（その�
 
 ## [Unreleased]
 
-正式な公開（T6-02）の前なので、版の番号はまだ付けない。ここには、`main` に merge した内容を機能のまとまりで書く。
+## [1.0.0] - 2026-11-20
 
 ### Added
 
@@ -16,12 +16,15 @@ PR ごとには書かず、マイルストーンが終わったとき（その�
 - モードとふりがな：こども／おとなのモードと、ふりがなの ON/OFF。
 - コンテンツの基盤：47県の基本情報の YAML、スキーマと検証（`pnpm content:validate`）、ふりがなの記法（`{漢字|よみ}`）。本番には `reviewed` の項目だけを出し、プレビューにはすべての項目を「下書き」の印つきで出す。
 - コンテンツの制作の道具：執筆ルールとレビュー基準（`content/guidelines/`）、ふりがなの自動付与（`pnpm content:furigana`）、1県分の下書きから検証までのスキルとエージェント、出典のリンク切れチェック（`pnpm content:links`）。
+- 47都道府県のコンテンツ：各県の名物3件・名所3件・行き方1件を日本語・英語・中国語で掲載。日本語にはこども向けとおとな向けがある。
 - PWA：manifest と Service Worker。一度開けば、電波がなくても地図と県名が使える。
 - 説明のページ：「このサイトについて」とプライバシーポリシー（3言語）。
 - 品質の検査：アクセシビリティ（axe とコントラストの単体テスト）、最初の読み込みのサイズの上限（`pnpm size`）、Lighthouse CI（`pnpm lhci`）、PC・スマホ・タブレットの E2E（Playwright の9プロジェクト）。
 - 開発の基盤：Next.js（静的出力）・TypeScript・Vitest・Testing Library・Playwright の実行環境、GitHub Actions の CI（PR ごとの検査）、GitHub の設定を反映するスクリプト（`pnpm github:setup`）。
 - デプロイ：PR ごとのプレビュー（オーナーが承認すると、`https://pr-<番号>-maps.vivastack-dev.workers.dev/` に出る）と、`main` への merge による本番（`https://maps.vivastack-dev.workers.dev/`）へのデプロイ。配信は Cloudflare Workers（Static Assets）で、workers.dev の専用のドメインに `/maps` のようなプレフィックスなしで置く。
 - 文書：開発概要書、開発計画とタスクの定義、機能ごとの実装メモ（`docs/architecture/`）、`README.md`。
+- 本番のアクセス解析：3言語のページで Cloudflare Web Analytics を有効にする。
+- 公開確認：デプロイ成功後に、3言語のトップ、ルートの転送、セキュリティヘッダーと CSP、47都道府県の公開状態を検査する。
 
 ### Security
 
