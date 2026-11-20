@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
 
 import { PrivacyContent } from '@/components/PrivacyContent';
@@ -12,6 +12,13 @@ import { CLOUDFLARE_ANALYTICS_URL, CLOUDFLARE_PRIVACY_URL } from '@/lib/sources'
 import { textWithoutRuby } from './base-text';
 
 describe('PrivacyContent', () => {
+  test.each(LANGS)('5.6・T6-02：運営者のプロフィールと公開の報告窓口を出す（%s）', lang => {
+    render(<PrivacyContent lang={lang} />);
+
+    expect(screen.getByRole('link', { name: 'VivaStack' })).toHaveAttribute('href', 'https://github.com/vivastack');
+    expect(screen.getByRole('link', { name: 'GitHub Issues' })).toHaveAttribute('href', 'https://github.com/vivastack-labs/vivastack-build-maps/issues');
+  });
+
   test.each(LANGS)('5.6：Cloudflare Web Analytics を使うこと・Cookie を使わないことと、説明へのリンクを出す（%s）', lang => {
     // Arrange・Act
     const { container } = render(<PrivacyContent lang={lang} />);
@@ -69,7 +76,7 @@ describe('PrivacyContent', () => {
     const h1s = container.querySelectorAll('h1');
     expect(h1s).toHaveLength(1);
     expect(textWithoutRuby(h1s[0] as Element)).toBe(plainText(getMessages(lang).privacy.title));
-    expect(container.querySelectorAll('h2')).toHaveLength(5);
+    expect(container.querySelectorAll('h2')).toHaveLength(6);
   });
 
   test('F-MODE-04：日本語はふりがなつき、英語・中国語は付けない。モードの言い分けはしない', () => {

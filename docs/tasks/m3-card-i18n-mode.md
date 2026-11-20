@@ -146,7 +146,7 @@
   - 出典のある項目は、タイトル・URL・確認日を表示する（F-SRC-02）。
   - `sources: []` の項目は「出典なし」と表示する（F-SRC-03）。
   - 「出典」欄は、最初は閉じている（F-SRC-01）。
-- E2E：フッターに、国土数値情報の出典と「AIで作成し、人が確認しています」が、3言語のページそれぞれにある（F-SRC-04）。
+- E2E：トップページのフッターから「このサイトについて」に移動し、国土数値情報の出典と AI の利用を確認できる（3言語、F-SRC-04、D48）。
 - 実装したテスト：`tests/unit/components/SourceList.test.tsx`・`PrefCard.test.tsx`・`Footer.test.tsx`・`tests/unit/i18n/format.test.ts`（`formatDate`。`TZ` を変えて確かめる）・`tests/unit/lib/isoDate.test.ts`（`parseIsoDate`）・`tests/unit/lib/content.test.ts`（出典のタイトルと確認日の検査）。E2E は `tests/e2e/card.spec.ts`（出典欄を開く。JavaScript なしでも開ける）と `tests/e2e/footer.spec.ts`。フィクスチャの北海道の行き方（2件）とじゃがいも（1件）に、`example.com` のダミーの出典を入れた。
 
 ---
