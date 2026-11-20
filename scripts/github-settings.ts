@@ -18,7 +18,7 @@ const REQUIRED_CHECKS = ['check', 'gitleaks'] as const;
 /** ルールセットのバイパスの対象（OrganizationAdmin の actor_id は GitHub が無視する） */
 type BypassActor = { actor_id: number; actor_type: string; bypass_mode: string };
 
-/** どちらのルールセットも、リポジトリの既定のブランチ（main）だけを対象にする */
+/** main 向けのルールセットは、リポジトリの既定のブランチだけを対象にする */
 const DEFAULT_BRANCH_CONDITIONS = { ref_name: { include: ['~DEFAULT_BRANCH'], exclude: [] as string[] } };
 
 /**
@@ -84,33 +84,50 @@ const MAIN_REVIEW_RULESET = {
   ]
 };
 
+const PRODUCTION_TAG_PATTERN = 'v*';
+const DEPLOYMENT_REVIEWERS = ['vivastack'] as const;
+
+/** 本番 Environment を使えるタグの作成・移動・削除は、リポジトリ admin と組織オーナーに限る。 */
+const PRODUCTION_RELEASE_TAGS_RULESET = {
+  name: 'production-release-tags',
+  target: 'tag',
+  enforcement: 'active',
+  conditions: { ref_name: { include: [`refs/tags/${PRODUCTION_TAG_PATTERN}`], exclude: [] as string[] } },
+  bypass_actors: [
+    { actor_id: REPOSITORY_ADMIN_ROLE_ID, actor_type: 'RepositoryRole', bypass_mode: 'always' },
+    { actor_id: ORGANIZATION_ADMIN_ACTOR_ID, actor_type: 'OrganizationAdmin', bypass_mode: 'always' }
+  ],
+  rules: [{ type: 'creation' }, { type: 'update' }, { type: 'deletion' }]
+};
+
 /** pnpm github:setup が反映する設定（11.5） */
 export const GITHUB_SETTINGS = {
   owner: 'vivastack-labs',
   repo: 'vivastack-build-maps',
   requiredChecks: REQUIRED_CHECKS,
-  rulesets: [MAIN_CI_RULESET, MAIN_REVIEW_RULESET],
+  rulesets: [MAIN_CI_RULESET, MAIN_REVIEW_RULESET, PRODUCTION_RELEASE_TAGS_RULESET],
   /** レビュアーの Team。メンバーはスクリプトで管理しない（GitHub の画面で招待する。判断4） */
   team: { slug: 'maps-reviewers', name: 'maps-reviewers', privacy: 'closed', permission: 'push' },
   /**
-   * Environment は、なければ作る（PUT は作成と更新を兼ねる）。production は main だけ（承認者なし）、preview は承認制（ブランチの制限なし）。
+   * Environment は、なければ作る（PUT は作成と更新を兼ねる）。production は保護された v* タグだけ、preview は ref の制限なし。
    * preview は、Team（Write）が push したブランチの workflow で `environment: preview` を使うと CLOUDFLARE_API_TOKEN を取り出せるので、
    * デプロイの前にオーナーの承認を必須にする。承認者は login で書き、id は実行のときに `GET users/{login}` で引く。
+   * production は、Write 権限の利用者も既存タグから Release を公開できるため、オーナーの承認を必須にする。
    * 承認者・待ち時間は、どちらの Environment にも明示する（PUT が省くと既存の承認者を消しうる。設定が正）。
    */
   environments: [
     {
       name: 'production',
       deploymentBranchPolicy: { protected_branches: false, custom_branch_policies: true },
-      reviewers: [] as string[],
+      reviewers: DEPLOYMENT_REVIEWERS,
       preventSelfReview: false,
       waitTimer: 0,
-      branchPolicies: [{ name: 'main', type: 'branch' }]
+      branchPolicies: [{ name: PRODUCTION_TAG_PATTERN, type: 'tag' }]
     },
     {
       name: 'preview',
       deploymentBranchPolicy: null,
-      reviewers: ['inspireme'],
+      reviewers: DEPLOYMENT_REVIEWERS,
       /** オーナーが自分の push を承認できるように、無効にする */
       preventSelfReview: false,
       waitTimer: 0,
@@ -120,7 +137,7 @@ export const GITHUB_SETTINGS = {
   actions: {
     /**
      * Actions を有効にし、Action の SHA 固定を必須にする（今の workflow はすべて SHA で固定している。5.5）。
-     * allowed_actions: 'all'（どの Action も許す）は、意図した判断：Secrets は Environment の job にしか渡らず（preview はオーナーの承認、production は main だけ）、
+     * allowed_actions: 'all'（どの Action も許す）は、意図した判断：どちらの Environment もオーナーの承認が必要で、production は保護された v* タグだけを許可する。
      * ほかの job で使う Action は Secrets に届かない。SHA の固定を必須にしてあるので、あとから中身を差し替えられる心配もない。
      * Environment の can_admins_bypass は既定（true）のまま：リポジトリの管理者はオーナーだけで、承認・ブランチの制限をオーナーが外せても問題ない。
      */

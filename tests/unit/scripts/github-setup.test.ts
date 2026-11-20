@@ -8,7 +8,7 @@ const RULESETS = `${REPO}/rulesets?includes_parents=false`;
 const POLICIES = `${REPO}/environments/production/deployment-branch-policies`;
 /** 本文・応答の中身を調べるための、型を付けない値 */
 type Json = ReturnType<typeof JSON.parse>;
-const [MAIN_CI, MAIN_REVIEW] = GITHUB_SETTINGS.rulesets;
+const [MAIN_CI, MAIN_REVIEW, PRODUCTION_RELEASE_TAGS] = GITHUB_SETTINGS.rulesets;
 
 const notFound = () => new Error('gh api GET: Not Found (HTTP 404)');
 type Route = unknown | Error | (() => unknown);
@@ -21,8 +21,8 @@ type Write = { readonly method: WriteMethod; readonly path: string; readonly bod
  */
 function realShape(ruleset: (typeof GITHUB_SETTINGS.rulesets)[number], id: number) {
   const rules = ruleset.rules.map(rule => {
-    if (rule.type === 'pull_request') return { ...rule, parameters: { ...rule.parameters, allowed_merge_methods: ['merge', 'squash', 'rebase'] } };
-    if (rule.type === 'required_status_checks') return { ...rule, parameters: { ...rule.parameters, do_not_enforce_on_create: false } };
+    if ('parameters' in rule && rule.type === 'pull_request') return { ...rule, parameters: { ...rule.parameters, allowed_merge_methods: ['merge', 'squash', 'rebase'] } };
+    if ('parameters' in rule && rule.type === 'required_status_checks') return { ...rule, parameters: { ...rule.parameters, do_not_enforce_on_create: false } };
     if (rule.type === 'update') return { type: 'update' };
     return rule;
   });
@@ -44,9 +44,9 @@ function realShape(ruleset: (typeof GITHUB_SETTINGS.rulesets)[number], id: numbe
   };
 }
 
-/** preview の承認者の protection_rule（応答の形。本文の reviewers とは形が違う） */
-function previewReviewers(overrides: Record<string, unknown> = {}) {
-  return { id: 2, type: 'required_reviewers', prevent_self_review: false, reviewers: [{ type: 'User', reviewer: { id: 4242, login: 'inspireme' } }], ...overrides };
+/** オーナー承認の protection_rule（応答の形。本文の reviewers とは形が違う） */
+function ownerReviewers(overrides: Record<string, unknown> = {}) {
+  return { id: 2, type: 'required_reviewers', prevent_self_review: false, reviewers: [{ type: 'User', reviewer: { id: 4242, login: 'vivastack' } }], ...overrides };
 }
 
 /** required_status_checks の parameters.required_status_checks を、関数で作り直す */
@@ -62,7 +62,7 @@ function mapChecks(ruleset: Json, change: (checks: Json[]) => Json[]) {
 const PRODUCTION_BODY = {
   wait_timer: 0,
   prevent_self_review: false,
-  reviewers: [],
+  reviewers: [{ type: 'User', id: 4242 }],
   deployment_branch_policy: { protected_branches: false, custom_branch_policies: true }
 };
 const PREVIEW_BODY = { wait_timer: 0, prevent_self_review: false, reviewers: [{ type: 'User', id: 4242 }], deployment_branch_policy: null };
@@ -76,18 +76,20 @@ function configured(): Record<string, Route> {
     [`GET ${TEAM}/repos/${GITHUB_SETTINGS.owner}/${GITHUB_SETTINGS.repo}`]: { role_name: 'write', permissions: { admin: false, maintain: false, push: true, triage: true, pull: true } },
     [`GET ${RULESETS}`]: [
       { id: 1, name: 'main-ci', enforcement: 'active' },
-      { id: 2, name: 'main-review', enforcement: 'active' }
+      { id: 2, name: 'main-review', enforcement: 'active' },
+      { id: 4, name: 'production-release-tags', enforcement: 'active' }
     ],
     [`GET ${REPO}/rulesets/1`]: realShape(MAIN_CI, 1),
     [`GET ${REPO}/rulesets/2`]: realShape(MAIN_REVIEW, 2),
-    'GET users/inspireme': { id: 4242, login: 'inspireme', type: 'User' },
+    [`GET ${REPO}/rulesets/4`]: realShape(PRODUCTION_RELEASE_TAGS, 4),
+    'GET users/vivastack': { id: 4242, login: 'vivastack', type: 'User' },
     [`GET ${REPO}/environments/production`]: {
       name: 'production',
       deployment_branch_policy: { protected_branches: false, custom_branch_policies: true },
-      protection_rules: [{ id: 1, type: 'branch_policy' }]
+      protection_rules: [{ id: 1, type: 'branch_policy' }, ownerReviewers()]
     },
-    [`GET ${REPO}/environments/preview`]: { name: 'preview', deployment_branch_policy: null, protection_rules: [previewReviewers()] },
-    [`GET ${POLICIES}`]: { total_count: 1, branch_policies: [{ id: 9, name: 'main', type: 'branch' }] },
+    [`GET ${REPO}/environments/preview`]: { name: 'preview', deployment_branch_policy: null, protection_rules: [ownerReviewers()] },
+    [`GET ${POLICIES}`]: { total_count: 1, branch_policies: [{ id: 9, name: 'v*', type: 'tag' }] },
     [`GET ${REPO}/actions/permissions`]: { enabled: true, allowed_actions: 'all', sha_pinning_required: true, selected_actions_url: 'x' },
     [`GET ${REPO}/actions/permissions/workflow`]: { default_workflow_permissions: 'read', can_approve_pull_request_reviews: false },
     [`GET ${REPO}/actions/permissions/fork-pr-contributor-approval`]: { approval_policy: 'all_external_contributors' },
@@ -220,7 +222,13 @@ describe('runGithubSetup：ルールセット', () => {
     const routes = { ...configured(), [`GET ${REPO}/rulesets/1`]: { ...MAIN_CI, enforcement: 'disabled' } };
 
     // Act
-    const created = await run(['--apply'], { ...configured(), [`GET ${RULESETS}`]: [{ id: 1, name: 'main-ci' }] });
+    const created = await run(['--apply'], {
+      ...configured(),
+      [`GET ${RULESETS}`]: [
+        { id: 1, name: 'main-ci' },
+        { id: 4, name: 'production-release-tags' }
+      ]
+    });
     const changed = await run(['--apply'], routes);
 
     // Assert
@@ -339,28 +347,28 @@ describe('runGithubSetup：ルールセット', () => {
 });
 
 describe('runGithubSetup：Environment', () => {
-  test('11.5 production は main だけを許可し、すでに main のポリシーがあれば足さない', async () => {
+  test('11.5 production は v* タグだけを許可し、設定済みなら足さない', async () => {
     // Act
     const missing = await run(['--apply'], { ...configured(), [`GET ${POLICIES}`]: { total_count: 0, branch_policies: [] } });
     const present = await run(['--apply'], configured());
 
     // Assert
-    expect(missing.writes).toEqual([{ method: 'POST', path: POLICIES, body: { name: 'main', type: 'branch' } }]);
+    expect(missing.writes).toEqual([{ method: 'POST', path: POLICIES, body: { name: 'v*', type: 'tag' } }]);
     expect(present.writes).toEqual([]);
   });
 
-  test('11.5 production がなければ作り（PUT）、そのあとに main を足す', async () => {
+  test('11.5 production がなければ作り（PUT）、そのあとに v* タグを許可する', async () => {
     // Act
     const { writes } = await run(['--apply'], { ...configured(), [`GET ${REPO}/environments/production`]: notFound(), [`GET ${POLICIES}`]: notFound() });
 
     // Assert
     expect(writes).toEqual([
       { method: 'PUT', path: `${REPO}/environments/production`, body: PRODUCTION_BODY },
-      { method: 'POST', path: POLICIES, body: { name: 'main', type: 'branch' } }
+      { method: 'POST', path: POLICIES, body: { name: 'v*', type: 'tag' } }
     ]);
   });
 
-  test('11.5 production に main 以外のブランチ・タグの許可があれば消す', async () => {
+  test('11.5 production を v* タグに移行し、main と不要な ref の許可を消す', async () => {
     // Arrange
     const policies = {
       total_count: 3,
@@ -372,11 +380,19 @@ describe('runGithubSetup：Environment', () => {
     };
 
     // Act
-    const check = await run([], { ...configured(), [`GET ${POLICIES}`]: policies });
-    const { writes } = await run(['--apply'], { ...configured(), [`GET ${POLICIES}`]: policies });
+    const routes = {
+      ...configured(),
+      [`GET ${POLICIES}`]: policies,
+      [`GET ${REPO}/environments/production`]: { deployment_branch_policy: PRODUCTION_BODY.deployment_branch_policy, protection_rules: [] }
+    };
+    const check = await run([], routes);
+    const { writes } = await run(['--apply'], routes);
 
     // Assert
     expect(writes).toEqual([
+      { method: 'PUT', path: `${REPO}/environments/production`, body: PRODUCTION_BODY },
+      { method: 'POST', path: POLICIES, body: { name: 'v*', type: 'tag' } },
+      { method: 'DELETE', path: `${POLICIES}/9` },
       { method: 'DELETE', path: `${POLICIES}/10` },
       { method: 'DELETE', path: `${POLICIES}/11` }
     ]);
@@ -392,7 +408,7 @@ describe('runGithubSetup：Environment', () => {
     const { writes, gets } = await run(['--apply'], noReviewers);
 
     // Assert
-    expect(gets).toContain('users/inspireme');
+    expect(gets).toContain('users/vivastack');
     expect(writes).toEqual([{ method: 'PUT', path: `${REPO}/environments/preview`, body: PREVIEW_BODY }]);
     expect(check.out).toContain(`[予定] PUT ${REPO}/environments/preview`);
     expect(check.writes).toEqual([]);
@@ -408,18 +424,18 @@ describe('runGithubSetup：Environment', () => {
   });
 
   test.each([
-    ['別の人が承認者', previewReviewers({ reviewers: [{ type: 'User', reviewer: { id: 1, login: 'other' } }] })],
+    ['別の人が承認者', ownerReviewers({ reviewers: [{ type: 'User', reviewer: { id: 1, login: 'other' } }] })],
     [
       '承認者が増えている',
-      previewReviewers({
+      ownerReviewers({
         reviewers: [
           { type: 'User', reviewer: { id: 4242 } },
           { type: 'User', reviewer: { id: 1 } }
         ]
       })
     ],
-    ['Team が承認者', previewReviewers({ reviewers: [{ type: 'Team', reviewer: { id: 4242 } }] })],
-    ['自分の承認の禁止が有効', previewReviewers({ prevent_self_review: true })]
+    ['Team が承認者', ownerReviewers({ reviewers: [{ type: 'Team', reviewer: { id: 4242 } }] })],
+    ['自分の承認の禁止が有効', ownerReviewers({ prevent_self_review: true })]
   ])('11.5 preview の承認者が設定と違う（%s）ときは PUT する', async (_name, rule) => {
     // Act
     const { writes } = await run(['--apply'], { ...configured(), [`GET ${REPO}/environments/preview`]: { deployment_branch_policy: null, protection_rules: [rule] } });
@@ -428,9 +444,9 @@ describe('runGithubSetup：Environment', () => {
     expect(writes).toEqual([{ method: 'PUT', path: `${REPO}/environments/preview`, body: PREVIEW_BODY }]);
   });
 
-  test('11.5 待ち時間が設定と違えば PUT する。production に承認者がいれば、reviewers: [] の本文で外す', async () => {
+  test('11.5 待ち時間が設定と違えば PUT する。production の承認者はオーナーに揃える', async () => {
     // Arrange
-    const waiting = { deployment_branch_policy: null, protection_rules: [previewReviewers(), { type: 'wait_timer', wait_timer: 5 }] };
+    const waiting = { deployment_branch_policy: null, protection_rules: [ownerReviewers(), { type: 'wait_timer', wait_timer: 5 }] };
     const production = {
       deployment_branch_policy: { protected_branches: false, custom_branch_policies: true },
       protection_rules: [{ type: 'required_reviewers', prevent_self_review: false, reviewers: [{ type: 'User', reviewer: { id: 1 } }] }]
@@ -446,7 +462,7 @@ describe('runGithubSetup：Environment', () => {
   });
 
   test.each([
-    ['users/{login} に id がない', 'GET users/inspireme', { login: 'inspireme' }, 'id'],
+    ['users/{login} に id がない', 'GET users/vivastack', { login: 'vivastack' }, 'id'],
     ['protection_rules が配列でない', `GET ${REPO}/environments/preview`, { deployment_branch_policy: null, protection_rules: {} }, 'protection_rules']
   ])('11.5 応答の形が違う（%s）ときは終了コード 1', async (_name, key, value, message) => {
     // Act
@@ -557,15 +573,43 @@ describe('runGithubSetup：Actions・セキュリティ', () => {
 });
 
 describe('runGithubSetup：順番・表示', () => {
-  test('11.5 Environment（preview の承認）→ ルールセット → Team → Actions → セキュリティの順に書き込む', async () => {
+  test.each([403, 500])('11.5 タグ保護への書き込みが HTTP %i で失敗するとタグを許可しない', async status => {
+    const routes = {
+      ...configured(),
+      [`GET ${RULESETS}`]: (configured()[`GET ${RULESETS}`] as { id: number }[]).filter(ruleset => ruleset.id !== 4),
+      [`GET ${POLICIES}`]: { branch_policies: [{ id: 9, name: 'main', type: 'branch' }] },
+      [`POST ${REPO}/rulesets`]: new Error(`HTTP ${status}`)
+    };
+    const result = await run(['--apply'], routes);
+
+    expect(result.code).toBe(1);
+    expect(result.err).toContain(`HTTP ${status}`);
+    expect(result.writes.some(write => write.path === POLICIES)).toBe(false);
+  });
+
+  test('11.5 production の承認設定に失敗すると許可する ref を変更しない', async () => {
+    const productionPath = `${REPO}/environments/production`;
+    const result = await run(['--apply'], {
+      ...configured(),
+      [`GET ${productionPath}`]: { deployment_branch_policy: PRODUCTION_BODY.deployment_branch_policy, protection_rules: [] },
+      [`GET ${POLICIES}`]: { branch_policies: [{ id: 9, name: 'main', type: 'branch' }] },
+      [`PUT ${productionPath}`]: new Error('HTTP 403')
+    });
+
+    expect(result.code).toBe(1);
+    expect(result.writes).toEqual([{ method: 'PUT', path: productionPath, body: PRODUCTION_BODY }]);
+  });
+
+  test('11.5 ルールセット → Environment（preview の承認）→ Team → Actions → セキュリティの順に書き込む', async () => {
     // Act
     const { writes } = await run(['--apply'], unconfigured());
 
     // Assert
     const order = (predicate: (path: string) => boolean) => writes.findIndex(write => predicate(write.path));
     const positions = [
+      writes.findIndex(write => write.body?.name === 'production-release-tags'),
+      order(path => path === POLICIES),
       order(path => path.includes('/environments/preview')),
-      order(path => path.includes('/rulesets')),
       order(path => path.startsWith('orgs/')),
       order(path => path.includes('/actions/permissions')),
       order(path => path.includes('vulnerability'))
@@ -579,7 +623,7 @@ describe('runGithubSetup：順番・表示', () => {
     const { out } = await run([], unconfigured());
 
     // Assert
-    expect(out).toContain('inspireme（id 4242）');
+    expect(out).toContain('vivastack（id 4242）');
   });
 });
 

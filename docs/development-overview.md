@@ -5,7 +5,7 @@
 | ドキュメント | docs/development-overview.md |
 | 版 | 0.21（ドラフト） |
 | 作成日 | 2026-11-11 |
-| 更新日 | 2026-11-20（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）。0.11：PWA のオフラインで使える範囲と Service Worker のツールを決めた（5.4、U3・U13、D40・D41）。0.12：アクセシビリティの検査（axe・コントラストの単体テスト）と、ふりがなの読み上げの対処を 5.2 に書いた。0.13：Lighthouse CI の測り方と TBT の基準を 5.1 に書き、ハッシュつきのずれの直し方を決めた〔D42〕。0.14：執筆ルールとレビュー基準を `content/guidelines/` に書き（T5-01）、9.2・9.3 に参照を足した。`status` を `reviewed` にするのは、承認の後にオーナー。0.15：ふりがなの自動付与のツール（`pnpm content:furigana`、`lindera-wasm-nodejs-ipadic`）と、①〜④のスキル・エージェント（`gotouchi-content`・`gotouchi-source-checker`・`gotouchi-derivative-checker`）を決めた〔T5-02〕。0.16：出典のリンク切れチェック（`pnpm content:links`、`link-check.yml`）の上限・分類・終了コード・安全の方針を 12.4 に決めた〔T5-03〕。0.17：リポジトリを public にし、`main` をルールセット2つで守り、GitHub の設定を `pnpm github:setup` で反映するようにした。Cloudflare API Token の最小権限を決め、Access の手順を公式ドキュメントで書いた（11.1〜11.5、13、U5・U14、D44・D45。U7 は T0-06 に移した）〔T0-05〕。0.18：プレビューURLを Cloudflare Access で守るのをやめた（D20 → D46。リポジトリを public にしたので、下書きはすでに公開されている。U7 は不要になった）。PR のプレビューと `main` の本番へのデプロイ（12.1〜12.3。Token の job は `main` の道具と PR の `dist/` だけを扱う。11.2）〔T0-06〕。0.19：`README.md` を書き直し（6.5）、ローカル開発環境（11.6）に yamllint・`pnpm lint`・`pnpm typecheck`・Playwright の入れ方・デプロイは CI だけで行うこと〔障害時の切り戻しだけ手元〕を足し、コードブロックを README・AGENTS.md への参照に置き換えた。10.1 に CHANGELOG を書くタイミングを足した）〔T0-07〕。0.20：運営者と問い合わせ窓口の方針を決めた（5.6、D47）。トップページのフッターは説明ページへのリンクに絞った（4.11.7、D48）。0.21：本番のアクセス解析とデプロイ後の確認を追加し、初回公開の連絡先を確定した（T6-02、D47・D49）） |
+| 更新日 | 2026-11-20（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）。0.11：PWA のオフラインで使える範囲と Service Worker のツールを決めた（5.4、U3・U13、D40・D41）。0.12：アクセシビリティの検査（axe・コントラストの単体テスト）と、ふりがなの読み上げの対処を 5.2 に書いた。0.13：Lighthouse CI の測り方と TBT の基準を 5.1 に書き、ハッシュつきのずれの直し方を決めた〔D42〕。0.14：執筆ルールとレビュー基準を `content/guidelines/` に書き（T5-01）、9.2・9.3 に参照を足した。`status` を `reviewed` にするのは、承認の後にオーナー。0.15：ふりがなの自動付与のツール（`pnpm content:furigana`、`lindera-wasm-nodejs-ipadic`）と、①〜④のスキル・エージェント（`gotouchi-content`・`gotouchi-source-checker`・`gotouchi-derivative-checker`）を決めた〔T5-02〕。0.16：出典のリンク切れチェック（`pnpm content:links`、`link-check.yml`）の上限・分類・終了コード・安全の方針を 12.4 に決めた〔T5-03〕。0.17：リポジトリを public にし、`main` をルールセット2つで守り、GitHub の設定を `pnpm github:setup` で反映するようにした。Cloudflare API Token の最小権限を決め、Access の手順を公式ドキュメントで書いた（11.1〜11.5、13、U5・U14、D44・D45。U7 は T0-06 に移した）〔T0-05〕。0.18：プレビューURLを Cloudflare Access で守るのをやめた（D20 → D46。リポジトリを public にしたので、下書きはすでに公開されている。U7 は不要になった）。PR のプレビューと `main` の本番へのデプロイ（12.1〜12.3。Token の job は `main` の道具と PR の `dist/` だけを扱う。11.2）〔T0-06〕。0.19：`README.md` を書き直し（6.5）、ローカル開発環境（11.6）に yamllint・`pnpm lint`・`pnpm typecheck`・Playwright の入れ方・デプロイは CI だけで行うこと〔障害時の切り戻しだけ手元〕を足し、コードブロックを README・AGENTS.md への参照に置き換えた。10.1 に CHANGELOG を書くタイミングを足した）〔T0-07〕。0.20：運営者と問い合わせ窓口の方針を決めた（5.6、D47）。トップページのフッターは説明ページへのリンクに絞った（4.11.7、D48）。0.21：本番のアクセス解析とデプロイ後の確認を追加し、初回公開の連絡先を確定した（T6-02、D47・D49）。0.22：本番デプロイを GitHub Release の正式公開に切り替えた（D50）） |
 | リポジトリ | vivastack-labs/vivastack-build-maps（リポジトリ直下がアプリ本体） |
 | 公開URL | `https://maps.vivastack-dev.workers.dev/{ja,en,zh}/` |
 | ステータス | 検討フェーズの決定事項を反映。「要検証」とした項目は実装時に確定する |
@@ -1042,6 +1042,7 @@ flowchart TB
   - `preview` は `main` の `wrangler.jsonc` と wrangler の版を使うので、PR で `wrangler.jsonc` を変えても、プレビューには反映されない（反映を確かめるのは merge の後の本番）。
   - URL の取り出しと PR へのコメントは、承認の後に動く `preview-comment` の job が、PR のコード（`scripts/preview-*.ts`）で行う。この job は Secrets を持たず、`pull-requests: write` だけを持つ（Write 権限の人が自分で書ける workflow と同じ権限なので、承認の対象にしない）。
   - 残るリスク：本番（`deploy.yml`）も `preview` も、Token は依存から切り離した job に置いたが、依存が汚染されると、ビルドした `dist/`（公開する内容）は細工されうる。lockfile を `--frozen-lockfile` で使い、Dependabot の更新の PR を読んでから merge することで受ける。
+- Environment `production` が許可する `v*` タグは、作成・更新・削除をリポジトリの admin と組織のオーナーに制限する。GitHub のルールセットでタグからの Secrets へのアクセスを守る。Write 権限の利用者も既存タグから Release を公開できるため、本番デプロイにはオーナーの承認を必須にする（11.5・D50）。
 - 手元からはデプロイしない（本番・プレビューとも CI だけ。第12章）。障害時の切り戻し（第13章の `wrangler rollback`）だけは、オーナーが手元で `wrangler login`（OAuth）で行い、Token を手元に保存しない。
 
 ### 11.3 Cloudflare API Tokenの権限
@@ -1122,7 +1123,8 @@ flowchart TB
 |---|---|
 | ルールセット `main-ci`（`main`） | PRを通さないとmergeできない（承認の数は 0）。`check`・`gitleaks` の成功を必須にする（GitHub Actions のチェックに限る）。force push・削除を禁止する。バイパスできる人はいない |
 | ルールセット `main-review`（`main`） | CODEOWNERS の承認を1件必須にする。`main` の更新を制限する（update）ので、merge できるのはバイパスできる人だけ。リポジトリの admin と組織の admin（どちらもオーナー）は PR でバイパスできる |
-| Environment `production` | `main` からのデプロイだけを許可する（承認者なし） |
+| ルールセット `production-release-tags`（`refs/tags/v*`） | タグの作成・更新・削除を制限する。バイパスできるのはリポジトリの admin と組織のオーナー |
+| Environment `production` | 保護された `v*` タグからのデプロイを許可する。オーナーの承認が必須 |
 | Environment `preview` | PRからのデプロイに使う。デプロイの前にオーナーの承認を必須にする（11.2。ブランチの制限なし） |
 | CODEOWNERS | `*`（リポジトリ全体）はオーナー。`/content/prefectures/`（都道府県の YAML）は `@vivastack-labs/maps-reviewers`。スキーマ（`content/schema/`）・lint の設定・執筆ルール（`content/guidelines/`）は検査とルールを変えるので、オーナーのまま |
 | Team | `maps-reviewers` を作成し、リポジトリにWrite権限を付ける |
@@ -1131,12 +1133,12 @@ flowchart TB
 | Dependabot | npmとGitHub Actionsの更新を週1回提案させる。公開から7日たっていない版は提案しない（`cooldown`）。npm の minor・patch は1つのPRにまとめる |
 
 - 必須にするチェックは、`ci.yml` の `check` と `gitleaks`（12.3）。job の名前を変えたら、`scripts/github-settings.ts` も直す（単体テストが ci.yml の job と比べる）。
-- 設定は `pnpm github:setup`（`scripts/setup-github.ts`。値は `scripts/github-settings.ts`）で反映する（T0-05）。既定は確かめるだけで、今の設定を GET で読み、設定と違うものだけを「変える予定」として表示する（同じなら「変更なし」）。`--apply` で、違うものだけを書き込む。何度実行しても同じ状態になる。設定ファイルにないリポジトリのルールセットには触れず、警告を出す。Environment は `scripts/github-settings.ts` が正で、画面で足した承認者・ブランチは `--apply` で設定に戻る。
+- 設定は `pnpm github:setup`（`scripts/setup-github.ts`。値は `scripts/github-settings.ts`）で反映する（T0-05）。既定は確かめるだけで、今の設定を GET で読み、設定と違うものだけを「変える予定」として表示する（同じなら「変更なし」）。`--apply` で、違うものだけを書き込む。何度実行しても同じ状態になる。設定ファイルにないリポジトリのルールセットには触れず、警告を出す。Environment は `scripts/github-settings.ts` が正で、画面で足した承認者・ブランチ・タグは `--apply` で設定に戻る。
   - Secrets（11.2）と、Team のメンバーは扱わない。レビュアーは GitHub の画面で Team に招待する。Team を作ると、作った人は自動でメンバーになる。スクリプトは、実行した人（オーナー）がメンバーなら外す（オーナーに `/content/prefectures/` のレビューの依頼が行かないように）。ほかのメンバーには触れない。
   - Team を作る・権限を付けるには、`gh` に `admin:org` が要る（`gh auth refresh -h github.com -s admin:org`）。作業の後は `gh auth refresh -h github.com -r admin:org` で外してよい。
 - ルールセットを2つに分ける理由（D44）：オーナーは1人で、自分の PR を自分で承認できない。承認だけをオーナーがバイパスでき、CI はだれもバイパスできないようにする（クラシックのブランチ保護で admin を対象から外すと、CI の失敗も無視して merge できてしまう）。そのため、オーナーの PR には CODEOWNERS の承認が実質効かない（1人で開発するため受け入れる）。
 - merge はオーナーだけ（D44）：`main-review` の更新の制限（update）で、レビュアー（Write）どうしが承認し合っても merge できない。そのため、オーナーはレビュアーが承認した PR でも、merge のたびに「Merge without waiting for requirements to be met (bypass rules)」を選ぶ（CI〔`main-ci`〕は通っていないと merge できない）。GitHub のアプリ（スマホ）にはこのバイパスの merge のボタンがないので、ブラウザ版の GitHub で merge するか、`gh pr merge <番号> --merge --admin` を使う（T0-05 の PR で確かめた）。9.2 ⑧（承認の後にオーナーが `status` を `reviewed` にして merge する）を設定で守る。組織のオーナーが増えたら、OrganizationAdmin のバイパスを見直す。
-- 反映の順番は Environment → ルールセット → Team → Actions → セキュリティ。途中で止まっても「Team は Write、`preview` は承認なし」の状態を残さないため。レビュアーを Team に招待するのは、`pnpm github:setup` が「変更なし」になってから。
+- 反映の順番はルールセット → Environment → Team → Actions → セキュリティ。本番用のタグの保護とオーナー承認を設定してから `production` でタグを許可する。`preview` の承認を設定してから Team に Write を付ける。レビュアーを Team に招待するのは、`pnpm github:setup` が「変更なし」になってから。
 - 「merge の前に `main` に追いつく」（strict）は無効。県ごとの PR（T5-05）が並ぶと、1つ merge するたびにほかの PR の CI をやり直すことになる。県ごとに別の YAML を変えるので、ぶつかることは少ない。
 - 「Dismiss stale pull request approvals when new commits are pushed」と「Require approval of the most recent reviewable push」は無効。承認の後にオーナーが `status` を `reviewed` にするコミットを足す（9.2 ⑧）ので、有効にすると承認が外れる。
 - **プラン**（U14 → D44）：T0-05 でリポジトリを public にした。private・Free のときは、ブランチ保護（ルールセットを含む）と Environments・Environment の Secrets を使えなかった（API が「Upgrade to GitHub Pro or make this repository public」を返す。T0-04 で確認）。public では、標準のランナーの Actions の分数に上限がない。
@@ -1168,13 +1170,23 @@ flowchart TB
 |---|---|---|
 | `.github/workflows/ci.yml` | `main` 向けのPR | チェック一式 → プレビューへデプロイ（オーナーの承認の後）→ PRにURLをコメント |
 | `.github/workflows/e2e.yml` | **手動で実行**（`workflow_dispatch`） | E2E（Playwright）。プロジェクト（`all` か1つ）を選べる。開発中は PR ごとには実行しない（D30） |
-| `.github/workflows/deploy.yml` | `main` へのpush | typecheck・test・`content:validate`・build（`reviewed` だけ）→ 本番へデプロイ（T0-06）→ 本番の読み取り検査（T6-02、D49） |
+| `.github/workflows/deploy.yml` | 正式な GitHub Release の公開（D50） | typecheck・test・`content:validate`・build（`reviewed` だけ）→ オーナー承認 → 本番へデプロイ（T0-06）→ 本番の読み取り検査（T6-02、D49） |
 | `.github/workflows/link-check.yml` | **手動で実行**（`workflow_dispatch`） | 全コンテンツの出典URLのリンク切れチェック。結果はレポートとして残す |
 
 - リポジトリ全体がアプリなので、パスでの絞り込みは基本的にしない。
 - アプリの動作に関係しない変更（`docs/`・`.claude/`・`.codex/`・`.agents/` の下と、リポジトリの直下の `*.md`）だけのPRでは、`check` job の中で typecheck・test・build を飛ばす。lint（markdownlint・yamllint を含む）とgitleaksは実行する。判定は `scripts/docs-only.ts`（PRの分岐点からの `git diff --name-only --no-renames` を見る。リネームは移動元と移動先の両方で判定する。ファイルがないときは全部を実行する）。`public/`・`app/` などの下の `.md` は、配信や読み込みの対象になりうるので文書とみなさない。
 - **E2E は開発中は PR ごとに実行しない**（D30。T0-04 でオーナーが決定）。E2E は7プロジェクトを `workers: 1` で順に回すため時間がかかる。T0-04 の時点では、private・Free の Actions の月2,000分の上限も理由だった（T0-05 で public にしたので、分数の上限はなくなった）。UI やルーティングを変えたPRでは、merge の前に `e2e.yml` を手動で実行して通ることを確かめる（`gh workflow run e2e.yml --ref <ブランチ> -f project=all`）。公開後も全構成 E2E は手動で行う（D49）。
 - `paths-ignore` は使わない（T0-04 で決定）。GitHubの公式ドキュメントのとおり、`paths-ignore` で実行されなかったworkflowのチェックは「Pending」のままになり、必須にしているとPRをmergeできないため。また、`paths-ignore` では文書だけのPRで markdownlint も実行されなくなる。
+
+#### 本番の公開手順
+
+1. `CHANGELOG.md` を更新した PR を `main` に取り込み、公開するコミットの SHA を確認する。
+2. オーナーが、その SHA を指す `v1.0.1` のような `vMAJOR.MINOR.PATCH` 形式のタグを作り、GitHub Releases でそのタグの正式版を公開する。既存タグを選ぶ場合も、公開前に参照先が対象の SHA と一致することを確認する。
+3. Actions の `deploy` で、対象 SHA が手順1で確認したコミットと同じことを確認する。オーナーが `production` のデプロイを承認し、`build`・`deploy`・`smoke` の成功を確認する。Artifact の期限は1日なので、その間に承認する。本番の読み取り検査が終わってから次の版を公開する。
+
+- `main` への push、タグだけの push、Release の下書き・編集、プレリリースの公開では本番にデプロイしない。正式公開時には、3 job がイベントの SHA を checkout する。依存のインストールに先立ってタグの形式と SHA が `main` の履歴に含まれることを確認する。
+- 初回切り替えでは、この変更を `main` に取り込む。オーナーが対象リポジトリの既存の `v*` タグと参照先を確認し、`pnpm github:setup` で差分を確認する。予定された変更をまとめて反映する場合は `pnpm github:setup --apply` を使う。今回の設定だけを反映する場合は、GitHub の設定画面で 11.5 のタグルールセットを有効にし、`production` の承認者を設定してから、`v*` タグを許可して `main` ブランチの許可を外す。ルールセットと Environment の設定を再確認してから最初の正式版を公開する。切り替え前に起動したデプロイがあればその状態を確認する。
+- 失敗した公開の再実行は、その run の SHA を配信する。新しい版が既に本番に出ていないことを確認してから行い、Artifact が期限切れの場合はビルドから再実行する。
 
 ### 12.2 パイプライン
 
@@ -1192,11 +1204,13 @@ flowchart LR
     AP --> A7["wrangler versions upload<br/>--preview-alias pr-N"]
     A7 --> A8[PRにURLをコメント]
   end
-  subgraph MAIN["main（deploy.yml）"]
+  subgraph RELEASE["GitHub Release の正式公開（deploy.yml）"]
     direction LR
-    B1[install] --> B2["typecheck / test<br/>content:validate"]
+    B0[タグとコミットの確認] --> B1[install]
+    B1 --> B2["typecheck / test<br/>content:validate"]
     B2 --> B3["build<br/>（reviewed のみ）"]
-    B3 --> B5[wrangler deploy]
+    B3 --> BP{{オーナーの承認<br/>（production）}}
+    BP --> B5[wrangler deploy]
     B5 --> B6[本番の読み取り検査]
   end
 ```
@@ -1317,7 +1331,7 @@ jobs:
 | API Tokenの更新 | 年1回（期限が切れる前。今の Token は 2027-11-17 まで） | 新しいトークンを発行する（11.3 の権限・期限1年）→ `gh secret set CLOUDFLARE_API_TOKEN --env preview` と `--env production` で更新する（11.2）→ デプロイが通ることを確かめる → 古いトークンを削除する |
 | GitHub の設定 | 変えるとき | `scripts/github-settings.ts` を直す PR を出し、merge の後に `pnpm github:setup`（確かめるだけ）→ `pnpm github:setup --apply` を実行する（11.5） |
 | 依存パッケージの更新 | 週1回 | DependabotのPRをCIで確認してmergeする |
-| 切り戻し | 障害時 | `wrangler rollback` で1つ前のバージョンに戻すか、Gitで元に戻すコミットを入れて再デプロイする。`wrangler rollback` は、オーナーが手元で `wrangler login`（OAuth）で行う（Token は手元に保存しない。11.2）。手元から行うデプロイ作業はこれだけ |
+| 切り戻し | 障害時 | `wrangler rollback` で1つ前のバージョンに戻すか、元に戻すコミットを `main` に取り込み、新しい正式版として公開する（12.1）。`wrangler rollback` は、オーナーが手元で `wrangler login`（OAuth）で行う（Token は手元に保存しない。11.2）。手元から行うデプロイ作業はこれだけ |
 
 ---
 
@@ -1443,6 +1457,7 @@ flowchart LR
 | D47 | 運営者・連絡先 | 運営者は VivaStack。誤記・不具合は公開 GitHub Issues で受け付け、個人情報を書かないよう案内する（5.6、T6-02）。初回公開では運営用メールアドレスの掲載を見送る |
 | D48 | トップページのフッター | トップページでは「このサイトについて」とプライバシーポリシーへのリンクを表示する。地図データの出典と AI の利用は「このサイトについて」から確認できる（F-SRC-04、4.11.7、8.3） |
 | D49 | 公開後の E2E | デプロイ成功後に本番 URL の読み取り検査を実行する。全構成の E2E は手動を維持する（12.1・12.2、T6-02、U15） |
+| D50 | 本番デプロイのトリガー | GitHub Release の正式公開でワークフローを起動し、オーナーの承認後に、保護されたバージョンタグが指す `main` のコミットをデプロイする（11.5・12.1・12.2、T0-05・T0-06・T6-02） |
 
 ## 付録B. 参考資料
 
