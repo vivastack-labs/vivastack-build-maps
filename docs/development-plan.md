@@ -179,7 +179,9 @@ T5-05 の県ごとの進み具合は、YAMLの `status` で分かるので、こ
 | ID | 種別 | タスク | 状態 |
 |---|---|---|---|
 | T6-01 | 手作業 | 実機での確認 | 完了 |
-| T6-02 | chore | 公開 | 作業中 |
+| T6-02 | chore | 公開 | 完了 |
+
+2026-11-20 に v1.0.0 を公開した。[本番デプロイと読み取り検査](https://github.com/vivastack-labs/vivastack-build-maps/actions/runs/44690041882)と[全9構成の E2E](https://github.com/vivastack-labs/vivastack-build-maps/actions/runs/44688218312)が成功した。本番からの計測リクエストが受理され、Cloudflare Web Analytics の集計 API で Core Web Vitals の記録を確認した。
 
 ---
 
