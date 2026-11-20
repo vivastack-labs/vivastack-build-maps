@@ -3,9 +3,9 @@
 | 項目 | 内容 |
 |---|---|
 | ドキュメント | docs/development-overview.md |
-| 版 | 0.20（ドラフト） |
+| 版 | 0.21（ドラフト） |
 | 作成日 | 2026-11-11 |
-| 更新日 | 2026-11-20（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）。0.11：PWA のオフラインで使える範囲と Service Worker のツールを決めた（5.4、U3・U13、D40・D41）。0.12：アクセシビリティの検査（axe・コントラストの単体テスト）と、ふりがなの読み上げの対処を 5.2 に書いた。0.13：Lighthouse CI の測り方と TBT の基準を 5.1 に書き、ハッシュつきのずれの直し方を決めた〔D42〕。0.14：執筆ルールとレビュー基準を `content/guidelines/` に書き（T5-01）、9.2・9.3 に参照を足した。`status` を `reviewed` にするのは、承認の後にオーナー。0.15：ふりがなの自動付与のツール（`pnpm content:furigana`、`lindera-wasm-nodejs-ipadic`）と、①〜④のスキル・エージェント（`gotouchi-content`・`gotouchi-source-checker`・`gotouchi-derivative-checker`）を決めた〔T5-02〕。0.16：出典のリンク切れチェック（`pnpm content:links`、`link-check.yml`）の上限・分類・終了コード・安全の方針を 12.4 に決めた〔T5-03〕。0.17：リポジトリを public にし、`main` をルールセット2つで守り、GitHub の設定を `pnpm github:setup` で反映するようにした。Cloudflare API Token の最小権限を決め、Access の手順を公式ドキュメントで書いた（11.1〜11.5、13、U5・U14、D44・D45。U7 は T0-06 に移した）〔T0-05〕。0.18：プレビューURLを Cloudflare Access で守るのをやめた（D20 → D46。リポジトリを public にしたので、下書きはすでに公開されている。U7 は不要になった）。PR のプレビューと `main` の本番へのデプロイ（12.1〜12.3。Token の job は `main` の道具と PR の `dist/` だけを扱う。11.2）〔T0-06〕。0.19：`README.md` を書き直し（6.5）、ローカル開発環境（11.6）に yamllint・`pnpm lint`・`pnpm typecheck`・Playwright の入れ方・デプロイは CI だけで行うこと〔障害時の切り戻しだけ手元〕を足し、コードブロックを README・AGENTS.md への参照に置き換えた。10.1 に CHANGELOG を書くタイミングを足した）〔T0-07〕。0.20：運営者と問い合わせ窓口の方針を決めた（5.6、D47）。トップページのフッターは説明ページへのリンクに絞った（4.11.7、D48）） |
+| 更新日 | 2026-11-20（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）。0.11：PWA のオフラインで使える範囲と Service Worker のツールを決めた（5.4、U3・U13、D40・D41）。0.12：アクセシビリティの検査（axe・コントラストの単体テスト）と、ふりがなの読み上げの対処を 5.2 に書いた。0.13：Lighthouse CI の測り方と TBT の基準を 5.1 に書き、ハッシュつきのずれの直し方を決めた〔D42〕。0.14：執筆ルールとレビュー基準を `content/guidelines/` に書き（T5-01）、9.2・9.3 に参照を足した。`status` を `reviewed` にするのは、承認の後にオーナー。0.15：ふりがなの自動付与のツール（`pnpm content:furigana`、`lindera-wasm-nodejs-ipadic`）と、①〜④のスキル・エージェント（`gotouchi-content`・`gotouchi-source-checker`・`gotouchi-derivative-checker`）を決めた〔T5-02〕。0.16：出典のリンク切れチェック（`pnpm content:links`、`link-check.yml`）の上限・分類・終了コード・安全の方針を 12.4 に決めた〔T5-03〕。0.17：リポジトリを public にし、`main` をルールセット2つで守り、GitHub の設定を `pnpm github:setup` で反映するようにした。Cloudflare API Token の最小権限を決め、Access の手順を公式ドキュメントで書いた（11.1〜11.5、13、U5・U14、D44・D45。U7 は T0-06 に移した）〔T0-05〕。0.18：プレビューURLを Cloudflare Access で守るのをやめた（D20 → D46。リポジトリを public にしたので、下書きはすでに公開されている。U7 は不要になった）。PR のプレビューと `main` の本番へのデプロイ（12.1〜12.3。Token の job は `main` の道具と PR の `dist/` だけを扱う。11.2）〔T0-06〕。0.19：`README.md` を書き直し（6.5）、ローカル開発環境（11.6）に yamllint・`pnpm lint`・`pnpm typecheck`・Playwright の入れ方・デプロイは CI だけで行うこと〔障害時の切り戻しだけ手元〕を足し、コードブロックを README・AGENTS.md への参照に置き換えた。10.1 に CHANGELOG を書くタイミングを足した）〔T0-07〕。0.20：運営者と問い合わせ窓口の方針を決めた（5.6、D47）。トップページのフッターは説明ページへのリンクに絞った（4.11.7、D48）。0.21：本番のアクセス解析とデプロイ後の確認を追加し、初回公開の連絡先を確定した（T6-02、D47・D49）） |
 | リポジトリ | vivastack-labs/vivastack-build-maps（リポジトリ直下がアプリ本体） |
 | 公開URL | `https://maps.vivastack-dev.workers.dev/{ja,en,zh}/` |
 | ステータス | 検討フェーズの決定事項を反映。「要検証」とした項目は実装時に確定する |
@@ -415,7 +415,7 @@ U3・U13 を決めた（D40・D41）。
 - アクセス解析は **Cloudflare Web Analytics**（Cookieを使わない）。Google Analyticsは使わない。
 - Cookieの同意バナーは置かない（このサイト自身はCookieを設定しないため）。
 - プライバシーポリシーのページ（`/{lang}/privacy/`）を3言語で用意する（T4-05）。アクセス解析（Cloudflare Web Analytics。Cookieを使わず、利用者を個人として見分けない。集計するのはページのパス・リファラー・国・ブラウザ・OS・端末の種類・表示速度で、Cloudflare の公式の説明のとおり）、このサイト自身はCookieを設定しないこと、端末に保存するもの（モード・ふりがなの設定〔localStorage〕と、オフラインで使うためのキャッシュ〔Service Worker〕。どちらも端末の中だけ）、Cloudflare で配信していること（接続元の IP アドレスなどの通信の情報を Cloudflare が扱う）、外部のサイトの扱い、改定日を書く。保存期間など、確かめていないことは書かない。
-- 運営者は [VivaStack](https://github.com/vivastack)。誤記・不具合はプロジェクトの公開 GitHub Issues で受け付け、投稿に個人情報を書かないよう案内する（D47）。個人情報や著作権に関する連絡を受け付ける運営用メールアドレスは公開（T6-02）の前に決めて追記する。
+- 運営者は [VivaStack](https://github.com/vivastack)。誤記・不具合はプロジェクトの公開 GitHub Issues で受け付け、投稿に個人情報を書かないよう案内する（D47）。運営用メールアドレスの掲載は初回公開時には見送る。
 - Web Analytics は T6-02 で入れる前提で、文に「使う」と書いてある。入れない、または集める項目が違うときは、公開の前に文（辞書の `privacy`）を直す。
 
 ---
@@ -1019,7 +1019,7 @@ flowchart TB
 |---|---|---|
 | GitHub | `vivastack-labs/vivastack-build-maps`、Actionsの有効化、Environments（`preview` / `production`） | レビュアーは `vivastack-labs` 組織のメンバー（GitHub Teamで管理）。リポジトリは public、組織は Free プラン（D44）。public なので、Free でもルールセット・Environments・Environment の Secrets を使える（11.5） |
 | Cloudflare | 既存アカウント、Workers Freeプラン、workers.devのサブドメイン（`vivastack-dev`。登録済み） | 本番もプレビューURLも workers.dev 上に出す（D35）。ゾーンは使わない |
-| Cloudflare Web Analytics | `maps.vivastack-dev.workers.dev` を登録 | 自動設定はプロキシ経由のサイト（自分のゾーン）向けで、workers.dev では使えない見込み。計測用のJSスニペットをHTMLに埋め込む（D35。**要確認**） |
+| Cloudflare Web Analytics | `maps.vivastack-dev.workers.dev` を登録 | Cloudflare API でホストを登録した。自動挿入には Cloudflare 上の対象ゾーンが必要なため、workers.dev の本番出力に公式の外部モジュールスクリプトを埋め込む（D35、T6-02）。[設定手順](https://developers.cloudflare.com/web-analytics/get-started/) |
 | Claude Code | Pro / Maxプランのサブスクリプション（またはAPIキー） | 開発とコンテンツ生成に使う。CIではAIを動かさないので、GitHubにAnthropicのAPIキーは置かない |
 
 ### 11.2 シークレット・IDの一覧と保存場所
@@ -1029,7 +1029,7 @@ flowchart TB
 | `CLOUDFLARE_API_TOKEN` | GitHub Environment Secrets（`preview` / `production`） | wranglerでのデプロイ | 機密。このアプリ専用。有効期限を設けて定期的に更新する |
 | `CLOUDFLARE_ACCOUNT_ID` | GitHub のリポジトリの Secrets | wranglerでのデプロイ | 公式には機密とされていないが、Secretとして扱う |
 | `GITHUB_TOKEN` | Actionsが自動で発行 | PRにプレビューURLをコメントする | workflowで `pull-requests: write` だけを付与する |
-| Web Analyticsのトークン | リポジトリ（ビルド時に埋め込む） | アクセス解析（JSスニペット。D35） | 公開されても問題ない値（HTMLに出る） |
+| Web Analytics の公開サイト識別子 | GitHub Actions のリポジトリ変数 `CLOUDFLARE_WEB_ANALYTICS_SITE_ID` | 本番ビルドだけに渡す（D35） | 本番の HTML に出る公開値 |
 
 - シークレットは、リポジトリ、`.env`、ログ、PRのコメントには一切書かない。
 - 登録は `gh secret set <名前> [--env <Environment>] -R vivastack-labs/vivastack-build-maps` で行い、値は画面の入力（`? Paste your secret`）で渡す。`--body` や `echo <値> |` で渡すと、値がシェルの履歴に残る。Environment の Secret は、Environment を先に作らないと登録できない（`pnpm github:setup --apply`。11.5）。
@@ -1168,12 +1168,12 @@ flowchart TB
 |---|---|---|
 | `.github/workflows/ci.yml` | `main` 向けのPR | チェック一式 → プレビューへデプロイ（オーナーの承認の後）→ PRにURLをコメント |
 | `.github/workflows/e2e.yml` | **手動で実行**（`workflow_dispatch`） | E2E（Playwright）。プロジェクト（`all` か1つ）を選べる。開発中は PR ごとには実行しない（D30） |
-| `.github/workflows/deploy.yml` | `main` へのpush | typecheck・test・`content:validate`・build（`reviewed` だけ）→ 本番へデプロイ（T0-06） |
+| `.github/workflows/deploy.yml` | `main` へのpush | typecheck・test・`content:validate`・build（`reviewed` だけ）→ 本番へデプロイ（T0-06）→ 本番の読み取り検査（T6-02、D49） |
 | `.github/workflows/link-check.yml` | **手動で実行**（`workflow_dispatch`） | 全コンテンツの出典URLのリンク切れチェック。結果はレポートとして残す |
 
 - リポジトリ全体がアプリなので、パスでの絞り込みは基本的にしない。
 - アプリの動作に関係しない変更（`docs/`・`.claude/`・`.codex/`・`.agents/` の下と、リポジトリの直下の `*.md`）だけのPRでは、`check` job の中で typecheck・test・build を飛ばす。lint（markdownlint・yamllint を含む）とgitleaksは実行する。判定は `scripts/docs-only.ts`（PRの分岐点からの `git diff --name-only --no-renames` を見る。リネームは移動元と移動先の両方で判定する。ファイルがないときは全部を実行する）。`public/`・`app/` などの下の `.md` は、配信や読み込みの対象になりうるので文書とみなさない。
-- **E2E は開発中は PR ごとに実行しない**（D30。T0-04 でオーナーが決定）。E2E は7プロジェクトを `workers: 1` で順に回すため時間がかかる。T0-04 の時点では、private・Free の Actions の月2,000分の上限も理由だった（T0-05 で public にしたので、分数の上限はなくなった）。UI やルーティングを変えたPRでは、merge の前に `e2e.yml` を手動で実行して通ることを確かめる（`gh workflow run e2e.yml --ref <ブランチ> -f project=all`）。本番リリース後の扱いは U15 で決める。
+- **E2E は開発中は PR ごとに実行しない**（D30。T0-04 でオーナーが決定）。E2E は7プロジェクトを `workers: 1` で順に回すため時間がかかる。T0-04 の時点では、private・Free の Actions の月2,000分の上限も理由だった（T0-05 で public にしたので、分数の上限はなくなった）。UI やルーティングを変えたPRでは、merge の前に `e2e.yml` を手動で実行して通ることを確かめる（`gh workflow run e2e.yml --ref <ブランチ> -f project=all`）。公開後も全構成 E2E は手動で行う（D49）。
 - `paths-ignore` は使わない（T0-04 で決定）。GitHubの公式ドキュメントのとおり、`paths-ignore` で実行されなかったworkflowのチェックは「Pending」のままになり、必須にしているとPRをmergeできないため。また、`paths-ignore` では文書だけのPRで markdownlint も実行されなくなる。
 
 ### 12.2 パイプライン
@@ -1197,10 +1197,11 @@ flowchart LR
     B1[install] --> B2["typecheck / test<br/>content:validate"]
     B2 --> B3["build<br/>（reviewed のみ）"]
     B3 --> B5[wrangler deploy]
+    B5 --> B6[本番の読み取り検査]
   end
 ```
 
-- 開発中は、PR の E2E・axe を `e2e.yml` で手動で実行する（D30）。`deploy.yml` でも E2E は実行しない（T0-06 で決定。本番に出るのは、merge の前に `e2e.yml` で確かめた `main` だけ）。
+- 既存の E2E・axe は `e2e.yml` で手動実行する（D30・D49）。`deploy.yml` ではデプロイ成功後、Cloudflare の認証情報を持たない job で `pnpm test:e2e:production` を実行する。公開 URL の転送・3言語の表示・CSP と関連ヘッダー・47都道府県の公開状態・計測スクリプトの出力を確かめる。
 - `ci.yml` の Lighthouse は、上限のコンテンツの `dist/` を測る（本物のコンテンツは47県とも「準備中」でカードの JSON を読まず、最悪の場合を測れないため。5.1）。`deploy.yml`（本番のビルド）には `pnpm lhci` を加えない（T0-06 で決定。本物のコンテンツは今「準備中」で、測る意味が小さい。公開〔T6〕の前に決め直す）。
 
 ### 12.3 PR用workflow（`ci.yml`）
@@ -1276,7 +1277,7 @@ jobs:
 
 - gitleaks は `gitleaks/gitleaks-action` を使わない。組織のリポジトリではライセンスキー（`GITLEAKS_LICENSE`）の登録が要るため。公式のリリースのバイナリを、SHA-256 を確かめてから実行する。
 - `e2e.yml`（手動）は、選んだプロジェクトが使うブラウザだけを `playwright install --with-deps` で入れ、`pnpm test:e2e` を実行する。サーバーは `webServer` の `pnpm build` → `wrangler dev`。E2E は CI では `workers: 1`・`retries: 2` で動く（`playwright.config.ts`）。`all`・`chromium` のときは続けてプレビュー用のビルドの E2E（`pnpm test:e2e:preview`。T3-02）も動かす。失敗したときのレポートは Actions の Artifact（`playwright-report`、14日。プレビューの分は `playwright-report-preview/`・`test-results-preview/` に分けて、同じ Artifact に入る）に残る。
-- 本番用の workflow（`deploy.yml`）は、`build`（環境なし・キャッシュなし。install → typecheck → test → `content:validate` → `pnpm build`〔reviewed のみ〕→ `dist/` を Artifact に）と `deploy`（`environment: production`。`--ignore-scripts` で入れた wrangler で、Artifact の `dist/` を `wrangler deploy`）の2つの job に分ける。依存が動く手順と Token を別の VM にするため。`concurrency` は1つで、待っている古い実行は新しい実行で取り消されうる（最新の `main` が出る）。
+- 本番用の workflow（`deploy.yml`）は3つの job に分ける。`build` は環境・キャッシュなしで型・単体テスト・コンテンツを検証し、`reviewed` のコンテンツと Web Analytics の設定を含む `dist/` を Artifact にする。`deploy` は `production` 環境で、Artifact の `dist/` を Workers に配信する。`smoke` は配信の成功後に、本番 URL を読み取り検査する（D49）。配信用の認証情報は `deploy` の配信ステップにだけ渡す。`concurrency` は1つで、待っている古い実行は新しい実行で取り消されうる（最新の `main` が出る）。
 - フォークからのPRと Dependabot の PR には Environment の Secrets が渡らないので、`preview` を飛ばす（`head.repo.full_name == github.repository`、`github.actor != 'dependabot[bot]'`）。
 - プレビューURLの形式：別名は `https://pr-<PR番号>-maps.vivastack-dev.workers.dev/`（その PR の最新の承認したコミット）、バージョンは `https://<バージョンIDの先頭8文字>-maps.vivastack-dev.workers.dev/`（そのコミットに固定）。
 - 取り出し方：`WRANGLER_OUTPUT_FILE_PATH` を付けると、wrangler（4.160.0）は ND-JSON の1行 `{"type":"version-upload","version":1,"preview_url","preview_alias_url","version_id",…,"timestamp"}` を書く。標準出力の `Version Preview URL:` は表示用なので使わない。`scripts/lib/preview-url.ts` が、ホストを `<英数字…>-maps.vivastack-dev.workers.dev`・ポートなしに限って取り出す（`$GITHUB_OUTPUT` と PR のコメントへの注入を防ぐ）。プレビューが無効で URL がないときは失敗する。
@@ -1384,7 +1385,7 @@ flowchart LR
 | U12 | ~~市区町村名のローマ字の書き方~~ | 決定（D33）：第7章 7.4.1 | — |
 | U13 | ~~Service Worker のツール~~ | 決定（D41）：workbox-build の `generateSW`。第5章 5.4 | — |
 | U14 | ~~GitHub のプランの制約（private・Free ではブランチ保護と Environments を使えない）~~ | 決定（D44）：リポジトリを public にした。`main` はルールセット2つで守る。第11章 11.5 | — |
-| U15 | 本番リリース後の E2E の実行のしかた | 開発中は手動（D30）。リリース後に PR ごと・`main` への push ごと・手動のどれにするか（実行の時間による。public にしたので、Actions の分数の上限はない） | M6 |
+| U15 | ~~本番リリース後の E2E の実行のしかた~~ | 決定（D49）：デプロイ後の読み取り検査は自動、全構成 E2E は手動（D30） | T6-02 |
 | U16 | ~~小笠原諸島など、地図の本体の枠の外に出る島の表示~~ | 決定（D36）：第6章 6.6 (1) | — |
 
 ---
@@ -1422,7 +1423,7 @@ flowchart LR
 | D27 | フォント | Webフォントは使わず、システムフォントを言語ごとに指定する（6.2） |
 | D28 | UI文言の多言語化 | ライブラリは使わず、型付きの自前の辞書にする。日本語の文言にもふりがなの記法を使う（6.2） |
 | D29 | 配信するファイルの組み立て | `scripts/postbuild.ts` で `out/` から `dist/` を組み立てる。D35 からは `out/` の構成のままコピーする（以前は `dist/maps/` に移していた）。`_redirects`・`_headers` は `dist/` の直下（6.4） |
-| D30 | 開発中の E2E の実行 | CI では PR ごとに実行せず、`e2e.yml` を手動で実行する。Actions の分数を抑えるため（T0-05 で public にしてからは、実行の時間を抑えるため）。本番リリース後は U15 で決める（12.1） |
+| D30 | 開発中の E2E の実行 | CI では PR ごとに実行せず、`e2e.yml` を手動で実行する。Actions の分数を抑えるため（T0-05 で public にしてからは、実行の時間を抑えるため）。公開後の運用は D49（12.1） |
 | D31 | 政令指定都市の区の形 | N03 の区ごとの形をそのまま使う。N03 には20市すべての区（合計171）が区ごとの形とコードで入っていて、市全体の形はない（8.2） |
 | D32 | 読みがなと県庁の位置の出典 | 読みがなは総務省の「都道府県コード及び市区町村コード」、県庁の位置は地理院地図で調べた値。どちらも公共データ利用規約（第1.0版）で、出典を書いて使う。国土地理院は県庁の位置の一覧を公表していない（8.1） |
 | D33 | 市区町村名の読みがなとローマ字 | 総務省のカナから機械的に作る。ローマ字はヘボン式で、長音を書かず（`Tokyo`）、ん はいつも `n`（`Kanonji`）。市・区・町・村はハイフンで分ける（`Sapporo-shi`）。区は `Chuo-ku, Sapporo-shi`。機械的に作ると間違うものは、団体コードで引く修正表で直す（7.4.1） |
@@ -1439,8 +1440,9 @@ flowchart LR
 | D44 | GitHub のプランとブランチ保護 | リポジトリを public にする（組織は Free のまま）。`main` はルールセット2つで守る：`main-ci`（PR・`check`・`gitleaks` を必須。バイパスなし）、`main-review`（CODEOWNERS の承認を必須。`main` の更新を制限し、merge はバイパスできるオーナーだけ。リポジトリの admin と組織の admin は PR でバイパスできる）。Team `maps-reviewers` が CODEOWNERS で持つのは `/content/prefectures/` だけ。設定は `pnpm github:setup` で反映する（11.5。U14。T0-05） |
 | D45 | Cloudflare API Token の権限 | `Account / Workers Scripts: Edit` だけ（対象はこのアカウント、期限1年）。`preview`・`production` の Environment Secrets に同じ Token を置き、Account ID はリポジトリの Secret にする。`preview` のデプロイはオーナーの承認を必須にする（Token は Worker ごとに絞れないので、Token を分けても守れないため）（11.2・11.3。U5。T0-05） |
 | D46 | プレビューURLの保護をやめる | プレビューURLを Cloudflare Access で守らない（D20 を取りやめ）。リポジトリが public（D44）で、レビュー前のコンテンツは GitHub で読めるため。`noindex` と「下書き」の印は残す（11.4 (5)、R4。U7 は不要。T0-06 でオーナーが決定） |
-| D47 | 運営者・連絡先 | 運営者は VivaStack。誤記・不具合は公開 GitHub Issues、個人情報・著作権に関する連絡は運営用メールで受け付ける（5.6、T6-02）。メールアドレスは公開前に決める |
+| D47 | 運営者・連絡先 | 運営者は VivaStack。誤記・不具合は公開 GitHub Issues で受け付け、個人情報を書かないよう案内する（5.6、T6-02）。初回公開では運営用メールアドレスの掲載を見送る |
 | D48 | トップページのフッター | トップページでは「このサイトについて」とプライバシーポリシーへのリンクを表示する。地図データの出典と AI の利用は「このサイトについて」から確認できる（F-SRC-04、4.11.7、8.3） |
+| D49 | 公開後の E2E | デプロイ成功後に本番 URL の読み取り検査を実行する。全構成の E2E は手動を維持する（12.1・12.2、T6-02、U15） |
 
 ## 付録B. 参考資料
 

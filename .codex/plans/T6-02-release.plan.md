@@ -6,7 +6,7 @@
 
 | 項目 | 推奨案と理由 |
 |---|---|
-| 非公開の連絡先 | 公開掲載してよい運営用メールアドレスを1つ指定する。個人情報や著作権の連絡を、公開 Issues と分けて受け付けられる。 |
+| 非公開の連絡先 | 初回公開では運営用メールアドレスの掲載を見送る。既存の3言語の運営者プロフィール・公開 Issues の案内を使用する。 |
 | Web Analytics（D21） | Cloudflare で本番ホストの登録と自動挿入の可否を確かめる。自動挿入が使えなければ公式の外部スニペットを本番ビルドだけに入れる。プレビューとローカルのアクセスが本番の集計に混ざるのを防げる。 |
 | 公開後の E2E（U15） | デプロイ成功後に本番向けの短い読み取り検査を実行し、全9構成の既存 E2E は手動を維持する。配信・設定の異常を早く検出し、各 PR の検証時間を抑えられる。 |
 | ライセンス | 現行の MIT と `vivastack-labs` の著作権表示を維持する。地図データの出典と加工表示も維持する。名義変更が必要と権利者が確認した場合に更新する。 |
@@ -15,15 +15,22 @@
 
 ## 先に書くテストと実装の順序
 
-1. `tests/unit/components/PrivacyContent.test.tsx` に「5.6・D47：3言語で非公開の運営用連絡先を案内する」を追加して Red を確認する。`src/components/PrivacyContent.tsx`、`src/i18n/{ja,en,zh}.ts`、`src/lib/site.ts` に公開用のメールリンクと案内を追加し、改定日を更新する。既存の運営者プロフィールと公開 Issues のリンクを検証する。
-2. Cloudflare の設定を読んで登録状況と自動挿入の可否を確認する。手動の場合は、`tests/e2e/csp.spec.ts` と `tests/e2e-preview/` の関連 spec に「D21・5.5：有効な本番ビルドにビーコンが1つ出る」「D21：プレビューにビーコンが出ない」を追加する。テスト用の識別子を使い、外部送信はルートで止める。`app/[lang]/layout.tsx` に公式スニペットを出す処理を足す。CI の本番ビルドにサイト識別子を渡す場合は GitHub Actions の変数を使い、Cloudflare API の認証トークンは既存のデプロイ job の中で扱う。CSP の現行許可先で足りることを確認する。結果を開発概要書 11.1 とアーキテクチャに記録する。[Cloudflare Web Analytics の設定手順](https://developers.cloudflare.com/web-analytics/get-started/)
-3. `playwright.production.config.ts` と `tests/e2e-production/release.spec.ts` を追加する。テストは「F-I18N-01：3言語のトップが 200 で表示される」「F-I18N-02：`/` が `/ja/` に 301 で転送される」「5.5：セキュリティヘッダーと CSP が付く」「4.11.4：全47県が利用可能」の4条件を確認する。既存 `workers.spec.ts` と `pending.spec.ts` の観測点を使う。CSP は HTTP ヘッダーと HTML の meta の両方を確認する。全県について、地図要素が47件あり `data-pending` が0件であることを3言語で確認する。フィクスチャ配信で「準備中」がある場合に失敗することを確かめ、全件 reviewed のビルドで通す。本番向け構成は本番 URL を使い、サーバー起動やデータ変更を行わない。
-4. U15 の決定に従って `.github/workflows/deploy.yml` に検査を接続する。自動実行の場合はデプロイ成功後に、デプロイ用の認証情報を持たない job で実行する。`package.json` と `AGENTS.md` に本番検査のコマンドを記載し、既存のフィクスチャ E2E の構成を維持する。
+1. `tests/unit/components/PrivacyContent.test.tsx` の既存のテストで、3言語の運営者プロフィールと公開 Issues のリンクを検証する。
+2. Cloudflare API で `maps.vivastack-dev.workers.dev` を手動挿入方式で登録する。`tests/e2e/csp.spec.ts` に「D21・5.5：有効な本番ビルドは外部の計測スクリプトを1つ読み込む」、`tests/e2e-preview/analytics.spec.ts` に「D21：サイト識別子を渡してもプレビューにはビーコンが出ない」を追加する。テスト用の識別子を使い、ネットワークを Playwright でモックする。`app/[lang]/layout.tsx` に公式の外部モジュールスクリプトを出す処理を足す。CI の本番ビルドだけに公開サイト識別子を GitHub Actions の変数から渡す。結果を開発概要書 11.1 とアーキテクチャに記録する。[Cloudflare Web Analytics の設定手順](https://developers.cloudflare.com/web-analytics/get-started/)
+3. `playwright.production.config.ts` と `tests/e2e-production/release.spec.ts` を追加する。確認する条件は「F-I18N-02：本番のルートは日本語トップに転送される」「F-I18N-01・4.11.4：各言語のトップに利用可能な47都道府県が出る」「5.5：本番のトップにセキュリティヘッダーと CSP が付く」「D21：本番のトップに Web Analytics の設定が1つ出る」。既存 `workers.spec.ts` と `pending.spec.ts` の観測点を使う。CSP は HTTP ヘッダーと HTML の meta の両方を確認する。フィクスチャ配信で「準備中」がある場合に失敗することを確かめ、全件 reviewed のビルドで通す。検査は JavaScript 無効の Chromium で行う。
+4. D49 に従って `.github/workflows/deploy.yml` に検査を接続する。デプロイ成功後に、デプロイ用の認証情報を持たない job で実行する。`package.json` と `AGENTS.md` に本番検査のコマンドを記載し、既存のフィクスチャ E2E の構成を維持する。
 5. `CHANGELOG.md` に v1.0.0 の公開日と変更を記録する。`docs/development-plan.md`、公開タスク定義、開発概要書、関連アーキテクチャを決まった内容に合わせる。
 
 ## 完了条件の確認
 
 - 公開 URL と本番の配信内容は、マージ後のデプロイ成功と本番向け E2E の結果で確認する。
 - ブラウザで本番を開き、スクリプトの読み込みと計測リクエストの成功を確認する。Cloudflare ダッシュボードで本番ホストのデータが計上されることを確認する。
-- 3言語のプライバシーポリシーで、運営者、公開 Issues、公開掲載用のメールリンク、改定日を確認する。
-- PR 前に `pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build`、関連するローカル E2E と独立レビューを実施する。画面変更を after の画像に記録し、マージ前に手動 E2E ワークフローの成功を確認する。マージはオーナーが行う。
+- 3言語のプライバシーポリシーで、運営者と公開 Issues の案内を確認する。
+- PR 前に `pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build`、関連するローカル E2E と独立レビューを実施する。マージ前に手動 E2E ワークフローの成功を確認する。マージはオーナーが行う。
+
+## 承認後に変えたこと
+
+| 項目 | 承認時 | 実際 | 理由 |
+|---|---|---|---|
+| 非公開の運営用連絡先 | 3言語でメールアドレスを公開 | 初回公開では掲載を見送り、既存の窓口を維持 | オーナーの追加指示 |
+| デプロイ後の検査 | URL の転送・3言語の表示・ヘッダー・県の公開状態を確認 | 計測スクリプトの出力も確認 | 本番で計測設定の欠落を検出するため |

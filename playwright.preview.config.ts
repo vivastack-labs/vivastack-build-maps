@@ -30,7 +30,7 @@ export default defineConfig({
     url: `${BASE_URL}/ja/`,
     reuseExistingServer: false,
     // wrangler の利用状況を送らない
-    env: { WRANGLER_SEND_METRICS: 'false' },
+    env: { WRANGLER_SEND_METRICS: 'false', CLOUDFLARE_WEB_ANALYTICS_SITE_ID: '0123456789abcdef0123456789abcdef' },
     timeout: 180_000
   }
 });

@@ -35,6 +35,7 @@ pnpm typecheck    # tsc --noEmit
 pnpm test         # Vitest（カバレッジの基準を下回ると失敗する）
 pnpm test:e2e     # Playwright（PC・スマホ・タブレットの9プロジェクト。本番用のビルド）
 pnpm test:e2e:preview   # プレビュー用のビルドの E2E（chromium だけ。8789番。tests/e2e-preview/。playwright.preview.config.ts）
+pnpm test:e2e:production   # 本番の公開 URL を Chromium で読み取り検査する（T6-02）。ローカル配信を検査するときは PRODUCTION_CHECK_BASE_URL を指定する
 pnpm build        # BUILD_TARGET=production の next build で out/ を作り、scripts/postbuild.ts で dist/ にコピーする
 pnpm build:preview   # BUILD_TARGET=preview（すべての項目を `draft` の値を付けて出す。カードの項目に「下書き」の印。noindex つき）。レビュー用のプレビューに使う（T3-02）
 pnpm exec wrangler dev   # dist/ を本番の Workers と同じ形で配信する（http://localhost:8787/ja/。先に pnpm build）

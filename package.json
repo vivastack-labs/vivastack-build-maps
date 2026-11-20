@@ -20,6 +20,7 @@
     "test": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:preview": "playwright test -c playwright.preview.config.ts",
+    "test:e2e:production": "playwright test -c playwright.production.config.ts",
     "screenshots": "node scripts/pr-screenshots.ts",
     "geo:build": "node geo/scripts/build-geo.ts",
     "content:types": "node scripts/content-types.ts",
