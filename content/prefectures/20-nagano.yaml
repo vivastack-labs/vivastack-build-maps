@@ -17,5 +17,130 @@ capital:
     zh: "长野市"
   lat: 36.651188
   lon: 138.180635
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {長野駅|ながのえき}"
+    en: "Tokyo Station → Nagano Station"
+    zh: "东京站 → 长野站"
+  # かがやき509号：東京10:22発、長野11:41着。JR東日本2026年11月時刻表では毎日運転。
+  durationMin: 79
+  sources:
+    - title: "時刻表　停車駅一覧（新幹線かがやき 509号（東京－敦賀））：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/train/095/098521.html"
+      accessed: "2026-11-20"
+  status: verified
+specialties:
+  - id: shinshu-soba
+    emoji: "🍜"
+    name: {ja: "{信州|しんしゅう}そば", en: "Shinshu Soba", zh: "信州荞麦面"}
+    description:
+      ja:
+        kids: "{地域|ちいき}で{食|た}べ{方|かた}はいろいろ。{焼|や}きみそと{大根|だいこん}の{汁|しる}をつゆに{加|くわ}えるそばもあるよ。"
+        adult: "{県内|けんない}には、{焼|や}き{味噌|みそ}と{大根|だいこん}のしぼり{汁|じる}をつゆに{加|くわ}える{高遠|たかとお}そばなど、{地域|ちいき}ごとの{食|た}べ{方|かた}があります。"
+      en:
+        kids: "Local styles vary. Some add grilled miso and radish juice to the dipping sauce."
+        adult: "Local styles include Takato soba, served with dipping sauce made with grilled miso and radish juice."
+      zh:
+        kids: "各地吃法不同，有的会在蘸汁里加入烤味噌和萝卜汁。"
+        adult: "县内各地吃法不同，例如高远荞麦面会在蘸汁里加入烤味噌和萝卜汁。"
+    sources:
+      - title: "手打ちそば 長野県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/teuchi_soba_nagano.html"
+        accessed: "2026-11-20"
+    status: verified
+  - id: oyaki
+    emoji: "🥟"
+    name: {ja: "おやき", en: "Oyaki", zh: "烤馅饼"}
+    description:
+      ja:
+        kids: "{粉|こな}で{作|つく}った{皮|かわ}に{季節|きせつ}の{野菜|やさい}などを{包|つつ}み、{焼|や}くなどして{作|つく}るよ。"
+        adult: "{小麦粉|こむぎこ}などで{作|つく}った{皮|かわ}に{季節|きせつ}の{野菜|やさい}などを{包|つつ}み、{焼|や}くなどして{作|つく}る{郷土料理|きょうどりょうり}です。"
+      en:
+        kids: "Seasonal vegetables and other fillings are wrapped in dough and cooked, sometimes by grilling."
+        adult: "This local dish wraps seasonal vegetables and other fillings in dough made with wheat flour, then cooks them, sometimes by grilling."
+      zh:
+        kids: "用面皮包住应季蔬菜等馅料，再烤制等方式做成。"
+        adult: "用小麦粉等做成的面皮包住应季蔬菜等馅料，再用烤制等方式制作的乡土料理。"
+    sources:
+      - title: "おやき 長野県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/oyaki_nagano.html"
+        accessed: "2026-11-20"
+    status: verified
+  - id: apples
+    emoji: "🍎"
+    name: {ja: "りんご", en: "Apples", zh: "苹果"}
+    description:
+      ja:
+        kids: "{長野県|ながのけん}{生|う}まれの{種類|しゅるい}もあるよ。シナノスイートは10{月|がつ}から{収穫|しゅうかく}するよ。"
+        adult: "{長野県|ながのけん}で{生|う}まれた{品種|ひんしゅ}もあり、シナノスイートは10{月|がつ}から{収穫|しゅうかく}されます。"
+      en:
+        kids: "Some apple varieties were born in Nagano. Shinano Sweet is harvested from October."
+        adult: "Some varieties originated in Nagano. Shinano Sweet apples are harvested from October."
+      zh:
+        kids: "有些苹果品种诞生于长野县，信浓甜苹果从10月开始收获。"
+        adult: "有些品种诞生于长野县，信浓甜苹果从10月开始收获。"
+    sources:
+      - title: "知ってる？信州農産物／長野県"
+        url: "https://www.pref.nagano.lg.jp/nosei/sangyo/nogyo/shinshu/nosanbutsu.html"
+        accessed: "2026-11-20"
+    status: verified
+spots:
+  - id: zenkoji
+    emoji: "🛕"
+    name: {ja: "{善光寺|ぜんこうじ}", en: "Zenkoji Temple", zh: "善光寺"}
+    description:
+      ja:
+        kids: "{国宝|こくほう}の{本堂|ほんどう}があり、{本尊|ほんぞん}の{下|した}の{暗|くら}い{通路|つうろ}を{歩|ある}けるよ。"
+        adult: "{国宝|こくほう}の{本堂|ほんどう}があり、{本尊|ほんぞん}の{下|した}の{暗|くら}い{通路|つうろ}を{歩|ある}くお{戒壇巡|かいだんめぐ}りができます。"
+      en:
+        kids: "Walk through a dark passage beneath the main image in its National Treasure hall."
+        adult: "Its National Treasure main hall offers a walk through the dark passage beneath the main image, called Okaidan-meguri."
+      zh:
+        kids: "本堂是国宝，可以走过本尊下方的黑暗通道。"
+        adult: "本堂是国宝，可以参加走过本尊下方黑暗通道的戒坛巡礼。"
+    sources:
+      - title: "巡る｜善光寺"
+        url: "https://www.zenkoji.jp/meguru/"
+        accessed: "2026-11-20"
+    status: verified
+  - id: matsumoto-castle
+    emoji: "🏯"
+    name: {ja: "{松本城|まつもとじょう}", en: "Matsumoto Castle", zh: "松本城"}
+    description:
+      ja:
+        kids: "5{重|じゅう}6{階|かい}の{木|き}の{天守|てんしゅ}が{残|のこ}り、{国宝|こくほう}になっているよ。"
+        adult: "5{重|じゅう}6{階|かい}の{木造天守|もくぞうてんしゅ}が{残|のこ}り、その{天守|てんしゅ}は{国宝|こくほう}に{指定|してい}されています。"
+      en:
+        kids: "Its wooden keep has five tiers and six floors and is a National Treasure."
+        adult: "Its surviving wooden keep has five tiers and six floors and is designated a National Treasure."
+      zh:
+        kids: "保留着五重六层的木造天守，已被指定为国宝。"
+        adult: "保留着五重六层的木造天守，这座天守被指定为国宝。"
+    sources:
+      - title: "松本城の観覧案内 - 松本市ホームページ"
+        url: "https://www.city.matsumoto.nagano.jp/soshiki/135/4118.html"
+        accessed: "2026-11-20"
+    status: verified
+  - id: kamikochi
+    emoji: "🏞️"
+    name: {ja: "{上高地|かみこうち}", en: "Kamikochi", zh: "上高地"}
+    description:
+      ja:
+        kids: "{橋|はし}から{山|やま}が{見|み}えるよ。{観光|かんこう}は4{月|がつ}{下旬|げじゅん}〜11{月|がつ}15{日|にち}。"
+        adult: "{河童橋|かっぱばし}から{穂高連峰|ほたかれんぽう}や{梓川|あずさがわ}が{見|み}えます。{観光|かんこう}シーズンは4{月|がつ}{下旬|げじゅん}から11{月|がつ}15{日|にち}です。"
+      en:
+        kids: "See mountains from the bridge. Tourist season: late April to November 15."
+        adult: "Kappabashi Bridge overlooks the Hotaka Mountains and Azusa River. Tourist season: late April to November 15."
+      zh:
+        kids: "桥上可望山，观光季为4月下旬至11月15日。"
+        adult: "河童桥可望穗高连峰和梓川，观光季为4月下旬至11月15日。"
+    sources:
+      - title: "河童橋 – 上高地公式ウェブサイト"
+        url: "https://www.kamikochi.or.jp/learn/spots/1319/"
+        accessed: "2026-11-20"
+      - title: "よくあるご質問 – 上高地公式ウェブサイト"
+        url: "https://www.kamikochi.or.jp/learn/faq/"
+        accessed: "2026-11-20"
+    status: verified
