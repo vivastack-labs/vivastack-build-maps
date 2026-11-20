@@ -17,5 +17,130 @@ capital:
     zh: "甲府市"
   lat: 35.66401
   lon: 138.568428
-specialties: []
-spots: []
+access:
+  emoji: "🚆"
+  mode: {ja: "{特急|とっきゅう}", en: "Limited express", zh: "特快列车"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {甲府駅|こうふえき}"
+    en: "Tokyo Station → Kofu Station"
+    zh: "东京站 → 甲府站"
+  # かいじ35号：東京15:15発、甲府17:06着。平日・土休日とも同時刻。JR東日本2026年11月時刻表。
+  durationMin: 111
+  sources:
+    - title: "時刻表　停車駅一覧（特急かいじ 35号（東京－甲府））：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/train/060/063641.html"
+      accessed: "2026-11-20"
+    - title: "時刻表　停車駅一覧（特急かいじ 35号（東京－甲府））：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/train/060/063651.html"
+      accessed: "2026-11-20"
+  status: reviewed
+specialties:
+  - id: hoto
+    emoji: "🍲"
+    name: {ja: "ほうとう", en: "Hoto", zh: "馎饦面"}
+    description:
+      ja:
+        kids: "{平|ひら}たい{麺|めん}と{季節|きせつ}の{野菜|やさい}を、みそ{味|あじ}の{汁|しる}で{煮込|にこ}んだ{料理|りょうり}だよ。"
+        adult: "{平|たい}らに{切|き}った{小麦粉|こむぎこ}の{麺|めん}を、{季節|きせつ}の{野菜|やさい}とともに{味噌味|みそあじ}の{汁|しる}で{煮込|にこ}む{郷土料理|きょうどりょうり}です。"
+      en:
+        kids: "Flat noodles and seasonal vegetables are simmered in a miso broth."
+        adult: "A local dish of flat wheat noodles simmered with seasonal vegetables in a miso broth."
+      zh:
+        kids: "把扁面和应季蔬菜放在味噌汤里一起炖煮的料理。"
+        adult: "将小麦粉做成的扁面与应季蔬菜一起放入味噌汤中炖煮的乡土料理。"
+    sources:
+      - title: "ほうとう…山梨県：農林水産省：農林水産省"
+        url: "https://www.maff.go.jp/j/syokuiku/kodomo_navi/cuisine/cuisine3_5.html"
+        accessed: "2026-11-20"
+    status: reviewed
+  - id: koshu-inden
+    emoji: "👛"
+    name: {ja: "{甲州印伝|こうしゅういんでん}", en: "Koshu Inden", zh: "甲州印传"}
+    description:
+      ja:
+        kids: "シカの{革|かわ}に{漆|うるし}で{模様|もよう}をつける、{山梨県|やまなしけん}の{工芸品|こうげいひん}だよ。"
+        adult: "{鹿革|しかがわ}に{漆|うるし}で{模様|もよう}を{付|つ}ける{技法|ぎほう}が{特徴|とくちょう}の、{山梨県|やまなしけん}の{伝統的|でんとうてき}な{工芸品|こうげいひん}です。"
+      en:
+        kids: "This Yamanashi craft uses lacquer to make patterns on deerskin."
+        adult: "A traditional craft from Yamanashi, known for a technique that applies lacquer patterns to deerskin."
+      zh:
+        kids: "山梨县的工艺品，用漆在鹿皮上绘制花纹。"
+        adult: "山梨县的传统工艺品，以用漆在鹿皮上绘制花纹的技法为特色。"
+    sources:
+      - title: "甲州印伝・漆でのせる文様と想い／やまなしの美技"
+        url: "https://www.pref.yamanashi.jp/shouko/kogyo/densan/inden_01.html"
+        accessed: "2026-11-20"
+    status: reviewed
+  - id: grapes
+    emoji: "🍇"
+    name: {ja: "ぶどう", en: "Grapes", zh: "葡萄"}
+    description:
+      ja:
+        kids: "{山梨県|やまなしけん}ではいろいろな{種類|しゅるい}を{育|そだ}て、{夏|なつ}から{秋|あき}に{楽|たの}しめるよ。"
+        adult: "{山梨県|やまなしけん}では{多|おお}くの{種類|しゅるい}が{栽培|さいばい}され、{旬|しゅん}は7{月|がつ}{下旬|げじゅん}から10{月|がつ}{下旬|げじゅん}です。"
+      en:
+        kids: "Yamanashi grows many kinds of grapes that can be enjoyed from summer to autumn."
+        adult: "Many varieties of grapes grow in Yamanashi, with the season running from late July to late October."
+      zh:
+        kids: "山梨县种植着各种葡萄，从夏天到秋天都能品尝。"
+        adult: "山梨县种植着许多品种的葡萄，当季为7月下旬至10月下旬。"
+    sources:
+      - title: "やまなしの農畜水産物／山梨県の農畜水産物ブランド「おいしい未来へ やまなし」"
+        url: "https://www.pref.yamanashi.jp/oishii-mirai/nochikusanbutsu_ichiran.html"
+        accessed: "2026-11-20"
+    status: reviewed
+spots:
+  - id: shosenkyo
+    emoji: "🏞️"
+    name: {ja: "{昇仙峡|しょうせんきょう}", en: "Shosenkyo Gorge", zh: "昇仙峡"}
+    description:
+      ja:
+        kids: "{変|か}わった{形|かたち}の{岩|いわ}が{続|つづ}く{谷|たに}で、{秋|あき}には{紅葉|こうよう}が{見|み}られるよ。"
+        adult: "{甲府市|こうふし}の{渓谷|けいこく}で、{奇岩|きがん}が{連|つら}なり、{例年|れいねん}10{月|がつ}{中旬|ちゅうじゅん}から11{月|がつ}{下旬|げじゅん}に{紅葉|こうよう}が{見|み}られます。"
+      en:
+        kids: "Unusually shaped rocks line this valley, where autumn leaves can be seen."
+        adult: "This gorge in Kofu has unusual rocks and autumn foliage, usually from mid-October to late November."
+      zh:
+        kids: "这座山谷里怪石连绵，秋天可以看到红叶。"
+        adult: "甲府市的溪谷，怪石连绵，通常10月中旬至11月下旬可见红叶。"
+    sources:
+      - title: "紅葉狩りなら山梨へ：関東屈指の紅葉スポット昇仙峡やもみじ回廊の河口湖などの見ごろと穴場情報も ／富士の国やまなし観光ネット 山梨県公式観光情報"
+        url: "https://www.yamanashi-kankou.jp/special/koyo-spot.html"
+        accessed: "2026-11-20"
+    status: reviewed
+  - id: lake-kawaguchi
+    emoji: "🗻"
+    name: {ja: "{河口湖|かわぐちこ}", en: "Lake Kawaguchi", zh: "河口湖"}
+    description:
+      ja:
+        kids: "{湖|みずうみ}のほとりで、{春|はる}は{桜|さくら}、{秋|あき}は{紅葉|こうよう}が{見|み}られるよ。"
+        adult: "{富士山|ふじさん}{世界遺産|せかいいさん}の{構成資産|こうせいしさん}で、{湖畔|こはん}では{春|はる}に{桜|さくら}、{秋|あき}には{紅葉|こうよう}が{見|み}られます。"
+      en:
+        kids: "See cherry blossoms in spring and autumn leaves along the lakeshore."
+        adult: "Part of the Mount Fuji World Heritage site, its lakeshore has cherry blossoms in spring and autumn foliage."
+      zh:
+        kids: "湖边春天可以赏樱花，秋天可以看红叶。"
+        adult: "富士山世界遗产的组成部分，湖畔春天有樱花，秋天有红叶。"
+    sources:
+      - title: "河口湖(富士河口湖町)／富士の国やまなし観光ネット 山梨県公式観光情報"
+        url: "https://www.yamanashi-kankou.jp/heritage/fujisanwatcher/jp/live/02.html"
+        accessed: "2026-11-20"
+    status: reviewed
+  - id: takeda-shrine
+    emoji: "⛩️"
+    name: {ja: "{武田神社|たけだじんじゃ}", en: "Takeda Shrine", zh: "武田神社"}
+    description:
+      ja:
+        kids: "{信玄|しんげん}をまつる、{武田氏|たけだし}の{館|やかた}{跡|あと}にある{神社|じんじゃ}だよ。"
+        adult: "{武田信玄|たけだしんげん}を{祀|まつ}り、{武田氏|たけだし}の{館|やかた}{跡|あと}に1919{年|ねん}に{建|た}てられた{神社|じんじゃ}です。"
+      en:
+        kids: "This shrine honors Takeda Shingen and stands on the site of the Takeda residence."
+        adult: "Built in 1919 on the site of the Takeda residence, this shrine honors Takeda Shingen."
+      zh:
+        kids: "供奉武田信玄的神社，建在武田氏府邸遗址上。"
+        adult: "供奉武田信玄的神社，1919年建于武田氏府邸遗址上。"
+    sources:
+      - title: "武田神社／富士の国やまなし観光ネット 山梨県公式観光情報"
+        url: "https://www.yamanashi-kankou.jp/kankou/spot/p1_4317.html"
+        accessed: "2026-11-20"
+    status: reviewed

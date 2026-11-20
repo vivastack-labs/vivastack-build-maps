@@ -17,5 +17,137 @@ capital:
     zh: "岐阜市"
   lat: 35.391276
   lon: 136.723362
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}・{特急|とっきゅう}", en: "Shinkansen and limited express", zh: "新干线与特快列车"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {名古屋駅|なごやえき} → {岐阜駅|ぎふえき}"
+    en: "Tokyo Station → Nagoya Station → Gifu Station"
+    zh: "东京站 → 名古屋站 → 岐阜站"
+  # のぞみ25号：東京10:30発・名古屋12:09着。ひだ11号：名古屋12:48発・岐阜13:07着。
+  # JR西日本2026年12月時刻表。乗り換え待ち39分を含む。
+  durationMin: 157
+  sources:
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/25371"
+      accessed: "2026-11-20"
+    - title: "列車時刻表 | JRおでかけネット"
+      url: "https://timetable.jr-odekake.net/train-timetable/75721"
+      accessed: "2026-11-20"
+  status: reviewed
+specialties:
+  - id: hoba-miso
+    emoji: "🍲"
+    name: {ja: "{朴葉味噌|ほおばみそ}", en: "Hoba Miso", zh: "朴叶味噌"}
+    description:
+      ja:
+        kids: "{朴|ほお}の{葉|は}にみそをのせ、ねぎやしいたけと{一緒|いっしょ}に{焼|や}く{料理|りょうり}だよ。"
+        adult: "{飛騨地方|ひだちほう}に{伝|つた}わる{料理|りょうり}で、{朴|ほお}の{葉|は}に{味噌|みそ}をのせ、ねぎやしいたけと{一緒|いっしょ}に{焼|や}きます。"
+      en:
+        kids: "Miso is grilled on a magnolia leaf with green onions and shiitake mushrooms."
+        adult: "A Hida regional dish in which miso is grilled on a magnolia leaf with green onions and shiitake mushrooms."
+      zh:
+        kids: "把味噌放在朴叶上，和葱、香菇一起烤的料理。"
+        adult: "流传于飞驒地区的料理，把味噌放在朴叶上，与葱和香菇一起烤。"
+    sources:
+      - title: "朴葉味噌 岐阜県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/38_10_gifu.html"
+        accessed: "2026-11-20"
+    status: reviewed
+  - id: mino-washi
+    emoji: "📜"
+    name: {ja: "{美濃和紙|みのわし}", en: "Mino Washi", zh: "美浓和纸"}
+    description:
+      ja:
+        kids: "{美濃市|みのし}などで{作|つく}られる{和紙|わし}で、{楮|こうぞ}などの{植物|しょくぶつ}からできているよ。"
+        adult: "{美濃市|みのし}などで{作|つく}られる{和紙|わし}で、1300{年|ねん}の{歴史|れきし}があり、{楮|こうぞ}などの{植物|しょくぶつ}を{原料|げんりょう}に{使|つか}います。"
+      en:
+        kids: "This washi paper is made in places like Mino City from plants such as paper mulberry."
+        adult: "Made in places like Mino City, this washi has a 1,300-year history and uses plants such as paper mulberry."
+      zh:
+        kids: "在美浓市等地制作的和纸，用构树等植物制成。"
+        adult: "在美浓市等地制作的和纸，拥有1300年历史，以构树等植物为原料。"
+    sources:
+      - title: "歴史 - 美濃和紙の里会館"
+        url: "https://www.city.mino.gifu.jp/minogami/docs/2411.html"
+        accessed: "2026-11-20"
+      - title: "美濃和紙ができるまで - 美濃和紙の里会館"
+        url: "https://www.city.mino.gifu.jp/minogami/docs/2408.html"
+        accessed: "2026-11-20"
+    status: reviewed
+  - id: sarubobo
+    emoji: "🧸"
+    name: {ja: "さるぼぼ", en: "Sarubobo Doll", zh: "猿宝宝玩偶"}
+    description:
+      ja:
+        kids: "{飛騨|ひだ}の{言葉|ことば}で{猿|さる}の{赤|あか}ちゃん。{子|こ}どもの{元気|げんき}を{願|ねが}う{人形|にんぎょう}だよ。"
+        adult: "{飛騨|ひだ}の{言葉|ことば}で{猿|さる}の{赤|あか}ん{坊|ぼう}という{意味|いみ}の{人形|にんぎょう}で、{子|こ}どもの{健|すこ}やかな{成長|せいちょう}を{願|ねが}って{作|つく}られました。"
+      en:
+        kids: "This doll's name means baby monkey in Hida speech. It carries wishes for children's healthy growth."
+        adult: "Its name means baby monkey in Hida speech. These dolls were made with wishes for children's healthy growth."
+      zh:
+        kids: "飞驒方言意为猴宝宝，是祈愿孩子健康的玩偶。"
+        adult: "这个玩偶的名字在飞驒方言中意为猴宝宝，人们制作它来祈愿孩子健康成长。"
+    sources:
+      - title: "飛騨のさるぼぼ｜高山市"
+        url: "https://www.city.takayama.lg.jp/shisei/1000067/1002790/1002815/1002816/1002832.html"
+        accessed: "2026-11-20"
+    status: reviewed
+spots:
+  - id: shirakawago
+    emoji: "🏠"
+    name: {ja: "{白川郷|しらかわごう}", en: "Shirakawa-go", zh: "白川乡"}
+    description:
+      ja:
+        kids: "{合掌造|がっしょうづく}りの{家|いえ}が{残|のこ}る、{世界遺産|せかいいさん}の{集落|しゅうらく}だよ。"
+        adult: "{合掌造|がっしょうづく}りの{家|いえ}が{残|のこ}る{集落|しゅうらく}で、1995{年|ねん}に{五箇山|ごかやま}とともに{世界遺産|せかいいさん}に{登録|とうろく}されました。"
+      en:
+        kids: "This World Heritage village has traditional gassho-style houses."
+        adult: "This village retains gassho-style houses and was listed as a World Heritage site with Gokayama in 1995."
+      zh:
+        kids: "保留合掌造房屋的世界遗产村落。"
+        adult: "保留合掌造房屋的村落，1995年与五箇山一起被列为世界遗产。"
+    sources:
+      - title: "3分でわかる白川郷 SHIRAKAWA-GO HIGHLIGHTS"
+        url: "https://shirakawa-go.gr.jp/highlights/"
+        accessed: "2026-11-20"
+    status: reviewed
+  - id: takayama-old-town
+    emoji: "🏘️"
+    name: {ja: "{飛騨高山|ひだたかやま}の{古|ふる}い{町並|まちな}み", en: "Takayama Old Town", zh: "飞驒高山古街"}
+    description:
+      ja:
+        kids: "{江戸時代|えどじだい}の{面影|おもかげ}を{残|のこ}す{商家|しょうか}などが{並|なら}ぶ{町並|まちな}みだよ。"
+        adult: "{江戸時代|えどじだい}の{面影|おもかげ}を{残|のこ}す{商家|しょうか}が{並|なら}び、{国|くに}の{重要伝統的建造物群保存地区|じゅうようでんとうてきけんぞうぶつぐんほぞんちく}に{選|えら}ばれています。"
+      en:
+        kids: "Old merchant houses recall the Edo period in this historic townscape."
+        adult: "Merchant houses recalling the Edo period line this nationally designated preservation district for traditional buildings."
+      zh:
+        kids: "这里有保留江户时代风貌的商家等建筑。"
+        adult: "江户时代风貌的商家林立，是国家重要传统建筑群保护地区。"
+    sources:
+      - title: "観光業｜高山市"
+        url: "https://www.city.takayama.lg.jp/shisei/1000067/1014794/index.html"
+        accessed: "2026-11-20"
+    status: reviewed
+  - id: mount-kinka
+    emoji: "🚠"
+    name: {ja: "{金華山|きんかざん}", en: "Mount Kinka", zh: "金华山"}
+    description:
+      ja:
+        kids: "ロープウェーで{上|あ}がり、{長良川|ながらがわ}の{景色|けしき}を{楽|たの}しめるよ。"
+        adult: "{岐阜公園|ぎふこうえん}からロープウェーで{山頂|さんちょう}へ{上|あ}がり、{山|やま}や{長良川|ながらがわ}の{景色|けしき}を{楽|たの}しめます。"
+      en:
+        kids: "Ride the ropeway and enjoy views of the Nagara River."
+        adult: "A ropeway from Gifu Park reaches the summit, offering views of mountains and the Nagara River."
+      zh:
+        kids: "乘缆车欣赏长良川的景色。"
+        adult: "从岐阜公园乘缆车到山顶，可欣赏群山与长良川的景色。"
+    sources:
+      - title: "ナビ番号：802　ぎふ金華山ロープウェー｜岐阜市公式ホームページ-Gifu city"
+        url: "https://www.city.gifu.lg.jp/kankoubunka/kankou/1013050/1005149/1017450/1017467/1020312.html"
+        accessed: "2026-11-20"
+      - title: "金華山山上部の整備工事を実施しています｜岐阜市公式ホームページ-Gifu city"
+        url: "https://www.city.gifu.lg.jp/kankoubunka/kankou/1013051/1005097/1031926.html"
+        accessed: "2026-11-20"
+    status: reviewed

@@ -17,5 +17,130 @@ capital:
     zh: "福井市"
   lat: 36.065413
   lon: 136.221481
-specialties: []
-spots: []
+access:
+  emoji: "🚄"
+  mode: {ja: "{新幹線|しんかんせん}", en: "Shinkansen", zh: "新干线"}
+  route:
+    ja: "{東京駅|とうきょうえき} → {福井駅|ふくいえき}"
+    en: "Tokyo Station → Fukui Station"
+    zh: "东京站 → 福井站"
+  # かがやき509号：東京10:22発、福井13:22着。JR東日本2026年11月時刻表では毎日運転。
+  durationMin: 180
+  sources:
+    - title: "時刻表　停車駅一覧（新幹線かがやき 509号（東京－敦賀））：JR東日本"
+      url: "https://timetables.jreast.co.jp/2611/train/095/098521.html"
+      accessed: "2026-11-20"
+  status: reviewed
+specialties:
+  - id: oroshi-soba
+    emoji: "🍜"
+    name: {ja: "{越前|えちぜん}おろしそば", en: "Echizen Oroshi Soba", zh: "越前萝卜泥荞麦面"}
+    description:
+      ja:
+        kids: "{大根|だいこん}おろしを{添|そ}えて{食|た}べるそばだよ。{大|おお}みそかにも{食|た}べられるよ。"
+        adult: "{大根|だいこん}おろしを{添|そ}えて{食|た}べるそばで、{福井県|ふくいけん}では{結婚式|けっこんしき}や{大|おお}みそかにも{食|た}べられています。"
+      en:
+        kids: "These buckwheat noodles are served with grated radish and are also eaten on New Year's Eve."
+        adult: "These buckwheat noodles are served with grated radish and are also eaten at weddings and on New Year's Eve in Fukui."
+      zh:
+        kids: "吃时搭配萝卜泥的荞麦面，除夕也会吃。"
+        adult: "搭配萝卜泥食用的荞麦面，在福井县的婚礼和除夕也会吃。"
+    sources:
+      - title: "おろしそば 福井県 | うちの郷土料理：農林水産省"
+        url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/oroshi_soba_fukui.html"
+        accessed: "2026-11-20"
+    status: reviewed
+  - id: echizen-washi
+    emoji: "📜"
+    name: {ja: "{越前和紙|えちぜんわし}", en: "Echizen Washi", zh: "越前和纸"}
+    description:
+      ja:
+        kids: "{越前市|えちぜんし}の{五箇地区|ごかちく}を{中心|ちゅうしん}に{作|つく}られる、{種類|しゅるい}が{豊富|ほうふ}な{和紙|わし}だよ。"
+        adult: "{越前市|えちぜんし}の{五箇地区|ごかちく}を{中心|ちゅうしん}に{作|つく}られる{和紙|わし}で、{奉書|ほうしょ}や{鳥|とり}の{子|こ}など{種類|しゅるい}が{豊富|ほうふ}です。"
+      en:
+        kids: "Many kinds of washi paper are made mainly in the Goka area of Echizen City."
+        adult: "Produced mainly in Echizen City's Goka area, this washi paper comes in many varieties, including hosho and torinoko."
+      zh:
+        kids: "主要在越前市五箇地区制作的和纸，种类丰富。"
+        adult: "主要在越前市五箇地区制作的和纸，种类丰富，包括奉书纸和鸟之子纸等。"
+    sources:
+      - title: "文化財詳細 | 福井県文化財ページ"
+        url: "https://bunkazai.pref.fukui.lg.jp/search_category/content?detail_id=900-0"
+        accessed: "2026-11-20"
+    status: reviewed
+  - id: wakasa-nuri
+    emoji: "🥢"
+    name: {ja: "{若狭塗|わかさぬり}", en: "Wakasa Lacquerware", zh: "若狭漆器"}
+    description:
+      ja:
+        kids: "{貝殻|かいがら}や{卵|たまご}の{殻|から}で{模様|もよう}を{作|つく}るよ。{漆|うるし}を{何度|なんど}も{塗|ぬ}って{研|と}ぎ{出|だ}すんだ。"
+        adult: "{貝殻|かいがら}や{卵|たまご}の{殻|から}で{模様|もよう}を{付|つ}け、{漆|うるし}を{何度|なんど}も{塗|ぬ}り{重|かさ}ねて{研|と}ぎ{出|だ}す{若狭|わかさ}の{伝統工芸|でんとうこうげい}です。"
+      en:
+        kids: "Patterns use shells and eggshells, covered in many coats of lacquer and polished to reveal them."
+        adult: "This Wakasa craft makes patterns with shells and eggshells, coats them repeatedly with lacquer, and polishes them to reveal the designs."
+      zh:
+        kids: "用贝壳和蛋壳做花纹，反复涂漆后再打磨出来。"
+        adult: "若狭的传统工艺，用贝壳和蛋壳做花纹，反复涂漆后打磨显出图案。"
+    sources:
+      - title: "若狭塗"
+        url: "https://www.pref.fukui.lg.jp/doc/sansei/dentoukougeihin_d/fil/wakasalacquerware.pdf"
+        accessed: "2026-11-20"
+    status: reviewed
+spots:
+  - id: tojinbo
+    emoji: "🌊"
+    name: {ja: "{東尋坊|とうじんぼう}", en: "Tojinbo Cliffs", zh: "东寻坊"}
+    description:
+      ja:
+        kids: "{海岸|かいがん}に{柱|はしら}のような{岩|いわ}が{約|やく}1km{続|つづ}いているよ。"
+        adult: "{坂井市|さかいし}の{海岸|かいがん}に、{柱|はしら}のような{形|かたち}の{岩|いわ}が{約|やく}1kmにわたって{続|つづ}く{名勝|めいしょう}です。"
+      en:
+        kids: "Pillar-shaped rocks stretch along the coast for about one kilometer."
+        adult: "This scenic site on Sakai City's coast has pillar-shaped rocks stretching for about one kilometer."
+      zh:
+        kids: "海岸上柱子般的岩石绵延约1公里。"
+        adult: "坂井市海岸上的名胜，柱状岩石绵延约1公里。"
+    sources:
+      - title: "東尋坊｜おすすめの観光スポット｜【公式】福井県 観光/旅行サイト ｜ ふくいドットコム"
+        url: "https://www.fuku-e.com/spot/detail_1476.html"
+        accessed: "2026-11-20"
+    status: reviewed
+  - id: eiheiji
+    emoji: "🛕"
+    name: {ja: "{永平寺|えいへいじ}", en: "Eiheiji Temple", zh: "永平寺"}
+    description:
+      ja:
+        kids: "{道元|どうげん}が{開|ひら}いた{寺|てら}で、{今|いま}も{禅|ぜん}の{修行|しゅぎょう}が{続|つづ}くよ。"
+        adult: "1244{年|ねん}に{道元|どうげん}が{開|ひら}いた{曹洞宗|そうとうしゅう}の{寺|てら}で、{今|いま}も{僧侶|そうりょ}が{禅|ぜん}の{修行|しゅぎょう}を{続|つづ}けています。"
+      en:
+        kids: "At this temple founded by Dogen, Zen practice continues today."
+        adult: "Founded by Dogen in 1244, this Soto Zen temple remains a place where monks practice Zen."
+      zh:
+        kids: "这座由道元开创的寺院，至今仍在进行禅修。"
+        adult: "道元于1244年开创的曹洞宗寺院，至今仍有僧人修行禅法。"
+    sources:
+      - title: "大本山永平寺：大本山永平寺の概要｜検索詳細｜地域観光資源の多言語解説文データベース"
+        url: "https://www.mlit.go.jp/tagengo-db/R2-01258.html"
+        accessed: "2026-11-20"
+    status: reviewed
+  - id: dinosaur-museum
+    emoji: "🦖"
+    name: {ja: "{福井県立恐竜博物館|ふくいけんりつきょうりゅうはくぶつかん}", en: "Fukui Prefectural Dinosaur Museum", zh: "福井县立恐龙博物馆"}
+    description:
+      ja:
+        kids: "ドームの{中|なか}で、{恐竜|きょうりゅう}の{骨格|こっかく}や{化石|かせき}が{見|み}られるよ。"
+        adult: "{銀色|ぎんいろ}のドームの{中|なか}に{展示室|てんじしつ}があり、{恐竜|きょうりゅう}の{全身骨格|ぜんしんこっかく}や{化石|かせき}を{見|み}られる{博物館|はくぶつかん}です。"
+      en:
+        kids: "You can see dinosaur skeletons and fossils inside the dome."
+        adult: "This museum's silver dome houses an exhibition hall with full dinosaur skeletons and fossils."
+      zh:
+        kids: "在圆顶内可以看到恐龙骨架和化石。"
+        adult: "银色圆顶内设有展厅，可以看到恐龙全身骨架和化石的博物馆。"
+    sources:
+      - title: "フロアマップ｜来館のご案内｜FPDM: 福井県立恐竜博物館"
+        url: "https://www.dinosaur.pref.fukui.jp/guide/floormap.html"
+        accessed: "2026-11-20"
+      - title: "新しい展示｜FPDM: 福井県立恐竜博物館"
+        url: "https://www.dinosaur.pref.fukui.jp/museum/exhibit_new.html"
+        accessed: "2026-11-20"
+    status: reviewed
