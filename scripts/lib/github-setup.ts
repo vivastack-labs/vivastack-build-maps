@@ -192,7 +192,7 @@ const planRulesets: Planner = async (get, warn) => {
   }
   const changes: Change[] = [];
   for (const ruleset of GITHUB_SETTINGS.rulesets) {
-    const bypass = ruleset.bypass_actors.length === 0 ? 'バイパスなし' : 'merge はバイパスできる admin・組織のオーナーだけ';
+    const bypass = ruleset.bypass_actors.length === 0 ? 'バイパスなし' : 'バイパスは admin・組織のオーナーだけ';
     const label = `ルールセット ${ruleset.name}（${ruleset.rules.map(rule => rule.type).join('・')}、${bypass}）`;
     const found = listed.find(entry => entry.name === ruleset.name);
     if (found === undefined) {
@@ -269,12 +269,12 @@ async function planEnvironment(get: GhGet, environment: EnvironmentSetting): Pro
   const base = `${repoPath}/environments/${environment.name}`;
   const reviewers = await lookupReviewers(get, environment.reviewers);
   const current = await lookup(get, base);
-  const branchLabel = environment.branchPolicies.length === 0 ? 'ブランチの制限なし' : 'main だけ';
-  const reviewerLabel = environment.reviewers.length === 0 ? '承認者なし' : `承認者 ${reviewers.map(reviewer => `${reviewer.login}（id ${reviewer.id}）`).join('・')}`;
+  const allowedRefs = environment.branchPolicies.map(policy => `${policy.type}: ${policy.name}`).join('・');
+  const reviewerLabel = `承認者 ${reviewers.map(reviewer => `${reviewer.login}（id ${reviewer.id}）`).join('・')}`;
   const environmentChange =
     current.found && environmentMatches(environment, reviewers, current.value)
       ? []
-      : [change('PUT', base, `Environment ${environment.name}（${branchLabel}、${reviewerLabel}）を設定する`, environmentBody(environment, reviewers))];
+      : [change('PUT', base, `Environment ${environment.name}（${allowedRefs || 'ref の制限なし'}、${reviewerLabel}）を設定する`, environmentBody(environment, reviewers))];
   if (environment.branchPolicies.length === 0) return environmentChange;
   const policiesPath = `${base}/deployment-branch-policies`;
   const present = await listBranchPolicies(get, policiesPath);
@@ -283,8 +283,8 @@ async function planEnvironment(get: GhGet, environment: EnvironmentSetting): Pro
   const extra = present.filter(policy => !environment.branchPolicies.some(wanted => same(policy, wanted)));
   return [
     ...environmentChange,
-    ...missing.map(wanted => change('POST', policiesPath, `${environment.name} にデプロイできるブランチ ${wanted.name} を足す`, wanted)),
-    ...extra.map(policy => change('DELETE', `${policiesPath}/${String(policy.id)}`, `${environment.name} にデプロイできるブランチ ${String(policy.name)}（${String(policy.type)}）を消す`))
+    ...missing.map(wanted => change('POST', policiesPath, `${environment.name} にデプロイできる ${wanted.type} ${wanted.name} を足す`, wanted)),
+    ...extra.map(policy => change('DELETE', `${policiesPath}/${String(policy.id)}`, `${environment.name} にデプロイできる ${String(policy.type)} ${String(policy.name)} を消す`))
   ];
 }
 
@@ -326,9 +326,9 @@ const planSecurity: Planner = async get => {
 };
 
 const STEPS: readonly (readonly [string, Planner])[] = [
-  // Environment（preview の承認）を先にする。途中で失敗しても「Team は Write、preview は承認なし」を残さない
-  ['Environment', planEnvironments],
+  // タグを保護してから production に許可し、Environment の承認を設定してから Team に Write を付ける。
   ['ルールセット', planRulesets],
+  ['Environment', planEnvironments],
   ['Team', planTeam],
   ['Actions', planActions],
   ['セキュリティ', planSecurity]
@@ -348,7 +348,7 @@ export async function runGithubSetup(args: readonly string[], deps: GithubSetupD
     return 1;
   }
   const apply = args.length > 0;
-  let step = 'Environment';
+  let step = 'ルールセット';
   try {
     const changes: Change[] = [];
     for (const [label, plan] of STEPS) {

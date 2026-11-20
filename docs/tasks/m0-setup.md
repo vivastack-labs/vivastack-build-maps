@@ -138,7 +138,7 @@
 - **種別**：手作業（オーナー）＋ chore（GitHub の設定を反映するスクリプト `pnpm github:setup`）
 - **依存関係**：なし（ブランチ保護の設定だけは T0-04 の後。必須にするチェックの名前が決まるため）
 - **目的**：デプロイに必要な外部サービスの設定を済ませ、要確認の事項（U5・U7・U14）を確定する（U7 は T0-06 に移した）。
-- **参照仕様**：第11章、U5、U7、U14
+- **参照仕様**：第11章、U5、U7、U14、D50
 
 ### 実装内容
 
@@ -174,7 +174,7 @@
 
 - **種別**：ci
 - **依存関係**：T0-04、T0-05
-- **目的**：PRごとにプレビューURLで確認でき、`main` に merge したら本番に自動で出るようにする。
+- **目的**：PR ごとにプレビュー URL で確認できるようにし、公開する版を本番へ自動で出す。
 - **参照仕様**：6.1、12.1〜12.3、11.2、11.4 (2)・(5)、11.5、D35、D44〜D46、R4・R5
 
 ### 実装内容
@@ -182,7 +182,7 @@
 - `wrangler.jsonc`（11.4 (2) のとおり）と、`pnpm build` で `dist/` を作る仕組みは T0-03 で用意した。`compatibility_date` は、入れた wrangler（workerd）が対応する日付までしか使えない（T0-03 では 2026-11-10）。
 - `deploy.yml` で E2E を実行するかを決める（開発中は PR ごとに実行しない。D30）。推奨は実行しない（merge の前に `e2e.yml` を手動で実行して確かめるため。分数を抑える）。
 - `ci.yml` に `preview` job を加える（`needs: check`。文書だけのPRでは `check` が build を飛ばすので、`check` の `docs_only` を job の出力にして、プレビューも飛ばす）：`wrangler versions upload --preview-alias pr-N`、PRにプレビューURLをコメントする（同じPRでは1つのコメントを更新する）。
-- `.github/workflows/deploy.yml`：`main` への push で `wrangler deploy`（`environment: production`）。
+- `.github/workflows/deploy.yml`：導入時は `main` への push で `wrangler deploy` を実行した。D50 で GitHub Release の正式公開に切り替えた（開発概要書 12.1）。
 - `deploy.yml` の本番のビルド（`reviewed` のみ）の後に、`pnpm lhci`（T4-04）を加えるか決める。`ci.yml` では、上限のコンテンツの `dist/` を測っている（開発概要書 5.1、12.2）。本物のコンテンツのビルドを測る場合、`dist/` の作り方と、基準値が同じでよいかを決める。
 - `pnpm build:preview`：`BUILD_TARGET=preview` でビルドする（`next build` と `scripts/postbuild.ts`）。`noindex`（`<meta name="robots" content="noindex">`）と、コンテンツの絞り込み（すべての項目を出し、`reviewed` でない項目に `draft` の値を付ける。画面の「下書き」の印は T3-03）を加えたもの。T3-02 で作った（`package.json` の `build`・`build:preview`、`src/lib/publish.ts`、`app/[lang]/layout.tsx` の `generateMetadata`）。ここ（T0-06）では、`ci.yml` の `preview` job が使う `pnpm build:preview` の出力に `noindex` が付くことを確かめる。
 - プレビューURLの形式と、wrangler の出力から取り出す方法を開発概要書 12.3 に書く。
@@ -195,7 +195,7 @@
 ### 完了条件
 
 - このタスクのPRのプレビューURLで、3言語の空のページが表示される（オーナーが `preview` のデプロイを承認した後。認証なし。D46）。
-- merge 後、`https://maps.vivastack-dev.workers.dev/ja/` に空のページが表示され、`/` が `/ja/` にリダイレクトされる（M0 の完了条件）。
+- 本番デプロイ後、`https://maps.vivastack-dev.workers.dev/ja/` に空のページが表示され、`/` が `/ja/` にリダイレクトされる（M0 の完了条件）。
 
 ### テスト条件
 

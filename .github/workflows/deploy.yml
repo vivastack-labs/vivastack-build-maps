@@ -1,23 +1,23 @@
 ---
-# 12.1〜12.3：main に merge したら、本番（https://maps.vivastack-dev.workers.dev/。D35）にデプロイする（T0-06）。
+# 12.1〜12.3：正式な GitHub Release の公開で、タグが指す main のコミットを本番へデプロイする（T0-06）。
 # build（検査とビルド。環境なし・Token なし）→ deploy（Environment production）→ smoke（本番の読み取り検査）。
 # 依存のコードが動く手順（test など）と Token を、別の VM にするため。
-# Environment production は main だけが使える（T0-05）。Token（CLOUDFLARE_API_TOKEN）は Environment production の Secret で、
-# wrangler deploy のステップの env だけに渡す。全構成の E2E は e2e.yml を手動で、Lighthouse は ci.yml が測る（D30）。
+# Environment production は保護された v* タグから、オーナーの承認を受けたデプロイを許可する（D50）。
+# CLOUDFLARE_API_TOKEN は wrangler deploy のステップだけに渡す。全構成の E2E は e2e.yml を手動で、Lighthouse は ci.yml が測る。
 # Action はコミットSHAで固定する（5.5）。横のコメントはタグ（Dependabot が SHA と一緒に更新する）
 name: deploy
 
 "on":
-  push:
-    branches: [main]
+  release:
+    types: [published]
 
 permissions:
   contents: read
 
 concurrency:
   # 本番へのデプロイは1つずつ。動いている実行は取り消さない（途中で止めると、反映が中途半端になりうる）。
-  # 待っている古い実行は、新しい実行で取り消されうる（最新の main が出る）
-  group: deploy-production
+  # 待機中の実行は、新しいリリースの実行で取り消されうる。
+  group: ${{ github.event.release.prerelease && format('deploy-prerelease-{0}', github.run_id) || 'deploy-production' }}
   cancel-in-progress: false
 
 defaults:
@@ -31,12 +31,26 @@ env:
 
 jobs:
   build:
+    if: ${{ github.event.release.prerelease == false }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
           persist-credentials: false
+      - name: Verify production release
+        run: |
+          stable_version='^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
+          if [[ "$GITHUB_REF_TYPE" != tag || ! "$GITHUB_REF_NAME" =~ $stable_version ]]; then
+            echo 'Production releases require a tag in the form vMAJOR.MINOR.PATCH' >&2
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor HEAD refs/remotes/origin/main; then
+            echo 'The release commit must be in the history of main' >&2
+            exit 1
+          fi
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115  # v6.1.1
       # 11.2：Actions のキャッシュを使わない（package-manager-cache: false）
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
@@ -79,9 +93,10 @@ jobs:
     timeout-minutes: 15
     environment: production
     steps:
-      # wrangler.jsonc と wrangler の版は、この main のコミットのもの。dist は build job の Artifact
+      # wrangler.jsonc と wrangler の版は、公開したタグのコミットのもの。dist は build job の Artifact
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
+          ref: ${{ github.sha }}
           persist-credentials: false
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115  # v6.1.1
       # 11.2：Token を使える job では、Actions のキャッシュを復元しない
@@ -109,6 +124,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
+          ref: ${{ github.sha }}
           persist-credentials: false
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115  # v6.1.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0

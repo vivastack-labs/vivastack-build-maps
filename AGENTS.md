@@ -7,7 +7,7 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 - 「ご当地めいぶつ日本地図」：47都道府県の名物・名所を日本地図から探せる Web アプリ（ja / en / zh、こども／おとなモード、ふりがな ON/OFF）。
 - 設計・要件・決定事項は [docs/development-overview.md](docs/development-overview.md) にある。作業の前に関係する章を読み、要件ID（例：`F-MAP-01`）で対応を確認する。
 - タスクの一覧・順番・進み具合は [docs/development-plan.md](docs/development-plan.md)、タスクごとの定義（目的・参照仕様・実装内容・完了条件・テスト条件・依存関係）は `docs/tasks/` にある。タスクに着手するときは、その定義を読み、タスクのID（例：`T0-01`）をPRの本文に書く。終わったら「状態」を更新する。`CHANGELOG.md` は PR ごとには書かず、マイルストーンが終わったとき（そのマイルストーンの最後のタスクの PR）と、公開のときに、`[Unreleased]` にまとめて書き足す。
-- 進み具合はここには書かない（`docs/development-plan.md` だけを更新する）。`main` 向けの PR ごとに GitHub Actions の CI（`.github/workflows/ci.yml`）が動き、オーナーが Environment `preview` のデプロイを承認すると、プレビュー（`https://pr-<番号>-maps.vivastack-dev.workers.dev/`）に出て、PR に URL がコメントされる。`main` に merge すると `.github/workflows/deploy.yml` が本番に出す（T0-06）。デプロイは CI だけで行い、手元から `wrangler deploy`・`wrangler versions upload` はしない（障害時の切り戻し〔開発概要書 第13章〕を除く。Token は GitHub の Environment の Secret だけにある）。E2E は開発中は PR ごとに動かさず、`.github/workflows/e2e.yml` を手動で実行する（D30）。
+- 進み具合はここには書かない（`docs/development-plan.md` だけを更新する）。`main` 向けの PR ごとに GitHub Actions の CI（`.github/workflows/ci.yml`）が動き、オーナーが Environment `preview` のデプロイを承認すると、プレビュー（`https://pr-<番号>-maps.vivastack-dev.workers.dev/`）に出て、PR に URL がコメントされる。`main` に入ったコミットを指す `vMAJOR.MINOR.PATCH` の GitHub Release を正式公開すると、`.github/workflows/deploy.yml` が起動し、オーナーの承認後に本番に出す（D50）。デプロイは CI だけで行い、手元から `wrangler deploy`・`wrangler versions upload` はしない（障害時の切り戻し〔開発概要書 第13章〕を除く。Token は GitHub の Environment の Secret だけにある）。E2E は開発中は PR ごとに動かさず、`.github/workflows/e2e.yml` を手動で実行する（D30）。
 
 ## 技術スタック
 
@@ -43,7 +43,7 @@ pnpm content:validate   # コンテンツの YAML を検証する（誤りで終
 pnpm content:furigana   # 日本語の文にふりがなを付けて標準出力に出す（標準入力の各行、または引数。読みが怪しい語は標準エラーに出す。YAML は書き換えない。T5-02）
 pnpm content:furigana --check <YAML>...   # YAML の {漢字|よみ} の読みを辞書の読みと比べて、違うものを出す（YAML は読むだけ。辞書が誤ることもあるので、違いは公式の表記で確かめる。終了コードは 0。T5-02）
 pnpm content:links   # 出典（sources[].url）のリンク切れを確かめて、Markdown のレポートを標準出力に出す（`--pref 26,kyoto` で県を絞る、`--out <ファイル>` でファイルにも書く。同時4件・同じホストへは同時に1件で、前の応答から2秒以上あける。リンク切れ〔404・410〕があれば終了コード 1、引数・コンテンツの誤りは 2。コンテンツは CONTENT_DIR。ふつうは手動の workflow `link-check.yml` で動かす。外のサイトにリクエストを送るので、手元で試すときは件数に気をつける。T5-03）
-pnpm github:setup   # GitHub の設定を gh api で反映する（T0-05）。反映する項目：main のルールセット（CI 必須・承認1件・merge はバイパスできる admin・オーナーだけ）、Environment（production は main だけ、preview はオーナーの承認）、Team maps-reviewers（Write。実行者はメンバーから外す）、Actions の権限（SHA 固定の必須・fork の PR の承認）、Secret scanning・push protection、脆弱性の非公開の報告・Dependabot alerts。既定は確かめるだけ（GET と、今の値と違うものの「送る予定の書き込み」の表示だけ。同じなら「変更なし」）。`--apply` で反映する。何度実行しても同じ結果。Team の操作に `gh auth refresh -h github.com -s admin:org` が要る。Secrets は扱わない
+pnpm github:setup   # GitHub の設定を gh api で反映する（T0-05）。反映する項目：main のルールセット（CI 必須・承認1件・merge はバイパスできる admin・オーナーだけ）、本番タグのルールセット（v* の作成・更新・削除を admin・オーナーに制限）、Environment（production は v* タグだけ。どちらもオーナーの承認）、Team maps-reviewers（Write。実行者はメンバーから外す）、Actions の権限（SHA 固定の必須・fork の PR の承認）、Secret scanning・push protection、脆弱性の非公開の報告・Dependabot alerts。既定は確かめるだけ（GET と、今の値と違うものの「送る予定の書き込み」の表示だけ。同じなら「変更なし」）。`--apply` で反映する。何度実行しても同じ結果。Team の操作に `gh auth refresh -h github.com -s admin:org` が要る。Secrets は扱わない
 pnpm content:types      # スキーマから型（src/lib/content-schema.generated.ts）を作り直す（スキーマを変えたら実行してコミット）
 pnpm size         # dist/ の言語ごとの最初の読み込み（HTML＋JS＋CSS）の圧縮後のサイズを表にする（gzip が 300KB を超えると終了コード 1。先に pnpm build）
 node scripts/make-max-content.ts --out <ディレクトリ>   # 47県を 7.3 の上限の文字数で埋めたダミーのコンテンツを作る（コミットしない。CONTENT_DIR=<ディレクトリ> pnpm build の後に pnpm size で測る）

@@ -41,6 +41,26 @@ describe('GITHUB_SETTINGS', () => {
     expect(owners).toContain(`@${GITHUB_SETTINGS.owner}/${GITHUB_SETTINGS.team.slug}`);
   });
 
+  test('12.1 本番 workflow は Release の公開だけで起動する', () => {
+    const workflow = parse(readFileSync('.github/workflows/deploy.yml', 'utf8'));
+    expect(workflow.on).toEqual({ release: { types: ['published'] } });
+  });
+
+  test('11.5 production は管理者だけが変更できるリリースタグを許可する', () => {
+    expect(GITHUB_SETTINGS.environments.find(environment => environment.name === 'production')?.branchPolicies).toEqual([{ name: 'v*', type: 'tag' }]);
+    expect(GITHUB_SETTINGS.rulesets.find(ruleset => ruleset.name === 'production-release-tags')).toEqual({
+      name: 'production-release-tags',
+      target: 'tag',
+      enforcement: 'active',
+      conditions: { ref_name: { include: ['refs/tags/v*'], exclude: [] } },
+      bypass_actors: [
+        { actor_id: 5, actor_type: 'RepositoryRole', bypass_mode: 'always' },
+        { actor_id: 1, actor_type: 'OrganizationAdmin', bypass_mode: 'always' }
+      ],
+      rules: [{ type: 'creation' }, { type: 'update' }, { type: 'deletion' }]
+    });
+  });
+
   test('11.5 秘密の値（Token・メールアドレス）を含まない', () => {
     // Act
     const text = JSON.stringify(GITHUB_SETTINGS);

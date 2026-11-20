@@ -26,4 +26,5 @@
   - 横スクロールの検査は `tests/e2e/layout.spec.ts`（3言語 × `PAGES` ＋ 404 を、端末の幅と、PC の幅360pxの指定で）。内容を広げた状態は、英語の北海道のカード・市区町村の一覧の JSON を `page.route` で長い URL・長い1語の名前に書き換えて開き、幅 360px・800px・1024px で、文書とカードの領域（`[data-area="card"]`。768px 未満は fixed のパネル、1024px 以上も `overflow-y-auto` の箱で、はみ出しは中でスクロールになり文書の検査では見えない）の両方を確かめる。ページを足すと自動で対象になる。
   - CI で確かめられないもの（ピンチ・Apple Pencil・ホーム画面への追加・オフライン・1つ前の iPadOS など）は `docs/device-checklist.md`。公開前（T6-01）に確かめ、結果を表に書く。
 - 本番のアクセス解析（T6-02、D21・D35）：`app/[lang]/layout.tsx` は、本番の静的ビルドで公開サイト識別子 `CLOUDFLARE_WEB_ANALYTICS_SITE_ID` が渡された場合に、公式の外部モジュールスクリプトを1つ出す。`deploy.yml` は GitHub Actions のリポジトリ変数から識別子を渡す。計測用スクリプトの読み込みは `tests/e2e/csp.spec.ts`、プレビューへの混入防止は `tests/e2e-preview/analytics.spec.ts` で確かめる。
+- 本番デプロイ（D50）：`deploy.yml` は GitHub Release の `published` イベントで起動する。正式版のタグ書式と `main` の履歴をビルド前に検証し、3 job はイベントのコミット SHA を使う。`production` Environment が許可する `v*` タグはルールセットで保護し、デプロイの前にオーナーの承認を必須にする。
 - デプロイ後の読み取り検査（T6-02、D49）：`playwright.production.config.ts` と `tests/e2e-production/release.spec.ts` は、配信済みの HTML とヘッダーを JavaScript 無効の Chromium で確認する。`deploy.yml` の `smoke` job はデプロイ成功後に実行する。既存の全構成 E2E は手動の `e2e.yml` で実行する。

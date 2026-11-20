@@ -48,7 +48,7 @@ pnpm content:validate  # コンテンツの YAML を検証する
 2. テストを先に書く（TDD）。カバレッジは全体80%以上、ドメインロジックは90%以上。
 3. PR を `main` に向けて出すと、GitHub Actions の CI が動く（`.github/workflows/ci.yml`）。
 4. オーナーが Environment `preview` のデプロイを承認すると、プレビュー（`https://pr-<番号>-maps.vivastack-dev.workers.dev/`）に出て、PR に URL がコメントされる。
-5. `main` に merge すると、本番に自動で出る（`.github/workflows/deploy.yml`）。**手元から `wrangler deploy` はしない**（障害時の切り戻しを除く。開発概要書の第13章）。
+5. `main` に入ったコミットを指すバージョンタグで GitHub Release を正式公開し、GitHub Actions で本番デプロイを承認する（[公開手順](docs/development-overview.md#本番の公開手順)）。**手元から `wrangler deploy` はしない**（障害時の切り戻しを除く。開発概要書の第13章）。
 
 E2E は PR ごとには動かさない。画面やルーティングを変えたときは、merge の前に手元（`pnpm test:e2e`）か、手動の workflow（`e2e.yml`）で確かめる。
 
