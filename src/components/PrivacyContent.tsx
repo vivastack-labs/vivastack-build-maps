@@ -2,7 +2,7 @@ import { LABEL_SEPARATOR } from '@/i18n/cardText';
 import { formatDate } from '@/i18n/format';
 import type { Lang } from '@/i18n/lang';
 import { getMessages } from '@/i18n/messages';
-import { PRIVACY_REVISED_DATE } from '@/lib/site';
+import { OPERATOR_PROFILE_URL, PRIVACY_REVISED_DATE, PROJECT_ISSUES_URL } from '@/lib/site';
 import { CLOUDFLARE_ANALYTICS_URL, CLOUDFLARE_PRIVACY_URL } from '@/lib/sources';
 import { BulletList, ContentSection, PageTitle, Paragraph } from './ContentSection';
 import { LinkedSentence } from './LinkedSentence';
@@ -36,10 +36,10 @@ function StorageSection({ lang }: { readonly lang: Lang }) {
 /**
  * プライバシーポリシーのページの中身（T4-05。5.6）。`<main>` の中に置く。題名が h1、節の見出しが h2。
  * アクセス解析（Cloudflare Web Analytics。Cookie を使わない）・Cookie・端末に保存するもの・配信・外部のサイト・改定日。
- * 運営者・問い合わせ先は載せない（T6-02 の公開の前に決める）。こども向け・おとな向けの言い分けはしない。日本語はふりがなつき。
+ * 運営者と誤り・不具合の報告窓口を載せる（T6-02）。こども向け・おとな向けの言い分けはしない。日本語はふりがなつき。
  */
 export function PrivacyContent({ lang }: { readonly lang: Lang }) {
-  const { title, cookies, delivery, external, revised } = getMessages(lang).privacy;
+  const { title, contact, cookies, delivery, external, revised } = getMessages(lang).privacy;
   return (
     <div className="max-w-3xl space-y-6 px-4 py-4">
       <PageTitle text={title} />
@@ -57,6 +57,23 @@ export function PrivacyContent({ lang }: { readonly lang: Lang }) {
       </ContentSection>
       <ContentSection heading={external.heading} marker={['data-privacy-section', 'external']}>
         <Paragraph text={external.body} />
+      </ContentSection>
+      <ContentSection heading={contact.heading} marker={['data-privacy-section', 'contact']}>
+        <p>
+          <RubyText text={contact.operatorLabel} />
+          {LABEL_SEPARATOR[lang]}
+          <a href={OPERATOR_PROFILE_URL} rel="noopener noreferrer" className="underline">
+            VivaStack
+          </a>
+        </p>
+        <p>
+          <RubyText text={contact.reportsLabel} />
+          {LABEL_SEPARATOR[lang]}
+          <a href={PROJECT_ISSUES_URL} rel="noopener noreferrer" className="underline">
+            GitHub Issues
+          </a>
+        </p>
+        <Paragraph text={contact.publicNotice} />
       </ContentSection>
       <p data-privacy-revised>
         <RubyText text={revised} />

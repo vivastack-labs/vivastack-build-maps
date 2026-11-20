@@ -142,6 +142,12 @@ export const en: Messages = {
   },
   privacy: {
     title: 'Privacy policy',
+    contact: {
+      heading: 'Site operator and contact',
+      operatorLabel: 'Site operator',
+      reportsLabel: 'Report an error or a bug',
+      publicNotice: 'Posts on GitHub Issues are public. Please leave out personal information such as names and email addresses.'
+    },
     analytics: {
       heading: 'Analytics',
       body: 'To learn which pages are viewed, this site uses Cloudflare Web Analytics. It does not use cookies and does not identify visitors as individuals. We look at aggregated data on the page path, the referrer (the site a visitor came from), the country, the browser, the OS, the device type, and the page load speed.',
