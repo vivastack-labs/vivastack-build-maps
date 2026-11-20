@@ -195,6 +195,7 @@ export const en: Messages = {
   },
   notFound: {
     title: 'Page not found',
-    backToTop: 'Back to home page'
+    description: 'Please check that the URL is correct.',
+    backToTop: 'Back to the map of Japan'
   }
 } satisfies Messages;
