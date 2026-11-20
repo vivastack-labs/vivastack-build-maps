@@ -73,4 +73,9 @@ Safari（macOS）・iOS・iPadOS は、最新と1つ前のメジャーバージ�
 
 | 日付 | 端末 | OS とブラウザの版 | 結果 | メモ |
 |---|---|---|---|---|
-| | | | | |
+| 2026-11-20 | 学校端末・スマホ・タブレットなど | 未記録 | 実機の結果は未確認 | オーナーの判断で T6-01 は進捗上の完了とした。実機での確認結果が分かり次第、この表に追記する。 |
+
+### 参考にした自動検査
+
+- 2026-11-16：[T4-06 の Playwright E2E](https://github.com/vivastack-labs/vivastack-build-maps/actions/runs/43845691308) が成功した。
+- 2026-11-20：[本番デプロイ](https://github.com/vivastack-labs/vivastack-build-maps/actions/runs/44684665034) の成功を確認した。本番で `/` は `/ja/` に 301 で転送され、`/ja/`・`/en/`・`/zh/` はいずれも HTTP 200 で、文書の言語は順に `ja`・`en`・`zh-Hans` だった。

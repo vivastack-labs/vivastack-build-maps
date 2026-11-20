@@ -23,6 +23,17 @@ type Props = {
   params: Promise<{ lang: string }>;
 };
 
+/** D21・D35：本番の静的出力だけに、公開サイト識別子を使う計測スクリプトを出す。 */
+function webAnalyticsSiteId(): string | undefined {
+  if (process.env.NODE_ENV !== 'production' || buildTarget() !== 'production') return undefined;
+
+  const siteId = process.env.CLOUDFLARE_WEB_ANALYTICS_SITE_ID;
+  if (siteId && !/^[a-f0-9]{32}$/iu.test(siteId)) {
+    throw new Error('CLOUDFLARE_WEB_ANALYTICS_SITE_ID に有効な公開サイト識別子を設定してください');
+  }
+  return siteId;
+}
+
 // 5.2：<title> は言語ごとのサイト名（ふりがなの記法を除く）。
 // F-I18N-03：`alternates` で `<link rel="canonical">` と `<link rel="alternate" hreflang>` を出す。
 // 11.4 (5)・R4：プレビュー用のビルドは <meta name="robots" content="noindex"> を付ける（下書きを検索に出さない）。本番には付けない
@@ -49,6 +60,7 @@ export async function generateMetadata({ params }: Pick<Props, 'params'>): Promi
 export default async function RootLayout({ children, params }: Props) {
   const { lang } = await params;
   if (!isLang(lang)) notFound();
+  const analyticsSiteId = webAnalyticsSiteId();
 
   return (
     <html lang={htmlLang(lang)} data-mode={DEFAULT_DISPLAY[lang].mode} data-ruby={DEFAULT_DISPLAY[lang].ruby} suppressHydrationWarning>
@@ -58,6 +70,7 @@ export default async function RootLayout({ children, params }: Props) {
       <body className="bg-page-bg text-page-text">
         {children}
         <ServiceWorkerRegistration />
+        {analyticsSiteId && <script type="module" defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: analyticsSiteId })} />}
       </body>
     </html>
   );
