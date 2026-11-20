@@ -20,9 +20,7 @@ const MAP_BOX_ASPECT_CLASS = 'aspect-[1000/1130]';
 
 /** 県コード → 寄る範囲・移動できる範囲。ビルド時に求めて `MapZoom` に渡す（47県で約3KB） */
 function prefBounds(): Readonly<Record<string, PrefBounds>> {
-  return Object.fromEntries(
-    loadPrefPaths().map(({ code, fitBounds, focusBounds, panBounds }) => [code, { fit: fitBounds, focus: focusBounds, pan: panBounds }])
-  );
+  return Object.fromEntries(loadPrefPaths().map(({ code, fitBounds, focusBounds, panBounds }) => [code, { fit: fitBounds, focus: focusBounds, pan: panBounds }]));
 }
 
 /**
