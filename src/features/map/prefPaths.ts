@@ -18,13 +18,16 @@ import type { Bounds } from './viewport.ts';
 export type LabelPosition = { readonly x: number; readonly y: number };
 
 /**
- * 県のパス（`d`）と、言語ごとの県名ラベルの位置。
- * `fitBounds` は最大化したときに寄る範囲、`panBounds` は最大化中に動ける範囲（どちらも viewBox の座標。T2-06、D36）。
+ * 県のパス（`d`）と、言語ごとの県名ラベルの位置。範囲はどれも viewBox の座標（T2-06、D36・D51）。
+ * - `fitBounds`：県全体。最大化中は、これが収まる倍率より縮小しない
+ * - `focusBounds`：最大化したときに寄る範囲。`FOCUS_AREAS` にない県は `fitBounds` と同じ
+ * - `panBounds`：最大化中に動ける範囲
  */
 export type PrefPath = {
   readonly code: string;
   readonly d: string;
   readonly fitBounds: Bounds;
+  readonly focusBounds: Bounds;
   readonly panBounds: Bounds;
   readonly labels: Readonly<Record<Lang, LabelPosition>>;
 };
@@ -41,6 +44,18 @@ export const LABEL_FONT_SIZE: Readonly<Record<Lang, number>> = { ja: 16, en: 13,
  * 東京都（13）は小笠原村（父島・母島など）まで入れると本土が小さくなるので、本土と伊豆諸島に寄る（U16、D36）。
  */
 export const FIT_EXCLUDE_SOUTH_OF: Readonly<Record<string, number>> = { '13': 28 };
+
+/**
+ * 最大化したときに、県全体ではなく寄る範囲。県コード → [南西, 北東]（経度・緯度）。
+ * 東京都（13）は、県全体（本土と伊豆諸島）に寄ると島が中心になり本土が小さいので、23区に寄る（D51）。
+ * 範囲は `public/geo/muni/13.topo.json` の23区（13101〜13123）の外接矩形を少し広げたもの（`tests/data/prefBounds.test.ts` が確かめる）。
+ */
+export const FOCUS_AREAS: Readonly<Record<string, readonly [southWest: LonLat, northEast: LonLat]>> = {
+  '13': [
+    [139.562, 35.528],
+    [139.919, 35.818]
+  ]
+};
 
 type LabelOffsets = Readonly<Record<string, readonly [dx: number, dy: number]>>;
 
@@ -157,13 +172,33 @@ function toPrefPath({ code, label, geometry }: PrefFeature): PrefPath {
     throw new Error(`県 ${code} の形をパスにできません`);
   }
   const [x, y] = projectPoint(label, code);
+  const fitBounds = unionBounds(fitPolygons.map(boundsOf));
   return {
     code,
     d,
-    fitBounds: unionBounds(fitPolygons.map(boundsOf)),
+    fitBounds,
+    focusBounds: focusBoundsOf(code, fitBounds),
     panBounds: unionBounds(allPolygons.map(boundsOf)),
     labels: Object.fromEntries(LANGS.map(lang => [lang, offsetLabel(lang, code, [x, y])])) as Record<Lang, LabelPosition>
   };
+}
+
+/** `FOCUS_AREAS` の範囲の四隅を投影した外接矩形（外側へ小数1桁に丸める）。範囲がない県は `fitBounds` */
+function focusBoundsOf(code: string, fitBounds: Bounds): Bounds {
+  const area = FOCUS_AREAS[code];
+  if (area === undefined) return fitBounds;
+  const [[west, south], [east, north]] = area;
+  const corners = (
+    [
+      [west, south],
+      [west, north],
+      [east, south],
+      [east, north]
+    ] as const
+  ).map(corner => projectPoint(corner, code));
+  const xs = corners.map(([x]) => x);
+  const ys = corners.map(([, y]) => y);
+  return { x0: floor(Math.min(...xs)), y0: floor(Math.min(...ys)), x1: ceil(Math.max(...xs)), y1: ceil(Math.max(...ys)) };
 }
 
 /** ポリゴンのすべての点が、北緯 `latitude` 度より南にあるか。`latitude` がなければ（除かない県）`false` */
@@ -196,6 +231,8 @@ function overlapsViewBox({ x0, y0, x1, y1 }: Bounds): boolean {
 }
 
 const round = (value: number): number => Math.round(value * 10) / 10;
+const floor = (value: number): number => Math.floor(value * 10) / 10;
+const ceil = (value: number): number => Math.ceil(value * 10) / 10;
 
 function readFeatures(topology: unknown): readonly PrefFeature[] {
   if (!isRecord(topology) || topology.type !== 'Topology' || !isRecord(topology.objects)) {

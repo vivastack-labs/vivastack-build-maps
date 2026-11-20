@@ -17,8 +17,13 @@ export type ScaleExtent = readonly [min: number, max: number];
 
 /** 通常の倍率の範囲。全体表示（1）から 8 倍まで（F-ZOOM-01） */
 export const BASE_SCALE_EXTENT: ScaleExtent = [1, 8];
-/** 最大化中の倍率の上限は、県全体が収まる倍率のこの倍（ただし 8 を下回らない）。市区町村（T2-08）を見分けられる広さ */
+/** 最大化中の倍率の上限は、寄る範囲が収まる倍率のこの倍（ただし 8 を下回らない）。市区町村（T2-08）を見分けられる広さ */
 export const MAXIMIZED_ZOOM_IN_RATIO = 4;
+/**
+ * 倍率の上限の上限。市区町村のラベルを選ぶ倍率の段（`labels.ts`）と、パスの座標の桁数（`muniShapes.ts`。0.01 が 1px 前後）の上限。
+ * 東京都の23区（D51）のように寄る範囲が狭い県でも、これを超えて拡大しない。
+ */
+export const MAX_ZOOM_SCALE = 128;
 /** 「＋」「−」の1回分の倍率 */
 export const ZOOM_STEP = 1.5;
 /** 県に寄るときの余白。表示領域の各辺に対する割合 */
@@ -68,12 +73,19 @@ export function fitTransform(bounds: Bounds, size: Size, padding: number): ZoomT
 
 /**
  * 倍率の範囲。通常は 1〜8。最大化中は、県全体が収まる倍率（`fitScale`）より小さくならない（縮小しすぎない。4.11.2）。
- * 上限は `fitScale` の4倍（8 を下回らない）。香川県・大阪府のように `fitScale` が大きい県でも、最大化したあとに拡大できる。
+ * 上限は、最大化で寄る範囲が収まる倍率（`focusScale`。省くと `fitScale`）の4倍（8 を下回らず、`MAX_ZOOM_SCALE` を超えない）。
+ * 香川県・大阪府のように `fitScale` が大きい県でも、最大化したあとに拡大できる。
+ * 東京都は寄る範囲（23区）が県全体より狭いので、`focusScale` が `fitScale` より大きい（D51）。小さいときは例外にする。
  */
-export function scaleExtent(fitScale: number | null): ScaleExtent {
+export function scaleExtent(fitScale: number | null, focusScale: number | null = fitScale): ScaleExtent {
   if (fitScale === null) return BASE_SCALE_EXTENT;
   assertScale(fitScale);
-  return [fitScale, Math.max(BASE_SCALE_EXTENT[1], fitScale * MAXIMIZED_ZOOM_IN_RATIO)];
+  const focus = focusScale ?? fitScale;
+  assertScale(focus);
+  if (focus < fitScale) {
+    throw new Error(`寄る範囲の倍率（${focus}）は、県全体が収まる倍率（${fitScale}）以上である必要があります`);
+  }
+  return [fitScale, Math.min(MAX_ZOOM_SCALE, Math.max(BASE_SCALE_EXTENT[1], focus * MAXIMIZED_ZOOM_IN_RATIO))];
 }
 
 /** 倍率を範囲の中に収める */

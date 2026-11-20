@@ -5,6 +5,7 @@ import {
   clampScale,
   constrainTransform,
   fitTransform,
+  MAX_ZOOM_SCALE,
   MAXIMIZED_ZOOM_IN_RATIO,
   panExtent,
   scaleExtent,
@@ -76,6 +77,22 @@ describe('scaleExtent', () => {
   test('scaleExtent は fitScale が0以下・有限でないとき例外にする', () => {
     expect(() => scaleExtent(0)).toThrow();
     expect(() => scaleExtent(Number.POSITIVE_INFINITY)).toThrow();
+  });
+
+  test('D51：寄る範囲（focusScale）が県全体より狭いとき、下限は県全体の倍率、上限は寄る範囲の倍率の4倍（4.11.2）', () => {
+    // 東京都：県全体（本土と伊豆諸島）が 3、23区が 20
+    expect(scaleExtent(3, 20)).toEqual([3, 20 * MAXIMIZED_ZOOM_IN_RATIO]);
+  });
+
+  test('D51：上限は MAX_ZOOM_SCALE（128）を超えない（市区町村のラベル・線の精度の上限）', () => {
+    expect(MAX_ZOOM_SCALE).toBe(128);
+    expect(scaleExtent(3, 54)).toEqual([3, MAX_ZOOM_SCALE]);
+  });
+
+  test('D51：focusScale が fitScale より小さい・0以下・有限でないとき例外にする', () => {
+    expect(() => scaleExtent(3, 2)).toThrow();
+    expect(() => scaleExtent(3, 0)).toThrow();
+    expect(() => scaleExtent(3, Number.NaN)).toThrow();
   });
 });
 

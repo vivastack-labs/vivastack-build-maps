@@ -9,8 +9,15 @@ import { FIT_PADDING, fitTransform, ZOOM_STEP } from '@/features/map/viewport';
 import { getMessages } from '@/i18n/messages';
 
 const messages = getMessages('ja');
-const NAGANO: PrefBounds = { fit: { x0: 483, y0: 542, x1: 549, y1: 647 }, pan: { x0: 483, y0: 542, x1: 549, y1: 647 } };
-const bounds = { '20': NAGANO };
+const NAGANO_BOUNDS = { x0: 483, y0: 542, x1: 549, y1: 647 } as const;
+const NAGANO: PrefBounds = { fit: NAGANO_BOUNDS, focus: NAGANO_BOUNDS, pan: NAGANO_BOUNDS };
+// 東京都：県全体（本土と伊豆諸島）は縦に長く、寄る範囲（23区）はその北の端の小さな範囲（D51）
+const TOKYO: PrefBounds = {
+  fit: { x0: 558, y0: 606, x1: 633, y1: 917 },
+  focus: { x0: 580, y0: 606, x1: 620, y1: 640 },
+  pan: { x0: 558, y0: 606, x1: 760, y1: 1500 }
+};
+const bounds = { '13': TOKYO, '20': NAGANO };
 
 /** 状態を見て・変える小さな部品 */
 function Probe() {
@@ -20,6 +27,9 @@ function Probe() {
       <output data-testid="maximized">{state.maximized ?? ''}</output>
       <button type="button" onClick={() => dispatch({ type: 'doubleClick', pref: '20' })}>
         maximize
+      </button>
+      <button type="button" onClick={() => dispatch({ type: 'doubleClick', pref: '13' })}>
+        maximize-tokyo
       </button>
       <button type="button" onClick={() => dispatch({ type: 'doubleClick', pref: 'constructor' })}>
         maximize-unknown
@@ -173,6 +183,25 @@ describe('MapZoom', () => {
     expect(scaleOf(container)).toBeCloseTo(fitScale, 2);
     for (let i = 0; i < 10; i += 1) fireEvent.click(button('拡大'));
     expect(scaleOf(container)).toBeCloseTo(fitScale * 4, 2);
+  });
+
+  test('D51：寄る範囲（focus）が県全体より狭い県（東京都）は、最大化で focus に寄り、縮小は県全体（fit）まで、拡大は focus の4倍までできる', () => {
+    const { container } = render(<Fixture />);
+    const focus = fitTransform(TOKYO.focus, VIEWBOX, FIT_PADDING);
+    const fit = fitTransform(TOKYO.fit, VIEWBOX, FIT_PADDING);
+
+    fireEvent.click(button('maximize-tokyo'));
+    expect(scaleOf(container)).toBeCloseTo(focus.k, 2);
+    // 寄る範囲の中心が表示の中心に来る
+    const match = /translate\(([-\d.]+),([-\d.]+)\) scale\(([\d.]+)\)/u.exec(container.querySelector('[data-map-layer]')?.getAttribute('transform') ?? '');
+    const [x, y, k] = [Number(match?.[1]), Number(match?.[2]), Number(match?.[3])];
+    expect(k * ((TOKYO.focus.x0 + TOKYO.focus.x1) / 2) + x).toBeCloseTo(VIEWBOX.width / 2, 0);
+    expect(k * ((TOKYO.focus.y0 + TOKYO.focus.y1) / 2) + y).toBeCloseTo(VIEWBOX.height / 2, 0);
+
+    for (let i = 0; i < 20; i += 1) fireEvent.click(button('縮小'));
+    expect(scaleOf(container)).toBeCloseTo(fit.k, 2);
+    for (let i = 0; i < 20; i += 1) fireEvent.click(button('拡大'));
+    expect(scaleOf(container)).toBeCloseTo(focus.k * 4, 2);
   });
 
   test('最大化の「全体」以外の解除でも、全体表示に戻る（F-ZOOM-04）', () => {
