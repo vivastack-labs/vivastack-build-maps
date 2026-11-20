@@ -40,11 +40,45 @@ test('11.4 (4)：/_next/static/ のファイルは1年間キャッシュされ�
   expect(response.headers()['cache-control']).toBe('public, max-age=31536000, immutable');
 });
 
-test('5.2：存在しないパスは 404 を返し、<html lang> が ja である', async ({ page }) => {
-  // Act
-  const response = await page.goto('/no-such-page/');
+// ふりがな付きの語の前後に、Playwright がアクセシブルな名前の空白を入れることがある
+const BACK_TO_MAP_NAME = /^日本地図\s*へ\s*戻\s*る$/u;
 
-  // Assert
-  expect(response?.status()).toBe(404);
-  await expect(page.locator('html')).toHaveAttribute('lang', 'ja');
+for (const path of ['/no-such-page/', '/en/no-such-page/']) {
+  test(`6.4・5.2：${path} は日本語の404画面を返す`, async ({ page }) => {
+    const response = await page.goto(path);
+
+    expect(response?.status()).toBe(404);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ja');
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+    const main = page.getByRole('main');
+    await expect(main.getByText('404', { exact: true })).toBeVisible();
+    await expect(main.getByRole('heading', { level: 1, name: /^ページが\s*見\s*つかりません$/u })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
+    await expect(main.getByText(/URLが.*ください。/u)).toBeVisible();
+    await expect(main.getByRole('link', { name: BACK_TO_MAP_NAME })).toHaveAttribute('href', '/ja/');
+  });
+}
+
+test('5.2：404画面からキーボードで日本地図へ戻れる', { tag: '@pc' }, async ({ page }) => {
+  await page.goto('/no-such-page/');
+  const link = page.getByRole('link', { name: BACK_TO_MAP_NAME });
+
+  await page.keyboard.press('Tab');
+  await expect(link).toBeFocused();
+  await page.keyboard.press('Enter');
+
+  await expect(page).toHaveURL('/ja/');
+});
+
+test.describe('JavaScript 無効時の404', () => {
+  test.use({ javaScriptEnabled: false });
+
+  test('F-I18N-02・5.2：404画面のリンクから日本地図へ戻れる', async ({ page }) => {
+    await page.goto('/no-such-page/');
+
+    await page.getByRole('link', { name: BACK_TO_MAP_NAME }).click();
+
+    await expect(page).toHaveURL('/ja/');
+    await expect(page.getByRole('heading', { level: 1, name: /^ご\s*当地\s*めいぶつ\s*日本地図$/u })).toBeVisible();
+  });
 });

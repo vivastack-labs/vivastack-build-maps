@@ -201,6 +201,22 @@ test.describe('5.2：axe（説明のページ・スマホ）', () => {
   }
 });
 
+test.describe('5.2：axe（404画面）', () => {
+  test.beforeEach(({}, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium', '静的な404画面は chromium だけで確かめる');
+  });
+
+  for (const scheme of SCHEMES) {
+    test(`5.2：404画面の ${scheme} 配色で axe の違反が0件`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: scheme });
+      await page.goto('/no-such-page/');
+      expect(await page.evaluate(() => window.matchMedia('(prefers-color-scheme: dark)').matches)).toBe(scheme === 'dark');
+
+      await expectNoViolations(page);
+    });
+  }
+});
+
 // 固定中の県名ラベル：暗い文字に、塗りと同じ色の縁取りを付ける（県の形からはみ出しても、塗りと 4.5:1 以上。theme-contrast.test.ts）
 test.describe('5.2：固定中の県名ラベルの縁取り', () => {
   test.beforeEach(({}, testInfo) => {

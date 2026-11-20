@@ -198,6 +198,7 @@ export const zh: Messages = {
   },
   notFound: {
     title: '找不到页面',
-    backToTop: '返回首页'
+    description: '请确认网址是否正确。',
+    backToTop: '返回日本地图'
   }
 } satisfies Messages;

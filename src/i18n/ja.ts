@@ -228,7 +228,8 @@ const jaSource = {
   },
   notFound: {
     title: 'ページが{見|み}つかりません',
-    backToTop: 'トップページへ'
+    description: 'URLが{正|ただ}しいか{確|たし}かめてください。',
+    backToTop: '{日本地図|にほんちず}へ{戻|もど}る'
   }
 };
 
