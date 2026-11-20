@@ -30,7 +30,7 @@ access:
     - title: "時刻表　停車駅一覧（新幹線かがやき 509号（東京－敦賀））：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/095/098521.html"
       accessed: "2026-11-20"
-  status: verified
+  status: reviewed
 specialties:
   - id: shinshu-soba
     emoji: "🍜"
@@ -49,7 +49,7 @@ specialties:
       - title: "手打ちそば 長野県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/teuchi_soba_nagano.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: oyaki
     emoji: "🥟"
     name: {ja: "おやき", en: "Oyaki", zh: "烤馅饼"}
@@ -67,7 +67,7 @@ specialties:
       - title: "おやき 長野県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/oyaki_nagano.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: apples
     emoji: "🍎"
     name: {ja: "りんご", en: "Apples", zh: "苹果"}
@@ -85,7 +85,7 @@ specialties:
       - title: "知ってる？信州農産物／長野県"
         url: "https://www.pref.nagano.lg.jp/nosei/sangyo/nogyo/shinshu/nosanbutsu.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
 spots:
   - id: zenkoji
     emoji: "🛕"
@@ -104,7 +104,7 @@ spots:
       - title: "巡る｜善光寺"
         url: "https://www.zenkoji.jp/meguru/"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: matsumoto-castle
     emoji: "🏯"
     name: {ja: "{松本城|まつもとじょう}", en: "Matsumoto Castle", zh: "松本城"}
@@ -122,7 +122,7 @@ spots:
       - title: "松本城の観覧案内 - 松本市ホームページ"
         url: "https://www.city.matsumoto.nagano.jp/soshiki/135/4118.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: kamikochi
     emoji: "🏞️"
     name: {ja: "{上高地|かみこうち}", en: "Kamikochi", zh: "上高地"}
@@ -143,4 +143,4 @@ spots:
       - title: "よくあるご質問 – 上高地公式ウェブサイト"
         url: "https://www.kamikochi.or.jp/learn/faq/"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed

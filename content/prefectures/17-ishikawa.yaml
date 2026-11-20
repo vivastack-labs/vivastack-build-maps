@@ -29,7 +29,7 @@ access:
     - title: "時刻表　停車駅一覧（新幹線かがやき 509号（東京－敦賀））：JR東日本"
       url: "https://timetables.jreast.co.jp/2611/train/095/098521.html"
       accessed: "2026-11-20"
-  status: verified
+  status: reviewed
 specialties:
   - id: jibuni
     emoji: "🍲"
@@ -48,7 +48,7 @@ specialties:
       - title: "じぶ煮 石川県 | うちの郷土料理：農林水産省"
         url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/jibuni_ishikawa.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: kutaniyaki
     emoji: "🍵"
     name: {ja: "{九谷焼|くたにやき}", en: "Kutani Ware", zh: "九谷烧"}
@@ -66,7 +66,7 @@ specialties:
       - title: "石川県九谷陶磁器商工業協同組合連合会"
         url: "https://kutani.or.jp/"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: kagayuzen
     emoji: "👘"
     name: {ja: "{加賀友禅|かがゆうぜん}", en: "Kaga Yuzen", zh: "加贺友禅"}
@@ -84,7 +84,7 @@ specialties:
       - title: "加賀友禅 KAGA-YUZEN"
         url: "https://www.kagayuzen.or.jp/"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
 spots:
   - id: kenrokuen
     emoji: "🌳"
@@ -103,7 +103,7 @@ spots:
       - title: "兼六園とは｜兼六園"
         url: "https://shiro-niwa.pref.ishikawa.lg.jp/kenrokuen-garden/about.html"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: kanazawa-castle
     emoji: "🏯"
     name: {ja: "{金沢城公園|かなざわじょうこうえん}", en: "Kanazawa Castle Park", zh: "金泽城公园"}
@@ -121,7 +121,7 @@ spots:
       - title: "園内のご案内 | 金沢城公園"
         url: "https://shiro-niwa.pref.ishikawa.lg.jp/kanazawa-castle/about/"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
   - id: hakusan
     emoji: "⛰️"
     name: {ja: "{白山|はくさん}", en: "Mount Hakusan", zh: "白山"}
@@ -139,4 +139,4 @@ spots:
       - title: "白山国立公園の特徴 | 白山国立公園 | 国立公園一覧 | 国立公園に、行ってみよう！ | 環境省"
         url: "https://www.env.go.jp/nature/nationalparks/list/hakusan/feature/"
         accessed: "2026-11-20"
-    status: verified
+    status: reviewed
