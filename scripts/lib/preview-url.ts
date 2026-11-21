@@ -6,15 +6,15 @@ import { LANGS, type Lang } from '../../src/i18n/lang.ts';
 
 /** wrangler versions upload が作ったバージョンのプレビューの URL（末尾のスラッシュなし）とバージョン ID */
 export type PreviewUrls = {
-  /** バージョンごとの URL（`https://<バージョンIDの先頭8文字>-maps.….workers.dev`）。そのコミットに固定 */
+  /** バージョンごとの URL（`https://<バージョンIDの先頭8文字>-jp-map.….workers.dev`）。そのコミットに固定 */
   readonly previewUrl: string;
-  /** `--preview-alias` の URL（`https://pr-N-maps.….workers.dev`）。PR の最新のコミットを指す */
+  /** `--preview-alias` の URL（`https://pr-N-jp-map.….workers.dev`）。PR の最新のコミットを指す */
   readonly aliasUrl: string;
   readonly versionId: string;
 };
 
 /** Worker の名前（wrangler.jsonc の name と合わせる。テストで確かめる）。プレビューの URL のホスト名は `<ラベル>-<この名前>.<サブドメイン>.workers.dev` になる */
-export const PREVIEW_WORKER_NAME = 'maps';
+export const PREVIEW_WORKER_NAME = 'jp-map';
 /** アカウントの workers.dev のサブドメイン（D35）。ほかのアカウントの workers.dev の URL を通さないために決め打ちにする */
 const WORKERS_DEV_SUBDOMAIN = 'vivastack-dev';
 const PREVIEW_HOST_SUFFIX = `-${PREVIEW_WORKER_NAME}.${WORKERS_DEV_SUBDOMAIN}.workers.dev`;
@@ -24,8 +24,8 @@ const VERSION_ID_PATTERN = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/iu;
 
 /**
  * プレビューの URL を確かめて、末尾にスラッシュのない形（origin）にして返す。
- * https で、ホスト名が `<ラベル>-maps.vivastack-dev.workers.dev` で、認証情報・ポート・パス・クエリ・ハッシュがないもの以外は例外
- * （本番の `maps.vivastack-dev.workers.dev` やほかのアカウントの workers.dev も通さない）。
+ * https で、ホスト名が `<ラベル>-jp-map.vivastack-dev.workers.dev` で、認証情報・ポート・パス・クエリ・ハッシュがないもの以外は例外
+ * （本番の `jp-map.vivastack-dev.workers.dev` やほかのアカウントの workers.dev も通さない）。
  */
 export function normalizePreviewUrl(value: unknown, name: string): string {
   if (typeof value !== 'string') throw new Error(`${name} がありません（プレビューが有効でない可能性があります）`);

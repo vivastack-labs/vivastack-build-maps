@@ -10,12 +10,12 @@ describe('alternateUrls', () => {
 
     // Assert
     expect(result).toEqual({
-      canonical: 'https://maps.vivastack-dev.workers.dev/en/',
+      canonical: 'https://jp-map.vivastack-dev.workers.dev/en/',
       languages: {
-        ja: 'https://maps.vivastack-dev.workers.dev/ja/',
-        en: 'https://maps.vivastack-dev.workers.dev/en/',
-        'zh-Hans': 'https://maps.vivastack-dev.workers.dev/zh/',
-        'x-default': 'https://maps.vivastack-dev.workers.dev/ja/'
+        ja: 'https://jp-map.vivastack-dev.workers.dev/ja/',
+        en: 'https://jp-map.vivastack-dev.workers.dev/en/',
+        'zh-Hans': 'https://jp-map.vivastack-dev.workers.dev/zh/',
+        'x-default': 'https://jp-map.vivastack-dev.workers.dev/ja/'
       }
     });
   });

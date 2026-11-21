@@ -4,7 +4,7 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 
 ## プロジェクト
 
-- 「ご当地めいぶつ日本地図」：47都道府県の名物・名所を日本地図から探せる Web アプリ（ja / en / zh、こども／おとなモード、ふりがな ON/OFF）。本番は `https://maps.vivastack-dev.workers.dev/`。
+- 「ご当地めいぶつ日本地図」：47都道府県の名物・名所を日本地図から探せる Web アプリ（ja / en / zh、こども／おとなモード、ふりがな ON/OFF）。本番は `https://jp-map.vivastack-dev.workers.dev/`。
 - 設計・要件・決定事項は [docs/development-overview.md](docs/development-overview.md)。作業の前に関係する章を読み、要件ID（例：`F-MAP-01`）で対応を確かめる。
 - タスクの一覧と進み具合は [docs/development-plan.md](docs/development-plan.md)、タスクごとの定義は `docs/tasks/`。着手するときは定義を読み、タスクのID（例：`T0-01`）を PR の本文に書き、終わったら計画の「状態」を直す。進み具合はこのファイルには書かない。
 - `CHANGELOG.md` は PR ごとには書かない。マイルストーンの最後のタスクの PR と、公開のときに `[Unreleased]` にまとめて書く。
@@ -14,7 +14,7 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 - Next.js 16（App Router、`output: 'export'`、`basePath` なし）＋ TypeScript（strict）。学習データより新しい変更があるので、Next.js のコードを書く前に `node_modules/next/dist/docs/` の該当する章を読み、非推奨の警告に従う。
 - 地図：SVG ＋ d3-geo ＋ topojson-client（国土数値情報 N03 2026年版）。
 - テスト：Vitest、Testing Library、Playwright、axe-core、Lighthouse CI。
-- 配信：Cloudflare Workers（Static Assets。Worker 名 `maps`）。CI/CD は GitHub Actions。
+- 配信：Cloudflare Workers（Static Assets。Worker 名 `jp-map`）。CI/CD は GitHub Actions。
 - パッケージ管理は **pnpm**（npm・yarn は使わない）。Node.js は `.nvmrc` の版。
 
 ## コマンド
@@ -36,7 +36,7 @@ pnpm screenshots > <ファイル>   # PRに載せるスクリーンショット�
 ## ブランチ・PR・デプロイ
 
 - `main` から feature ブランチを切り、PR は `main` 向けに出す。1機能＝1ブランチ＝1PR。`main` に直接 push しない。
-- PR ごとに CI（`.github/workflows/ci.yml`）が動く。オーナーが Environment `preview` を承認すると、プレビュー（`https://pr-<番号>-maps.vivastack-dev.workers.dev/`）に出る。
+- PR ごとに CI（`.github/workflows/ci.yml`）が動く。オーナーが Environment `preview` を承認すると、プレビュー（`https://pr-<番号>-jp-map.vivastack-dev.workers.dev/`）に出る。
 - E2E は PR ごとには動かさない。UI・ルーティングを変えたときは、merge の前に手元か `e2e.yml`（手動）で確かめる（D30）。
 - 本番へのデプロイは、`main` のコミットを指す `vMAJOR.MINOR.PATCH` の GitHub Release を正式公開し、オーナーが承認する（`deploy.yml`、D50）。手元から `wrangler deploy`・`wrangler versions upload` はしない（障害時の切り戻し〔開発概要書 第13章〕を除く）。
 

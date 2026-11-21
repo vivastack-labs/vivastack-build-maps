@@ -172,7 +172,7 @@ jobs:
         with:
           name: dist-preview
           path: dist
-      # --preview-alias：PR の最新のコミットを指す URL（pr-<番号>-maps.<サブドメイン>.workers.dev）。
+      # --preview-alias：PR の最新のコミットを指す URL（pr-<番号>-jp-map.<サブドメイン>.workers.dev）。
       # 出力ファイル（WRANGLER_OUTPUT_FILE_PATH。ND-JSON）は、preview-comment job が読む。PR の番号・SHA は env 経由で渡す
       - name: Upload version to Workers
         env:

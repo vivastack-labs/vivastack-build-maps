@@ -7,7 +7,7 @@
 - 公開の前（T6-01）に、すべての項目を1回確かめる。その後は、画面・操作・PWA に関わる大きな変更のときに、該当する行だけを確かめる。
 - 結果は「結果の記録」の表に書く。問題があれば、修正のタスクを作る。
 - 前提：デプロイ（T0-06）が済んでいること。端末の実機から、HTTPS の URL（デプロイ後の本番か、プレビューの URL）で開く。PWA・オフライン・ホーム画面への追加の項目は、安全なコンテキスト（HTTPS）でないと Service Worker が動かないので、HTTPS の URL でしか確かめられない。`wrangler dev` を LAN の IP（`http://192.168…`）で開いても、Service Worker は登録されない。
-- 確かめる前に、`https://maps.vivastack-dev.workers.dev/ja/` を、端末のブラウザの新しいタブ（シークレットでなくてよい）で開く。以前に開いたことのある端末では、Service Worker が古い内容を出すことがある。1〜2回再読み込みしてから確かめる。
+- 確かめる前に、`https://jp-map.vivastack-dev.workers.dev/ja/` を、端末のブラウザの新しいタブ（シークレットでなくてよい）で開く。以前に開いたことのある端末では、Service Worker が古い内容を出すことがある。1〜2回再読み込みしてから確かめる。
 - CI で確かめていること（確かめなくてよいこと）：3つのブラウザエンジンと、画面幅 360・768・1024・1366px での表示、すべてのページの横スクロール、マウス・キーボード・タップの操作、Pixel でのピンチ、オフラインの再読み込み（Chromium）、axe。プロジェクトの一覧は `playwright.config.ts`。
 
 ## 端末
@@ -49,7 +49,7 @@ Safari（macOS）・iOS・iPadOS は、最新と1つ前のメジャーバージ�
 
 - [ ] iPhone の Safari・Android の Chrome で、ホーム画面に追加できる。アイコン・名前が正しく、開くとブラウザの枠がない（`standalone`）。
 - [ ] 2つ以上の言語（例：ja と en）を追加したとき、それぞれの言語のページで開く（`start_url`）。
-- [ ] Android：ホーム画面に追加した（WebAPK の）アプリがあるとき、外のリンク（メッセージなど）の `https://maps.vivastack-dev.workers.dev/…` を押すと、どのアプリで開くか。意図しない言語のアプリで開かないか（`scope` が3言語とも `/` で重なる）。
+- [ ] Android：ホーム画面に追加した（WebAPK の）アプリがあるとき、外のリンク（メッセージなど）の `https://jp-map.vivastack-dev.workers.dev/…` を押すと、どのアプリで開くか。意図しない言語のアプリで開かないか（`scope` が3言語とも `/` で重なる）。
 - [ ] Chrome の DevTools の Application で、Manifest にエラーや警告がなく、インストールできる（言語ごとの3つ）。
 
 ### オフライン・更新
@@ -61,7 +61,7 @@ Safari（macOS）・iOS・iPadOS は、最新と1つ前のメジャーバージ�
 ### 学校の環境
 
 - [ ] 学校で管理されている iPad（1つ前の iPadOS）で、地図・カード・パネルが動く。
-- [ ] フィルタリングのある学校のネットワークで開ける（分かる範囲で。`maps.vivastack-dev.workers.dev`・`static.cloudflareinsights.com` がどちらも止められていないか）。
+- [ ] フィルタリングのある学校のネットワークで開ける（分かる範囲で。`jp-map.vivastack-dev.workers.dev`・`static.cloudflareinsights.com` がどちらも止められていないか）。
 
 ### 読み上げ
 

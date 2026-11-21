@@ -1,7 +1,7 @@
 // 11.4 (2)：静的アセットだけの Worker。dist/ は pnpm build（next build → scripts/postbuild.ts）で作る
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "maps",
+  "name": "jp-map",
   // 入れた wrangler（workerd 1.20261110.1）が対応する最新の日付
   "compatibility_date": "2026-11-10",
   "assets": {
@@ -9,7 +9,7 @@
     // dist/404.html（app/global-not-found.tsx）を返す
     "not_found_handling": "404-page"
   },
-  // D35：本番は workers.dev の専用のドメイン（https://maps.vivastack-dev.workers.dev/）で公開する
+  // D35・D52：本番は workers.dev の専用のドメイン（https://jp-map.vivastack-dev.workers.dev/）で公開する
   "workers_dev": true,
   // PRプレビュー（バージョンごとのURL）を有効にする
   "preview_urls": true
