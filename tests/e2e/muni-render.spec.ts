@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { MUNI_LABEL_FONT_SIZE } from '../../src/features/map/labels';
 import { dblclickAtCenter, settledPoint } from './helpers';
 
 // F-MUNI-01〜04、4.11.6、F-I18N-05：市区町村の描画（T2-08）。
@@ -189,7 +190,7 @@ for (const [code, name] of [
   ['13', '東京都'],
   ['14', '神奈川県']
 ] as const) {
-  test(`F-MUNI-02 / #145：カードから${name}を最大化すると市区町村名が地図に表示される`, { tag: '@touch' }, async ({ page }) => {
+  test(`F-MUNI-02 / #145・#147：カードから${name}を最大化すると市区町村名が読める大きさで地図に表示される`, { tag: '@touch' }, async ({ page }) => {
     await open(page);
     await page.locator('[data-index-ready]').waitFor({ state: 'attached' });
     await page.locator('[data-card-ready]').waitFor({ state: 'attached' });
@@ -215,5 +216,9 @@ for (const [code, name] of [
         );
       })
       .toBeGreaterThan(0);
+    // #147：画面の上の文字の高さが、文字の大きさ（12px）の9割以上（地図の幅が狭くても小さくならない）
+    const heights = await labels.evaluateAll(elements => elements.map(element => element.getBoundingClientRect().height));
+    expect(heights.length).toBeGreaterThan(0);
+    expect(Math.min(...heights)).toBeGreaterThanOrEqual(MUNI_LABEL_FONT_SIZE * 0.9);
   });
 }

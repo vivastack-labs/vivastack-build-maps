@@ -13,7 +13,7 @@ const HOKKAIDO = '01';
 const SAPPORO_CHUO = '01101';
 /**
  * 県境・沖縄の枠・海域名・市区町村の線の太さと文字の大きさ（viewBox の単位。倍率1のとき）。`JapanMap`・`MuniLayer` のクラスと同じ値
- * （県名ラベルの文字の大きさは `LABEL_FONT_SIZE`、市区町村のラベルは `MUNI_LABEL_FONT_SIZE`）
+ * （県名ラベルの文字の大きさは `LABEL_FONT_SIZE`、市区町村のラベルは `MUNI_LABEL_FONT_SIZE`〔画面の上の px〕）
  */
 const PREF_BORDER_WIDTH = 0.8;
 const OKINAWA_FRAME_WIDTH = 1.5;
@@ -69,10 +69,11 @@ async function collectViolations(page: Page): Promise<string[]> {
   return found;
 }
 
-type SizeCheck = { readonly selector: string; readonly property: 'fontSize' | 'strokeWidth'; readonly base: number };
+/** `perScreenPx` が true なら、基準は画面の上の px で、さらに `--map-px`（地図の1単位の画面の px。地図の幅 ÷ 1000）で割る（#147） */
+type SizeCheck = { readonly selector: string; readonly property: 'fontSize' | 'strokeWidth'; readonly base: number; readonly perScreenPx?: boolean };
 
 /**
- * 画面の上の大きさが、基準 ÷ 倍率になっているのを待つ（style 属性をクラスにしても、CSP の下で `--zoom-k` が効いている）。
+ * 画面の上の大きさが、基準 ÷ 倍率になっているのを待つ（style 属性をクラスにしても、CSP の下で `--zoom-k`・`--map-px` が効いている）。
  * `zoomed` が false なら倍率1（基準のまま）、true なら倍率が1より大きいとき。基準が 16px の文字はブラウザの既定と同じなので、zoomed でも確かめる
  */
 async function expectZoomInvariantSizes(page: Page, checks: readonly SizeCheck[], zoomed: boolean): Promise<void> {
@@ -81,12 +82,19 @@ async function expectZoomInvariantSizes(page: Page, checks: readonly SizeCheck[]
       const measured = await page.evaluate(
         (targets: readonly SizeCheck[]) => ({
           k: Number(document.querySelector('[data-map-layer]')?.getAttribute('data-zoom-scale')),
+          mapPx: (document.querySelector('[data-map-box] svg')?.getBoundingClientRect().width ?? 0) / 1000,
           sizes: targets.map(({ selector, property }) => parseFloat(getComputedStyle(document.querySelector(selector) as Element)[property]))
         }),
         checks
       );
       const isZoomStateRight = zoomed ? measured.k > 1 : measured.k === 1;
-      return isZoomStateRight && checks.every(({ base }, index) => Math.abs((measured.sizes[index] ?? 0) - base / measured.k) <= (base / measured.k) * RELATIVE_TOLERANCE);
+      return (
+        isZoomStateRight &&
+        checks.every(({ base, perScreenPx }, index) => {
+          const expected = base / measured.k / (perScreenPx === true ? measured.mapPx : 1);
+          return Math.abs((measured.sizes[index] ?? 0) - expected) <= expected * RELATIVE_TOLERANCE;
+        })
+      );
     })
     .toBe(true);
 }
@@ -138,7 +146,7 @@ test.describe('R9：CSP の下で、主な操作の間に CSP 違反が出ない
         page,
         [
           ...prefChecks,
-          { selector: '[data-muni-labels]', property: 'fontSize', base: MUNI_LABEL_FONT_SIZE },
+          { selector: '[data-muni-labels]', property: 'fontSize', base: MUNI_LABEL_FONT_SIZE, perScreenPx: true },
           { selector: '[data-muni-layer] > g.stroke-muni-border', property: 'strokeWidth', base: MUNI_BORDER_WIDTH },
           { selector: 'path[data-muni-outline]', property: 'strokeWidth', base: MUNI_OUTLINE_WIDTH }
         ],

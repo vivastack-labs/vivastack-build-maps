@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { estimateLabelWidth, MUNI_LABEL_FONT_SIZE, muniLabelText, selectLabels, visibleLabels, type LabelCandidate } from '@/features/map/labels';
+import { estimateLabelWidth, labelScale, MUNI_LABEL_FONT_SIZE, muniLabelText, selectLabels, visibleLabels, type LabelCandidate } from '@/features/map/labels';
 
 const FONT = MUNI_LABEL_FONT_SIZE;
 
@@ -22,6 +22,26 @@ describe('estimateLabelWidth', () => {
     expect(estimateLabelWidth('中央区', 'ja', 10)).toBe(30);
     expect(estimateLabelWidth('中央区', 'zh', 10)).toBe(30);
     expect(estimateLabelWidth('Chuo-ku', 'en', 10)).toBeCloseTo(42);
+  });
+});
+
+describe('MUNI_LABEL_FONT_SIZE', () => {
+  test('#147：ラベルの文字の大きさは、画面の上の 12px', () => {
+    expect(MUNI_LABEL_FONT_SIZE).toBe(12);
+  });
+});
+
+describe('labelScale', () => {
+  test('#147：ラベルの倍率は、拡大の倍率 × 地図の 1 単位の画面の大きさ（地図の幅 ÷ viewBox の幅 1000）', () => {
+    expect(labelScale(1, 1000)).toBe(1);
+    expect(labelScale(10, 350)).toBeCloseTo(3.5);
+    expect(labelScale(4, 800)).toBeCloseTo(3.2);
+  });
+
+  test('地図の幅が分からない（0・負・NaN）ときは、拡大の倍率だけで決める', () => {
+    expect(labelScale(8, 0)).toBe(8);
+    expect(labelScale(8, -1)).toBe(8);
+    expect(labelScale(8, Number.NaN)).toBe(8);
   });
 });
 
@@ -127,15 +147,25 @@ describe('selectLabels', () => {
     }
   });
 
-  test('F-MUNI-02: 県が収まる倍率の4倍（佐賀県で約95倍）でも出るように、倍率の段は 95 を超える', () => {
-    // 4字のラベルの幅は 44÷k。幅 0.5 の外接矩形に入るのは k が 88 以上
-    const verySmall = candidate('a', 100, 100, 0.5, 0.5);
+  test('F-MUNI-02（#147）：拡大の上限 128 倍で、地図の 1 単位が画面の 1.5px（幅 1500px の地図）でも、そこまで段がある', () => {
+    // 4字のラベルの幅は 48÷p。幅 0.3 の外接矩形に入るのは p が 160 以上
+    const verySmall = candidate('a', 100, 100, 0.3, 0.3);
 
     const labels = selectLabels([verySmall], 'ja');
 
     expect(labels).toHaveLength(1);
-    expect(labels[0]?.minScale).toBeGreaterThan(64);
-    expect(visibleLabels(labels, 95)).toHaveLength(1);
+    expect(labels[0]?.minScale).toBeGreaterThanOrEqual(160);
+    expect(visibleLabels(labels, 128 * 1.5)).toHaveLength(1);
+  });
+
+  test('F-MUNI-02（#147）：スマートフォンの幅（地図の 1 単位が画面の約 0.35px）でも、大きな市区町村のラベルは出る', () => {
+    // 2字のラベルは 24÷p × 14.4÷p。p＝0.3 で 80×48
+    const large = candidate('a', 200, 200, 120, 60, '新宿');
+
+    const labels = selectLabels([large], 'ja');
+
+    expect(labels[0]?.minScale).toBeLessThanOrEqual(0.3);
+    expect(visibleLabels(labels, 0.35)).toHaveLength(1);
   });
 
   test('F-MUNI-02: 上限の倍率でも入らないラベルは出ない', () => {
@@ -147,7 +177,7 @@ describe('selectLabels', () => {
   });
 
   test('英語は1字が0.6倍なので、日本語より小さい外接矩形にも入る', () => {
-    const box = candidate('a', 100, 100, 40, 14, 'Abcde');
+    const box = candidate('a', 100, 100, 40, 15, 'Abcde');
 
     const labels = selectLabels([box], 'en');
 
