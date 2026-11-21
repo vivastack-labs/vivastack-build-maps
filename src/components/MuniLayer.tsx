@@ -88,7 +88,7 @@ export function MuniLayer({ lang, loader }: Props) {
         ))}
       </g>
       <path data-muni-outline d={loaded.outline} fill="none" strokeLinejoin="round" className={`pointer-events-none stroke-map-border ${OUTLINE_WIDTH_CLASS}`} />
-      <g data-muni-labels className={`pointer-events-none fill-map-label select-none max-map-label:hidden ${MUNI_LABEL_FONT_CLASS}`} textAnchor="middle" dominantBaseline="central">
+      <g data-muni-labels className={`pointer-events-none fill-map-label select-none ${MUNI_LABEL_FONT_CLASS}`} textAnchor="middle" dominantBaseline="central">
         {labels.map(({ code, text, x, y, minScale }) => (
           <text key={code} data-muni-label={code} data-min-scale={minScale} lang={lang === 'zh' ? 'ja' : undefined} x={x} y={y}>
             {text}
