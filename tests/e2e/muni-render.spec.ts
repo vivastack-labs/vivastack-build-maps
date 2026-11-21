@@ -4,7 +4,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 import { dblclickAtCenter, settledPoint } from './helpers';
 
 // F-MUNI-01〜04、4.11.6、F-I18N-05：市区町村の描画（T2-08）。
-// 最大化はダブルクリック（マウスの操作。タッチの端末のプロジェクトではスキップ）。読み込みが終わるのは [data-muni-status="loaded"] で待つ。
+// PC はダブルクリック、タッチ端末はカードのボタンから最大化する。読み込みが終わるのは [data-muni-status="loaded"] で待つ。
 // 最大化の対象は、外接矩形の中心が自分の形の中にある長野県（20）。北海道（01）は中心が県の外になることがあるので、dblclick イベントを直接送る。
 // 市区町村の件数・名前の期待値は、コミットされた public/geo/muni/NN.topo.json から読む。
 
@@ -13,8 +13,6 @@ const YAMANASHI = '19';
 const HOKKAIDO = '01';
 const PREF = (code: string) => `path[data-pref="${code}"]`;
 const LAYER = '[data-map-layer]';
-/** 地図のラベルを出す幅（`--breakpoint-map-label`） */
-const MAP_LABEL_MIN_WIDTH = 821;
 
 type Muni = { readonly code: string; readonly ja: string; readonly en: string };
 
@@ -122,7 +120,6 @@ test.describe('F-MUNI：市区町村の描画（PC のプロジェクト）', { 
   });
 
   test('F-MUNI-02：拡大するとラベルが増える', async ({ page }) => {
-    test.skip((page.viewportSize()?.width ?? 0) < MAP_LABEL_MIN_WIDTH, '幅820px以下では市区町村のラベルを隠す');
     await open(page);
     await maximize(page, NAGANO);
     await expect.poll(() => scaleOf(page)).toBeGreaterThan(2);
@@ -187,3 +184,36 @@ test.describe('F-MUNI：市区町村の描画（PC のプロジェクト）', { 
     });
   });
 });
+
+for (const [code, name] of [
+  ['13', '東京都'],
+  ['14', '神奈川県']
+] as const) {
+  test(`F-MUNI-02 / #145：カードから${name}を最大化すると市区町村名が地図に表示される`, { tag: '@touch' }, async ({ page }) => {
+    await open(page);
+    await page.locator('[data-index-ready]').waitFor({ state: 'attached' });
+    await page.locator('[data-card-ready]').waitFor({ state: 'attached' });
+    await page.locator(`a[data-pref="${code}"]`).tap();
+
+    await page.locator(`[data-card-maximize="${code}"]`).tap();
+
+    await expect(page.locator(PREF(code))).toHaveAttribute('data-state', 'maximized');
+    await expect(page.locator('[data-muni-status="loaded"]')).toBeAttached();
+    const map = page.locator('[data-map-box]');
+    const labels = map.locator(`[data-muni-pref="${code}"] [data-muni-label]:visible`);
+    await expect
+      .poll(async () => {
+        const box = await map.boundingBox();
+        if (!box) return 0;
+        return labels.evaluateAll(
+          (elements, bounds) =>
+            elements.filter(element => {
+              const { left, top, right, bottom } = element.getBoundingClientRect();
+              return left >= bounds.x && top >= bounds.y && right <= bounds.x + bounds.width && bottom <= bounds.y + bounds.height;
+            }).length,
+          box
+        );
+      })
+      .toBeGreaterThan(0);
+  });
+}
