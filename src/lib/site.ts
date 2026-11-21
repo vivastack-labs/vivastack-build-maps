@@ -1,7 +1,7 @@
 import { LANGS, htmlLang, langPath, type Lang, type SitePage } from '@/i18n/lang';
 
 /** サイトの絶対 URL（D8・D35。末尾にスラッシュを付けない）。`canonical`・`hreflang` に使う。プレビュー用のビルドも同じ（`noindex` が付く） */
-export const SITE_URL = 'https://maps.vivastack-dev.workers.dev';
+export const SITE_URL = 'https://jp-map.vivastack-dev.workers.dev';
 
 /** プライバシーポリシーの改定日（`YYYY-MM-DD`。言語の書式にして出す）。内容を変えたら更新する（T4-05） */
 export const PRIVACY_REVISED_DATE = '2026-11-20';

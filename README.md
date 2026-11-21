@@ -2,7 +2,7 @@
 
 47都道府県の名物・名所を、日本地図から探せる Web アプリ。日本語・英語・中国語（ja / en / zh）で読める。こども向けとおとな向けのモードと、ふりがなの ON/OFF がある。
 
-- 本番：<https://maps.vivastack-dev.workers.dev/>
+- 本番：<https://jp-map.vivastack-dev.workers.dev/>
 - 今の状態：地図・県のカード・多言語・モード・PWA・品質の検査（M0〜M4）が終わっている。コンテンツ（名物・名所）はこれから作るので、本番は47県とも「準備中」。進み具合は [docs/development-plan.md](docs/development-plan.md) の第3章にある。
 
 ## 必要な環境
@@ -47,7 +47,7 @@ pnpm content:validate  # コンテンツの YAML を検証する
 1. 1タスク＝1ブランチ＝1PR。タスクの定義は `docs/tasks/` にあり、PRの本文にタスクのID（例：`T0-07`）を書く。
 2. テストを先に書く（TDD）。カバレッジは全体80%以上、ドメインロジックは90%以上。
 3. PR を `main` に向けて出すと、GitHub Actions の CI が動く（`.github/workflows/ci.yml`）。
-4. オーナーが Environment `preview` のデプロイを承認すると、プレビュー（`https://pr-<番号>-maps.vivastack-dev.workers.dev/`）に出て、PR に URL がコメントされる。
+4. オーナーが Environment `preview` のデプロイを承認すると、プレビュー（`https://pr-<番号>-jp-map.vivastack-dev.workers.dev/`）に出て、PR に URL がコメントされる。
 5. `main` に入ったコミットを指すバージョンタグで GitHub Release を正式公開し、GitHub Actions で本番デプロイを承認する（[公開手順](docs/development-overview.md#本番の公開手順)）。**手元から `wrangler deploy` はしない**（障害時の切り戻しを除く。開発概要書の第13章）。
 
 E2E は PR ごとには動かさない。画面やルーティングを変えたときは、merge の前に手元（`pnpm test:e2e`）か、手動の workflow（`e2e.yml`）で確かめる。

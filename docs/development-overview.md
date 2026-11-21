@@ -3,11 +3,11 @@
 | 項目 | 内容 |
 |---|---|
 | ドキュメント | docs/development-overview.md |
-| 版 | 0.23（ドラフト） |
+| 版 | 0.24（ドラフト） |
 | 作成日 | 2026-11-11 |
-| 更新日 | 2026-11-20（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）。0.11：PWA のオフラインで使える範囲と Service Worker のツールを決めた（5.4、U3・U13、D40・D41）。0.12：アクセシビリティの検査（axe・コントラストの単体テスト）と、ふりがなの読み上げの対処を 5.2 に書いた。0.13：Lighthouse CI の測り方と TBT の基準を 5.1 に書き、ハッシュつきのずれの直し方を決めた〔D42〕。0.14：執筆ルールとレビュー基準を `content/guidelines/` に書き（T5-01）、9.2・9.3 に参照を足した。`status` を `reviewed` にするのは、承認の後にオーナー。0.15：ふりがなの自動付与のツール（`pnpm content:furigana`、`lindera-wasm-nodejs-ipadic`）と、①〜④のスキル・エージェント（`gotouchi-content`・`gotouchi-source-checker`・`gotouchi-derivative-checker`）を決めた〔T5-02〕。0.16：出典のリンク切れチェック（`pnpm content:links`、`link-check.yml`）の上限・分類・終了コード・安全の方針を 12.4 に決めた〔T5-03〕。0.17：リポジトリを public にし、`main` をルールセット2つで守り、GitHub の設定を `pnpm github:setup` で反映するようにした。Cloudflare API Token の最小権限を決め、Access の手順を公式ドキュメントで書いた（11.1〜11.5、13、U5・U14、D44・D45。U7 は T0-06 に移した）〔T0-05〕。0.18：プレビューURLを Cloudflare Access で守るのをやめた（D20 → D46。リポジトリを public にしたので、下書きはすでに公開されている。U7 は不要になった）。PR のプレビューと `main` の本番へのデプロイ（12.1〜12.3。Token の job は `main` の道具と PR の `dist/` だけを扱う。11.2）〔T0-06〕。0.19：`README.md` を書き直し（6.5）、ローカル開発環境（11.6）に yamllint・`pnpm lint`・`pnpm typecheck`・Playwright の入れ方・デプロイは CI だけで行うこと〔障害時の切り戻しだけ手元〕を足し、コードブロックを README・AGENTS.md への参照に置き換えた。10.1 に CHANGELOG を書くタイミングを足した）〔T0-07〕。0.20：運営者と問い合わせ窓口の方針を決めた（5.6、D47）。トップページのフッターは説明ページへのリンクに絞った（4.11.7、D48）。0.21：本番のアクセス解析とデプロイ後の確認を追加し、初回公開の連絡先を確定した（T6-02、D47・D49）。0.22：本番デプロイを GitHub Release の正式公開に切り替えた（D50）。0.23：東京都を最大化したときは23区に寄るようにした（6.6 (1)、D51）） |
+| 更新日 | 2026-11-21（0.2：リポジトリ構成を `vivastack-labs/vivastack-build-maps` 単独リポジトリに合わせて修正。0.3：操作仕様（4.11）とページの組み立て（6.6、D23・D24）を追加。0.4：対応環境（5.3、D25）とスタイルの方式（6.2、D26）、フォントとUI文言の多言語化（6.2、D27・D28）を確定。0.5：タスク分解を [development-plan.md](development-plan.md) と `docs/tasks/` に分け、未決事項 U12・U13 を追加。0.6：Node.js 26 で corepack が同梱されなくなったことに合わせて、pnpm の入れ方（11.6）を修正。0.7：配信先を workers.dev の専用のドメインに変え、`/maps` のプレフィックスをやめた（D35）。0.8：小笠原村など `viewBox` の外に出る島の表示を決めた（U16、D36）。0.9：最初の読み込みのサイズを基準値に収めるため、カードの内容を県ごとの JSON にした（5.1・5.3、6.6 (2)、F-MODE-04、D24・D38）。0.10：CSP の置き場所と `style-src`（5.5、6.6 (4)、D39）。0.11：PWA のオフラインで使える範囲と Service Worker のツールを決めた（5.4、U3・U13、D40・D41）。0.12：アクセシビリティの検査（axe・コントラストの単体テスト）と、ふりがなの読み上げの対処を 5.2 に書いた。0.13：Lighthouse CI の測り方と TBT の基準を 5.1 に書き、ハッシュつきのずれの直し方を決めた〔D42〕。0.14：執筆ルールとレビュー基準を `content/guidelines/` に書き（T5-01）、9.2・9.3 に参照を足した。`status` を `reviewed` にするのは、承認の後にオーナー。0.15：ふりがなの自動付与のツール（`pnpm content:furigana`、`lindera-wasm-nodejs-ipadic`）と、①〜④のスキル・エージェント（`gotouchi-content`・`gotouchi-source-checker`・`gotouchi-derivative-checker`）を決めた〔T5-02〕。0.16：出典のリンク切れチェック（`pnpm content:links`、`link-check.yml`）の上限・分類・終了コード・安全の方針を 12.4 に決めた〔T5-03〕。0.17：リポジトリを public にし、`main` をルールセット2つで守り、GitHub の設定を `pnpm github:setup` で反映するようにした。Cloudflare API Token の最小権限を決め、Access の手順を公式ドキュメントで書いた（11.1〜11.5、13、U5・U14、D44・D45。U7 は T0-06 に移した）〔T0-05〕。0.18：プレビューURLを Cloudflare Access で守るのをやめた（D20 → D46。リポジトリを public にしたので、下書きはすでに公開されている。U7 は不要になった）。PR のプレビューと `main` の本番へのデプロイ（12.1〜12.3。Token の job は `main` の道具と PR の `dist/` だけを扱う。11.2）〔T0-06〕。0.19：`README.md` を書き直し（6.5）、ローカル開発環境（11.6）に yamllint・`pnpm lint`・`pnpm typecheck`・Playwright の入れ方・デプロイは CI だけで行うこと〔障害時の切り戻しだけ手元〕を足し、コードブロックを README・AGENTS.md への参照に置き換えた。10.1 に CHANGELOG を書くタイミングを足した）〔T0-07〕。0.20：運営者と問い合わせ窓口の方針を決めた（5.6、D47）。トップページのフッターは説明ページへのリンクに絞った（4.11.7、D48）。0.21：本番のアクセス解析とデプロイ後の確認を追加し、初回公開の連絡先を確定した（T6-02、D47・D49）。0.22：本番デプロイを GitHub Release の正式公開に切り替えた（D50）。0.23：東京都を最大化したときは23区に寄るようにした（6.6 (1)、D51）。0.24：本番の URL を `https://jp-map.vivastack-dev.workers.dev/` に変えた（Worker 名 `maps` → `jp-map`、D52）） |
 | リポジトリ | vivastack-labs/vivastack-build-maps（リポジトリ直下がアプリ本体） |
-| 公開URL | `https://maps.vivastack-dev.workers.dev/{ja,en,zh}/` |
+| 公開URL | `https://jp-map.vivastack-dev.workers.dev/{ja,en,zh}/` |
 | ステータス | 検討フェーズの決定事項を反映。「要検証」とした項目は実装時に確定する |
 
 ---
@@ -440,8 +440,8 @@ flowchart LR
 
   subgraph CF["Cloudflare"]
     W["Worker: maps<br/>Static Assets only"]
-    R["workers.dev<br/>maps.vivastack-dev.workers.dev"]
-    V["Preview URL<br/>*-maps.vivastack-dev.workers.dev"]
+    R["workers.dev<br/>jp-map.vivastack-dev.workers.dev"]
+    V["Preview URL<br/>*-jp-map.vivastack-dev.workers.dev"]
     WA[Web Analytics]
     R --> W
   end
@@ -514,7 +514,7 @@ flowchart LR
 
 ### 6.4 配信の構成とURL
 
-- Worker名は `maps`。本番は **workers.dev**（`https://maps.vivastack-dev.workers.dev/`。`vivastack-dev` はアカウントの workers.dev のサブドメイン）で公開する（D35）。
+- Worker名は `jp-map`。本番は **workers.dev**（`https://jp-map.vivastack-dev.workers.dev/`。`vivastack-dev` はアカウントの workers.dev のサブドメイン）で公開する（D35・D52）。
   - ドメインのルートをこのアプリだけで使うので、URLにプレフィックス（以前の案の `/maps`）を付けない。Next.js の `basePath` も使わない。
   - 以前の案は Route（`build.vivagain.jp/maps*`）だった。専用のドメインに変えたので、DNS と Route の設定は要らない。
 - 静的出力の構成（D29・D35）：
@@ -1019,7 +1019,7 @@ flowchart TB
 |---|---|---|
 | GitHub | `vivastack-labs/vivastack-build-maps`、Actionsの有効化、Environments（`preview` / `production`） | レビュアーは `vivastack-labs` 組織のメンバー（GitHub Teamで管理）。リポジトリは public、組織は Free プラン（D44）。public なので、Free でもルールセット・Environments・Environment の Secrets を使える（11.5） |
 | Cloudflare | 既存アカウント、Workers Freeプラン、workers.devのサブドメイン（`vivastack-dev`。登録済み） | 本番もプレビューURLも workers.dev 上に出す（D35）。ゾーンは使わない |
-| Cloudflare Web Analytics | `maps.vivastack-dev.workers.dev` を登録 | Cloudflare API でホストを登録した。自動挿入には Cloudflare 上の対象ゾーンが必要なため、workers.dev の本番出力に公式の外部モジュールスクリプトを埋め込む（D35、T6-02）。[設定手順](https://developers.cloudflare.com/web-analytics/get-started/) |
+| Cloudflare Web Analytics | `jp-map.vivastack-dev.workers.dev` を登録 | T6-02 で `maps.vivastack-dev.workers.dev` を Cloudflare API で登録した。D52 で本番のホストを変えたので、`jp-map.vivastack-dev.workers.dev` を登録し直す（オーナー）。自動挿入には Cloudflare 上の対象ゾーンが必要なため、workers.dev の本番出力に公式の外部モジュールスクリプトを埋め込む（D35、T6-02）。[設定手順](https://developers.cloudflare.com/web-analytics/get-started/) |
 | Claude Code | Pro / Maxプランのサブスクリプション（またはAPIキー） | 開発とコンテンツ生成に使う。CIではAIを動かさないので、GitHubにAnthropicのAPIキーは置かない |
 
 ### 11.2 シークレット・IDの一覧と保存場所
@@ -1040,7 +1040,7 @@ flowchart TB
   - 承認するのは run に紐づいたコミット（PR の head と `main` を merge した結果）で、PR の最新とは限らない。`dist/` の Artifact は7日で消えるので、それより後に承認するときは run をやり直す（Re-run all jobs）。
   - オーナーは自分の push も承認できる（`prevent_self_review: false`）。
   - `preview` は `main` の `wrangler.jsonc` と wrangler の版を使うので、PR で `wrangler.jsonc` を変えても、プレビューには反映されない（反映を確かめるのは merge の後の本番）。
-  - URL の取り出しと PR へのコメントは、承認の後に動く `preview-comment` の job が、PR のコード（`scripts/preview-*.ts`）で行う。この job は Secrets を持たず、`pull-requests: write` だけを持つ（Write 権限の人が自分で書ける workflow と同じ権限なので、承認の対象にしない）。
+  - URL の取り出しと PR へのコメントは、承認の後に動く `preview-comment` の job が、main の側（PR の base）のコード（`scripts/preview-*.ts`）で行う。アップロード先の Worker 名は main の `wrangler.jsonc` で決まるので、URL の検査も main の側に合わせる（Worker 名を変える PR で食い違わない。D52）。この job は Secrets を持たず、`pull-requests: write` だけを持つ（Write 権限の人が自分で書ける workflow と同じ権限なので、承認の対象にしない）。
   - 残るリスク：本番（`deploy.yml`）も `preview` も、Token は依存から切り離した job に置いたが、依存が汚染されると、ビルドした `dist/`（公開する内容）は細工されうる。lockfile を `--frozen-lockfile` で使い、Dependabot の更新の PR を読んでから merge することで受ける。
 - Environment `production` が許可する `v*` タグは、作成・更新・削除をリポジトリの admin と組織のオーナーに制限する。GitHub のルールセットでタグからの Secrets へのアクセスを守る。Write 権限の利用者も既存タグから Release を公開できるため、本番デプロイにはオーナーの承認を必須にする（11.5・D50）。
 - 手元からはデプロイしない（本番・プレビューとも CI だけ。第12章）。障害時の切り戻し（第13章の `wrangler rollback`）だけは、オーナーが手元で `wrangler login`（OAuth）で行い、Token を手元に保存しない。
@@ -1063,7 +1063,7 @@ flowchart TB
 
 **(1) workers.dev のサブドメイン**
 
-- アカウントの workers.dev のサブドメインは `vivastack-dev`（登録済み）。本番のURLは `https://<Worker名>.<サブドメイン>.workers.dev/`（`https://maps.vivastack-dev.workers.dev/`）になる（D35）。
+- アカウントの workers.dev のサブドメインは `vivastack-dev`（登録済み）。本番のURLは `https://<Worker名>.<サブドメイン>.workers.dev/`（`https://jp-map.vivastack-dev.workers.dev/`）になる（D35・D52）。
 - 専用のドメインなので、DNS のレコードと Route は作らない。
 
 **(2) wrangler.jsonc**
@@ -1111,7 +1111,7 @@ flowchart TB
 
 **(5) プレビューURL（保護しない。D46）**
 
-- 公式ドキュメントでは、プレビューURLは「Version URLs」と呼ばれている。形は `<バージョンの先頭>-maps.vivastack-dev.workers.dev`、別名（`--preview-alias`）は `<別名>-maps.vivastack-dev.workers.dev`。
+- 公式ドキュメントでは、プレビューURLは「Version URLs」と呼ばれている。形は `<バージョンの先頭>-jp-map.vivastack-dev.workers.dev`、別名（`--preview-alias`）は `<別名>-jp-map.vivastack-dev.workers.dev`。
 - プレビューURLは Cloudflare Access で守らず、だれでも開ける（D46。T0-06 でオーナーが決定）。T0-05 でリポジトリを public にした（D44）ので、レビュー前のコンテンツ（YAML）と PR のブランチは、すでに GitHub で読める。Access で守れるのはサイトの見た目で表示した下書きだけで、中身は守れない。Zero Trust を始めるときの支払いの情報の登録と、レビュアーの毎回のログインもなくなる。
 - 代わりの対策：プレビューのページはすべて `noindex`（T3-02）、`reviewed` でない項目には「下書き」の印（T3-03）。別名 `pr-<番号>` は推測できるので、プレビューURLを秘密の URL として扱わない。
 - 以前の案（Access で「Previews only」を守る）の手順は、2026-11-17 の公式ドキュメントで、Zero Trust を始める（チーム名・Free プラン・支払いの情報）→ One-time PIN → Access のポリシー（Include → Emails）→ Worker の Access タブで「Previews only」だった。守る必要が出たら、この順で設定する。
@@ -1280,11 +1280,11 @@ jobs:
         env: { CLOUDFLARE_API_TOKEN: ..., CLOUDFLARE_ACCOUNT_ID: ..., WRANGLER_OUTPUT_FILE_PATH: ... }   # Token はこのステップだけ
       - uses: actions/upload-artifact@<SHA>   # wrangler の出力ファイル（ND-JSON）を wrangler-output に（2日）
 
-  preview-comment:              # Secrets なし。PR のコードで URL を取り出してコメントする
+  preview-comment:              # Secrets なし。main の側のコードで URL を取り出してコメントする
     needs: preview
     permissions: { contents: read, pull-requests: write }
     steps:
-      - uses: actions/checkout@<SHA>
+      - uses: actions/checkout@<SHA>          # ref: PR の base（main）。preview と同じ Worker 名で検査する
       - uses: actions/download-artifact@<SHA> # wrangler-output
       - run: node scripts/preview-url.ts "$RUNNER_TEMP/wrangler-output/wrangler-output.ndjson" >> "$GITHUB_OUTPUT"
       - run: node scripts/preview-comment.ts  # 印（<!-- preview-url -->）のある bot のコメントを書き換える。なければ作る
@@ -1294,8 +1294,8 @@ jobs:
 - `e2e.yml`（手動）は、選んだプロジェクトが使うブラウザだけを `playwright install --with-deps` で入れ、`pnpm test:e2e` を実行する。サーバーは `webServer` の `pnpm build` → `wrangler dev`。E2E は CI では `workers: 1`・`retries: 2` で動く（`playwright.config.ts`）。`all`・`chromium` のときは続けてプレビュー用のビルドの E2E（`pnpm test:e2e:preview`。T3-02）も動かす。失敗したときのレポートは Actions の Artifact（`playwright-report`、14日。プレビューの分は `playwright-report-preview/`・`test-results-preview/` に分けて、同じ Artifact に入る）に残る。
 - 本番用の workflow（`deploy.yml`）は3つの job に分ける。`build` は環境・キャッシュなしで型・単体テスト・コンテンツを検証し、`reviewed` のコンテンツと Web Analytics の設定を含む `dist/` を Artifact にする。`deploy` は `production` 環境で、Artifact の `dist/` を Workers に配信する。`smoke` は配信の成功後に、本番 URL を読み取り検査する（D49）。配信用の認証情報は `deploy` の配信ステップにだけ渡す。`concurrency` は1つで、待っている古い実行は新しい実行で取り消されうる（最新の `main` が出る）。
 - フォークからのPRと Dependabot の PR には Environment の Secrets が渡らないので、`preview` を飛ばす（`head.repo.full_name == github.repository`、`github.actor != 'dependabot[bot]'`）。
-- プレビューURLの形式：別名は `https://pr-<PR番号>-maps.vivastack-dev.workers.dev/`（その PR の最新の承認したコミット）、バージョンは `https://<バージョンIDの先頭8文字>-maps.vivastack-dev.workers.dev/`（そのコミットに固定）。
-- 取り出し方：`WRANGLER_OUTPUT_FILE_PATH` を付けると、wrangler（4.160.0）は ND-JSON の1行 `{"type":"version-upload","version":1,"preview_url","preview_alias_url","version_id",…,"timestamp"}` を書く。標準出力の `Version Preview URL:` は表示用なので使わない。`scripts/lib/preview-url.ts` が、ホストを `<英数字…>-maps.vivastack-dev.workers.dev`・ポートなしに限って取り出す（`$GITHUB_OUTPUT` と PR のコメントへの注入を防ぐ）。プレビューが無効で URL がないときは失敗する。
+- プレビューURLの形式：別名は `https://pr-<PR番号>-jp-map.vivastack-dev.workers.dev/`（その PR の最新の承認したコミット）、バージョンは `https://<バージョンIDの先頭8文字>-jp-map.vivastack-dev.workers.dev/`（そのコミットに固定）。
+- 取り出し方：`WRANGLER_OUTPUT_FILE_PATH` を付けると、wrangler（4.160.0）は ND-JSON の1行 `{"type":"version-upload","version":1,"preview_url","preview_alias_url","version_id",…,"timestamp"}` を書く。標準出力の `Version Preview URL:` は表示用なので使わない。`scripts/lib/preview-url.ts` が、ホストを `<英数字…>-jp-map.vivastack-dev.workers.dev`・ポートなしに限って取り出す（`$GITHUB_OUTPUT` と PR のコメントへの注入を防ぐ）。プレビューが無効で URL がないときは失敗する。
 
 ### 12.4 リンク切れチェック（手動実行）
 
@@ -1416,7 +1416,7 @@ flowchart LR
 | D5 | 公開範囲 | 無料で一般公開。収益化しない |
 | D6 | 解説文 | 削減しない（3言語 × 2モード）。できるだけ簡潔にする（第7章 7.3） |
 | D7 | 多言語 | ja / en / zh（簡体字のみ） |
-| D8 | URL | `https://maps.vivastack-dev.workers.dev/{ja,en,zh}/`（D35 で変更）。ブラウザの言語による自動振り分けはしない |
+| D8 | URL | `https://jp-map.vivastack-dev.workers.dev/{ja,en,zh}/`（D35・D52 で変更）。ブラウザの言語による自動振り分けはしない |
 | D9 | MVPの範囲 | プロトタイプの全機能＋改善点。検索・お気に入り・クイズ・カテゴリ絞り込みはPHASE 2 |
 | D10 | 技術 | Next.js（静的出力）＋TypeScript、地図はSVG＋TopoJSON |
 | D11 | 配信 | Cloudflare Workers（Static Assets）、workers.dev（D35 で変更。以前は Route `build.vivagain.jp/maps*`） |
@@ -1460,6 +1460,7 @@ flowchart LR
 | D49 | 公開後の E2E | デプロイ成功後に本番 URL の読み取り検査を実行する。全構成の E2E は手動を維持する（12.1・12.2、T6-02、U15） |
 | D50 | 本番デプロイのトリガー | GitHub Release の正式公開でワークフローを起動し、オーナーの承認後に、保護されたバージョンタグが指す `main` のコミットをデプロイする（11.5・12.1・12.2、T0-05・T0-06・T6-02） |
 | D51 | 東京都を最大化したときに寄る範囲 | 23区（13101〜13123）の外接矩形に寄る。D36 のとおり本土と伊豆諸島に寄ると、島が中心になり23区が小さく、見たい区を探しにくいため。縮小の下限は本土と伊豆諸島が収まる倍率のままにし、多摩・島へは縮小と移動で行ける。拡大の上限は23区が収まる倍率の4倍で、128倍を超えない（市区町村のラベルとパスの精度の上限）（6.6 (1)、T2-06） |
+| D52 | 本番の URL | `https://jp-map.vivastack-dev.workers.dev/{ja,en,zh}/` に変える（Worker名 `maps` → `jp-map`。D8・D35 の URL を置き換える）。workers.dev の URL は Worker名で決まるので、`wrangler.jsonc` の `name`・`SITE_URL`（`src/lib/site.ts`）・プレビューの URL の検査（`scripts/lib/preview-url.ts`）を合わせて変える。プレビューは `pr-<PR番号>-jp-map.vivastack-dev.workers.dev`。新しい Worker は次の Release のデプロイで作られる。旧 Worker `maps` の削除と Web Analytics のホストの登録し直しは、オーナーが Cloudflare で行う（11.1・11.4） |
 
 ## 付録B. 参考資料
 

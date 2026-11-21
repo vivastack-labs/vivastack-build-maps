@@ -9,7 +9,7 @@ import { isSheetWidth } from './helpers';
 const NAGANO = '20';
 const TOKYO = '13';
 const HOKKAIDO = '01';
-const SITE_URL = 'https://maps.vivastack-dev.workers.dev';
+const SITE_URL = 'https://jp-map.vivastack-dev.workers.dev';
 const ja = getMessages('ja').display;
 
 /** ハイドレーションが終わるのを待ってから、ページを開く（終わる前の操作は失われる） */

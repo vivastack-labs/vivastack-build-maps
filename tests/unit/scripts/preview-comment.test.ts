@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import { COMMENT_MARKER, buildPreviewComment, runPreviewComment, type PreviewCommentDeps } from '../../../scripts/lib/preview-comment';
 
-const ALIAS = 'https://pr-70-maps.vivastack-dev.workers.dev';
-const PREVIEW = 'https://1a2b3c4d-maps.vivastack-dev.workers.dev';
+const ALIAS = 'https://pr-70-jp-map.vivastack-dev.workers.dev';
+const PREVIEW = 'https://1a2b3c4d-jp-map.vivastack-dev.workers.dev';
 const VERSION_ID = '1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d';
 const SHA = '0123456789abcdef0123456789abcdef01234567';
 const MERGE_SHA = 'fedcba9876543210fedcba9876543210fedcba98';
@@ -136,12 +136,12 @@ describe('runPreviewComment', () => {
     ['GITHUB_REPOSITORY がない', { GITHUB_REPOSITORY: undefined }],
     ['PR_NUMBER が数でない', { PR_NUMBER: '70/../1' }],
     ['PR_NUMBER が 0', { PR_NUMBER: '0' }],
-    ['ALIAS_URL が http', { ALIAS_URL: 'http://pr-70-maps.vivastack-dev.workers.dev' }],
+    ['ALIAS_URL が http', { ALIAS_URL: 'http://pr-70-jp-map.vivastack-dev.workers.dev' }],
     ['PREVIEW_URL が https でない', { PREVIEW_URL: 'ftp://x.workers.dev' }],
     ['PREVIEW_URL が workers.dev でない', { PREVIEW_URL: 'https://example.com' }],
     ['MERGE_SHA がない', { MERGE_SHA: undefined }],
     ['MERGE_SHA が40桁の16進数でない', { MERGE_SHA: 'xyz' }],
-    ['ALIAS_URL が PR の番号と合わない（ほかの PR の URL）', { ALIAS_URL: 'https://pr-71-maps.vivastack-dev.workers.dev' }],
+    ['ALIAS_URL が PR の番号と合わない（ほかの PR の URL）', { ALIAS_URL: 'https://pr-71-jp-map.vivastack-dev.workers.dev' }],
     ['ALIAS_URL が別名でない（バージョンの URL）', { ALIAS_URL: PREVIEW }],
     ['HEAD_SHA が40桁の16進数でない', { HEAD_SHA: 'abc' }],
     ['VERSION_ID に改行がある', { VERSION_ID: `${VERSION_ID}\n- [x]` }],

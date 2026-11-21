@@ -4,8 +4,8 @@ import { PREVIEW_WORKER_NAME, parsePreviewUrls, previewAliasUrl, previewPageUrls
 
 const FIXTURE = readFileSync('tests/fixtures/wrangler/version-upload.ndjson', 'utf8');
 const VERSION_ID = '8e319cb0-21b9-44fc-a4da-b71cf0212d86';
-const PREVIEW = 'https://8e319cb0-maps.vivastack-dev.workers.dev';
-const ALIAS = 'https://pr-70-maps.vivastack-dev.workers.dev';
+const PREVIEW = 'https://8e319cb0-jp-map.vivastack-dev.workers.dev';
+const ALIAS = 'https://pr-70-jp-map.vivastack-dev.workers.dev';
 
 /** version-upload の1行（URL などは上書きできる） */
 const uploadLine = (overrides: Record<string, unknown> = {}) =>
@@ -23,7 +23,7 @@ describe('parsePreviewUrls', () => {
   });
 
   test('12.3 version-upload の行が複数あれば、最後の行を使う', () => {
-    const ndjson = `${uploadLine({ preview_alias_url: 'https://pr-1-maps.vivastack-dev.workers.dev' })}\n${uploadLine()}`;
+    const ndjson = `${uploadLine({ preview_alias_url: 'https://pr-1-jp-map.vivastack-dev.workers.dev' })}\n${uploadLine()}`;
 
     expect(parsePreviewUrls(ndjson).aliasUrl).toBe(ALIAS);
   });
@@ -48,18 +48,19 @@ describe('parsePreviewUrls', () => {
   });
 
   test.each([
-    ['http://pr-70-maps.vivastack-dev.workers.dev', 'https'],
-    ['https://pr-70-maps.example.com', 'workers.dev'],
+    ['http://pr-70-jp-map.vivastack-dev.workers.dev', 'https'],
+    ['https://pr-70-jp-map.example.com', 'workers.dev'],
     ['https://evil.workers.dev.example.com', 'workers.dev'],
     ['https://workers.dev', 'workers.dev'],
-    ['https://pr-70-maps.someone-else.workers.dev', 'workers.dev'],
+    ['https://pr-70-jp-map.someone-else.workers.dev', 'workers.dev'],
     ['https://pr-70-other.vivastack-dev.workers.dev', 'workers.dev'],
-    ['https://maps.vivastack-dev.workers.dev', 'workers.dev'],
-    ['https://-maps.vivastack-dev.workers.dev', 'workers.dev'],
-    ['https://x.pr-70-maps.vivastack-dev.workers.dev', 'workers.dev'],
-    ['https://pr-70-maps.vivastack-dev.workers.dev:8443', 'ポート'],
-    ['https://user:pass@pr-70-maps.vivastack-dev.workers.dev', '認証'],
-    ['https://pr-70-maps.vivastack-dev.workers.dev/ja/?x=1', 'パス'],
+    ['https://pr-70-maps.vivastack-dev.workers.dev', 'workers.dev'],
+    ['https://jp-map.vivastack-dev.workers.dev', 'workers.dev'],
+    ['https://-jp-map.vivastack-dev.workers.dev', 'workers.dev'],
+    ['https://x.pr-70-jp-map.vivastack-dev.workers.dev', 'workers.dev'],
+    ['https://pr-70-jp-map.vivastack-dev.workers.dev:8443', 'ポート'],
+    ['https://user:pass@pr-70-jp-map.vivastack-dev.workers.dev', '認証'],
+    ['https://pr-70-jp-map.vivastack-dev.workers.dev/ja/?x=1', 'パス'],
     ['not a url', 'URL']
   ])('12.3 %s はエラーにする（%s）', (url, reason) => {
     expect(() => parsePreviewUrls(uploadLine({ preview_alias_url: url }))).toThrow(new RegExp(reason));
@@ -67,7 +68,7 @@ describe('parsePreviewUrls', () => {
 });
 
 describe('previewAliasUrl', () => {
-  test('12.3 PR の番号から、別名の URL（https://pr-N-maps.vivastack-dev.workers.dev）を作る', () => {
+  test('12.3 PR の番号から、別名の URL（https://pr-N-jp-map.vivastack-dev.workers.dev）を作る', () => {
     expect(previewAliasUrl(70)).toBe(ALIAS);
   });
 
