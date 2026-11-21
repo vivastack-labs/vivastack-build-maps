@@ -1040,7 +1040,7 @@ flowchart TB
   - 承認するのは run に紐づいたコミット（PR の head と `main` を merge した結果）で、PR の最新とは限らない。`dist/` の Artifact は7日で消えるので、それより後に承認するときは run をやり直す（Re-run all jobs）。
   - オーナーは自分の push も承認できる（`prevent_self_review: false`）。
   - `preview` は `main` の `wrangler.jsonc` と wrangler の版を使うので、PR で `wrangler.jsonc` を変えても、プレビューには反映されない（反映を確かめるのは merge の後の本番）。
-  - URL の取り出しと PR へのコメントは、承認の後に動く `preview-comment` の job が、PR のコード（`scripts/preview-*.ts`）で行う。この job は Secrets を持たず、`pull-requests: write` だけを持つ（Write 権限の人が自分で書ける workflow と同じ権限なので、承認の対象にしない）。
+  - URL の取り出しと PR へのコメントは、承認の後に動く `preview-comment` の job が、main の側（PR の base）のコード（`scripts/preview-*.ts`）で行う。アップロード先の Worker 名は main の `wrangler.jsonc` で決まるので、URL の検査も main の側に合わせる（Worker 名を変える PR で食い違わない。D52）。この job は Secrets を持たず、`pull-requests: write` だけを持つ（Write 権限の人が自分で書ける workflow と同じ権限なので、承認の対象にしない）。
   - 残るリスク：本番（`deploy.yml`）も `preview` も、Token は依存から切り離した job に置いたが、依存が汚染されると、ビルドした `dist/`（公開する内容）は細工されうる。lockfile を `--frozen-lockfile` で使い、Dependabot の更新の PR を読んでから merge することで受ける。
 - Environment `production` が許可する `v*` タグは、作成・更新・削除をリポジトリの admin と組織のオーナーに制限する。GitHub のルールセットでタグからの Secrets へのアクセスを守る。Write 権限の利用者も既存タグから Release を公開できるため、本番デプロイにはオーナーの承認を必須にする（11.5・D50）。
 - 手元からはデプロイしない（本番・プレビューとも CI だけ。第12章）。障害時の切り戻し（第13章の `wrangler rollback`）だけは、オーナーが手元で `wrangler login`（OAuth）で行い、Token を手元に保存しない。
@@ -1280,11 +1280,11 @@ jobs:
         env: { CLOUDFLARE_API_TOKEN: ..., CLOUDFLARE_ACCOUNT_ID: ..., WRANGLER_OUTPUT_FILE_PATH: ... }   # Token はこのステップだけ
       - uses: actions/upload-artifact@<SHA>   # wrangler の出力ファイル（ND-JSON）を wrangler-output に（2日）
 
-  preview-comment:              # Secrets なし。PR のコードで URL を取り出してコメントする
+  preview-comment:              # Secrets なし。main の側のコードで URL を取り出してコメントする
     needs: preview
     permissions: { contents: read, pull-requests: write }
     steps:
-      - uses: actions/checkout@<SHA>
+      - uses: actions/checkout@<SHA>          # ref: PR の base（main）。preview と同じ Worker 名で検査する
       - uses: actions/download-artifact@<SHA> # wrangler-output
       - run: node scripts/preview-url.ts "$RUNNER_TEMP/wrangler-output/wrangler-output.ndjson" >> "$GITHUB_OUTPUT"
       - run: node scripts/preview-comment.ts  # 印（<!-- preview-url -->）のある bot のコメントを書き換える。なければ作る
