@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { describe, expect, test } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import { MapStateProvider } from '@/components/MapStateProvider';
 import { MuniLayer } from '@/components/MuniLayer';
 import { MUNI_LABEL_FONT_SIZE } from '@/features/map/labels';
@@ -45,7 +45,7 @@ describe('MuniLayer', () => {
     expect(container.querySelector('path[data-muni-outline]')?.getAttribute('d')).toMatch(/^M/u);
   });
 
-  test('5.5：線の太さ・ラベルの文字の大きさは、--zoom-k で割る値をクラスで書く（style 属性を使わない）', async () => {
+  test('5.5：線の太さは --zoom-k、ラベルの文字の大きさは --zoom-k と --map-px で割る値をクラスで書く（style 属性を使わない）', async () => {
     const { container } = renderLayer();
 
     await toggleMaximize();
@@ -54,7 +54,7 @@ describe('MuniLayer', () => {
     expect(group.querySelectorAll('[style]')).toHaveLength(0);
     expect(group.querySelector('g.stroke-muni-border')?.classList.contains('[stroke-width:calc(0.5px/var(--zoom-k,1))]')).toBe(true);
     expect(group.querySelector('path[data-muni-outline]')?.classList.contains('[stroke-width:calc(1.4px/var(--zoom-k,1))]')).toBe(true);
-    expect(group.querySelector('[data-muni-labels]')?.classList.contains(`[font-size:calc(${MUNI_LABEL_FONT_SIZE}px/var(--zoom-k,1))]`)).toBe(true);
+    expect(group.querySelector('[data-muni-labels]')?.classList.contains(`[font-size:calc(${MUNI_LABEL_FONT_SIZE}px/var(--zoom-k,1)/var(--map-px,1))]`)).toBe(true);
   });
 
   test('T2-08：変換が終わるまで、市区町村の形は描かない（地図は県の形のまま）', async () => {
@@ -87,6 +87,82 @@ describe('MuniLayer', () => {
     await waitFor(() => expect(visibleLabels().length).toBeGreaterThan(0));
     act(() => layer.setAttribute('data-zoom-scale', '1'));
     await waitFor(() => expect(visibleLabels()).toHaveLength(0));
+  });
+
+  describe('#147：ラベルの文字の大きさを、地図の表示幅にかかわらず画面の上で一定にする', () => {
+    let notifyResize: () => void = () => undefined;
+
+    /** jsdom には ResizeObserver も大きさもないので、地図の幅と通知を自分で与える */
+    function stubMapWidth(container: HTMLElement, width: number) {
+      const svg = container.querySelector('svg') as SVGSVGElement;
+      let current = width;
+      vi.spyOn(svg, 'getBoundingClientRect').mockImplementation(() => ({ width: current }) as DOMRect);
+      return {
+        resize(next: number) {
+          current = next;
+          act(() => notifyResize());
+        }
+      };
+    }
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      vi.restoreAllMocks();
+    });
+
+    function stubResizeObserver() {
+      vi.stubGlobal(
+        'ResizeObserver',
+        class {
+          constructor(callback: () => void) {
+            notifyResize = callback;
+          }
+          observe() {}
+          disconnect() {}
+        }
+      );
+    }
+
+    test('地図の 1 単位の画面の大きさ（地図の幅 ÷ 1000）を --map-px に書き、幅が変われば書き直す', async () => {
+      stubResizeObserver();
+      const { container } = renderLayer();
+      const map = stubMapWidth(container, 350);
+
+      await toggleMaximize();
+
+      const group = container.querySelector('[data-muni-layer]') as SVGGElement;
+      expect(group.style.getPropertyValue('--map-px')).toBe('0.35');
+      map.resize(800);
+      expect(group.style.getPropertyValue('--map-px')).toBe('0.8');
+    });
+
+    test('拡大・移動の毎フレーム（data-zoom-scale の変化）では、地図の幅を測り直さない（レイアウトを読まない）', async () => {
+      stubResizeObserver();
+      const { container, layer } = renderLayer();
+      stubMapWidth(container, 350);
+      await toggleMaximize();
+      const svg = container.querySelector('svg') as SVGSVGElement;
+      const measured = vi.mocked(svg.getBoundingClientRect).mock.calls.length;
+
+      act(() => layer.setAttribute('data-zoom-scale', '8'));
+      await act(() => new Promise<void>(resolve => setTimeout(resolve, 0)));
+
+      expect(vi.mocked(svg.getBoundingClientRect).mock.calls.length).toBe(measured);
+    });
+
+    test('F-MUNI-02：地図の幅が狭いほど、同じ拡大の倍率で出すラベルが少ない（文字が大きくなる分、重ならないようにする）', async () => {
+      stubResizeObserver();
+      const { container, layer, visibleLabels } = renderLayer();
+      const map = stubMapWidth(container, 1000);
+      await toggleMaximize();
+      act(() => layer.setAttribute('data-zoom-scale', '64'));
+      await waitFor(() => expect(visibleLabels().length).toBeGreaterThan(0));
+      const wide = visibleLabels().length;
+
+      map.resize(1);
+
+      expect(visibleLabels().length).toBeLessThan(wide);
+    });
   });
 
   test('最大化を解除した後に data-zoom-scale が変わっても、例外にならない（倍率の監視は止まっている）', async () => {

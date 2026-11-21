@@ -117,7 +117,7 @@ describe('muniShapes', () => {
     const label = muniShapes(lShapeTopology(), '13')?.shapes[0]?.label as NonNullable<ReturnType<typeof muniShapes>>['shapes'][number]['label'];
     const [lowerLeft, upperRight] = [projectPoint([139, 35], '13'), projectPoint([140, 36], '13')];
     const boxWidth = Math.abs(upperRight[0] - lowerLeft[0]);
-    const candidate = { code: 'a', text: '市区町村', ...label };
+    const candidate = { code: 'a', text: '市町村', ...label };
 
     const lShaped = visibleLabels(selectLabels([candidate], 'ja'), 1);
     const rectangle = visibleLabels(selectLabels([{ ...candidate, width: boxWidth, height: boxWidth }], 'ja'), 1);
