@@ -81,6 +81,17 @@ test('hasShortFlag: finds a letter before the first option that takes a value', 
   assert.equal(hasShortFlag('--all', 'a'), false);
 });
 
+test('commitsUnstaged: true only when the commit also takes working-tree content', () => {
+  const { commitsUnstaged } = require('../lib/git-command');
+  // -mn x の x は -m の値ではなくパス（-m の値は n）
+  for (const args of [['-mn', 'x'], ['-am', 'x'], ['-a', '-m', 'x'], ['--all'], ['--inc', 'a.ts'], ['-p'], ['-m', 'x', 'src/a.ts'], ['--', 'b.ts'], ['--pathspec-from-file=list']]) {
+    assert.equal(commitsUnstaged(args), true, args.join(' '));
+  }
+  for (const args of [['-m', 'x'], ['-F', 'msg.txt'], ['-m', 'a', '--author', 'a <b>'], ['-mn'], ['--amend', '--no-edit']]) {
+    assert.equal(commitsUnstaged(args), false, args.join(' '));
+  }
+});
+
 // --- レビューの指摘（シェルの書き方による見落とし） ---
 
 test('splitShell: removes backslash-newline line continuations (HIGH-2)', () => {

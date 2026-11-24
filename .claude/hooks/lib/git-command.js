@@ -421,4 +421,78 @@ function parseCommitArgs(args) {
   return { options, paths };
 }
 
-module.exports = { splitShell, gitInvocations, parseCommitArgs, hasShortFlag };
+/** git commit で、作業ツリーの内容もコミットする長いオプションと、git が受け付ける最短の省略形 */
+const COMMIT_UNSTAGED_LONG = [
+  ['--all', '--all'],
+  ['--include', '--inc'],
+  ['--only', '--o'],
+  ['--interactive', '--int'],
+  ['--patch', '--patc'],
+  ['--pathspec-from-file', '--paths']
+];
+/** git commit で、作業ツリーの内容もコミットする短いオプション */
+const COMMIT_UNSTAGED_SHORT = ['a', 'i', 'o', 'p'];
+
+const matchesLong = (arg, [full, shortest]) => {
+  const name = arg.split('=')[0];
+  return name.length >= shortest.length && full.startsWith(name);
+};
+
+/** git commit が、ステージしていない作業ツリーの内容もコミットするか（-a・パスの指定など） */
+function commitsUnstaged(args) {
+  const { options, paths } = parseCommitArgs(args);
+  return paths.length > 0 || options.some(arg => COMMIT_UNSTAGED_LONG.some(long => matchesLong(arg, long)) || COMMIT_UNSTAGED_SHORT.some(letter => hasShortFlag(arg, letter)));
+}
+
+/** commit の前にあっても、インデックスを変えない git のサブコマンド */
+const READ_ONLY_SUBCOMMANDS = new Set([
+  'status',
+  'diff',
+  'log',
+  'show',
+  'rev-parse',
+  'ls-files',
+  'ls-tree',
+  'ls-remote',
+  'fetch',
+  'push',
+  'branch',
+  'remote',
+  'describe',
+  'blame',
+  'grep',
+  'shortlog',
+  'cat-file',
+  'show-ref',
+  'symbolic-ref',
+  'var',
+  'version',
+  'help',
+  'reflog',
+  'rev-list',
+  'config',
+  'merge-base',
+  'for-each-ref',
+  'name-rev',
+  'count-objects',
+  'check-ignore',
+  'check-attr',
+  'cherry',
+  'whatchanged',
+  'tag'
+]);
+
+/**
+ * 同じコマンドの git commit が、ステージ済みの内容以外もコミットしうるか。
+ * commit より前に、インデックスを変えうる git の操作（add・rm・stash など）があるか、commit が -a・パスの指定などで作業ツリーの内容もコミットするとき。
+ * 前の操作は hook の後に動くので、hook の時点のインデックスには、まだ入っていない
+ * @param {GitInvocation[]} calls gitInvocations の結果
+ */
+function commitTakesWorkingTree(calls) {
+  const commitAts = calls.flatMap((call, i) => (call.subcommand === 'commit' ? [i] : []));
+  if (commitAts.length === 0) return false;
+  const changesIndexBefore = calls.slice(0, commitAts.at(-1)).some(call => call.subcommand !== 'commit' && !READ_ONLY_SUBCOMMANDS.has(call.subcommand));
+  return changesIndexBefore || commitAts.some(i => commitsUnstaged(calls[i].args));
+}
+
+module.exports = { splitShell, gitInvocations, parseCommitArgs, hasShortFlag, commitsUnstaged, commitTakesWorkingTree };

@@ -336,12 +336,21 @@ PreToolUse (Bash)
   └─► run(input)
         ├─► git commit / git push を含まない → null（つないだコマンドも lib/git-command.js で読む）
         ├─► プロジェクト直下（CLAUDE_PROJECT_DIR → input.cwd → process.cwd()）で、入れる・送る内容だけを検査する
-        │     commit：gitleaks protect --staged（ステージした差分）と gitleaks protect（まだステージしていない差分。commit -a の分）
+        │     commit：gitleaks protect --staged（ステージした差分）
+        │             ただし、同じコマンドで commit の前に git add などをする、または -a・パスの指定などで作業ツリーの内容も
+        │             コミットするとき（lib/git-command.js の commitTakesWorkingTree）は、本物のインデックスを一時のファイルに写して
+        │             git add -A をし、GIT_INDEX_FILE でそれを protect --staged する（まだ追跡していないファイルも見る）。
+        │             同じコマンドの git add -f が名指ししたパス（.gitignore で無視していても入る。パスなしの git add -f -A は
+        │             作業ツリー全体）は、さらに git add -f で入れる。
+        │             これらの git には -c core.fsmonitor=false を、gitleaks には GIT_CONFIG_COUNT などで同じ設定を付ける
+        │             （リポジトリの設定のコマンドを hook の中で動かさない。git 2.31 以降）
         │     push  ：gitleaks detect --log-opts="--all --not --remotes"（ローカルのすべての ref のうち、どのリモートにもまだないコミット）
         │     ├─► すべて exit 0 (クリーン) → null
-        │     ├─► どれかが exit 非 0 (漏洩検出) → block
-        │     └─► ENOENT（未インストール）・合計 8 秒での打ち切り・unknown flag → 警告して null (graceful)
-        └─► block 時は詳細を見るコマンド（--redact のまま。引数はクォート済み）を reason に含める
+        │     ├─► どれかが exit 77（--exit-code 77。漏洩検出）→ block
+        │     └─► ENOENT（未インストール）・合計 8 秒での打ち切り・77 以外の非 0（設定の読み込みエラー・未対応のオプションやコマンド）
+        │           → 警告して null (graceful)
+        └─► block 時は詳細を見るコマンド（cd <root> && gitleaks ...。一時のインデックスで見つけたときは同じ手順。
+              --redact のまま。引数はクォート済み）を reason に含める
 ```
 
 **返り値**
@@ -357,15 +366,21 @@ null
 
 - gitleaks がインストールされていなくてもクラッシュしない
 - コミット・push 以外には反応しない
-- `.gitleaks.toml` は `[extend] useDefault = true` で gitleaks の既定ルールを読み込む。`[allowlist]` だけの設定にするとルールが0件になり、何も検出しなくなる
-- 作業ツリー全体を読む `detect --no-git` は使わない。`node_modules/`・`geo/downloads/` を含めて数分かかり、hook の timeout（10 秒）で必ず打ち切られて、何も検査しないまま commit・push のたびに 10 秒待たせていた（2026-11 に 49 回）。全履歴の検査は CI の gitleaks が行う
+- `.gitleaks.toml` は `[extend] useDefault = true` で gitleaks の既定ルールを読み込む。`[allowlist]` だけの設定にするとルールが0件になり、何も検出しなくなる。プロジェクトに `.gitleaks.toml` がなければ `-c` を付けず、gitleaks の既定のルールで検査する
+- 作業ツリー全体を読む `detect --no-git` は使わない。`node_modules/` や大きなデータを持つプロジェクトでは数分かかり、hook の timeout（10 秒）で必ず打ち切られて、何も検査しないまま commit・push のたびに 10 秒待たせていた。全履歴の検査は各プロジェクトの CI で行う
 - すべての検査を合わせて `SCAN_BUDGET_MS`（8 秒。hook の timeout より短い）で打ち切り、警告して通す（1 回ごとの上限だと、commit と push をつないだときに hook の timeout を超える）
 - push は HEAD だけでなく、ローカルのすべての ref のまだ push していないコミットを見る（`git push origin <別のブランチ>`・`--all`・`--tags` の分。送らないブランチの秘密でも止まるのは安全側の誤り）
+- 漏洩の終了コードを `--exit-code 77` で分ける。既定の 1 は設定の読み込みエラー（`.gitleaks.toml` がない・壊れている）や、将来の版で消えたコマンドと区別できず、秘密がないのに毎回止めてしまうため
+- ステージしていない内容は、commit がそれもコミットしうるときだけ見る。ふつうの `git commit` で見ると、コミットしない手元の変更の秘密で止まってしまう
+- `git add -A && git commit` の `git add` は hook の後に動くので、hook の時点の本物のインデックスには新しいファイルが入っていない。そこで一時のインデックスに `git add -A` をして見る。本物のインデックスは変えないが、`git add` と同じく、まだ追跡していないファイルの blob が `.git/objects` に書かれる（`git gc` で消える）
+- 一時のインデックスには `git add -A` の分が全部入るので、同じコマンドの `git add` が一部のファイルだけでも、残りのファイルの秘密で止まることがある（安全側の誤り）
+- リモートがないリポジトリでは、push のたびに全履歴を検査する。大きな履歴では 8 秒で打ち切られ、警告だけで通る（CI で見つかる）
 - block の理由に載せるコマンドは `--redact` を外さない（エージェントが実行しても、秘密が transcript に出ない）
-- 見ないもの：同じコマンドで `git add` する、まだ追跡していないファイル（ステージされるのは hook の後）。CI で見つかる
+- 見ないもの：`git add --pathspec-from-file` で強制的に入れるファイル、`git add -f "$f"` のようにシェルの変数・置換で指定したパス（hook には展開前の文字列しか見えない。警告して残りを検査する）、`git -C <別のリポジトリ>`・`cd <別の場所> &&` の先のリポジトリ（検査するのはプロジェクト直下）。CI で見つかる
+- `.gitattributes` の `filter.*.clean` は、一時のインデックスへの `git add` でも動く（止めると Git LFS が使えなくなるため、止めない。本物の `git add`・`git commit` でも動く）
 - `.gitleaks.toml` の `[allowlist] paths`（ビルド結果・`node_modules/`・hook のログ）は、`git add -f` したものと CI の全履歴の検査に効く
 - `paths` の正規表現は、スキャン元からの相対パスに当たる。`-s .` で実行するので、`^dist/` はリポジトリ直下の `dist/` だけに効く（`~/dist/` の下に clone しても検査は止まらない。`src/lib/dist/` のような入れ子も検査する）
-- `tests/gitleaks.test.js` は、gitleaks があれば一時の git リポジトリで実物を動かし、ステージ・未ステージ・未 push のトークンを検出すること、`.gitleaks.toml` の除外が効くことを確かめる
+- `tests/gitleaks.test.js` は、gitleaks があれば一時の git リポジトリで実物を動かし、ステージ・未ステージ・まだ追跡していない（`git add -A && git commit`）・`.gitignore` で無視していて `git add -f` する・未 push のトークンを検出すること、push 済み・コミットしない未ステージのトークンでは止まらないこと、本物のインデックスを変えないこと、`.gitleaks.toml` の除外が効くこと、`.gitleaks.toml` がなくても既定のルールで検出することを確かめる
 
 ---
 

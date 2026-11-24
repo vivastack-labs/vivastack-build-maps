@@ -4,8 +4,8 @@
 useDefault = true
 
 # Paths are matched against the path relative to the scan source. The hook runs
-# `gitleaks detect --no-git --source .` from the repository root, so `^` anchors
-# to the repository root (a clone under e.g. ~/dist/ is still scanned).
+# gitleaks with `-s .` from the repository root, so `^` anchors to the
+# repository root (a clone under e.g. ~/dist/ is still scanned).
 [allowlist]
 description = "Exclude hook logs, build outputs, dependencies and well-known fake test keys"
 paths = [
