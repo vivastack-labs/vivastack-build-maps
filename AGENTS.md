@@ -12,24 +12,18 @@ Claude Code と Codex の共通の指示。エージェント向けの指示は�
 ## 技術スタック
 
 - Next.js 16（App Router、`output: 'export'`、`basePath` なし）＋ TypeScript（strict）。学習データより新しい変更があるので、Next.js のコードを書く前に `node_modules/next/dist/docs/` の該当する章を読み、非推奨の警告に従う。
-- 地図：SVG ＋ d3-geo ＋ topojson-client（国土数値情報 N03 2026年版）。
-- テスト：Vitest、Testing Library、Playwright、axe-core、Lighthouse CI。
-- 配信：Cloudflare Workers（Static Assets。Worker 名 `jp-map`）。CI/CD は GitHub Actions。
+- 地図：SVG ＋ d3-geo ＋ topojson-client（国土数値情報 N03 2026年版）。配信は Cloudflare Workers（Static Assets）。
 - パッケージ管理は **pnpm**（npm・yarn は使わない）。Node.js は `.nvmrc` の版。
 
 ## コマンド
 
-よく使うものだけを書く。全部のコマンドと準備・E2E・Lighthouse CI・GitHub の設定の注意は [docs/development-commands.md](docs/development-commands.md)（スクリプトを足したらそこに足す）。
+スクリプトは `package.json` にある。準備・E2E・Lighthouse CI・GitHub の設定の注意は [docs/development-commands.md](docs/development-commands.md)（スクリプトを足したらそこに足す）。名前で分からないものだけを書く。
 
 ```bash
-pnpm dev               # http://localhost:3000/ja/（下書きを見るときは BUILD_TARGET=preview pnpm dev）
-pnpm lint              # ESLint・Prettier・markdownlint・yamllint
-pnpm typecheck
-pnpm test              # Vitest（カバレッジの基準も確かめる。一部だけなら pnpm vitest run <ファイル> や -t "<要件ID>"）
-pnpm build             # 本番用のビルド（out/ → dist/）
-pnpm exec wrangler dev # dist/ を本番と同じ形で配信する（8787番）
-pnpm test:e2e          # Playwright（8788番でサーバーを起動する）
-pnpm content:validate  # コンテンツの YAML を検証する
+BUILD_TARGET=preview pnpm dev   # 下書き（draft）も表示する（http://localhost:3000/ja/）
+pnpm vitest run <ファイル>      # 一部だけ。-t "<要件ID>" でも絞れる。pnpm test はカバレッジの基準も確かめる
+pnpm exec wrangler dev          # dist/ を本番と同じ形で配信する（8787番。pnpm build の後）
+pnpm test:e2e                   # Playwright（8788番でサーバーを起動する）
 pnpm screenshots > <ファイル>   # PRに載せるスクリーンショットを撮り、PR本文の表を出す
 ```
 
@@ -42,17 +36,10 @@ pnpm screenshots > <ファイル>   # PRに載せるスクリーンショット�
 
 ## ディレクトリ
 
-| パス | 内容 |
-|---|---|
-| `app/` | ルーティングとページ（App Router） |
-| `src/` | アプリのロジックと部品。`@/` は `src/`（`tsconfig.json` と `vitest.config.ts` の2か所で設定） |
-| `content/` | 都道府県ごとの YAML（`prefectures/`）・JSON Schema（`schema/`）・執筆ルール（`guidelines/`） |
-| `geo/` | 地図データの変換。原データ（`geo/downloads/`）はコミットしない。手順は `geo/README.md` |
-| `public/` | そのまま配信するファイル。`public/geo/muni/` は `pnpm geo:build` の出力（手で直さない） |
-| `scripts/` | ビルド・保守のスクリプト。Node.js で直接実行するので、`enum` など型の除去で消せない書き方を使わず、相対の import に `.ts` を付ける（`geo/scripts/` も同じ） |
-| `tests/` | `unit/`（`src/` と同じ構成）・`data/`（実データの検査）・`e2e/`・`e2e-preview/`・`screenshots/`・`fixtures/content/`（E2E 用のコンテンツ。`CONTENT_DIR` で読む） |
-| `docs/` | 設計書・開発計画・タスクの定義・実装メモ（`architecture/`） |
-| `.claude/`、`.codex/`、`.agents/` | Claude Code・Codex の設定・ルール・エージェント・スキル・hooks |
+- `@/` は `src/`。`tsconfig.json` と `vitest.config.ts` の2か所で設定している。
+- `geo/downloads/`（原データ）はコミットしない。手順は `geo/README.md`。`public/geo/muni/` は `pnpm geo:build` の出力なので、手で直さない。
+- `scripts/`・`geo/scripts/` は Node.js で直接実行するので、`enum` など型の除去で消せない書き方を使わず、相対の import に `.ts` を付ける。
+- `tests/unit/` は `src/` と同じ構成。`tests/fixtures/content/` は E2E 用のコンテンツで、`CONTENT_DIR` で読む。
 
 ## アーキテクチャ
 

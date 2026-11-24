@@ -10,28 +10,6 @@ WRONG:  modify(original, field, value) → changes original in-place
 CORRECT: update(original, field, value) → returns new copy with change
 ```
 
-Rationale: Immutable data prevents hidden side effects, makes debugging easier, and enables safe concurrency.
-
-## Core Principles
-
-### KISS (Keep It Simple)
-
-- Prefer the simplest solution that actually works
-- Avoid premature optimization
-- Optimize for clarity over cleverness
-
-### DRY (Don't Repeat Yourself)
-
-- Extract repeated logic into shared functions or utilities
-- Avoid copy-paste implementation drift
-- Introduce abstractions when repetition is real, not speculative
-
-### YAGNI (You Aren't Gonna Need It)
-
-- Do not build features or abstractions before they are needed
-- Avoid speculative generality
-- Start simple, then refactor when the pressure is real
-
 ## File Organization
 
 MANY SMALL FILES > FEW LARGE FILES:
@@ -40,30 +18,6 @@ MANY SMALL FILES > FEW LARGE FILES:
 - Extract utilities from large modules
 - Organize by feature/domain, not by type
 
-## Error Handling
-
-ALWAYS handle errors comprehensively:
-- Handle errors explicitly at every level
-- Provide user-friendly error messages in UI-facing code
-- Log detailed error context on the server side
-- Never silently swallow errors
-
-## Input Validation
-
-ALWAYS validate at system boundaries:
-- Validate all user input before processing
-- Use schema-based validation where available
-- Fail fast with clear error messages
-- Never trust external data (API responses, user input, file content)
-
-## Naming Conventions
-
-- Variables and functions: `camelCase` with descriptive names
-- Booleans: prefer `is`, `has`, `should`, or `can` prefixes
-- Interfaces, types, and components: `PascalCase`
-- Constants: `UPPER_SNAKE_CASE`
-- Custom hooks: `camelCase` with a `use` prefix
-
 ## JSDoc
 
 - export する関数・クラス・型・定数には、JSDoc（`/** */`）を付ける。`//` の行コメントはエディタのホバーに出ないので、代わりにならない。
@@ -71,28 +25,3 @@ ALWAYS validate at system boundaries:
   - 型と名前で分かることだけを繰り返さない（`@param` `@returns` は、型と名前で足りなければ書く）。
 - ファイルの中だけで使う関数は、名前で分からないときだけ付ける。
 - `src/`・`scripts/`・`geo/scripts/` は ESLint（`jsdoc/require-jsdoc`）で確かめる。`app/` は Next.js が決めた名前の export なので対象にしない。自動生成のファイル（`*.generated.ts`）も対象にしない。
-
-## Code Smells to Avoid
-
-### Deep Nesting
-
-Prefer early returns over nested conditionals once the logic starts stacking.
-
-### Magic Numbers
-
-Use named constants for meaningful thresholds, delays, and limits.
-
-### Long Functions
-
-Split large functions into focused pieces with clear responsibilities.
-
-## Code Quality Checklist
-
-Before marking work complete:
-- [ ] Code is readable and well-named
-- [ ] Functions are small (<50 lines)
-- [ ] Files are focused (<800 lines)
-- [ ] No deep nesting (>4 levels)
-- [ ] Proper error handling
-- [ ] No hardcoded values (use constants or config)
-- [ ] No mutation (immutable patterns used)

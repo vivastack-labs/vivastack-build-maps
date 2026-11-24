@@ -19,7 +19,8 @@ test-driven development. Every step is sequential — do not skip ahead.
 
 ## Before you start
 
-Read `.claude/rules/hooks.md` for the authoritative checklist.
+Read `hooks-reference.md` (next to this file) for the hook event types, and
+`.claude/rules/hooks.md` for the permission rules.
 The key files you'll touch:
 
 ```
