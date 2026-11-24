@@ -131,7 +131,10 @@ test('設定の保護はシンボリックリンク先にも適用する', t => 
 test('gitleaks は Claude の環境変数を引き継がず、このリポジトリだけを検査する', t => {
   const { root, call, bin } = fixture(t);
   const log = path.join(root, 'scan.jsonl');
-  bin('gitleaks', `require('node:fs').appendFileSync(${JSON.stringify(log)}, JSON.stringify({args:process.argv.slice(2),cwd:process.cwd()})+'\\n'); process.exitCode=1;`);
+  // 漏洩の終了コードは 77（--exit-code 77）。それ以外の非 0 は設定の読み込みエラーなどとして通す
+  bin('gitleaks', `require('node:fs').appendFileSync(${JSON.stringify(log)}, JSON.stringify({args:process.argv.slice(2),cwd:process.cwd()})+'\\n'); process.exitCode=77;`);
+  // .gitleaks.toml がなければ -c を付けず、gitleaks の既定のルールで検査する
+  fs.writeFileSync(path.join(root, '.gitleaks.toml'), '[extend]\nuseDefault = true\n');
   const result = call('PreToolUse', { tool_name: 'Bash', tool_input: { command: 'git commit -m "fix: 修正"' } }, { CLAUDE_PROJECT_DIR: '/another-project' });
   assert.equal(result.json.hookSpecificOutput.permissionDecision, 'deny');
   const scan = JSON.parse(fs.readFileSync(log, 'utf8').trim());

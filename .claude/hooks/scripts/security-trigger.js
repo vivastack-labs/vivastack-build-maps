@@ -3,7 +3,7 @@ const { execFileSync } = require('child_process');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const { gitInvocations, parseCommitArgs, hasShortFlag } = require('../lib/git-command');
+const { gitInvocations, commitTakesWorkingTree } = require('../lib/git-command');
 
 // セキュリティに関わる変更のコミットを止め、security-reviewer でのレビューを促す（確認の促しで、攻撃を防ぐ仕組みではない）。
 // - つないだコマンドの git commit もすべて確かめる（issue #36）。push は確かめない（ステージの内容は push と関係ない）
@@ -18,54 +18,6 @@ const PATTERNS =
 
 const EXCLUDED_PATHS = [/^tests\//, /^\.claude\/hooks\/tests\//, /\.(test|spec)\.[cm]?[jt]sx?$/, /\.md$/, /^src\/lib\/[^/]+\.generated\.ts$/, /^pnpm-lock\.yaml$/];
 
-/** commit の前にあっても、インデックスを変えない git のサブコマンド */
-const READ_ONLY_SUBCOMMANDS = new Set([
-  'status',
-  'diff',
-  'log',
-  'show',
-  'rev-parse',
-  'ls-files',
-  'ls-tree',
-  'ls-remote',
-  'fetch',
-  'push',
-  'branch',
-  'remote',
-  'describe',
-  'blame',
-  'grep',
-  'shortlog',
-  'cat-file',
-  'show-ref',
-  'symbolic-ref',
-  'var',
-  'version',
-  'help',
-  'reflog',
-  'rev-list',
-  'config',
-  'merge-base',
-  'for-each-ref',
-  'name-rev',
-  'count-objects',
-  'check-ignore',
-  'check-attr',
-  'cherry',
-  'whatchanged',
-  'tag'
-]);
-/** git commit で、作業ツリーの内容もコミットする長いオプションと、git が受け付ける最短の省略形 */
-const COMMIT_UNSTAGED_LONG = [
-  ['--all', '--all'],
-  ['--include', '--inc'],
-  ['--only', '--o'],
-  ['--interactive', '--int'],
-  ['--patch', '--patc'],
-  ['--pathspec-from-file', '--paths']
-];
-/** git commit で、作業ツリーの内容もコミットする短いオプション */
-const COMMIT_UNSTAGED_SHORT = ['a', 'i', 'o', 'p'];
 /** hook が見るインデックス・リポジトリと、実際にコミットするものが違ってしまう環境変数 */
 const UNSAFE_ENV = /^(GIT_INDEX_FILE|GIT_DIR|GIT_WORK_TREE|GIT_OBJECT_DIRECTORY|GIT_COMMON_DIR)=/;
 /** 利用者・リポジトリの設定（色・外部 diff・textconv・属性）に左右されずに、パスと diff を読む */
@@ -136,17 +88,6 @@ function workingTreeChanges(git, root) {
     files: [...new Set([...tracked, ...untracked])],
     getDiff: file => (untracked.has(file) ? readAsAdded(file) : git(['diff', '--cached', ...DIFF_ARGS, '--', file]) + git(['diff', ...DIFF_ARGS, '--', file]))
   };
-}
-
-const matchesLong = (arg, [full, shortest]) => {
-  const name = arg.split('=')[0];
-  return name.length >= shortest.length && full.startsWith(name);
-};
-
-/** git commit が、ステージしていない作業ツリーの内容もコミットするか（-a・パスの指定など） */
-function commitsUnstaged(args) {
-  const { options, paths } = parseCommitArgs(args);
-  return paths.length > 0 || options.some(arg => COMMIT_UNSTAGED_LONG.some(long => matchesLong(arg, long)) || COMMIT_UNSTAGED_SHORT.some(letter => hasShortFlag(arg, letter)));
 }
 
 /** HEAD とステージの内容の指紋。HEAD が動けば（コミットの後など）変わる */
@@ -260,7 +201,7 @@ async function run(input, options = {}) {
   const unsafe = commits.flatMap(call => call.env).find(assignment => UNSAFE_ENV.test(assignment));
   if (unsafe) return unverifiable(`git commit の前に ${unsafe.split('=')[0]} を指定しています。`);
 
-  const changesIndex = calls.slice(0, commitAts.at(-1)).some(call => call.subcommand !== 'commit' && !READ_ONLY_SUBCOMMANDS.has(call.subcommand)) || commits.some(call => commitsUnstaged(call.args));
+  const changesIndex = commitTakesWorkingTree(calls);
   if (commits.some(call => call.globalArgs.some(arg => /^--(git-dir|work-tree)(=|$)/.test(arg)))) {
     return unverifiable('--git-dir・--work-tree を指定した git commit は、どのリポジトリにコミットするか分かりません。');
   }
